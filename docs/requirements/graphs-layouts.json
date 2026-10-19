@@ -11,7 +11,7 @@
     "not_read": [
       "Full guide sections1-3 and6-9 are outside this assignment; cross-references retained as dependencies",
       "Screenshots not in inspected_images were not visually reviewed in this assignment",
-      "Prism 11 screenshot/research links referenced by PRISM11_DIFFERENCES.md are unavailable, not read."
+      "The newer HTML supplies ten screenshots; five graph/UI-relevant images were inspected. Linked raw research/scratch files remain unavailable."
     ],
     "inspected_images": [
       34,
@@ -22,7 +22,32 @@
       49,
       50,
       51
-    ]
+    ],
+    "prism11_followup": {
+      "fully_read": [
+        "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+        "Complete diff against the earlier Markdown document"
+      ],
+      "extracted_image_count": 10,
+      "visually_inspected_image_indices": [
+        3,
+        7,
+        8,
+        9,
+        10
+      ],
+      "not_visually_inspected_image_indices": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
+      "not_read": [
+        "Unavailable referenced research/*.md and research menu dumps",
+        "Unavailable scratch_p11 native project/export files"
+      ]
+    }
   },
   "snapshot_commit": "cd66723da08ba09e3efd792c48c39e7494fef046",
   "target": "Prism11.1.0macOS; guide observedPrism10.3.1build464",
@@ -58,7 +83,7 @@
     "Add live layout placements and physical scaling; then batch/exportformats/DPI/font fidelity",
     "Complete native save/compatibility and reuse workflows; external services require separately established integration contracts"
   ],
-  "requirement_count": 150,
+  "requirement_count": 159,
   "requirements": [
     {
       "id": "G001",
@@ -103,6 +128,14 @@
       "status": "partial",
       "acceptance": [
         "Render every offered icon against a small matched and unmatched dataset; round-trip graph subtype and orientation; retain identity when switching."
+      ],
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "4",
+          "finding": "New report says the seven non-Multiple-variable family catalogues are byte-for-byte identical between the inspected versions. This strengthens catalogue continuity, not numerical/rendering/default equivalence."
+        }
       ],
       "audit_status": "partial",
       "prism_reference_evidence": []
@@ -149,6 +182,14 @@
       "status": "partial",
       "acceptance": [
         "Exercise all five choices and verify independent visibility of symbols and lines."
+      ],
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "4",
+          "finding": "New report says the seven non-Multiple-variable family catalogues are byte-for-byte identical between the inspected versions. This strengthens catalogue continuity, not numerical/rendering/default equivalence."
+        }
       ],
       "audit_status": "partial",
       "prism_reference_evidence": []
@@ -202,6 +243,14 @@
       "acceptance": [
         "Render each subtype with side-by-side replicates and precomputed errors; enforce >=4-replicate eligibility for specified types."
       ],
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "4",
+          "finding": "New report says the seven non-Multiple-variable family catalogues are byte-for-byte identical between the inspected versions. This strengthens catalogue continuity, not numerical/rendering/default equivalence."
+        }
+      ],
       "audit_status": "unimplemented",
       "prism_reference_evidence": []
     },
@@ -247,6 +296,14 @@
       "acceptance": [
         "Render asymmetric 2x3 designs to distinguish grouping, stacking and orientation; verify labels and legends."
       ],
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "4",
+          "finding": "New report says the seven non-Multiple-variable family catalogues are byte-for-byte identical between the inspected versions. This strengthens catalogue continuity, not numerical/rendering/default equivalence."
+        }
+      ],
       "audit_status": "unimplemented",
       "prism_reference_evidence": []
     },
@@ -291,6 +348,14 @@
       "status": "not_started",
       "acceptance": [
         "Render each subtype; reject three/five-dataset three-way inputs and correctly map A-D."
+      ],
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "4",
+          "finding": "New report says the seven non-Multiple-variable family catalogues are byte-for-byte identical between the inspected versions. This strengthens catalogue continuity, not numerical/rendering/default equivalence."
+        }
       ],
       "audit_status": "unimplemented",
       "prism_reference_evidence": []
@@ -346,6 +411,14 @@
       "acceptance": [
         "Each named map has correct ordered colors and reversible scales, with reference sample grid."
       ],
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "4",
+          "finding": "New report says the seven non-Multiple-variable family catalogues are byte-for-byte identical between the inspected versions. This strengthens catalogue continuity, not numerical/rendering/default equivalence."
+        }
+      ],
       "audit_status": "unimplemented",
       "prism_reference_evidence": []
     },
@@ -389,6 +462,14 @@
       "status": "not_started",
       "acceptance": [
         "Render 2x3 counts without normalizing unless chosen; compare category orientation and stacking."
+      ],
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "4",
+          "finding": "New report says the seven non-Multiple-variable family catalogues are byte-for-byte identical between the inspected versions. This strengthens catalogue continuity, not numerical/rendering/default equivalence."
+        }
       ],
       "audit_status": "unimplemented",
       "prism_reference_evidence": []
@@ -453,6 +534,31 @@
       ],
       "version_delta_reference": "V11 survival number-at-risk and pairwise/median-interval additions",
       "target_version_override": "Number-at-risk table Add/Format/Remove and shaded survival CI bands are additional target obligations in the V11 register; do not restrict Prism11 to the base-guide curve options.",
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "4",
+          "finding": "New report says the seven non-Multiple-variable family catalogues are byte-for-byte identical between the inspected versions. This strengthens catalogue continuity, not numerical/rendering/default equivalence."
+        },
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "3",
+          "finding": "Number-at-risk table, shaded confidence bands and colored group labels are now visible in supplied screenshot; see G147. Pairwise comparisons/RMST are analysis dependencies, not evidence for automatic star brackets.",
+          "screenshots": [
+            {
+              "index": 9,
+              "section": "3. Statistics changes since\n10.3.1",
+              "alt": "Kaplan-Meier with number-at-risk table",
+              "path": "/workspace/gp-evidence/prism11-guide-images/image-09.jpg",
+              "bytes": 125443,
+              "sha256": "e9a340206e8952df5fbc0c0bbb5ec2484f7e4fcaae9605e555ece0e29caf715a",
+              "mime": "image/jpeg"
+            }
+          ]
+        }
+      ],
       "audit_status": "partial",
       "prism_reference_evidence": []
     },
@@ -500,6 +606,14 @@
       "acceptance": [
         "Render all types from percentages summing to 100 and raw totals; determine rounding/dot allocation from oracle."
       ],
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "4",
+          "finding": "New report says the seven non-Multiple-variable family catalogues are byte-for-byte identical between the inspected versions. This strengthens catalogue continuity, not numerical/rendering/default equivalence."
+        }
+      ],
       "audit_status": "unimplemented",
       "prism_reference_evidence": []
     },
@@ -527,7 +641,12 @@
       "dependencies": [
         "table:multiple-variables",
         "G121",
-        "G122"
+        "G122",
+        "G140",
+        "G141",
+        "G142",
+        "G143",
+        "G144"
       ],
       "acceptance_tests": [
         "Round-trip variable mappings and render continuous/categorical mixtures."
@@ -546,6 +665,14 @@
       ],
       "version_delta_reference": "V11 Multiple-variable categorical graph layers and Level Order",
       "target_version_override": "Target adds strip, summary-symbol, bar+strip, before-after variants, box, violin and bar layers; guide Bubble/Heat-map list is not exhaustive for Prism11.",
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "2.5",
+          "finding": "Multiple-variable catalogue has eleven types, including nine new types plus existing Bubble Plot and Heat Map. Detailed target obligations are G140–G144."
+        }
+      ],
       "audit_status": "unimplemented",
       "prism_reference_evidence": []
     },
@@ -593,6 +720,14 @@
       "status": "not_started",
       "acceptance": [
         "Preserve biological/technical replicate nesting and verify which units are plotted and summarized."
+      ],
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "4",
+          "finding": "New report says the seven non-Multiple-variable family catalogues are byte-for-byte identical between the inspected versions. This strengthens catalogue continuity, not numerical/rendering/default equivalence."
+        }
       ],
       "audit_status": "unimplemented",
       "prism_reference_evidence": []
@@ -729,6 +864,34 @@
       "status": "partial",
       "acceptance": [
         "Fit a selected subset and show only associated curves; enable estimation plot in t-test and preserve generated sheet."
+      ],
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "2.3",
+          "finding": "Multifactor example creates a grouped bar graph and a separate Dunnett comparison-CI graph. Screenshot confirms an independently selected graph sheet with two horizontal intervals and a zero reference.",
+          "screenshots": [
+            {
+              "index": 7,
+              "section": "2.3 Multifactor ANOVA, 11.0.0,\nPro",
+              "alt": "Multifactor ANOVA results",
+              "path": "/workspace/gp-evidence/prism11-guide-images/image-07.jpg",
+              "bytes": 177180,
+              "sha256": "f62f45c155ada9ae076a6a2e6be668055acc5fb19f69d86c7a1277baac47357e",
+              "mime": "image/jpeg"
+            },
+            {
+              "index": 8,
+              "section": "2.3 Multifactor ANOVA, 11.0.0,\nPro",
+              "alt": "Multiple-comparisons CI plot",
+              "path": "/workspace/gp-evidence/prism11-guide-images/image-08.jpg",
+              "bytes": 86143,
+              "sha256": "5310af512fb4a9806b1ff39b2941fdb5d3f80c20e35477c3527377aa3d541d18",
+              "mime": "image/jpeg"
+            }
+          ]
+        }
       ],
       "audit_status": "partial",
       "prism_reference_evidence": []
@@ -1640,6 +1803,14 @@
       ],
       "version_delta_reference": "V11 tiny and dashed error bars",
       "target_version_override": "Draw error bars even when shorter than their symbol; add dashed styles where supported. Family eligibility for dashes remains unverified in the delta report.",
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "4",
+          "finding": "Custom symbol shapes are reported in 11.1; see G145. Dashed error bars are documented but exact classic-family eligibility is still not live-verified."
+        }
+      ],
       "audit_status": "partial",
       "prism_reference_evidence": []
     },
@@ -1689,6 +1860,14 @@
       ],
       "version_delta_reference": "V11 log-Y geometric summary default",
       "target_version_override": "Switching linear Y to log chooses geometric mean with geometric SD or CI by default. Exact choice/preservation of user overrides needs a fixture; Column fix arrived11.1.",
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "2.5",
+          "finding": "Target graph summary choices for Multiple-variable layers include mean/median/geometric mean with family-appropriate interval choices; see G142."
+        }
+      ],
       "audit_status": "partial",
       "prism_reference_evidence": []
     },
@@ -2885,6 +3064,25 @@
       ],
       "version_delta_reference": "V11 custom-axis confidence-band clipping fix",
       "target_version_override": "Nonlinear-fit confidence bands must not disappear merely because custom axis limits were chosen.",
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "4",
+          "finding": "Target generic warning is \"Some error bars may not be visible\". Screenshot confirms it; distinct limit-clipping and log-axis notes are reported without exact strings. See G146.",
+          "screenshots": [
+            {
+              "index": 9,
+              "section": "3. Statistics changes since\n10.3.1",
+              "alt": "Kaplan-Meier with number-at-risk table",
+              "path": "/workspace/gp-evidence/prism11-guide-images/image-09.jpg",
+              "bytes": 125443,
+              "sha256": "e9a340206e8952df5fbc0c0bbb5ec2484f7e4fcaae9605e555ece0e29caf715a",
+              "mime": "image/jpeg"
+            }
+          ]
+        }
+      ],
       "audit_status": "unimplemented",
       "prism_reference_evidence": []
     },
@@ -3125,6 +3323,25 @@
       ],
       "version_delta_reference": "V11 additional axis decimal precision",
       "target_version_override": "Axis tabs add a numeric box beside Decimals; precise allowed range and formatting semantics need the missing Prism11 screenshot/native resource check.",
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "4",
+          "finding": "Format Axes screenshot shows five familiar tabs and an extra numeric spinbox beside the Decimals pop-up (disabled while Auto(0) is chosen). It does not establish accepted precision range or semantics. Larger decimal formats warn in older apps.",
+          "screenshots": [
+            {
+              "index": 10,
+              "section": "4. Graphs: what changed\nand what did not",
+              "alt": "Prism 11 Format Axes, X axis tab",
+              "path": "/workspace/gp-evidence/prism11-guide-images/image-10.jpg",
+              "bytes": 53041,
+              "sha256": "c585169e3340f5cc8a56669423bd25efedeeab9b4620f3dd77f5c6de89428e83",
+              "mime": "image/jpeg"
+            }
+          ]
+        }
+      ],
       "audit_status": "unimplemented",
       "prism_reference_evidence": []
     },
@@ -4869,6 +5086,14 @@
       "acceptance": [
         "Value4 vs1 has4xarea, not4xradius; categorical groups retain legend colors; missing mappings explicitly handled."
       ],
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "2.5",
+          "finding": "Bubble mapping is one member of a larger eleven-type family; categorical graphs require typed X/Y roles and Level Order rather than Column-table emulation."
+        }
+      ],
       "audit_status": "unimplemented",
       "prism_reference_evidence": []
     },
@@ -6326,6 +6551,15 @@
       "acceptance": [
         "Pasteinto externalvectorapp preservingtext/path; verifycopybackground and embedding references."
       ],
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "1 — Smaller interface changes",
+          "finding": "The File & Printer preference \"Paste a Graph from Another Project as\" was removed in Prism11. Do not reproduce that preference solely from the Prism10 guide; actual cross-project clipboard behavior remains to be verified."
+        }
+      ],
+      "target_version_override": "Prism11 removes the Paste a Graph from Another Project as preference. Preserve vector clipboard obligations, but do not expose the removed setting without newer evidence.",
       "audit_status": "unimplemented",
       "prism_reference_evidence": []
     },
@@ -6644,6 +6878,14 @@
       ],
       "version_delta_reference": "V11 compatibility of new categorical graphs and slash constants bug",
       "target_version_override": "New categorical graphs cannot be saved as.pzfx; older apps show empty graphs. Document11.1 slash-truncation bug as a compatibility risk, not a requirement to destroy Info values.",
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "2.5 and 4",
+          "finding": "Older versions warn about custom symbol shapes and increased axis decimal formats. New categorical graphs cannot be saved as.pzfx and appear empty with an update note in Prism10/11.0."
+        }
+      ],
       "audit_status": "unimplemented",
       "prism_reference_evidence": []
     },
@@ -7094,16 +7336,609 @@
       ],
       "version_delta_reference": "V11 Send panel moves and Luma",
       "target_version_override": "LabArchives moved into Send; Print/LA toolbar panels removed from data/graph sheets. Luma is a separate V11 integration requirement.",
+      "newer_prism11_evidence": [
+        {
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+          "section": "1 — Toolbar",
+          "finding": "Print and LA toolbar panels are gone from every sheet type, not just data/graphs; LabArchives and Luma belong to Send. Data panel fx is named Transform, with Change Row Order/Create Series/Exclude Values/Decimal Format.",
+          "screenshots": [
+            {
+              "index": 3,
+              "section": "Toolbar",
+              "alt": "Prism 11 data sheet",
+              "path": "/workspace/gp-evidence/prism11-guide-images/image-03.jpg",
+              "bytes": 119380,
+              "sha256": "4f1239041660f356d584c17017d45dc24daee769af071470aab70ecd23195c69",
+              "mime": "image/jpeg"
+            }
+          ]
+        }
+      ],
+      "audit_status": "unimplemented",
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "G140",
+      "title": "Prism11 eleven-type Multiple-variable graph catalogue",
+      "guide": [
+        {
+          "section": "Prism11 differences 2.5",
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117"
+        }
+      ],
+      "guide_sections": [
+        "P11 2.5"
+      ],
+      "requirements": [
+        "Retain Bubble Plot and Heat Map.",
+        "Add Scatter plot, Strip plot, Summary-symbol plot, Bar and strip, Before-after bar and strip, Before-after strip, Box and whisker, Violin, and Bar chart.",
+        "Treat these as Multiple-variable graph-family types, not aliases for classic Column charts.",
+        "Preserve native type identity and family-specific options in files and graph chooser.",
+        "Do not imply automatic P-value-star support merely because a graph resembles a Column graph; documentation does not establish it."
+      ],
+      "current_status": "unimplemented: no matching persistent graph model, editor or renderer identified at the graph-audit snapshot",
+      "status": "not_started",
+      "parity": "not_established",
+      "implementation_evidence": [
+        "web/src/data.ts",
+        "web/src/Plot.tsx",
+        "web/src/WorkbookDialogs.tsx",
+        "gp/models.py",
+        "gp/plotting.py"
+      ],
+      "dependencies": [
+        "table:multiple-variables",
+        "G010",
+        "G141",
+        "G142",
+        "G143",
+        "G144",
+        "L034"
+      ],
+      "acceptance_tests": [
+        "The catalogue exposes exactly the eleven evidenced types; each creates a graph from the same long-format table without reshaping or silently losing variables.",
+        "Save/open each subtype with stable source-variable mappings and explicit minimum-version compatibility.",
+        "Use a native reference fixture for each new subtype before marking appearance or behavior equivalent."
+      ],
+      "acceptance": [
+        "The catalogue exposes exactly the eleven evidenced types; each creates a graph from the same long-format table without reshaping or silently losing variables.",
+        "Save/open each subtype with stable source-variable mappings and explicit minimum-version compatibility.",
+        "Use a native reference fixture for each new subtype before marking appearance or behavior equivalent."
+      ],
+      "source_mark": "newer report [bundle], with family/compatibility caveats [GraphPad]",
+      "unknown_evidence": [
+        "The nine new types are bundle/documentation evidence and were not opened live in the report; no type-selector screenshot or native example file is supplied.",
+        "The user-supplied document is evidence about original Prism; it does not verify GP implementation."
+      ],
+      "version_delta_reference": "Root V11 register; graph-specific expansion from newer Markdown section 2.5",
+      "audit_status": "unimplemented",
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "G141",
+      "title": "Typed variable roles for Multiple-variable graphs",
+      "guide": [
+        {
+          "section": "Prism11 differences 2.5",
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117"
+        }
+      ],
+      "guide_sections": [
+        "P11 2.5"
+      ],
+      "requirements": [
+        "Expose X axis variable and Y axis variable roles, retaining whether each chosen variable is continuous or categorical.",
+        "Expose Color definition with an explicit source or definition rather than assuming every dataset has one fixed color.",
+        "Preserve variable references through calculated-column recomputation, renaming and type changes.",
+        "Validate combinations according to chosen graph type; do not invent eligibility rules from the short description."
+      ],
+      "current_status": "unimplemented: no matching persistent graph model, editor or renderer identified at the graph-audit snapshot",
+      "status": "not_started",
+      "parity": "not_established",
+      "implementation_evidence": [
+        "web/src/data.ts",
+        "web/src/Plot.tsx",
+        "web/src/WorkbookDialogs.tsx",
+        "gp/models.py",
+        "gp/plotting.py"
+      ],
+      "dependencies": [
+        "G140",
+        "table:variable-types",
+        "table:calculated-variables",
+        "workbook:stable-variable-ids"
+      ],
+      "acceptance_tests": [
+        "Map categorical genotype to X and continuous response to Y, then reverse roles where the native type permits; categorical labels must not be coerced to numeric zero.",
+        "Rename or reorder mapped columns and verify the graph still targets the same variables.",
+        "Missing/deleted/invalid role assignments show a targeted error without silently swapping variables."
+      ],
+      "acceptance": [
+        "Map categorical genotype to X and continuous response to Y, then reverse roles where the native type permits; categorical labels must not be coerced to numeric zero.",
+        "Rename or reorder mapped columns and verify the graph still targets the same variables.",
+        "Missing/deleted/invalid role assignments show a targeted error without silently swapping variables."
+      ],
+      "source_mark": "newer report [GraphPad, bundle]; not opened live",
+      "unknown_evidence": [
+        "Per-type valid role combinations, exact Color definition choices, multiple-role cardinality, and missing-value rules are not specified by the supplied report.",
+        "The user-supplied document is evidence about original Prism; it does not verify GP implementation."
+      ],
+      "version_delta_reference": "Root V11 register; graph-specific expansion from newer Markdown section 2.5",
+      "audit_status": "unimplemented",
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "G142",
+      "title": "Multiple-variable summary metrics and interval compatibility",
+      "guide": [
+        {
+          "section": "Prism11 differences 2.5",
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117"
+        }
+      ],
+      "guide_sections": [
+        "P11 2.5"
+      ],
+      "requirements": [
+        "Summary metric choices: mean, median, geometric mean.",
+        "Mean error choices: SD, SEM, CI and range.",
+        "Geometric-mean error choices: geometric SD or CI.",
+        "Median error choices: range, CI or IQR.",
+        "Represent center and interval as distinct compatible settings; changing a metric must not silently retain an incompatible interval."
+      ],
+      "current_status": "unimplemented: no matching persistent graph model, editor or renderer identified at the graph-audit snapshot",
+      "status": "not_started",
+      "parity": "not_established",
+      "implementation_evidence": [
+        "web/src/data.ts",
+        "web/src/Plot.tsx",
+        "web/src/WorkbookDialogs.tsx",
+        "gp/models.py",
+        "gp/plotting.py"
+      ],
+      "dependencies": [
+        "G140",
+        "G141",
+        "G034",
+        "analysis:grouped-descriptive-conventions"
+      ],
+      "acceptance_tests": [
+        "Use a skewed repeated-category fixture to distinguish arithmetic, median and geometric centers and every supplied interval choice.",
+        "Check nonpositive geometric inputs, singleton categories, ties and missing values against original reference behavior.",
+        "Switch metrics and verify available error choices, legend meaning, plotted values and saved settings remain consistent."
+      ],
+      "acceptance": [
+        "Use a skewed repeated-category fixture to distinguish arithmetic, median and geometric centers and every supplied interval choice.",
+        "Check nonpositive geometric inputs, singleton categories, ties and missing values against original reference behavior.",
+        "Switch metrics and verify available error choices, legend meaning, plotted values and saved settings remain consistent."
+      ],
+      "source_mark": "newer report [GraphPad, bundle]; not opened live",
+      "unknown_evidence": [
+        "CI levels/defaults, median-interval algorithm, grouping and weighting rules, and geometric-input error policy need native fixtures.",
+        "The user-supplied document is evidence about original Prism; it does not verify GP implementation."
+      ],
+      "version_delta_reference": "Root V11 register; graph-specific expansion from newer Markdown section 2.5",
+      "audit_status": "unimplemented",
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "G143",
+      "title": "Composable categorical graph layers and error-line styles",
+      "guide": [
+        {
+          "section": "Prism11 differences 2.5",
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117"
+        }
+      ],
+      "guide_sections": [
+        "P11 2.5"
+      ],
+      "requirements": [
+        "Represent error bars, summary symbols and connecting lines as combinable layers.",
+        "Expose error-bar line styles including solid, dash and dot where this family supports them.",
+        "Before-after variants preserve subject/row matching semantics and do not connect arbitrary sorted observations.",
+        "Keep layer visibility, order, style and source mappings persistent through graph-type changes."
+      ],
+      "current_status": "unimplemented: no matching persistent graph model, editor or renderer identified at the graph-audit snapshot",
+      "status": "not_started",
+      "parity": "not_established",
+      "implementation_evidence": [
+        "web/src/data.ts",
+        "web/src/Plot.tsx",
+        "web/src/WorkbookDialogs.tsx",
+        "gp/models.py",
+        "gp/plotting.py"
+      ],
+      "dependencies": [
+        "G140",
+        "G141",
+        "G142",
+        "G033",
+        "scene:layer-model",
+        "table:subject-identity"
+      ],
+      "acceptance_tests": [
+        "Combine strip observations, summary symbols and errors; toggle each independently and compare both display and vector export.",
+        "Dash/dot styles remain distinct at print size and after layout scaling.",
+        "A before-after dataset with a missing subject observation must not create a false connection."
+      ],
+      "acceptance": [
+        "Combine strip observations, summary symbols and errors; toggle each independently and compare both display and vector export.",
+        "Dash/dot styles remain distinct at print size and after layout scaling.",
+        "A before-after dataset with a missing subject observation must not create a false connection."
+      ],
+      "source_mark": "newer report [GraphPad, bundle]; not opened live",
+      "unknown_evidence": [
+        "Exact layer-order controls, default layer bundles, line-style repertoire beyond the examples, and subject-role mapping are not supplied; obtain resources/reference examples.",
+        "The user-supplied document is evidence about original Prism; it does not verify GP implementation."
+      ],
+      "version_delta_reference": "Root V11 register; graph-specific expansion from newer Markdown section 2.5",
+      "audit_status": "unimplemented",
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "G144",
+      "title": "Level Order for categorical variables",
+      "guide": [
+        {
+          "section": "Prism11 differences 2.5",
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117"
+        }
+      ],
+      "guide_sections": [
+        "P11 2.5"
+      ],
+      "requirements": [
+        "Support entry order, row order, name order, frequency order and manual order.",
+        "Reach ordering from Format Data Table > Variable Types and from a legend context menu.",
+        "Keep category identity, labels, graph positions, legend entries and grouping calculations aligned after reordering.",
+        "Persist explicit manual ordering and handle newly introduced/deleted levels deterministically once native behavior is established."
+      ],
+      "current_status": "unimplemented: no matching persistent graph model, editor or renderer identified at the graph-audit snapshot",
+      "status": "not_started",
+      "parity": "not_established",
+      "implementation_evidence": [
+        "web/src/data.ts",
+        "web/src/Plot.tsx",
+        "web/src/WorkbookDialogs.tsx",
+        "gp/models.py",
+        "gp/plotting.py"
+      ],
+      "dependencies": [
+        "G140",
+        "table:categorical-levels",
+        "G043",
+        "G141"
+      ],
+      "acceptance_tests": [
+        "Use WT/Het/KO entered and encountered in deliberately different row/name/frequency orders; verify each of the five choices produces the reference ordering.",
+        "Include tied frequencies, renamed levels and later-added categories to determine stable tie/new-level behavior.",
+        "Change order from the table and legend routes; verify scope and other linked graphs according to original behavior."
+      ],
+      "acceptance": [
+        "Use WT/Het/KO entered and encountered in deliberately different row/name/frequency orders; verify each of the five choices produces the reference ordering.",
+        "Include tied frequencies, renamed levels and later-added categories to determine stable tie/new-level behavior.",
+        "Change order from the table and legend routes; verify scope and other linked graphs according to original behavior."
+      ],
+      "source_mark": "newer report [GraphPad, bundle]; explicitly not opened live",
+      "unknown_evidence": [
+        "The report lists names but does not define entry versus row order, tie handling, locale collation, manual editor interactions, or whether legend changes apply globally to the variable or only that graph.",
+        "The user-supplied document is evidence about original Prism; it does not verify GP implementation."
+      ],
+      "version_delta_reference": "Root V11 register; graph-specific expansion from newer Markdown section 2.5",
+      "audit_status": "unimplemented",
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "G145",
+      "title": "Custom symbol shapes and older-version compatibility warnings",
+      "guide": [
+        {
+          "section": "Prism11 differences 4",
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117"
+        }
+      ],
+      "guide_sections": [
+        "P11 4"
+      ],
+      "requirements": [
+        "Plan custom symbol-shape support as a distinct addition to the fixed built-in shape palette.",
+        "Persist custom shape geometry/identity and apply it consistently to points and legend keys.",
+        "Warn when a target older Prism version cannot retain custom symbol shapes.",
+        "Do not invent an arbitrary SVG upload/import interface without evidence of the native custom-shape workflow."
+      ],
+      "current_status": "unimplemented: no matching persistent graph model, editor or renderer identified at the graph-audit snapshot",
+      "status": "not_started",
+      "parity": "not_established",
+      "implementation_evidence": [
+        "web/src/data.ts",
+        "web/src/Plot.tsx",
+        "web/src/WorkbookDialogs.tsx",
+        "gp/models.py",
+        "gp/plotting.py"
+      ],
+      "dependencies": [
+        "G033",
+        "G043",
+        "scene:symbol-shape-model",
+        "L034"
+      ],
+      "acceptance_tests": [
+        "Acquire at least one native document with a custom shape; reproduce its marker and legend rendering at multiple sizes and export formats.",
+        "Round-trip custom shape definitions without collapsing them to a built-in circle.",
+        "Compatibility report identifies the precise affected graph/style when saving for unsupported versions."
+      ],
+      "acceptance": [
+        "Acquire at least one native document with a custom shape; reproduce its marker and legend rendering at multiple sizes and export formats.",
+        "Round-trip custom shape definitions without collapsing them to a built-in circle.",
+        "Compatibility report identifies the precise affected graph/style when saving for unsupported versions."
+      ],
+      "source_mark": "newer report [bundle], no screenshot or live interaction",
+      "unknown_evidence": [
+        "Custom shape creation UI, geometry representation, supported commands, shape sharing scope and target-version downgrade behavior are only briefly mentioned in bundle evidence.",
+        "The user-supplied document is evidence about original Prism; it does not verify GP implementation."
+      ],
+      "version_delta_reference": "Root V11 register; graph-specific expansion from newer Markdown section 4",
+      "audit_status": "unimplemented",
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "G146",
+      "title": "Prism11 visibility, clipping and log-axis error-bar notes",
+      "guide": [
+        {
+          "section": "Prism11 differences 4",
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117"
+        }
+      ],
+      "guide_sections": [
+        "P11 4"
+      ],
+      "requirements": [
+        "Use the target-version generic note: Some error bars may not be visible.",
+        "Distinguish notes caused by axis-limit clipping from notes related to log axes.",
+        "Tiny error bars remain drawn even if their length is less than symbol size; the warning must not become an excuse to omit them.",
+        "Offer the note alongside the graph without modifying data or silently changing the selected manual limits."
+      ],
+      "current_status": "unimplemented: no matching persistent graph model, editor or renderer identified at the graph-audit snapshot",
+      "status": "not_started",
+      "parity": "not_established",
+      "implementation_evidence": [
+        "web/src/data.ts",
+        "web/src/Plot.tsx",
+        "web/src/WorkbookDialogs.tsx",
+        "gp/models.py",
+        "gp/plotting.py"
+      ],
+      "dependencies": [
+        "G024",
+        "G033",
+        "G065",
+        "G066"
+      ],
+      "acceptance_tests": [
+        "Render a tiny SEM fixture, a manually clipped interval and an interval crossing a log-axis boundary; inspect geometry and the correct warning category separately.",
+        "The generic note text and Why? affordance match the supplied screenshot where applicable.",
+        "Widening limits or choosing a valid scale clears only the resolved warning; exports preserve clipping decisions."
+      ],
+      "acceptance": [
+        "Render a tiny SEM fixture, a manually clipped interval and an interval crossing a log-axis boundary; inspect geometry and the correct warning category separately.",
+        "The generic note text and Why? affordance match the supplied screenshot where applicable.",
+        "Widening limits or choosing a valid scale clears only the resolved warning; exports preserve clipping decisions."
+      ],
+      "source_mark": "newer report [seen, bundle], directly corroborated by supplied screenshot9",
+      "unknown_evidence": [
+        "Exact text, trigger conditions and help destinations for the new clipping/log-specific notes are not supplied. The screenshot proves only the generic note and visible Why? link.",
+        "The user-supplied document is evidence about original Prism; it does not verify GP implementation."
+      ],
+      "version_delta_reference": "Root V11 register; graph-specific expansion from newer Markdown section 4",
+      "screenshots": [
+        {
+          "index": 9,
+          "section": "3. Statistics changes since\n10.3.1",
+          "alt": "Kaplan-Meier with number-at-risk table",
+          "path": "/workspace/gp-evidence/prism11-guide-images/image-09.jpg",
+          "bytes": 125443,
+          "sha256": "e9a340206e8952df5fbc0c0bbb5ec2484f7e4fcaae9605e555ece0e29caf715a",
+          "mime": "image/jpeg"
+        }
+      ],
+      "audit_status": "unimplemented",
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "G147",
+      "title": "Number-at-risk table beneath survival graph",
+      "guide": [
+        {
+          "section": "Prism11 differences 3 and 1 — Menus",
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117"
+        }
+      ],
+      "guide_sections": [
+        "P11 3 and 1 — Menus"
+      ],
+      "requirements": [
+        "Insert > Number at Risk Table and Change > Number at Risk Table > Add / Format / Remove routes.",
+        "Place a linked table below the survival X axis, aligned to shared time coordinates.",
+        "Support the evidenced Number at risk (number censored) display with one row per group and values at selected display times.",
+        "Use group label/color correspondence with the curve and legend; keep labels and values updated from the survival analysis.",
+        "Preserve shaded confidence bands and curve/table layout together on export and layout placement."
+      ],
+      "current_status": "unimplemented: no matching persistent graph model, editor or renderer identified at the graph-audit snapshot",
+      "status": "not_started",
+      "parity": "not_established",
+      "implementation_evidence": [
+        "web/src/data.ts",
+        "web/src/Plot.tsx",
+        "web/src/WorkbookDialogs.tsx",
+        "gp/models.py",
+        "gp/plotting.py"
+      ],
+      "dependencies": [
+        "G008",
+        "analysis:survival-risk-counts",
+        "G077",
+        "G023",
+        "L001",
+        "L020"
+      ],
+      "acceptance_tests": [
+        "Recreate the supplied three-group screenshot structure at times0,20,40,60,80,100 with known source observations, using a separately verified count algorithm.",
+        "Test subjects censored or experiencing events exactly at a displayed time to establish the risk-set counting convention.",
+        "Add/format/remove is undoable; editing source data recalculates table and graph together; PDF/SVG contain readable aligned values."
+      ],
+      "acceptance": [
+        "Recreate the supplied three-group screenshot structure at times0,20,40,60,80,100 with known source observations, using a separately verified count algorithm.",
+        "Test subjects censored or experiencing events exactly at a displayed time to establish the risk-set counting convention.",
+        "Add/format/remove is undoable; editing source data recalculates table and graph together; PDF/SVG contain readable aligned values."
+      ],
+      "source_mark": "newer report [seen] and supplied screenshot9; menu labels [seen]",
+      "unknown_evidence": [
+        "The screenshot does not prove before/after-event count timing, whether censored counts are cumulative or interval counts, the formatting dialog choices, or whether display times follow major ticks automatically. Native observations/project files are needed.",
+        "The user-supplied document is evidence about original Prism; it does not verify GP implementation."
+      ],
+      "version_delta_reference": "Root V11 register; graph-specific expansion from newer Markdown section 3 and 1 — Menus",
+      "screenshots": [
+        {
+          "index": 9,
+          "section": "3. Statistics changes since\n10.3.1",
+          "alt": "Kaplan-Meier with number-at-risk table",
+          "path": "/workspace/gp-evidence/prism11-guide-images/image-09.jpg",
+          "bytes": 125443,
+          "sha256": "e9a340206e8952df5fbc0c0bbb5ec2484f7e4fcaae9605e555ece0e29caf715a",
+          "mime": "image/jpeg"
+        }
+      ],
+      "audit_status": "unimplemented",
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "G148",
+      "title": "Analysis-generated multiple-comparison confidence-interval graph",
+      "guide": [
+        {
+          "section": "Prism11 differences 2.3",
+          "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+          "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117"
+        }
+      ],
+      "guide_sections": [
+        "P11 2.3"
+      ],
+      "requirements": [
+        "Multifactor ANOVA can create both a grouped bar graph and a separate multiple-comparisons CI graph.",
+        "The supplied example is titled 95% Confidence Intervals (Dunnett), with comparison names on Y and Difference between group means on X.",
+        "Show one mean-difference symbol and horizontal confidence interval per selected comparison, with a zero reference and a Mean difference legend.",
+        "Read values, direction and multiplicity-adjusted intervals from the linked analysis rather than recomputing a different test in the renderer."
+      ],
+      "current_status": "unimplemented: no matching persistent graph model, editor or renderer identified at the graph-audit snapshot",
+      "status": "not_started",
+      "parity": "not_established",
+      "implementation_evidence": [
+        "web/src/data.ts",
+        "web/src/Plot.tsx",
+        "web/src/WorkbookDialogs.tsx",
+        "gp/models.py",
+        "gp/plotting.py"
+      ],
+      "dependencies": [
+        "G014",
+        "analysis:multifactor-comparisons",
+        "G071",
+        "G043",
+        "workbook:result-tables"
+      ],
+      "acceptance_tests": [
+        "A verified Control-TypeA and Control-TypeB Dunnett result yields two correctly directed intervals and labels; selecting the graph keeps its family link to the analysis.",
+        "Changing source data or comparison selection refreshes only the corresponding generated graph objects.",
+        "Confidence level/method changes update both the title and interval values; zero reference remains data-anchored."
+      ],
+      "acceptance": [
+        "A verified Control-TypeA and Control-TypeB Dunnett result yields two correctly directed intervals and labels; selecting the graph keeps its family link to the analysis.",
+        "Changing source data or comparison selection refreshes only the corresponding generated graph objects.",
+        "Confidence level/method changes update both the title and interval values; zero reference remains data-anchored."
+      ],
+      "source_mark": "newer report [seen], directly corroborated by supplied screenshots7/8",
+      "unknown_evidence": [
+        "Screenshot values alone are insufficient numerical oracles; the actual saved analysis output and generation-option defaults are not provided.",
+        "The user-supplied document is evidence about original Prism; it does not verify GP implementation."
+      ],
+      "version_delta_reference": "Root V11 register; graph-specific expansion from newer Markdown section 2.3",
+      "screenshots": [
+        {
+          "index": 7,
+          "section": "2.3 Multifactor ANOVA, 11.0.0,\nPro",
+          "alt": "Multifactor ANOVA results",
+          "path": "/workspace/gp-evidence/prism11-guide-images/image-07.jpg",
+          "bytes": 177180,
+          "sha256": "f62f45c155ada9ae076a6a2e6be668055acc5fb19f69d86c7a1277baac47357e",
+          "mime": "image/jpeg"
+        },
+        {
+          "index": 8,
+          "section": "2.3 Multifactor ANOVA, 11.0.0,\nPro",
+          "alt": "Multiple-comparisons CI plot",
+          "path": "/workspace/gp-evidence/prism11-guide-images/image-08.jpg",
+          "bytes": 86143,
+          "sha256": "5310af512fb4a9806b1ff39b2941fdb5d3f80c20e35477c3527377aa3d541d18",
+          "mime": "image/jpeg"
+        }
+      ],
       "audit_status": "unimplemented",
       "prism_reference_evidence": []
     }
   ],
   "prism11_delta_source": {
-    "path": "/workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md",
-    "sha256": "3f89bf9ec98384ca7b3778bd78d12196d1d05fb4ad41971a8ab73141e270ee87",
-    "read": "Entire document, including evidence legend and section 8 runtime-check exclusions.",
-    "screenshots": "Relative screenshots_p11 and scratch_p11/research artifacts were not supplied; not inspected.",
-    "integration": "Root owns the separate V11 requirement register. References below are descriptive pending its stable IDs; they do not duplicate its complete inventory."
+    "path": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+    "sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+    "read": "Entire document including sections 8–10; compared all changes against the earlier Markdown version.",
+    "supersedes": {
+      "path": "/workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md",
+      "sha256": "3f89bf9ec98384ca7b3778bd78d12196d1d05fb4ad41971a8ab73141e270ee87"
+    },
+    "html": {
+      "path": "/workspace/attachments/0131e4ad-fbe7-416c-90eb-7376c620992a/PRISM11_DIFFERENCES.html",
+      "sha256": "4d38e42eaae0e78d2913b8e0f0e3b8d21145a80dc7e1d6fc28daef6d82bf952e"
+    },
+    "image_index": "/workspace/gp-evidence/prism11-guide-images/index.json",
+    "images_extracted": 10,
+    "images_inspected": [
+      3,
+      7,
+      8,
+      9,
+      10
+    ],
+    "attribution": "User-supplied comparison report. [seen] describes the author's Prism 11 runtime observations, [bundle] describes the author's bundle inspection, and [GraphPad] attributes documentation. Screenshots are supplied observations; GP equivalence has not been tested against a running original here.",
+    "limitations": "No categorical graph/Level Order/custom-symbol screenshot or live test is supplied. Linked research notes and scratch project files remain unavailable."
   },
-  "guide_crossreference_caution": "Some guide prose uses abbreviated/wrong internal numbers (e.g. Appearance 3.2/3.3 and Annotations 3.10 within section4). Requirement anchors resolve to actual section4 headings, not those shorthand cross-references."
+  "guide_crossreference_caution": "Some guide prose uses abbreviated/wrong internal numbers (e.g. Appearance 3.2/3.3 and Annotations 3.10 within section4). Requirement anchors resolve to actual section4 headings, not those shorthand cross-references.",
+  "newer_prism11_graph_delta_ids": [
+    "G140",
+    "G141",
+    "G142",
+    "G143",
+    "G144",
+    "G145",
+    "G146",
+    "G147",
+    "G148"
+  ],
+  "prism10_source_qualification": {
+    "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
+    "section": "9",
+    "claim": "The comparison author reports the older Prism10 installation had an added activation library and non-GraphPad signature; Prism11 was reported GraphPad-signed.",
+    "planning_impact": "Retain the older guide as attributed evidence and prefer supplied Prism11 corroboration for target behavior. The author says graph/dialog/file structures were unaffected; that claim is not independently verified here. No activation or licensing modification is in scope."
+  },
+  "hidden_copilot_scope_note": "New report section8 describes disabled/unreleased Copilot internals. It is not promoted into a default visible graph UI requirement and no service endpoint was invoked. Root owns the separate V11 feature inventory."
 }

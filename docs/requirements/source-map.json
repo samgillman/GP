@@ -15980,7 +15980,16 @@
         "G133",
         "G134",
         "G135",
-        "G136"
+        "G136",
+        "G140",
+        "G141",
+        "G142",
+        "G143",
+        "G144",
+        "G145",
+        "G146",
+        "G147",
+        "G148"
       ],
       "mapping_scope": "Owning detailed register; all family options remain enumerated there, not closed by this mapping."
     },
@@ -18540,7 +18549,7 @@
     "formula-functions.json",
     "prism11-deltas.json"
   ],
-  "requirement_count": 1042,
+  "requirement_count": 1051,
   "requirement_index": {
     "R001": "core.json",
     "R002": "core.json",
@@ -19280,6 +19289,15 @@
     "L042": "graphs-layouts.json",
     "L043": "graphs-layouts.json",
     "L044": "graphs-layouts.json",
+    "G140": "graphs-layouts.json",
+    "G141": "graphs-layouts.json",
+    "G142": "graphs-layouts.json",
+    "G143": "graphs-layouts.json",
+    "G144": "graphs-layouts.json",
+    "G145": "graphs-layouts.json",
+    "G146": "graphs-layouts.json",
+    "G147": "graphs-layouts.json",
+    "G148": "graphs-layouts.json",
     "F001": "formats-scripting.json",
     "F002": "formats-scripting.json",
     "F003": "formats-scripting.json",

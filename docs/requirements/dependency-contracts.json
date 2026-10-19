@@ -762,6 +762,125 @@
         "X001",
         "X002"
       ]
+    },
+    "table:variable-types": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "table:calculated-variables": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "workbook:stable-variable-ids": {
+      "requirement_ids": [
+        "W001",
+        "W003",
+        "W005",
+        "W007",
+        "W009",
+        "W010",
+        "A023"
+      ]
+    },
+    "analysis:grouped-descriptive-conventions": {
+      "requirement_ids": [
+        "A001",
+        "A023",
+        "A034",
+        "R004"
+      ]
+    },
+    "scene:layer-model": {
+      "requirement_ids": [
+        "G001",
+        "G002",
+        "G034",
+        "G054"
+      ]
+    },
+    "table:subject-identity": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "table:categorical-levels": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "scene:symbol-shape-model": {
+      "requirement_ids": [
+        "G001",
+        "G002",
+        "G034",
+        "G054"
+      ]
+    },
+    "analysis:survival-risk-counts": {
+      "requirement_ids": [
+        "A001",
+        "A023",
+        "A034",
+        "R004"
+      ]
+    },
+    "analysis:multifactor-comparisons": {
+      "requirement_ids": [
+        "A001",
+        "A023",
+        "A034",
+        "R004"
+      ]
     }
   }
 }
