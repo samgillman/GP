@@ -20,6 +20,7 @@ import {
   Redo2,
   Settings2,
   Shapes,
+  Brackets,
   Table2,
   X,
 } from "lucide-react";
@@ -65,7 +66,8 @@ import { deleteSheet, deletionIds, duplicateSheet } from "./workbook-actions";
 import { getRecoveryWorkbook, rememberWorkbook } from "./render-recovery";
 import { errorMessage } from "./error-message";
 import AdvancedAnalyses from "./AdvancedAnalyses";
-import { apiFetch, browserOnly } from "./api";
+import { ResultTableGrid } from "./ResultPages";
+import { apiFetch, browserOnly, warmUpEngine } from "./api";
 import {
   WORKBOOK_STORAGE,
   addData,
@@ -91,7 +93,16 @@ import {
   FormatGraphDialog,
   FormatDataTableDialog,
   ChangeGraphTypeDialog,
+  ParametersDialog,
+  PairwiseDialog,
+  analysisLabels,
 } from "./WorkbookDialogs";
+import {
+  defaultComparisonOptions,
+  isComparisonAnalysis,
+  testName,
+} from "./column-analysis";
+import type { ComparisonAnalysis, ComparisonOptions } from "./column-analysis";
 const extendedMetrics = [
   ["sum", "Sum"],
   ["range", "Range"],
@@ -113,15 +124,6 @@ const extendedMetrics = [
   ["qc_mean_minus_3sd", "Mean − 3 SD"],
   ["qc_mean_plus_3sd", "Mean + 3 SD"],
 ] as const;
-const analysisLabels: Record<Analysis, string> = {
-  descriptive: "Descriptive statistics",
-  welch_t: "Unpaired t test (Welch)",
-  paired_t: "Paired t test",
-  anova: "One-way ANOVA",
-  linear_regression: "Linear regression",
-  dose_response: "Dose–response (4PL)",
-  nonlinear_regression: "Nonlinear regression",
-};
 type Imported = {
   id: string;
   title: string;
@@ -301,6 +303,16 @@ export default function App() {
     row: number;
     token: number;
   }>();
+  // The website's Python engine loads in the background from first paint.
+  const [engineLoading, setEngineLoading] = useState(browserOnly);
+  useEffect(() => {
+    if (!browserOnly) return;
+    let live = true;
+    void warmUpEngine().then(() => live && setEngineLoading(false));
+    return () => {
+      live = false;
+    };
+  }, []);
   useEffect(() => {
     if (!notice) return;
     const timer = window.setTimeout(() => setNotice(""), 5000);
@@ -457,6 +469,14 @@ export default function App() {
     [formatDialog, setFormatDialog] = useState(false),
     [formatTableDialog, setFormatTableDialog] = useState(false),
     [graphTypeDialog, setGraphTypeDialog] = useState(false),
+    [parameters, setParameters] = useState<{
+      analysis: ComparisonAnalysis;
+      indices: number[];
+      prefix: string;
+      resultId?: string;
+    } | null>(null),
+    [resultTab, setResultTab] = useState(""),
+    [pairwiseDialog, setPairwiseDialog] = useState(false),
     [sheetSearch, setSheetSearch] = useState("");
   const selectedSheet = workbook.sheets.find(
     (s) => s.id === workbook.activeSheetId,
@@ -513,6 +533,33 @@ export default function App() {
     [source, graphSheet],
   );
   const excludedPositions = useMemo(() => exclusionPositions(source), [source]);
+  // Brackets map the analysis's dataset identities onto this graph's series.
+  const pairwiseAnnotations = useMemo(() => {
+    const setting = graphSheet?.graph.pairwise;
+    if (
+      !setting ||
+      !graphSheet ||
+      source.project.table_type === "xy" ||
+      linkedResult?.status !== "current" ||
+      !result?.comparisons
+    )
+      return [];
+    return result.comparisons
+      .filter((c) => setting.show_ns || c.summary !== "ns")
+      .map((c) => ({
+        a: graphSheet.datasetIds.indexOf(linkedResult.datasetIds[c.a]),
+        b: graphSheet.datasetIds.indexOf(linkedResult.datasetIds[c.b]),
+        label:
+          setting.style === "p"
+            ? c.p < 1e-4
+              ? "P<0.0001"
+              : c.p > 0.9999
+                ? "P>0.9999"
+                : `P=${c.p.toFixed(4)}`
+            : c.summary,
+      }))
+      .filter((c) => c.a >= 0 && c.b >= 0);
+  }, [graphSheet, source.project.table_type, linkedResult, result]);
   const gridRange = selection?.dataId === source.id ? selection.range : null;
   const selectionExcluded = useMemo(
     () =>
@@ -520,6 +567,56 @@ export default function App() {
         ? allExcluded(source.project.columns, excludedPositions, gridRange)
         : false,
     [source.project.columns, excludedPositions, gridRange],
+  );
+  const summaryTable = result && (
+    <>
+      <h3>Summary statistics</h3>
+      <div className="results-table-wrap">
+        <table className="results-table">
+          <thead>
+            <tr>
+              <th className="output-row-number" />
+              <th className="stat-label" />
+              {result.summary.map((c, i) => (
+                <th key={c.name} className="dataset-letter">
+                  {groupLabel(i)}
+                </th>
+              ))}
+            </tr>
+            <tr>
+              <th className="output-row-number" />
+              <th className="stat-label" />
+              {result.summary.map((c) => (
+                <th key={c.name}>{c.name}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {(
+              [
+                ["n", "Number of values"],
+                ["mean", "Mean"],
+                ["sd", "Standard deviation"],
+                ["sem", "Std. error of mean"],
+                ["median", "Median"],
+                ["min", "Minimum"],
+                ["max", "Maximum"],
+                ["ci_low", "Lower 95% CI"],
+                ["ci_high", "Upper 95% CI"],
+              ] as const
+            ).map(([key, label], row) => (
+              <tr key={key}>
+                <th className="output-row-number">{row + 1}</th>
+                <th className="stat-label">{label}</th>
+                {result.summary.map((c) => (
+                  <td key={c.name}>{fmt(c[key])}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
   const analyzedExcluded =
     selectedSheet.kind === "results"
@@ -610,6 +707,7 @@ export default function App() {
     controller.current?.abort();
     revision.current++;
     setBusy(false);
+    setResultTab("");
   }, [workbook.activeSheetId]);
   function applyHistory(direction: "undo" | "redo") {
     const moved = moveHistory(
@@ -654,6 +752,8 @@ export default function App() {
           formatDialog ||
           formatTableDialog ||
           graphTypeDialog ||
+          parameters !== null ||
+          pairwiseDialog ||
           csvExport !== null ||
           imported.length > 0,
       );
@@ -678,6 +778,8 @@ export default function App() {
     formatDialog,
     formatTableDialog,
     graphTypeDialog,
+    parameters,
+    pairwiseDialog,
     csvExport,
     imported.length,
   ]);
@@ -844,7 +946,14 @@ export default function App() {
     prefix = "",
     forceNew = false,
     regressionModel = project.regression_model,
+    requested: ComparisonOptions | undefined = selectedSheet.kind === "results"
+      ? selectedSheet.options
+      : undefined,
   ) {
+    // Only t tests and one-way ANOVA carry parameters.
+    const options = isComparisonAnalysis(analysis)
+      ? (requested ?? defaultComparisonOptions)
+      : undefined;
     if (selectedSheet.kind !== "data" && selectedSheet.frozen) {
       setError("Unfreeze this sheet before running or changing its analysis.");
       return;
@@ -862,6 +971,8 @@ export default function App() {
                 s.analysis === analysis &&
                 !s.selectionInvalid &&
                 s.regression_model === regressionModel &&
+                JSON.stringify(s.options ?? null) ===
+                  JSON.stringify(options ?? null) &&
                 JSON.stringify(s.columnIndices) === JSON.stringify(indices),
             )
           : undefined;
@@ -881,11 +992,14 @@ export default function App() {
           "The source table structure changed. Use Analyze Data to review the dataset selection and create a replacement analysis.",
         );
       if (!indices.length) throw new Error("Select at least one data set.");
-      const data = requestData({
-        ...selectedProject(source, indices),
-        analysis,
-        regression_model: regressionModel,
-      });
+      const data = requestData(
+        {
+          ...selectedProject(source, indices),
+          analysis,
+          regression_model: regressionModel,
+        },
+        options,
+      );
       const response = await apiFetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -901,10 +1015,11 @@ export default function App() {
             {
               name: existing
                 ? existing.name
-                : `${prefix}${analysisLabels[analysis]} — ${source.name}`,
+                : `${prefix}${resultName(analysis, options)}`,
               dataId: source.id,
               analysis,
               regression_model: regressionModel,
+              ...(options ? { options } : {}),
               columnIndices: indices,
               sourceRevision: source.revision,
               result: body,
@@ -918,6 +1033,67 @@ export default function App() {
     } finally {
       if (rev === revision.current) setBusy(false);
     }
+  }
+  // Prism names comparison results after the test, e.g. "Unpaired t test of Data 1".
+  function resultName(analysis: Analysis, options?: ComparisonOptions) {
+    return isComparisonAnalysis(analysis) && options
+      ? `${testName(analysis, options)} of ${source.name}`
+      : `${analysisLabels[analysis]} — ${source.name}`;
+  }
+  function openParameters() {
+    if (
+      selectedSheet.kind !== "results" ||
+      selectedSheet.frozen ||
+      !isComparisonAnalysis(selectedSheet.analysis)
+    )
+      return;
+    setParameters({
+      analysis: selectedSheet.analysis,
+      indices: selectedSheet.columnIndices,
+      prefix: "",
+      resultId: selectedSheet.id,
+    });
+  }
+  function applyParameters(options: ComparisonOptions) {
+    const target = parameters;
+    setParameters(null);
+    if (!target) return;
+    if (!target.resultId) {
+      void run(
+        target.analysis,
+        target.indices,
+        target.prefix,
+        true,
+        undefined,
+        options,
+      );
+      return;
+    }
+    const sheet = workbookRef.current.sheets.find(
+      (s) => s.id === target.resultId,
+    );
+    if (sheet?.kind !== "results" || sheet.frozen) return;
+    const renamed =
+      sheet.options && sheet.name === resultName(sheet.analysis, sheet.options)
+        ? resultName(sheet.analysis, options)
+        : sheet.name;
+    setWorkbook(
+      (w) => ({
+        ...w,
+        sheets: w.sheets.map((s) =>
+          s.id === sheet.id
+            ? {
+                ...sheet,
+                name: renamed,
+                options,
+                status: "stale" as const,
+                result: null,
+              }
+            : s,
+        ),
+      }),
+      { label: "Change analysis parameters" },
+    );
   }
   function message(body: unknown) {
     return errorMessage(body);
@@ -963,7 +1139,10 @@ export default function App() {
                 : "descriptive",
             regression_model: linkedResult?.regression_model,
           }),
-          graph: project.graph,
+          graph: (({ pairwise: _pairwise, ...options }) => ({
+            ...options,
+            annotations: pairwiseAnnotations,
+          }))(project.graph),
           format,
         }),
       });
@@ -1553,10 +1732,28 @@ export default function App() {
             </button>
             <button
               role="menuitem"
+              disabled={
+                selectedSheet.kind !== "results" ||
+                !!selectedSheet.frozen ||
+                !isComparisonAnalysis(selectedSheet.analysis)
+              }
+              onClick={openParameters}
+            >
+              Analysis Parameters…
+            </button>
+            <button
+              role="menuitem"
               disabled={active !== "graph" || graphSheet?.frozen}
               onClick={() => setGraphTypeDialog(true)}
             >
               Change Graph Type…
+            </button>
+            <button
+              role="menuitem"
+              disabled={active !== "graph" || graphSheet?.frozen || xy}
+              onClick={() => setPairwiseDialog(true)}
+            >
+              Add Pairwise Comparisons…
             </button>
             <button
               role="menuitem"
@@ -1743,6 +1940,15 @@ export default function App() {
               >
                 <Shapes />
                 <small>Graph type</small>
+              </button>
+              <button
+                aria-label="Add Pairwise Comparisons…"
+                title="Add significance brackets from a t test or one-way ANOVA"
+                disabled={active !== "graph" || graphSheet?.frozen || xy}
+                onClick={() => setPairwiseDialog(true)}
+              >
+                <Brackets />
+                <small>Pairwise</small>
               </button>
               <button
                 aria-label="Format Graph…"
@@ -2136,41 +2342,62 @@ export default function App() {
               <div className="analysis-icon">
                 <FlaskConical size={19} />
               </div>
-              <div>
-                <label htmlFor="analysis">ANALYSIS</label>
-                <select
-                  id="analysis"
-                  disabled={!!selectedSheet.frozen}
-                  value={project.analysis}
-                  onChange={(e) =>
-                    change((p) => ({
-                      ...p,
-                      analysis: e.target.value as Analysis,
-                    }))
-                  }
-                >
-                  {Object.entries(analysisLabels)
-                    .filter(([key]) =>
-                      xy
-                        ? [
-                            "descriptive",
-                            "linear_regression",
-                            "dose_response",
-                            "nonlinear_regression",
-                          ].includes(key)
-                        : ![
-                            "linear_regression",
-                            "dose_response",
-                            "nonlinear_regression",
-                          ].includes(key),
-                    )
-                    .map(([key, label]) => (
-                      <option value={key} key={key}>
-                        {label}
-                      </option>
-                    ))}
-                </select>
-              </div>
+              {isComparisonAnalysis(selectedSheet.analysis) ? (
+                <div>
+                  <label>ANALYSIS</label>
+                  <strong className="analysis-name">
+                    {testName(
+                      selectedSheet.analysis,
+                      selectedSheet.options ?? defaultComparisonOptions,
+                    )}
+                  </strong>
+                  <button
+                    className="button"
+                    disabled={!!selectedSheet.frozen}
+                    onClick={openParameters}
+                  >
+                    Parameters…
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <label htmlFor="analysis">ANALYSIS</label>
+                  <select
+                    id="analysis"
+                    disabled={!!selectedSheet.frozen}
+                    value={project.analysis}
+                    onChange={(e) =>
+                      change((p) => ({
+                        ...p,
+                        analysis: e.target.value as Analysis,
+                      }))
+                    }
+                  >
+                    {Object.entries(analysisLabels)
+                      .filter(([key]) =>
+                        xy
+                          ? [
+                              "descriptive",
+                              "linear_regression",
+                              "dose_response",
+                              "nonlinear_regression",
+                            ].includes(key)
+                          : ![
+                              "linear_regression",
+                              "dose_response",
+                              "nonlinear_regression",
+                              "t_test",
+                              "one_way_anova",
+                            ].includes(key),
+                      )
+                      .map(([key, label]) => (
+                        <option value={key} key={key}>
+                          {label}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              )}
               {project.analysis === "nonlinear_regression" && (
                 <label className="model-choice">
                   Model
@@ -2208,31 +2435,33 @@ export default function App() {
                   </select>
                 </label>
               )}
-              <span className="analysis-hint">
-                {project.analysis === "descriptive"
-                  ? "Summary statistics · 95% confidence intervals"
-                  : project.analysis === "welch_t"
-                    ? "Two independent groups · unequal variances"
-                    : project.analysis === "paired_t"
-                      ? "Two groups · paired by row"
-                      : project.analysis === "anova"
-                        ? "Independent groups · equal-variance model"
-                        : project.analysis === "dose_response"
-                          ? "Four-parameter logistic · nonnegative concentrations"
-                          : project.analysis === "nonlinear_regression"
-                            ? project.regression_model ===
-                              "normalized_log_dose_inhibition"
-                              ? "X is log10(concentration) · fixed 0–100 response"
-                              : project.regression_model ===
-                                  "normalized_dose_inhibition"
-                                ? "Nonnegative concentrations · fixed 0–100 response"
-                                : project.regression_model?.startsWith(
-                                      "log_dose",
-                                    )
-                                  ? "X must be log10(concentration)"
-                                  : "Independent unweighted fits"
-                            : "Ordinary least squares · separate Y series"}
-              </span>
+              {!isComparisonAnalysis(project.analysis) && (
+                <span className="analysis-hint">
+                  {project.analysis === "descriptive"
+                    ? "Summary statistics · 95% confidence intervals"
+                    : project.analysis === "welch_t"
+                      ? "Two independent groups · unequal variances"
+                      : project.analysis === "paired_t"
+                        ? "Two groups · paired by row"
+                        : project.analysis === "anova"
+                          ? "Independent groups · equal-variance model"
+                          : project.analysis === "dose_response"
+                            ? "Four-parameter logistic · nonnegative concentrations"
+                            : project.analysis === "nonlinear_regression"
+                              ? project.regression_model ===
+                                "normalized_log_dose_inhibition"
+                                ? "X is log10(concentration) · fixed 0–100 response"
+                                : project.regression_model ===
+                                    "normalized_dose_inhibition"
+                                  ? "Nonnegative concentrations · fixed 0–100 response"
+                                  : project.regression_model?.startsWith(
+                                        "log_dose",
+                                      )
+                                    ? "X must be log10(concentration)"
+                                    : "Independent unweighted fits"
+                              : "Ordinary least squares · separate Y series"}
+                </span>
+              )}
               <button
                 className="button primary"
                 disabled={busy || !!selectedSheet.frozen}
@@ -2317,6 +2546,7 @@ export default function App() {
                     )}
                     onFormatAxes={openGraphFormatting}
                     onEditText={openGraphFormatting}
+                    annotations={pairwiseAnnotations}
                   />
                   {xy && (
                     <div className="legend">
@@ -2349,9 +2579,15 @@ export default function App() {
                 <div>
                   <FlaskConical size={18} />
                   <h2>
-                    {result
-                      ? analysisLabels[project.analysis]
-                      : "Analysis results"}
+                    {!result
+                      ? "Analysis results"
+                      : selectedSheet.kind === "results" &&
+                          isComparisonAnalysis(selectedSheet.analysis)
+                        ? testName(
+                            selectedSheet.analysis,
+                            selectedSheet.options ?? defaultComparisonOptions,
+                          )
+                        : analysisLabels[project.analysis]}
                   </h2>
                 </div>
               </div>
@@ -2391,116 +2627,123 @@ export default function App() {
                       in blue italics.
                     </div>
                   )}
-                  <table className="analysis-output">
-                    <thead>
-                      <tr>
-                        <th className="output-row-number" />
-                        <th colSpan={2}>{analysisLabels[project.analysis]}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <th className="output-row-number">1</th>
-                        <th>Table analyzed</th>
-                        <td>{source.name}</td>
-                      </tr>
-                      {result.results.map((r, i) => (
-                        <tr key={i}>
-                          <th className="output-row-number">{i + 2}</th>
-                          <th>{r.label}</th>
-                          <td>
-                            {typeof r.value === "number"
-                              ? fmt(r.value)
-                              : (r.value ?? "—")}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <h3>Summary statistics</h3>
-                  <div className="results-table-wrap">
-                    <table className="results-table">
-                      <thead>
-                        <tr>
-                          <th className="output-row-number" />
-                          <th className="stat-label" />
-                          {result.summary.map((c, i) => (
-                            <th key={c.name} className="dataset-letter">
-                              {groupLabel(i)}
+                  {result.tables?.length ? (
+                    (() => {
+                      const pages = [
+                        ...result.tables.map((t) => t.title),
+                        "Descriptive statistics",
+                      ];
+                      const current = pages.includes(resultTab)
+                        ? resultTab
+                        : pages[0];
+                      const page = result.tables.find(
+                        (t) => t.title === current,
+                      );
+                      return (
+                        <>
+                          <div
+                            className="result-tabs"
+                            role="tablist"
+                            aria-label="Results pages"
+                          >
+                            {pages.map((title) => (
+                              <button
+                                key={title}
+                                role="tab"
+                                aria-selected={title === current}
+                                className={title === current ? "active" : ""}
+                                onClick={() => setResultTab(title)}
+                              >
+                                {title}
+                              </button>
+                            ))}
+                          </div>
+                          {page ? (
+                            <ResultTableGrid
+                              table={page}
+                              tableName={
+                                current === pages[0] ? source.name : undefined
+                              }
+                            />
+                          ) : (
+                            summaryTable
+                          )}
+                        </>
+                      );
+                    })()
+                  ) : (
+                    <>
+                      <table className="analysis-output">
+                        <thead>
+                          <tr>
+                            <th className="output-row-number" />
+                            <th colSpan={2}>
+                              {analysisLabels[project.analysis]}
                             </th>
-                          ))}
-                        </tr>
-                        <tr>
-                          <th className="output-row-number" />
-                          <th className="stat-label" />
-                          {result.summary.map((c) => (
-                            <th key={c.name}>{c.name}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(
-                          [
-                            ["n", "Number of values"],
-                            ["mean", "Mean"],
-                            ["sd", "Standard deviation"],
-                            ["sem", "Std. error of mean"],
-                            ["median", "Median"],
-                            ["min", "Minimum"],
-                            ["max", "Maximum"],
-                            ["ci_low", "Lower 95% CI"],
-                            ["ci_high", "Upper 95% CI"],
-                          ] as const
-                        ).map(([key, label], row) => (
-                          <tr key={key}>
-                            <th className="output-row-number">{row + 1}</th>
-                            <th className="stat-label">{label}</th>
-                            {result.summary.map((c) => (
-                              <td key={c.name}>{fmt(c[key])}</td>
-                            ))}
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  {result.analysis === "descriptive" && (
-                    <details className="extended-summary">
-                      <summary>Additional descriptive statistics</summary>
-                      <div className="results-table-wrap">
-                        <table className="results-table">
-                          <thead>
-                            <tr>
-                              <th className="output-row-number" />
-                              <th className="stat-label" />
-                              {result.summary.map((s) => (
-                                <th key={s.name}>{s.name}</th>
-                              ))}
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <th className="output-row-number">1</th>
+                            <th>Table analyzed</th>
+                            <td>{source.name}</td>
+                          </tr>
+                          {result.results.map((r, i) => (
+                            <tr key={i}>
+                              <th className="output-row-number">{i + 2}</th>
+                              <th>{r.label}</th>
+                              <td>
+                                {typeof r.value === "number"
+                                  ? fmt(r.value)
+                                  : (r.value ?? "—")}
+                              </td>
                             </tr>
-                          </thead>
-                          <tbody>
-                            {extendedMetrics.map(([key, label], row) => (
-                              <tr key={key}>
-                                <th className="output-row-number">{row + 1}</th>
-                                <th className="stat-label">{label}</th>
-                                {result.summary.map((s) => (
-                                  <td
-                                    key={s.name}
-                                    title={s.undefined_reasons?.[key]}
-                                  >
-                                    {fmt(s[key])}
-                                    {s.undefined_reasons?.[key] && (
-                                      <small className="undefined-stat">
-                                        {s.undefined_reasons[key]}
-                                      </small>
-                                    )}
-                                  </td>
+                          ))}
+                        </tbody>
+                      </table>
+                      {summaryTable}
+                      {result.analysis === "descriptive" && (
+                        <details className="extended-summary">
+                          <summary>Additional descriptive statistics</summary>
+                          <div className="results-table-wrap">
+                            <table className="results-table">
+                              <thead>
+                                <tr>
+                                  <th className="output-row-number" />
+                                  <th className="stat-label" />
+                                  {result.summary.map((s) => (
+                                    <th key={s.name}>{s.name}</th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {extendedMetrics.map(([key, label], row) => (
+                                  <tr key={key}>
+                                    <th className="output-row-number">
+                                      {row + 1}
+                                    </th>
+                                    <th className="stat-label">{label}</th>
+                                    {result.summary.map((s) => (
+                                      <td
+                                        key={s.name}
+                                        title={s.undefined_reasons?.[key]}
+                                      >
+                                        {fmt(s[key])}
+                                        {s.undefined_reasons?.[key] && (
+                                          <small className="undefined-stat">
+                                            {s.undefined_reasons[key]}
+                                          </small>
+                                        )}
+                                      </td>
+                                    ))}
+                                  </tr>
                                 ))}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </details>
+                              </tbody>
+                            </table>
+                          </div>
+                        </details>
+                      )}
+                    </>
                   )}
                   <div className="result-notes">
                     <h3>Notes</h3>
@@ -2572,11 +2815,13 @@ export default function App() {
               {busy ||
               Object.values(recalculations).some((s) => s.phase === "running")
                 ? "Analyzing…"
-                : recovery
-                  ? "Autosave paused"
-                  : saved
-                    ? "Saved in browser"
-                    : "Browser storage unavailable"}
+                : engineLoading
+                  ? "Loading analysis engine…"
+                  : recovery
+                    ? "Autosave paused"
+                    : saved
+                      ? "Saved in browser"
+                      : "Browser storage unavailable"}
             </span>
           </footer>
         </div>
@@ -2592,6 +2837,55 @@ export default function App() {
           }}
         />
       )}
+      {pairwiseDialog && graphSheet && (
+        <PairwiseDialog
+          analyses={workbook.sheets
+            .filter(
+              (s): s is ResultSheet =>
+                s.kind === "results" &&
+                s.dataId === graphSheet.dataId &&
+                isComparisonAnalysis(s.analysis),
+            )
+            .map((s) => ({ id: s.id, name: s.name }))}
+          initial={
+            graphSheet.graph.pairwise
+              ? { resultId: graphSheet.resultId, ...graphSheet.graph.pairwise }
+              : null
+          }
+          onClose={() => setPairwiseDialog(false)}
+          onApply={(choice) => {
+            setPairwiseDialog(false);
+            const nextGraph = { ...graphSheet.graph };
+            if (choice)
+              nextGraph.pairwise = {
+                style: choice.style,
+                show_ns: choice.show_ns,
+              };
+            else delete nextGraph.pairwise;
+            setWorkbook(
+              (w) => ({
+                ...w,
+                sheets: w.sheets.map((s) =>
+                  s.id === graphSheet.id
+                    ? {
+                        ...graphSheet,
+                        graph: nextGraph,
+                        resultId: choice
+                          ? choice.resultId
+                          : graphSheet.resultId,
+                      }
+                    : s,
+                ),
+              }),
+              {
+                label: choice
+                  ? "Add pairwise comparisons"
+                  : "Remove pairwise comparisons",
+              },
+            );
+          }}
+        />
+      )}
       {graphTypeDialog && graphSheet && (
         <ChangeGraphTypeDialog
           tableType={project.table_type}
@@ -2601,6 +2895,24 @@ export default function App() {
             setGraphTypeDialog(false);
             graph({ type, show_points: showPoints });
           }}
+        />
+      )}
+      {parameters && (
+        <ParametersDialog
+          analysis={parameters.analysis}
+          names={parameters.indices.map(
+            (index) => source.project.columns[index]?.name ?? "",
+          )}
+          initial={
+            (parameters.resultId &&
+              workbook.sheets.find(
+                (s): s is ResultSheet =>
+                  s.kind === "results" && s.id === parameters.resultId,
+              )?.options) ||
+            defaultComparisonOptions
+          }
+          onClose={() => setParameters(null)}
+          onApply={applyParameters}
         />
       )}
       {formatTableDialog && (
@@ -2616,6 +2928,10 @@ export default function App() {
           onClose={() => setAnalyzeDialog(false)}
           onRun={(analysis, indices, prefix, model) => {
             setAnalyzeDialog(false);
+            if (isComparisonAnalysis(analysis)) {
+              setParameters({ analysis, indices, prefix });
+              return;
+            }
             void run(
               analysis,
               indices,

@@ -71,3 +71,15 @@ export function apiFetch(
     });
   });
 }
+
+/** Starts the static build's Python engine in the background at startup so the
+ * first analysis does not wait for the runtime download. A failure is retried
+ * by the next real request, which reports its own error. */
+export async function warmUpEngine(): Promise<boolean> {
+  if (!browserOnly) return true;
+  try {
+    return (await apiFetch("/api/warmup", { method: "POST", body: "{}" })).ok;
+  } catch {
+    return false;
+  }
+}

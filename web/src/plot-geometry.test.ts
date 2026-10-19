@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { sample } from "./data.ts";
 import type { Response } from "./data.ts";
 import {
+  bracketLevels,
   buildPlotGeometry,
   drawDensePoints,
   linearTicks,
@@ -279,4 +280,37 @@ test("selection ranges preserve missing-cell row identities and tolerate reverse
     ]),
     1,
   );
+});
+
+test("pairwise brackets stack like the export and raise the axis to fit", () => {
+  const placed = bracketLevels(
+    [
+      { a: 0, b: 2, label: "**" },
+      { a: 1, b: 0, label: "*" },
+      { a: 1, b: 2, label: "ns" },
+    ],
+    [10, 12, 11],
+    1,
+  );
+  assert.deepEqual(
+    placed.map((b) => [b.x1, b.x2, Number(b.y.toFixed(6)), b.label]),
+    [
+      [1, 2, 12.6, "*"],
+      [2, 3, 13.6, "ns"],
+      [1, 3, 14.6, "**"],
+    ],
+  );
+  assert.deepEqual(bracketLevels([{ a: 0, b: 3, label: "*" }], [1, 2], 1), []);
+  const project = sample("column");
+  const plain = buildPlotGeometry(project, null)!;
+  const annotated = buildPlotGeometry(project, null, [
+    { a: 0, b: 1, label: "****" },
+  ])!;
+  assert.equal(annotated.brackets.length, 1);
+  assert.ok(
+    annotated.brackets[0].y >
+      Math.max(...project.columns[0].values.map(Number)),
+  );
+  assert.ok(annotated.maxY >= plain.maxY);
+  assert.ok(annotated.maxY > annotated.brackets[0].y);
 });

@@ -60,7 +60,7 @@ def build():
     distribution = importlib.metadata.distribution("defusedxml")
     assert distribution.version == "0.7.1"
     with zipfile.ZipFile(SITE / "gp-python.zip", "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for name in ["__init__.py", "models.py", "statistics.py", "descriptive.py", "plotting.py", "import_prism.py", "regression_models.py", "import_prism_zip.py", "survival.py", "factorial_anova.py", "advanced.py"]:
+        for name in ["__init__.py", "models.py", "statistics.py", "descriptive.py", "plotting.py", "import_prism.py", "regression_models.py", "import_prism_zip.py", "survival.py", "factorial_anova.py", "advanced.py", "column_tests.py"]:
             archive.write(ROOT / "gp" / name, f"gp/{name}")
         for file in distribution.files:
             if str(file).startswith("defusedxml/") and str(file).endswith(".py"):

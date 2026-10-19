@@ -8,13 +8,29 @@ class Column(BaseModel):
     values: list[FiniteFloat | None] = Field(min_length=1, max_length=10000)
 
 
+class ComparisonOptions(BaseModel):
+    """Parameters for t tests and one-way ANOVA (see gp.column_tests)."""
+    model_config = ConfigDict(extra="forbid")
+    paired: bool = False
+    gaussian: bool = True
+    equal_sd: bool = True
+    sphericity: Literal["geisser_greenhouse", "assume"] = "geisser_greenhouse"
+    tails: Literal[1, 2] = 2
+    reverse_difference: bool = False
+    comparisons: Literal["none", "all_pairs", "vs_control"] = "all_pairs"
+    control: int = Field(default=0, ge=0, le=29)
+    method: Literal["tukey", "bonferroni", "sidak", "fisher", "dunnett", "games_howell", "dunn"] | None = None
+    alpha: float = Field(default=0.05, gt=0, lt=0.5)
+
+
 class AnalysisRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     table_type: Literal["column", "xy"] = "column"
     columns: list[Column] = Field(min_length=1, max_length=30)
-    analysis: Literal["descriptive", "welch_t", "paired_t", "anova", "linear_regression", "dose_response", "nonlinear_regression"] = "descriptive"
+    analysis: Literal["descriptive", "welch_t", "paired_t", "anova", "t_test", "one_way_anova", "linear_regression", "dose_response", "nonlinear_regression"] = "descriptive"
     regression_model: str = Field(default="one_phase_decay", min_length=1, max_length=100)
     confidence: float = Field(default=0.95, ge=0.5, le=0.999)
+    options: ComparisonOptions = Field(default_factory=ComparisonOptions)
 
     @model_validator(mode="after")
     def check_data(self):
@@ -29,6 +45,14 @@ class AnalysisRequest(BaseModel):
         return self
 
 
+class GraphAnnotation(BaseModel):
+    """A significance bracket between two column-graph datasets (0-based)."""
+    model_config = ConfigDict(extra="forbid")
+    a: int = Field(ge=0, le=29)
+    b: int = Field(ge=0, le=29)
+    label: str = Field(min_length=1, max_length=40)
+
+
 class GraphOptions(BaseModel):
     model_config = ConfigDict(extra="forbid")
     type: Literal["scatter", "bar", "box", "line"] = "scatter"
@@ -38,6 +62,7 @@ class GraphOptions(BaseModel):
     y_label: str = Field(default="", max_length=100)
     colors: list[str] = Field(default_factory=list, max_length=32)
     show_points: bool = True
+    annotations: list[GraphAnnotation] = Field(default_factory=list, max_length=435)
 
 
 class ExportRequest(BaseModel):

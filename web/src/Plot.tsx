@@ -9,6 +9,7 @@ import {
   pointHitIndex,
 } from "./plot-geometry";
 import type {
+  PlotAnnotation,
   PlotGeometry,
   PointHit,
   PointReference,
@@ -80,6 +81,7 @@ export default function Plot({
   onExcludePoint,
   selectedPoint,
   selectedPointRanges,
+  annotations,
 }: {
   project: Project;
   result: Response | null;
@@ -93,6 +95,8 @@ export default function Plot({
   onExcludePoint?: (seriesIndex: number, row: number) => void;
   selectedPoint?: PointReference | null;
   selectedPointRanges?: SelectedPointRange[];
+  // Pairwise comparison brackets for column graphs.
+  annotations?: PlotAnnotation[];
 }) {
   const [zoom, setZoom] = useState(100);
   const [pan, setPan] = useState(false);
@@ -127,8 +131,8 @@ export default function Plot({
   zoomRef.current = zoom;
   const { graph } = project;
   const geometry = useMemo(
-    () => buildPlotGeometry(project, result),
-    [project, result],
+    () => buildPlotGeometry(project, result, annotations),
+    [project, result, annotations],
   );
   const findPoint = useMemo(
     () => (geometry ? pointHitIndex(geometry) : null),
@@ -594,6 +598,29 @@ export default function Plot({
                 />
               );
             })()}
+            {geometry.brackets.map((bracket, i) => {
+              const x1 = x(bracket.x1) + 4,
+                x2 = x(bracket.x2) - 4,
+                level = y(bracket.y);
+              return (
+                <g key={`bracket-${i}`} className="pairwise-bracket">
+                  <path
+                    d={`M${x1},${level + 7}V${level}H${x2}V${level + 7}`}
+                    fill="none"
+                    stroke="#000"
+                    strokeWidth="1.25"
+                  />
+                  <text
+                    x={(x1 + x2) / 2}
+                    y={level - 4}
+                    textAnchor="middle"
+                    className="pairwise-label"
+                  >
+                    {bracket.label}
+                  </text>
+                </g>
+              );
+            })}
             {fits.map((f, i) => (
               <polyline
                 key={i}

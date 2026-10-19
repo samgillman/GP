@@ -1,6 +1,11 @@
 import { numeric, parseProject, sample } from "./data.ts";
 import type { Analysis, Graph, Project, Response, TableType } from "./data.ts";
 import { assertWorkbookDependencyIntegrity } from "./workbook-dependencies.ts";
+import {
+  isComparisonAnalysis,
+  parseComparisonOptions,
+} from "./column-analysis.ts";
+import type { ComparisonOptions } from "./column-analysis.ts";
 export const WORKBOOK_STORAGE = "gp.workbook.v2";
 /** Excluded observations by dataset ID, each listing row IDs in table order.
  * The entered text stays in the project; analyses and graphs treat it as missing.
@@ -23,6 +28,8 @@ export type ResultSheet = {
   dataId: string;
   analysis: Analysis;
   regression_model?: string;
+  // t tests / one-way ANOVA parameters; absent for other analyses.
+  options?: ComparisonOptions;
   columnIndices: number[];
   datasetIds: string[];
   sourceRevision: number;
@@ -641,10 +648,67 @@ export function addGraph(
   };
   return { ...book, activeSheetId: graph.id, sheets: [...book.sheets, graph] };
 }
+const shortText = (value: unknown, limit = 2000) =>
+  typeof value === "string" && value.length <= limit;
+function tablesValid(tables: unknown): boolean {
+  return (
+    Array.isArray(tables) &&
+    tables.length <= 20 &&
+    tables.every(
+      (t) =>
+        t &&
+        shortText(t.title, 200) &&
+        Array.isArray(t.columns) &&
+        t.columns.length >= 1 &&
+        t.columns.length <= 12 &&
+        t.columns.every((c: unknown) => shortText(c, 200)) &&
+        Array.isArray(t.rows) &&
+        t.rows.length <= 2000 &&
+        t.rows.every(
+          (row: unknown) =>
+            Array.isArray(row) &&
+            row.length <= t.columns.length &&
+            row.every(
+              (cell) =>
+                cell === null ||
+                shortText(cell) ||
+                (typeof cell === "number" && Number.isFinite(cell)),
+            ),
+        ),
+    )
+  );
+}
+function comparisonsValid(comparisons: unknown, groups: number): boolean {
+  return (
+    Array.isArray(comparisons) &&
+    comparisons.length <= 500 &&
+    comparisons.every(
+      (c) =>
+        c &&
+        Number.isInteger(c.a) &&
+        Number.isInteger(c.b) &&
+        c.a >= 0 &&
+        c.b >= 0 &&
+        c.a < groups &&
+        c.b < groups &&
+        c.a !== c.b &&
+        typeof c.p === "number" &&
+        c.p >= 0 &&
+        c.p <= 1 &&
+        shortText(c.summary, 10),
+    )
+  );
+}
 export function responseValid(r: unknown): r is Response {
   if (!r || typeof r !== "object") return false;
   const v = r as Response;
   return (
+    (v.tables === undefined || tablesValid(v.tables)) &&
+    (v.comparisons === undefined ||
+      comparisonsValid(
+        v.comparisons,
+        Array.isArray(v.summary) ? v.summary.length : 0,
+      )) &&
     typeof v.analysis === "string" &&
     Array.isArray(v.summary) &&
     v.summary.length <= 30 &&
@@ -834,6 +898,11 @@ function validateSavedResult(
     analysis: result.analysis,
     regression_model: result.regression_model,
   });
+  // Older GP builds reject the new analysis names, so no version change is needed.
+  if (isComparisonAnalysis(result.analysis))
+    parseComparisonOptions(result.options);
+  else if (result.options !== undefined)
+    throw new Error("Invalid saved analysis parameters.");
   if (
     !Number.isInteger(result.sourceRevision) ||
     result.sourceRevision < 0 ||

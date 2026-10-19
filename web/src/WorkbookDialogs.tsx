@@ -3,6 +3,17 @@ import type { ReactNode } from "react";
 import type { Analysis, Graph, Project, TableType } from "./data";
 import type { GraphSheet, ResultSheet } from "./workbook";
 import { dataIndices } from "./workbook";
+import {
+  comparisonChoices,
+  methodLabels,
+  normalizeComparisonOptions,
+  testName,
+} from "./column-analysis";
+import type {
+  ComparisonAnalysis,
+  ComparisonMethod,
+  ComparisonOptions,
+} from "./column-analysis";
 import "./dialog-desktop.css";
 
 function datasetLetter(index: number) {
@@ -119,6 +130,8 @@ export const analysisLabels: Record<Analysis, string> = {
   welch_t: "Unpaired t test (Welch)",
   paired_t: "Paired t test",
   anova: "One-way ANOVA",
+  t_test: "t tests (and nonparametric tests)",
+  one_way_anova: "One-way ANOVA (and nonparametric or mixed)",
   linear_regression: "Linear regression",
   dose_response: "Dose–response (4PL)",
   nonlinear_regression: "Nonlinear regression",
@@ -455,27 +468,22 @@ export function AnalyzeDialog({
     regressionModel: string,
   ) => void;
 }) {
+  // The single-test entries remain readable in saved results but new analyses
+  // use the Prism families with their parameter dialogs.
+  const offered: Analysis[] =
+    project.table_type === "xy"
+      ? ["descriptive", "linear_regression", "dose_response", "nonlinear_regression"]
+      : ["descriptive", "t_test", "one_way_anova"];
   const [search, setSearch] = useState(""),
-    [analysis, setAnalysis] = useState(project.analysis),
+    [analysis, setAnalysis] = useState<Analysis>(
+      offered.includes(project.analysis) ? project.analysis : offered[0],
+    ),
     [model, setModel] = useState(
       project.regression_model ?? "one_phase_decay",
     ),
     [selected, setSelected] = useState(dataIndices(project)),
     [prefix, setPrefix] = useState("");
-  const eligible = Object.entries(analysisLabels).filter(([key]) =>
-    project.table_type === "xy"
-      ? [
-          "descriptive",
-          "linear_regression",
-          "dose_response",
-          "nonlinear_regression",
-        ].includes(key)
-      : ![
-          "linear_regression",
-          "dose_response",
-          "nonlinear_regression",
-        ].includes(key),
-  );
+  const eligible = offered.map((key) => [key, analysisLabels[key]] as const);
   return (
     <DesktopDialog
       title="Analyze Data"
@@ -589,6 +597,10 @@ export function AnalyzeDialog({
                     "Compare two matched groups. Matching follows the rows of the data table.",
                   anova:
                     "Compare the means of two or more independent groups using ordinary one-way ANOVA.",
+                  t_test:
+                    "Compare two data sets: unpaired or paired t tests, Welch's test, Mann-Whitney or Wilcoxon. Choose the test on the next screen.",
+                  one_way_anova:
+                    "Compare three or more data sets: ordinary, Welch or repeated-measures ANOVA, Kruskal-Wallis or Friedman, with multiple comparisons. Choose on the next screen.",
                   linear_regression:
                     "Fit a straight line to each selected Y data set against X.",
                   dose_response:
@@ -631,6 +643,377 @@ export function AnalyzeDialog({
           onClick={() => onRun(analysis, selected, prefix, model)}
         >
           Create analysis
+        </button>
+      </footer>
+    </DesktopDialog>
+  );
+}
+function Choice({
+  name,
+  checked,
+  onChange,
+  children,
+}: {
+  name: string;
+  checked: boolean;
+  onChange: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <label className="desktop-choice">
+      <input type="radio" name={name} checked={checked} onChange={onChange} />
+      {children}
+    </label>
+  );
+}
+
+/** The parameters dialog shown after choosing t tests or one-way ANOVA. */
+export function ParametersDialog({
+  analysis,
+  names,
+  initial,
+  onClose,
+  onApply,
+}: {
+  analysis: ComparisonAnalysis;
+  names: string[];
+  initial: ComparisonOptions;
+  onClose: () => void;
+  onApply: (options: ComparisonOptions) => void;
+}) {
+  const tTest = analysis === "t_test";
+  const tabs = tTest
+    ? ["Experimental Design", "Options"]
+    : ["Experimental Design", "Multiple Comparisons", "Options"];
+  const [tab, setTab] = useState(tabs[0]),
+    [draft, setDraft] = useState(() =>
+      normalizeComparisonOptions(initial, names.length),
+    );
+  const set = (patch: Partial<ComparisonOptions>) =>
+    setDraft((old) => normalizeComparisonOptions({ ...old, ...patch }, names.length));
+  const choices = comparisonChoices(draft);
+  const [a, b] = names;
+  const problem = tTest
+    ? names.length !== 2
+      ? `t tests compare exactly two data sets; ${names.length} are selected.`
+      : ""
+    : names.length < 2
+      ? "One-way ANOVA needs at least two data sets."
+      : "";
+  return (
+    <DesktopDialog
+      title={`Parameters: ${analysisLabels[analysis]}`}
+      titleId="parameters-title"
+      className="desktop-parameters"
+      onClose={onClose}
+    >
+      <div className="desktop-dialog-body">
+        <div
+          className="desktop-dialog-tabs"
+          role="tablist"
+          aria-label="Parameter pages"
+        >
+          {tabs.map((name) => (
+            <button
+              key={name}
+              role="tab"
+              aria-selected={tab === name}
+              className={tab === name ? "active" : ""}
+              onClick={() => setTab(name)}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+        <div role="tabpanel" aria-label={tab}>
+        {tab === "Experimental Design" && (
+          <>
+            <fieldset>
+              <legend>Experimental design</legend>
+              <Choice name="design" checked={!draft.paired} onChange={() => set({ paired: false })}>
+                {tTest ? "Unpaired" : "No matching or pairing"}
+              </Choice>
+              <Choice name="design" checked={draft.paired} onChange={() => set({ paired: true })}>
+                {tTest ? "Paired" : "Each row represents matched, or repeated measures, data"}
+              </Choice>
+            </fieldset>
+            <fieldset>
+              <legend>
+                {tTest ? "Assume Gaussian distribution?" : "Assume Gaussian distribution of residuals?"}
+              </legend>
+              <Choice name="gaussian" checked={draft.gaussian} onChange={() => set({ gaussian: true })}>
+                {tTest ? "Yes. Use parametric test." : "Yes. Use ANOVA."}
+              </Choice>
+              <Choice name="gaussian" checked={!draft.gaussian} onChange={() => set({ gaussian: false })}>
+                No. Use nonparametric test.
+              </Choice>
+            </fieldset>
+            {draft.gaussian && !draft.paired && (
+              <fieldset>
+                <legend>{tTest ? "Choose test" : "Assume equal SDs?"}</legend>
+                <Choice name="sd" checked={draft.equal_sd} onChange={() => set({ equal_sd: true })}>
+                  {tTest
+                    ? "Unpaired t test. Assume both populations have the same SD."
+                    : "Yes. Use ordinary ANOVA test."}
+                </Choice>
+                <Choice name="sd" checked={!draft.equal_sd} onChange={() => set({ equal_sd: false })}>
+                  {tTest
+                    ? "Unpaired t test with Welch's correction. Do not assume equal SDs."
+                    : "No. Use Brown-Forsythe and Welch ANOVA tests."}
+                </Choice>
+              </fieldset>
+            )}
+            {!tTest && draft.gaussian && draft.paired && (
+              <fieldset>
+                <legend>Assume sphericity (equal variability of differences)?</legend>
+                <Choice
+                  name="sphericity"
+                  checked={draft.sphericity === "geisser_greenhouse"}
+                  onChange={() => set({ sphericity: "geisser_greenhouse" })}
+                >
+                  No. Use the Geisser-Greenhouse correction. Recommended.
+                </Choice>
+                <Choice
+                  name="sphericity"
+                  checked={draft.sphericity === "assume"}
+                  onChange={() => set({ sphericity: "assume" })}
+                >
+                  Yes. No correction.
+                </Choice>
+              </fieldset>
+            )}
+            <p className="desktop-help-text">
+              Test: <strong>{testName(analysis, draft)}</strong>
+              {tTest && !draft.gaussian
+                ? draft.paired
+                  ? " — compares the ranks of paired differences."
+                  : " — compares ranks."
+                : ""}
+            </p>
+          </>
+        )}
+        {tab === "Multiple Comparisons" && (
+          <fieldset>
+            <legend>Follow-up tests</legend>
+            <Choice name="comparisons" checked={draft.comparisons === "none"} onChange={() => set({ comparisons: "none" })}>
+              No multiple comparisons
+            </Choice>
+            {choices.all_pairs && (
+              <Choice
+                name="comparisons"
+                checked={draft.comparisons === "all_pairs"}
+                onChange={() => set({ comparisons: "all_pairs" })}
+              >
+                Compare the {draft.gaussian ? "mean" : "mean rank"} of each column with the{" "}
+                {draft.gaussian ? "mean" : "mean rank"} of every other column
+              </Choice>
+            )}
+            {choices.vs_control && (
+              <Choice
+                name="comparisons"
+                checked={draft.comparisons === "vs_control"}
+                onChange={() => set({ comparisons: "vs_control" })}
+              >
+                Compare the {draft.gaussian ? "mean" : "mean rank"} of each column with the{" "}
+                {draft.gaussian ? "mean" : "mean rank"} of a control column
+              </Choice>
+            )}
+            {draft.comparisons === "vs_control" && (
+              <label className="desktop-form-row">
+                <span>Control column</span>
+                <select
+                  aria-label="Control column"
+                  value={draft.control}
+                  onChange={(e) => set({ control: Number(e.target.value) })}
+                >
+                  {names.map((name, index) => (
+                    <option key={index} value={index}>
+                      {datasetLetter(index)}: {name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            {!choices.vs_control && (
+              <p className="desktop-help-text">
+                With unequal SDs GP compares every pair (Games-Howell).
+              </p>
+            )}
+          </fieldset>
+        )}
+        {tab === "Options" && (
+          <>
+            {!tTest && draft.comparisons !== "none" && (
+              <fieldset>
+                <legend>Multiple comparisons test</legend>
+                <label className="desktop-form-row">
+                  <span>Test</span>
+                  <select
+                    aria-label="Multiple comparisons test"
+                    value={draft.method ?? ""}
+                    onChange={(e) => set({ method: e.target.value as ComparisonMethod })}
+                  >
+                    {(choices[draft.comparisons] ?? []).map((method) => (
+                      <option key={method} value={method}>
+                        {methodLabels[method]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </fieldset>
+            )}
+            {tTest && (
+              <fieldset>
+                <legend>Calculations</legend>
+                <Choice name="tails" checked={draft.tails === 2} onChange={() => set({ tails: 2 })}>
+                  Two-tailed P value (recommended)
+                </Choice>
+                <Choice name="tails" checked={draft.tails === 1} onChange={() => set({ tails: 1 })}>
+                  One-tailed P value
+                </Choice>
+                <label className="desktop-form-row">
+                  <span>Report differences as</span>
+                  <select
+                    aria-label="Report differences as"
+                    value={draft.reverse_difference ? "a-b" : "b-a"}
+                    onChange={(e) => set({ reverse_difference: e.target.value === "a-b" })}
+                  >
+                    <option value="b-a">{b ?? "B"} − {a ?? "A"}</option>
+                    <option value="a-b">{a ?? "A"} − {b ?? "B"}</option>
+                  </select>
+                </label>
+              </fieldset>
+            )}
+            <fieldset>
+              <legend>Significance</legend>
+              <label className="desktop-form-row">
+                <span>Significance level (alpha)</span>
+                <select
+                  aria-label="Significance level (alpha)"
+                  value={draft.alpha}
+                  onChange={(e) => set({ alpha: Number(e.target.value) })}
+                >
+                  {[0.1, 0.05, 0.01, 0.001].map((alpha) => (
+                    <option key={alpha} value={alpha}>
+                      {alpha}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <p className="desktop-help-text">
+                P values use the GraphPad style: ns P &gt; 0.05, * P ≤ 0.05, ** P ≤
+                0.01, *** P ≤ 0.001, **** P ≤ 0.0001. Confidence intervals are 95%.
+              </p>
+            </fieldset>
+          </>
+        )}
+        {problem && <p className="result-warning">{problem}</p>}
+        </div>
+      </div>
+      <footer className="desktop-dialog-actions">
+        <button className="button" onClick={onClose}>
+          Cancel
+        </button>
+        <button
+          className="button primary"
+          disabled={!!problem}
+          onClick={() => onApply(draft)}
+        >
+          OK
+        </button>
+      </footer>
+    </DesktopDialog>
+  );
+}
+/** Change → Add Pairwise Comparisons…: brackets from a t test or one-way ANOVA. */
+export function PairwiseDialog({
+  analyses,
+  initial,
+  onClose,
+  onApply,
+}: {
+  analyses: { id: string; name: string }[];
+  initial: { resultId: string | null; style: "asterisks" | "p"; show_ns: boolean } | null;
+  onClose: () => void;
+  onApply: (
+    choice: { resultId: string; style: "asterisks" | "p"; show_ns: boolean } | null,
+  ) => void;
+}) {
+  const [resultId, setResultId] = useState(
+    initial?.resultId && analyses.some((a) => a.id === initial.resultId)
+      ? initial.resultId
+      : (analyses[0]?.id ?? ""),
+  );
+  const [style, setStyle] = useState(initial?.style ?? "asterisks"),
+    [showNs, setShowNs] = useState(initial?.show_ns ?? true);
+  return (
+    <DesktopDialog
+      title="Add Pairwise Comparisons"
+      titleId="pairwise-title"
+      className="desktop-format-table"
+      onClose={onClose}
+    >
+      <div className="desktop-dialog-body">
+        {analyses.length ? (
+          <>
+            <label className="desktop-form-row">
+              <span>Analysis</span>
+              <select
+                aria-label="Comparison analysis"
+                value={resultId}
+                onChange={(e) => setResultId(e.target.value)}
+              >
+                {analyses.map((analysis) => (
+                  <option key={analysis.id} value={analysis.id}>
+                    {analysis.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <fieldset>
+              <legend>Show</legend>
+              <Choice name="pairwise-style" checked={style === "asterisks"} onChange={() => setStyle("asterisks")}>
+                Asterisks (ns, *, **, ***, ****)
+              </Choice>
+              <Choice name="pairwise-style" checked={style === "p"} onChange={() => setStyle("p")}>
+                P values
+              </Choice>
+              <label className="desktop-choice">
+                <input
+                  type="checkbox"
+                  checked={showNs}
+                  onChange={(e) => setShowNs(e.target.checked)}
+                />
+                Show non-significant comparisons
+              </label>
+            </fieldset>
+            <p className="desktop-help-text">
+              Brackets follow the analysis: they update when it recalculates and
+              disappear while it is out of date.
+            </p>
+          </>
+        ) : (
+          <p className="result-warning">
+            Run a t test or one-way ANOVA on this graph's data table first
+            (Analyze → t tests or One-way ANOVA).
+          </p>
+        )}
+      </div>
+      <footer className="desktop-dialog-actions">
+        {initial && (
+          <button className="button" onClick={() => onApply(null)}>
+            Remove comparisons
+          </button>
+        )}
+        <button className="button" onClick={onClose}>
+          Cancel
+        </button>
+        <button
+          className="button primary"
+          disabled={!resultId}
+          onClick={() => onApply({ resultId, style, show_ns: showNs })}
+        >
+          OK
         </button>
       </footer>
     </DesktopDialog>

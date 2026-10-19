@@ -6254,7 +6254,7 @@
       "audit_id": "P0180",
       "title": "Unpaired t test (equal variances)",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "t tests",
       "priority": "High",
@@ -6276,11 +6276,18 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Add a typed two-group design/distribution/method request and dispatch to a dedicated estimator using stable selected dataset IDs and an explicit missing/pair mask. Compute pooled sample variance and Student t with n1+n2-2 df. Target acceptance from the submitted audit: Classic Student unpaired t test that assumes equal SDs in both groups. Validation: Recover the guide's unequal-size Student example; compare equal-n/equal-variance case with Welch. Cover the family edge cases (hand-derived equal/unequal-n fixtures, group reversal, n=1/2, one/both zero variances, missing pairs, and scale changes); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Native exact-rank/tie algorithms, default options and inference edge states require versioned saved/live references; SciPy defaults are not substitutes.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_unpaired_t_matches_scipy_and_reports_prism_rows",
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -6310,11 +6317,18 @@
       "assessment": "partial_current_evidence: Welch core exists in gp/statistics.py; tests/test_statistics.py covers analytic and unequal-variance cases. Tails/direction/options and native oracle remain incomplete.",
       "implementation_plan": "Add a typed two-group design/distribution/method request and dispatch to a dedicated estimator using stable selected dataset IDs and an explicit missing/pair mask. Retain existing Welch calculation and expose its method identity and SE explicitly. Target acceptance from the submitted audit: Unpaired t test without the equal-variance assumption; Prism's suggested default for unpaired Gaussian data. Validation: Verify fractional df for unequal n/variances and distinguish signed t display conventions from native. Cover the family edge cases (hand-derived equal/unequal-n fixtures, group reversal, n=1/2, one/both zero variances, missing pairs, and scale changes); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Has' retained unchanged. Current evidence: Welch core exists in gp/statistics.py; tests/test_statistics.py covers analytic and unequal-variance cases. Tails/direction/options and native oracle remain incomplete. Reference boundary: Native exact-rank/tie algorithms, default options and inference edge states require versioned saved/live references; SciPy defaults are not substitutes.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_welch_one_tailed_and_reversed_difference",
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -6414,11 +6428,17 @@
       "assessment": "partial_current_evidence: Paired core and complete-pair inference exist; tests/test_prism_reference.py compares one source-hashed saved Prism case and reversed groups. This does not prove all native edge behavior.",
       "implementation_plan": "Add a typed two-group design/distribution/method request and dispatch to a dedicated estimator using stable selected dataset IDs and an explicit missing/pair mask. Retain complete subject-row pairing and saved signed-effect/absolute-t conventions. Target acceptance from the submitted audit: Compares means of matched pairs entered on the same row; rows with missing values are ignored. Validation: Reverse groups and insert asymmetric blank/excluded rows; fitted pairs and paired summaries must agree. Cover the family edge cases (hand-derived equal/unequal-n fixtures, group reversal, n=1/2, one/both zero variances, missing pairs, and scale changes); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Has' retained unchanged. Current evidence: Paired core and complete-pair inference exist; tests/test_prism_reference.py compares one source-hashed saved Prism case and reversed groups. This does not prove all native edge behavior. Reference boundary: Native exact-rank/tie algorithms, default options and inference edge states require versioned saved/live references; SciPy defaults are not substitutes.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_paired_t_matches_saved_prism_11_1_with_swapped_direction"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -6460,7 +6480,7 @@
       "audit_id": "P0186",
       "title": "Mann-Whitney test",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "t tests",
       "priority": "High",
@@ -6482,11 +6502,18 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Add a typed two-group design/distribution/method request and dispatch to a dedicated estimator using stable selected dataset IDs and an explicit missing/pair mask. Implement tie-aware rank-sum inference separately from location-shift estimation. Target acceptance from the submitted audit: Nonparametric unpaired rank test reporting average rank per group, U, and exact or approximate P. Validation: Enumerate small tied samples and compare both U orientations and tail definitions. Cover the family edge cases (hand-derived equal/unequal-n fixtures, group reversal, n=1/2, one/both zero variances, missing pairs, and scale changes); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Native exact-rank/tie algorithms, default options and inference edge states require versioned saved/live references; SciPy defaults are not substitutes.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_mann_whitney_exact_and_tied_approximate_match_scipy"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "Exact-P rule differs from the guide (see AUD-P0199).",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -6528,7 +6555,7 @@
       "audit_id": "P0188",
       "title": "Wilcoxon matched-pairs signed rank test",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "t tests",
       "priority": "High",
@@ -6550,11 +6577,17 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Add a typed two-group design/distribution/method request and dispatch to a dedicated estimator using stable selected dataset IDs and an explicit missing/pair mask. Rank absolute complete-pair differences with explicit zero policy. Target acceptance from the submitted audit: Nonparametric paired test reporting sums of positive and negative ranks and P value. Validation: Enumerate sign assignments for tied differences; all-zero differences are explicitly undefined. Cover the family edge cases (hand-derived equal/unequal-n fixtures, group reversal, n=1/2, one/both zero variances, missing pairs, and scale changes); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Native exact-rank/tie algorithms, default options and inference edge states require versioned saved/live references; SciPy defaults are not substitutes.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_wilcoxon_excludes_zero_differences_and_matches_scipy"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -6670,7 +6703,7 @@
       "audit_id": "P0192",
       "title": "F test for unequal variances",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "t test results",
       "priority": "Medium",
@@ -6692,11 +6725,17 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Derive a separately named result field from the selected test and its effective observations; retain estimate, uncertainty, method and undefined reason in structured output. Calculate larger/smaller sample variance ratio with swapped numerator/denominator df. Target acceptance from the submitted audit: Unpaired t test reports F ratio of larger to smaller variance with its own P value. Validation: Verify equal variance, one zero variance and unequal-size two-tail F convention. Cover the family edge cases (known two-group calculations, directional reversal, unequal n, tied/constant samples and export of null diagnostics); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Reported formulas, tail conventions, effect-size denominators and attained-CI coverage require option-specific references beyond the saved paired example.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_unpaired_t_matches_scipy_and_reports_prism_rows"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -6704,7 +6743,7 @@
       "audit_id": "P0193",
       "title": "R squared for unpaired t test",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "t test results",
       "priority": "Low",
@@ -6726,11 +6765,17 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Derive a separately named result field from the selected test and its effective observations; retain estimate, uncertainty, method and undefined reason in structured output. Recover the precise unpaired R-squared definition for Student versus Welch before exposing it. Target acceptance from the submitted audit: Reports fraction of total variation explained by the group difference. Validation: Distinguish eta-squared from a t-to-R-squared formula with fractional Welch df. Cover the family edge cases (known two-group calculations, directional reversal, unequal n, tied/constant samples and export of null diagnostics); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Reported formulas, tail conventions, effect-size denominators and attained-CI coverage require option-specific references beyond the saved paired example.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_unpaired_t_matches_scipy_and_reports_prism_rows"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -8188,11 +8233,17 @@
       "assessment": "partial_current_evidence: Only independent ordinary one-way ANOVA is exposed; repeated design and matching engine are absent.",
       "implementation_plan": "Build an explicit one-factor design specification and method-specific model output, retaining groups, subjects, sums of squares and degrees of freedom. Store independent versus matched-block design before dispatching the one-way estimator. Target acceptance from the submitted audit: Choose no matching or repeated measures (matched or randomized block) on Experimental design tab. Validation: A repeated dataset with large subject offsets produces the expected distinct residual variance from ordinary ANOVA. Cover the family edge cases (balanced/unbalanced sample sizes, singular/constant groups, subject permutations, missing values and independent model decomposition); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Partial' retained unchanged. Current evidence: Only independent ordinary one-way ANOVA is exposed; repeated design and matching engine are absent. Reference boundary: Repeated/mixed covariance, variance-boundary policies, likelihood/df and exact-rank thresholds remain unverified; do not label a standard library call equivalent.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_repeated_measures_reduces_to_paired_t_and_epsilon_matches_contrast_formula"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -8200,7 +8251,7 @@
       "audit_id": "P0236",
       "title": "Distribution choice",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "One-way ANOVA",
       "priority": "Medium",
@@ -8224,11 +8275,18 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build an explicit one-factor design specification and method-specific model output, retaining groups, subjects, sums of squares and degrees of freedom. Map normal/lognormal/nonparametric and independent/repeated design to compatible explicit methods. Target acceptance from the submitted audit: Choose Normal (Gaussian), Lognormal, or Nonparametric for one-way designs. Validation: Reject nonpositive log-domain observations and incompatible rank/mixed choices rather than substituting Gaussian ANOVA. Cover the family edge cases (balanced/unbalanced sample sizes, singular/constant groups, subject permutations, missing values and independent model decomposition); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Repeated/mixed covariance, variance-boundary policies, likelihood/df and exact-rank thresholds remain unverified; do not label a standard library call equivalent.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_kruskal_wallis_and_dunn_match_scipy_and_two_group_identity"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "Normal and nonparametric only; lognormal is not offered.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -8236,7 +8294,7 @@
       "audit_id": "P0237",
       "title": "Assume equal SDs option",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "One-way ANOVA",
       "priority": "Medium",
@@ -8259,11 +8317,17 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build an explicit one-factor design specification and method-specific model output, retaining groups, subjects, sums of squares and degrees of freedom. Separate unequal-variance location ANOVA from tests that diagnose variance inequality. Target acceptance from the submitted audit: If equal variances not assumed, Prism reports Welch and Brown-Forsythe ANOVA. Validation: A variance-only difference fixture must distinguish these two outputs. Cover the family edge cases (balanced/unbalanced sample sizes, singular/constant groups, subject permutations, missing values and independent model decomposition); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Repeated/mixed covariance, variance-boundary policies, likelihood/df and exact-rank thresholds remain unverified; do not label a standard library call equivalent.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_welch_anova_matches_scipy_for_three_groups"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -8294,11 +8358,18 @@
       "assessment": "partial_current_evidence: Ordinary one-way F,df,P and eta squared exist; full SS/MS result table is missing.",
       "implementation_plan": "Build an explicit one-factor design specification and method-specific model output, retaining groups, subjects, sums of squares and degrees of freedom. Return between/within/total SS, df and MS alongside existing F/P. Target acceptance from the submitted audit: Reports SS, df, MS for between, within, total, plus F ratio and P value. Validation: Verify SS and df additivity and F=MS_between/MS_within on the existing analytic fixture. Cover the family edge cases (balanced/unbalanced sample sizes, singular/constant groups, subject permutations, missing values and independent model decomposition); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Partial' retained unchanged. Current evidence: Ordinary one-way F,df,P and eta squared exist; full SS/MS result table is missing. Reference boundary: Repeated/mixed covariance, variance-boundary policies, likelihood/df and exact-rank thresholds remain unverified; do not label a standard library call equivalent.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_ordinary_anova_variance_tests_and_tukey_match_scipy",
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -8329,11 +8400,17 @@
       "assessment": "partial_current_evidence: Existing one-way eta squared equals SSbetween/SStotal; mathematical tests exist, but full native option parity is not established.",
       "implementation_plan": "Build an explicit one-factor design specification and method-specific model output, retaining groups, subjects, sums of squares and degrees of freedom. Retain SSbetween/SStotal eta squared and expose R-squared only where these are mathematically identical. Target acceptance from the submitted audit: R squared equals SS between over SS total, equal to eta squared for ordinary ANOVA. Validation: A one-way hand decomposition verifies the fraction, while repeated output uses its distinct partial denominator. Cover the family edge cases (balanced/unbalanced sample sizes, singular/constant groups, subject permutations, missing values and independent model decomposition); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Has' retained unchanged. Current evidence: Existing one-way eta squared equals SSbetween/SStotal; mathematical tests exist, but full native option parity is not established. Reference boundary: Repeated/mixed covariance, variance-boundary policies, likelihood/df and exact-rank thresholds remain unverified; do not label a standard library call equivalent.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_ordinary_anova_variance_tests_and_tukey_match_scipy"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -8341,7 +8418,7 @@
       "audit_id": "P0240",
       "title": "Brown-Forsythe test of equal variances",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "One-way ANOVA",
       "priority": "Medium",
@@ -8363,11 +8440,17 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build an explicit one-factor design specification and method-specific model output, retaining groups, subjects, sums of squares and degrees of freedom. Compute Brown-Forsythe variance diagnostic as ANOVA of absolute median deviations. Target acceptance from the submitted audit: Always reported; ANOVA on absolute deviations from group medians; recommended over Bartlett. Validation: Use skewed equal-variance and unequal-variance datasets to distinguish it from location ANOVA. Cover the family edge cases (balanced/unbalanced sample sizes, singular/constant groups, subject permutations, missing values and independent model decomposition); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Repeated/mixed covariance, variance-boundary policies, likelihood/df and exact-rank thresholds remain unverified; do not label a standard library call equivalent.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_ordinary_anova_variance_tests_and_tukey_match_scipy"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -8375,7 +8458,7 @@
       "audit_id": "P0241",
       "title": "Bartlett's test",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "One-way ANOVA",
       "priority": "Low",
@@ -8397,11 +8480,18 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build an explicit one-factor design specification and method-specific model output, retaining groups, subjects, sums of squares and degrees of freedom. Gate corrected Bartlett reporting on the documented per-group minimum. Target acceptance from the submitted audit: Corrected Bartlett test reported when every group has at least five values; not recommended. Validation: Compare n=4/5 boundaries and a zero-variance group with an independent formula. Cover the family edge cases (balanced/unbalanced sample sizes, singular/constant groups, subject permutations, missing values and independent model decomposition); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Repeated/mixed covariance, variance-boundary policies, likelihood/df and exact-rank thresholds remain unverified; do not label a standard library call equivalent.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_ordinary_anova_variance_tests_and_tukey_match_scipy",
+        "tests/test_column_tests.py::test_graphpad_p_style_extremes_and_bartlett_minimum_size"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -8409,7 +8499,7 @@
       "audit_id": "P0242",
       "title": "Welch ANOVA",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "One-way ANOVA",
       "priority": "Medium",
@@ -8431,11 +8521,17 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build an explicit one-factor design specification and method-specific model output, retaining groups, subjects, sums of squares and degrees of freedom. Implement Welch ANOVA weights and fractional denominator df. Target acceptance from the submitted audit: Reports W ratio, numerator and denominator df, and P value when SDs not assumed equal. Validation: Use unequal n and strongly different SDs; compare the two-group reduction with Welch t squared where applicable. Cover the family edge cases (balanced/unbalanced sample sizes, singular/constant groups, subject permutations, missing values and independent model decomposition); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Repeated/mixed covariance, variance-boundary policies, likelihood/df and exact-rank thresholds remain unverified; do not label a standard library call equivalent.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_welch_anova_matches_scipy_for_three_groups"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -8443,7 +8539,7 @@
       "audit_id": "P0243",
       "title": "Brown-Forsythe ANOVA",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "One-way ANOVA",
       "priority": "Medium",
@@ -8465,11 +8561,17 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build an explicit one-factor design specification and method-specific model output, retaining groups, subjects, sums of squares and degrees of freedom. Recover Brown-Forsythe F-star and df correction variant before implementation. Target acceptance from the submitted audit: Reports F* ratio, numerator and denominator df, and P value for unequal-variance designs. Validation: Use an unbalanced heteroscedastic fixture that separates original and corrected variants. Cover the family edge cases (balanced/unbalanced sample sizes, singular/constant groups, subject permutations, missing values and independent model decomposition); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Repeated/mixed covariance, variance-boundary policies, likelihood/df and exact-rank thresholds remain unverified; do not label a standard library call equivalent.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_welch_and_brown_forsythe_anova_reduce_to_welch_t_for_two_groups"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -8514,7 +8616,7 @@
       "audit_id": "P0245",
       "title": "Repeated measures one-way ANOVA",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "One-way ANOVA",
       "priority": "High",
@@ -8536,11 +8638,17 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build an explicit one-factor design specification and method-specific model output, retaining groups, subjects, sums of squares and degrees of freedom. Partition treatment, subject and residual SS with stable matched-row identity. Target acceptance from the submitted audit: Partitions SS into treatment, individual, residual; reports treatment F and P. Validation: Shuffling all columns together leaves results invariant; shuffling one condition changes pairing. Cover the family edge cases (balanced/unbalanced sample sizes, singular/constant groups, subject permutations, missing values and independent model decomposition); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Repeated/mixed covariance, variance-boundary policies, likelihood/df and exact-rank thresholds remain unverified; do not label a standard library call equivalent.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_repeated_measures_reduces_to_paired_t_and_epsilon_matches_contrast_formula"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -8617,7 +8725,7 @@
       "audit_id": "P0248",
       "title": "Was the matching effective",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "One-way ANOVA",
       "priority": "Medium",
@@ -8640,11 +8748,18 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build an explicit one-factor design specification and method-specific model output, retaining groups, subjects, sums of squares and degrees of freedom. Report matching F/P and matching R-squared from the subject partition. Target acceptance from the submitted audit: RM ANOVA reports matching F, its P value, and R squared for matching effectiveness. Validation: Use large subject offsets with a fixed treatment effect to separate treatment and matching strength. Cover the family edge cases (balanced/unbalanced sample sizes, singular/constant groups, subject permutations, missing values and independent model decomposition); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Repeated/mixed covariance, variance-boundary policies, likelihood/df and exact-rank thresholds remain unverified; do not label a standard library call equivalent.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_repeated_measures_reduces_to_paired_t_and_epsilon_matches_contrast_formula"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "Matching F, P and summary are reported; the matching R squared row is not.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -8896,7 +9011,7 @@
       "audit_id": "P0256",
       "title": "Kruskal-Wallis test",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "One-way ANOVA",
       "priority": "High",
@@ -8918,11 +9033,18 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build an explicit one-factor design specification and method-specific model output, retaining groups, subjects, sums of squares and degrees of freedom. Implement pooled tie-corrected Kruskal-Wallis ranks plus an explicit exact/asymptotic P policy. Target acceptance from the submitted audit: Reports KW statistic and P labeled exact or approximate; ties get average ranks with correction. Validation: All ties and small unbalanced groups require diagnosed outcomes and independent rank enumeration. Cover the family edge cases (balanced/unbalanced sample sizes, singular/constant groups, subject permutations, missing values and independent model decomposition); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Repeated/mixed covariance, variance-boundary policies, likelihood/df and exact-rank thresholds remain unverified; do not label a standard library call equivalent.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_kruskal_wallis_and_dunn_match_scipy_and_two_group_identity"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "P is always approximate and labelled so; no exact small-sample P.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -8930,7 +9052,7 @@
       "audit_id": "P0257",
       "title": "Friedman test",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "One-way ANOVA",
       "priority": "Medium",
@@ -8952,11 +9074,18 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build an explicit one-factor design specification and method-specific model output, retaining groups, subjects, sums of squares and degrees of freedom. Implement within-subject ranks and exact permutation counting for Friedman. Target acceptance from the submitted audit: Reports Friedman statistic and P; exact for small tables, approximation when (T!)^S exceeds 10^9. Validation: Probe the claimed (T!)^S=10^9 boundary and tied blocks without substituting an unpaired rank test. Cover the family edge cases (balanced/unbalanced sample sizes, singular/constant groups, subject permutations, missing values and independent model decomposition); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Repeated/mixed covariance, variance-boundary policies, likelihood/df and exact-rank thresholds remain unverified; do not label a standard library call equivalent.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_friedman_matches_scipy_with_ties"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "P is always approximate; the (T!)^S ≤ 10^9 exact rule is not implemented.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -9385,7 +9514,7 @@
       "audit_id": "P0270",
       "title": "Compare every mean with every other",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "Multiple comparisons",
       "priority": "High",
@@ -9407,11 +9536,19 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build a contrast-family object containing stable comparison IDs, model error/covariance, raw P, adjusted P or q, interval availability and alpha/Q. Generate exactly k*(k-1)/2 unique unordered contrasts. Target acceptance from the submitted audit: Multiple comparisons tab option; Tukey most often used. Validation: Reorder groups and verify stable pair identities and identical family membership. Cover the family edge cases (hand-enumerated small families, singleton families, tied P, P=0/1, family regrouping, control permutation and interval/decision consistency); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Family membership, omnibus gating, adjustment aliases, q semantics and simultaneous-CI availability require recovered settings and discriminating references.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_ordinary_anova_variance_tests_and_tukey_match_scipy",
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -9419,7 +9556,7 @@
       "audit_id": "P0271",
       "title": "Compare each mean with a control",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "Multiple comparisons",
       "priority": "High",
@@ -9441,11 +9578,18 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build a contrast-family object containing stable comparison IDs, model error/covariance, raw P, adjusted P or q, interval availability and alpha/Q. Persist a control dataset ID and generate k-1 contrasts against it. Target acceptance from the submitted audit: Compares each group with a designated control column; Dunnett most often used. Validation: Reorder/rename groups without changing the chosen biological control. Cover the family edge cases (hand-enumerated small families, singleton families, tied P, P=0/1, family regrouping, control permutation and interval/decision consistency); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Family membership, omnibus gating, adjustment aliases, q semantics and simultaneous-CI availability require recovered settings and discriminating references.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_pooled_bonferroni_sidak_fisher_and_dunnett"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -9555,7 +9699,7 @@
       "audit_id": "P0275",
       "title": "Tukey test",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "Multiple comparisons",
       "priority": "High",
@@ -9577,11 +9721,18 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build a contrast-family object containing stable comparison IDs, model error/covariance, raw P, adjusted P or q, interval availability and alpha/Q. Implement Tukey or Tukey-Kramer studentized-range contrasts with simultaneous intervals. Target acceptance from the submitted audit: Every mean vs every other with equal SDs; computes CIs and multiplicity adjusted P values. Validation: Balanced and unequal-n all-pairs fixtures check adjusted P and CI inversion. Cover the family edge cases (hand-enumerated small families, singleton families, tied P, P=0/1, family regrouping, control permutation and interval/decision consistency); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Family membership, omnibus gating, adjustment aliases, q semantics and simultaneous-CI availability require recovered settings and discriminating references.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_ordinary_anova_variance_tests_and_tukey_match_scipy",
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -9589,7 +9740,7 @@
       "audit_id": "P0276",
       "title": "Dunnett test",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "Multiple comparisons",
       "priority": "High",
@@ -9611,11 +9762,17 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build a contrast-family object containing stable comparison IDs, model error/covariance, raw P, adjusted P or q, interval availability and alpha/Q. Implement correlated many-to-one Dunnett contrasts, not independent Bonferroni tests. Target acceptance from the submitted audit: Each mean vs control with equal SDs; computes CIs and adjusted P values. Validation: Control permutation and correlated contrasts verify adjusted P and simultaneous intervals. Cover the family edge cases (hand-enumerated small families, singleton families, tied P, P=0/1, family regrouping, control permutation and interval/decision consistency); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Family membership, omnibus gating, adjustment aliases, q semantics and simultaneous-CI availability require recovered settings and discriminating references.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_pooled_bonferroni_sidak_fisher_and_dunnett"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -9759,7 +9916,7 @@
       "audit_id": "P0281",
       "title": "Games-Howell test",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "Multiple comparisons",
       "priority": "Medium",
@@ -9781,11 +9938,17 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build a contrast-family object containing stable comparison IDs, model error/covariance, raw P, adjusted P or q, interval availability and alpha/Q. Use pair-specific unequal-variance df and studentized-range Games-Howell inference. Target acceptance from the submitted audit: Unequal-SD comparisons after Welch ANOVA; recommended for larger samples. Validation: Unequal n/SD fixture separates it from Tukey-Kramer. Cover the family edge cases (hand-enumerated small families, singleton families, tied P, P=0/1, family regrouping, control permutation and interval/decision consistency); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Family membership, omnibus gating, adjustment aliases, q semantics and simultaneous-CI availability require recovered settings and discriminating references.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_welch_anova_matches_scipy_for_three_groups"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -10035,7 +10198,7 @@
       "audit_id": "P0289",
       "title": "Dunn's test after Kruskal-Wallis/Friedman",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "Multiple comparisons",
       "priority": "High",
@@ -10057,11 +10220,19 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build a contrast-family object containing stable comparison IDs, model error/covariance, raw P, adjusted P or q, interval availability and alpha/Q. Use shared tie-corrected ranks and model-specific Dunn comparison variance, applying only the selected family correction. Target acceptance from the submitted audit: Only method after nonparametric ANOVA; all pairs, vs control, or selected pairs; adjusted P capped at >0.9999. Validation: Verify raw versus adjusted P and display cap >0.9999 without clipping stored P. Cover the family edge cases (hand-enumerated small families, singleton families, tied P, P=0/1, family regrouping, control permutation and interval/decision consistency); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Family membership, omnibus gating, adjustment aliases, q semantics and simultaneous-CI availability require recovered settings and discriminating references.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_kruskal_wallis_and_dunn_match_scipy_and_two_group_identity",
+        "tests/test_column_tests.py::test_graphpad_p_style_extremes_and_bartlett_minimum_size"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "All pairs or vs control; selected pairs are not offered.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -10138,7 +10309,7 @@
       "audit_id": "P0292",
       "title": "Report multiplicity adjusted P values",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "Multiple comparisons",
       "priority": "High",
@@ -10160,11 +10331,18 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build a contrast-family object containing stable comparison IDs, model error/covariance, raw P, adjusted P or q, interval availability and alpha/Q. Expose adjusted P only when the selected comparison method computes it; retain raw P separately. Target acceptance from the submitted audit: Option to report adjusted P per comparison (Bonferroni, Tukey, Dunnett and others). Validation: Method switches cannot retain stale adjusted values from a previous analysis specification. Cover the family edge cases (hand-enumerated small families, singleton families, tied P, P=0/1, family regrouping, control permutation and interval/decision consistency); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Family membership, omnibus gating, adjustment aliases, q semantics and simultaneous-CI availability require recovered settings and discriminating references.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_pooled_bonferroni_sidak_fisher_and_dunnett"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "Adjusted P values are always reported; there is no option to hide them.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -10277,7 +10455,7 @@
       "audit_id": "P0296",
       "title": "Asterisk summary per comparison",
       "phase": 6,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "Multiple comparisons",
       "priority": "High",
@@ -10299,11 +10477,18 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Build a contrast-family object containing stable comparison IDs, model error/covariance, raw P, adjusted P or q, interval availability and alpha/Q. Render fixed asterisk thresholds from the correct full-precision reported P field. Target acceptance from the submitted audit: Each comparison shows an asterisk summary of its P value. Validation: A custom alpha must not silently alter the asterisk scale. Cover the family edge cases (hand-enumerated small families, singleton families, tied P, P=0/1, family regrouping, control permutation and interval/decision consistency); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: Family membership, omnibus gating, adjustment aliases, q semantics and simultaneous-CI availability require recovered settings and discriminating references.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_ordinary_anova_variance_tests_and_tukey_match_scipy",
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -13901,7 +14086,7 @@
       "audit_id": "P0400",
       "title": "GraphPad P value style",
       "phase": 5,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "Results formatting",
       "priority": "High",
@@ -13923,11 +14108,18 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Separate stored full-precision inferential values from a persisted result-display policy and semantic decision fields. Create GraphPad-style P formatting with four decimals and the documented lower bound. Target acceptance from the submitted audit: Four decimal digits with leading zero; below 0.0001 shown as less than .0001; allows four asterisks. Validation: At/below/above .0001 and rounding from .00009999 must remain semantically correct. Cover the family edge cases (values immediately below/at/above each threshold, rounding boundaries, P=0/1, null outputs and numeric exports); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: The submitted documentation URL is an attributed target claim, not an agent-run Prism result; native defaults, endpoints and interaction behavior still require source-bound verification.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py p_text/p_equation",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_graphpad_p_style_extremes_and_bartlett_minimum_size"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "Applies to t test and one-way ANOVA results only; other analyses keep their earlier number formatting.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -14037,7 +14229,7 @@
       "audit_id": "P0404",
       "title": "Asterisk summary thresholds",
       "phase": 5,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "Results formatting",
       "priority": "High",
@@ -14059,11 +14251,17 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Separate stored full-precision inferential values from a persisted result-display policy and semantic decision fields. Encode exact boundary-inclusive star thresholds separately from custom alpha. Target acceptance from the submitted audit: ns above 0.05, * up to 0.05, ** up to 0.01, *** up to 0.001, **** up to 0.0001. Validation: Test nextafter values around .05/.01/.001/.0001. Cover the family edge cases (values immediately below/at/above each threshold, rounding boundaries, P=0/1, null outputs and numeric exports); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: The submitted documentation URL is an attributed target claim, not an agent-run Prism result; native defaults, endpoints and interaction behavior still require source-bound verification.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py p_summary",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_unpaired_t_matches_scipy_and_reports_prism_rows"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -14105,7 +14303,7 @@
       "audit_id": "P0406",
       "title": "Asterisks from full-precision P",
       "phase": 5,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "Results formatting",
       "priority": "Low",
@@ -14127,11 +14325,17 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Separate stored full-precision inferential values from a persisted result-display policy and semantic decision fields. Compute star categories from stored P before formatting. Target acceptance from the submitted audit: Asterisks use the stored double-precision P, not the rounded displayed value. Validation: P=.05000001 displayed rounded near .05 must remain nonsignificant. Cover the family edge cases (values immediately below/at/above each threshold, rounding boundaries, P=0/1, null outputs and numeric exports); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: The submitted documentation URL is an attributed target claim, not an agent-run Prism result; native defaults, endpoints and interaction behavior still require source-bound verification.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py p_summary on unrounded P",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_ordinary_anova_variance_tests_and_tukey_match_scipy"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -14139,7 +14343,7 @@
       "audit_id": "P0407",
       "title": "Significantly different? row uses alpha",
       "phase": 5,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "Results formatting",
       "priority": "High",
@@ -14162,11 +14366,17 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Separate stored full-precision inferential values from a persisted result-display policy and semantic decision fields. Store alpha-based Yes/No separately from fixed star categories. Target acceptance from the submitted audit: Significant? Yes/No uses chosen alpha, while asterisks use a fixed scale. Validation: A custom alpha .01 with P=.03 has a star but No for the selected threshold. Cover the family edge cases (values immediately below/at/above each threshold, rounding boundaries, P=0/1, null outputs and numeric exports); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: The submitted documentation URL is an attributed target claim, not an agent-run Prism result; native defaults, endpoints and interaction behavior still require source-bound verification.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "gp/column_tests.py Report.significance_rows using the chosen alpha",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_api_returns_tables_and_comparisons_and_validates_options"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -14279,7 +14489,7 @@
       "audit_id": "P0411",
       "title": "Pairwise comparisons brackets",
       "phase": 9,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "Results on graphs",
       "priority": "High",
@@ -14303,11 +14513,19 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Attach graph annotations to stable result contrast IDs and full-precision significance rather than copied text. Bind each bracket to a stable comparison result and group identities. Target acceptance from the submitted audit: Draws brackets labeled with P values or asterisks from t test, one-way, or two-way results. Validation: Reordering groups and recomputing analysis updates both bracket location and label. Cover the family edge cases (source recalculation, alpha changes, hiding/removing an annotation, group reordering, save/reopen and vector export); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: The submitted documentation URL is an attributed target claim, not an agent-run Prism result; native defaults, endpoints and interaction behavior still require source-bound verification.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "web/src/WorkbookDialogs.tsx PairwiseDialog; web/src/App.tsx pairwiseAnnotations (Change menu and Pairwise toolbar); web/src/plot-geometry.ts bracketLevels; web/src/Plot.tsx; gp/plotting.py draw_brackets; gp/models.py GraphAnnotation",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_export_draws_pairwise_brackets_and_validates_them",
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "Two-way results are not sources.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -14315,7 +14533,7 @@
       "audit_id": "P0412",
       "title": "Pairwise comparison formatting",
       "phase": 9,
-      "status": "not_started",
+      "status": "partial",
       "area": "Group comparisons",
       "subarea": "Results on graphs",
       "priority": "Medium",
@@ -14338,11 +14556,18 @@
       "assessment": "not_implemented_or_not_exposed: scoped option requires implementation and target-reference verification",
       "implementation_plan": "Attach graph annotations to stable result contrast IDs and full-precision significance rather than copied text. Persist P/star mode, prefix, filter, bracket style, line and font settings. Target acceptance from the submitted audit: Show P or asterisks, prefix text, threshold filter, three bracket styles, line and label sizes. Validation: Formatting never changes family size, alpha or numerical significance. Cover the family edge cases (source recalculation, alpha changes, hiding/removing an annotation, group reordering, save/reopen and vector export); verify persisted parameters, full-precision serialization, source-edit recalculation and server/static agreement for this option before closure.",
       "review_note": "Original audit gp_status='Missing' retained unchanged. Current evidence: No dedicated implementation/option was found in the current analysis dispatch and inspected relevant modules; related infrastructure does not establish this feature. Reference boundary: The submitted documentation URL is an attributed target claim, not an agent-run Prism result; native defaults, endpoints and interaction behavior still require source-bound verification.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "web/src/WorkbookDialogs.tsx PairwiseDialog; web/src/App.tsx pairwiseAnnotations (Change menu and Pairwise toolbar); web/src/plot-geometry.ts bracketLevels; web/src/Plot.tsx; gp/plotting.py draw_brackets; gp/models.py GraphAnnotation",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "P value or asterisks and a non-significant filter only; no prefix text, bracket styles or size controls.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -44449,7 +44674,7 @@
       "audit_id": "P1273",
       "title": "Automatic pairwise comparisons",
       "phase": 9,
-      "status": "not_started",
+      "status": "partial",
       "area": "Graphs",
       "subarea": "Annotations: significance",
       "priority": "High",
@@ -44473,11 +44698,18 @@
       "assessment": "not_started",
       "implementation_plan": "Create analysis-linked pairwise comparison brackets with eligibility checks; test adjusted-P sourcing, source edits, stale analysis and unsupported graph/source combinations.",
       "review_note": "Original audit: Missing. No significance brackets. Source inspection: analysis results may report comparisons, but there are no linked bracket/CLD/significance graph objects or controls. Native gap: the supplied audit/guide describes this option; its Prism 11 macOS defaults, serialized fields and interaction/rendering behavior still require scoped REA evidence and suitable reference fixtures. No native runtime equivalence is claimed.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "web/src/WorkbookDialogs.tsx PairwiseDialog; web/src/App.tsx pairwiseAnnotations (Change menu and Pairwise toolbar); web/src/plot-geometry.ts bracketLevels; web/src/Plot.tsx; gp/plotting.py draw_brackets; gp/models.py GraphAnnotation",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "Opens a dialog rather than adding on one click.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
@@ -44485,7 +44717,7 @@
       "audit_id": "P1274",
       "title": "Asterisks or exact P values",
       "phase": 9,
-      "status": "not_started",
+      "status": "partial",
       "area": "Graphs",
       "subarea": "Annotations: significance",
       "priority": "High",
@@ -44508,11 +44740,18 @@
       "assessment": "not_started",
       "implementation_plan": "Expose numeric P/q or star labels and custom/P= prefixes using analysis formatting policy; test thresholds, very small P and FDR values without arbitrary star conversion.",
       "review_note": "Original audit: Missing; no implementation finding supplied. Source inspection: analysis results may report comparisons, but there are no linked bracket/CLD/significance graph objects or controls. Native gap: the supplied audit/guide describes this option; its Prism 11 macOS defaults, serialized fields and interaction/rendering behavior still require scoped REA evidence and suitable reference fixtures. No native runtime equivalence is claimed.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "web/src/WorkbookDialogs.tsx PairwiseDialog; web/src/App.tsx pairwiseAnnotations (Change menu and Pairwise toolbar); web/src/plot-geometry.ts bracketLevels; web/src/Plot.tsx; gp/plotting.py draw_brackets; gp/models.py GraphAnnotation",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
+      "validation_evidence": [
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "'P=' prefix is fixed; custom prefixes are not offered.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
       ]
     },
     {
