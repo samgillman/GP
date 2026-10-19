@@ -2,6 +2,10 @@
 
 A scientific workbook with linked data, analysis, and graph sheets, being reconstructed from Prism installer evidence. GP is an independent implementation and is not yet a complete replacement for GraphPad Prism.
 
+The interface now uses a compact macOS-style workbook, light navigator, dense spreadsheet, grouped toolbar, and desktop dialogs. See [current screenshots and the visual correction](docs/ui-macos-correction.md) for the implemented appearance and remaining differences.
+
+![GP workbook](docs/images/data.png)
+
 ## Browser app
 
 For a website like SimpleCalcium, use the self-contained browser build. Calculations and exports run on the visitor’s device; no Python server is needed. See [browser hosting and testing](docs/browser-hosting.md) for the Cloudflare Pages build settings and a short test workflow.

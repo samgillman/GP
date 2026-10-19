@@ -1,0 +1,52 @@
+{
+  "target": "GraphPad Prism for macOS",
+  "retrieved_on": "2026-10-19",
+  "reference_pages": [
+    "https://www.graphpad.com/guides/prism/latest/user-guide/tabbed-window-with-macos-sierr.htm",
+    "https://www.graphpad.com/guides/prism/latest/user-guide/a_brief_tour_of_prism.htm",
+    "https://www.graphpad.com/scientific-software/prism/"
+  ],
+  "images": [
+    {
+      "url": "https://www.graphpad.com/guides/prism/latest/user-guide/images/clip0143.png",
+      "sha256": "0c33ee7ac32f81d917cb5347d5113282c958f5bc00ecdeb80006a2d5bf94efd7",
+      "observed_platform": "macOS",
+      "scope": "Older macOS window screenshot within Prism 11 guide; precise app version not established",
+      "used_for": "Mac workbook proportions, grouped toolbar, compact grid and navigator"
+    },
+    {
+      "url": "https://cdn.graphpad.com/assets/22.3.0/assets/images/graphpad/prism/prism-t-test-w1076-800.png",
+      "sha256": "0665657f903352b46d0c5f0b1bfa035e2985b3f1e4dd9bbc22f6952ae03915bd",
+      "observed_platform": "macOS",
+      "scope": "Official product/guide illustration; app version and native runtime behavior not independently established",
+      "used_for": "Control density and dialog composition"
+    },
+    {
+      "url": "https://cdn.graphpad.com/assets/22.3.0/assets/images/graphpad/prism/data-graph-inspector.png",
+      "sha256": "5014619a84bbe4f81f232d9887a128f1b0464ce942cc6a5d466844129a911a15",
+      "observed_platform": "macOS",
+      "scope": "Official product/guide illustration; app version and native runtime behavior not independently established",
+      "used_for": "Mac inspector and control styling"
+    },
+    {
+      "url": "https://www.graphpad.com/guides/prism/latest/user-guide/images/hmfile_hash_d525d948.png",
+      "sha256": "c4f18a61f5b99049de4d6017fc7d8efe13cbc032b8d41fc26f799790eeee2117",
+      "observed_platform": "Windows",
+      "scope": "Official product/guide illustration; app version and native runtime behavior not independently established",
+      "used_for": "Shared workbook/table/dialog structure only; not the target platform chrome"
+    },
+    {
+      "url": "https://www.graphpad.com/guides/prism/latest/user-guide/images/hmfile_hash_75b759e4.png",
+      "sha256": "844dc380374fafddf420298b740c09e8a273961bf83c38fcb05ce757235ff5c6",
+      "observed_platform": "Windows",
+      "scope": "Official product/guide illustration; app version and native runtime behavior not independently established",
+      "used_for": "Shared workbook/table/dialog structure only; not the target platform chrome"
+    }
+  ],
+  "limitations": [
+    "Screenshots are reference evidence; no proprietary images are included in the app.",
+    "Official guide edition does not prove screenshot app version.",
+    "Visual resemblance must be checked separately from numerical correctness and workflow tests.",
+    "No running Prism for macOS reference is available in this environment."
+  ]
+}

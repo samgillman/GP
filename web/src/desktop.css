@@ -1,0 +1,1282 @@
+/* Desktop workbook shell based on the recovered Mac structure and official visual references.
+   This stylesheet deliberately does not style dialogs or the separate analysis workspace. */
+.app {
+  --desktop-header: 116px;
+  --navigator-width: 210px;
+  --status-height: 27px;
+  display: block;
+  height: 100vh;
+  min-height: 560px;
+  overflow: hidden;
+  background: #ededed;
+  color: #171717;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+}
+.desktop-chrome {
+  position: fixed;
+  inset: 0 0 auto;
+  height: var(--desktop-header);
+  z-index: 12;
+  background: linear-gradient(#f1f1f1, #dedede);
+  border-bottom: 1px solid #aaa;
+  color: #202020;
+  user-select: none;
+}
+.desktop-titlebar {
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  background: linear-gradient(#ededed, #e3e3e3);
+  position: relative;
+  border-bottom: 1px solid #d2d2d2;
+}
+.desktop-app-name {
+  position: absolute;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #545454;
+  font-weight: 600;
+}
+.desktop-titlebar .workbook-name {
+  font:
+    500 12px -apple-system,
+    BlinkMacSystemFont,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  text-align: center;
+  color: #353535;
+  width: 440px;
+  max-width: 60%;
+  height: 23px;
+  padding: 2px 8px;
+  border: 0;
+  background: transparent;
+  border-radius: 2px;
+}
+.desktop-titlebar .workbook-name:focus {
+  background: #fff;
+  outline: 1px solid #4d95e2;
+}
+.document-state {
+  position: absolute;
+  right: 12px;
+  color: #737373;
+  font-size: 10px;
+}
+.desktop-menubar {
+  height: 22px;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding-left: 5px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #c8c8c8;
+  font-size: 12px;
+}
+.desktop-menu {
+  position: relative;
+}
+.desktop-menu > summary {
+  list-style: none;
+  padding: 3px 11px;
+  cursor: default;
+  height: 22px;
+}
+.desktop-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.desktop-menu[open] > summary {
+  background: #267cda;
+  color: white;
+}
+.desktop-menu > div {
+  position: absolute;
+  z-index: 50;
+  top: 22px;
+  left: 0;
+  background: #f8f8f8ef;
+  backdrop-filter: blur(12px);
+  border: 1px solid #b7b7b7;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 4px 14px #0003;
+  min-width: 240px;
+  padding: 5px 0;
+  max-height: 60vh;
+  overflow: auto;
+}
+.desktop-menu button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  text-align: left;
+  font:
+    12px -apple-system,
+    BlinkMacSystemFont,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  width: 100%;
+  white-space: nowrap;
+  padding: 5px 15px;
+  color: #222;
+  border: 0;
+  border-radius: 0;
+  min-height: 25px;
+}
+.desktop-menu button:hover:not(:disabled) {
+  background: #287bd6;
+  color: #fff;
+}
+.desktop-menu button:disabled {
+  color: #999;
+  opacity: 1;
+}
+.desktop-menu kbd {
+  font: 10px inherit;
+  color: #888;
+}
+.desktop-menu hr {
+  border: 0;
+  border-top: 1px solid #d2d2d2;
+  margin: 5px 0;
+}
+.desktop-toolbar {
+  display: flex;
+  align-items: stretch;
+  height: 69px;
+  gap: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 7px 4px;
+  background: linear-gradient(#eee, #dfdfdf);
+}
+.desktop-tool-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  border-right: 1px solid #bbb;
+  padding: 0 9px;
+  flex-shrink: 0;
+  min-width: 56px;
+}
+.desktop-tool-group > span {
+  font-size: 10px;
+  color: #454545;
+  height: 16px;
+  line-height: 15px;
+}
+.desktop-tool-group > div {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.desktop-tool-group button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 36px;
+  height: 43px;
+  padding: 3px 6px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: #222;
+  white-space: nowrap;
+}
+.desktop-tool-group button svg {
+  height: 20px;
+  width: 20px;
+  color: #4573a1;
+  stroke-width: 1.6;
+  filter: drop-shadow(0 1px 0 #fff8);
+}
+.desktop-tool-group:nth-child(2) button svg {
+  color: #9c7f30;
+}
+.desktop-tool-group:nth-child(5) button svg {
+  color: #4b7da9;
+}
+.desktop-tool-group:nth-child(7) button svg {
+  color: #b97648;
+}
+.desktop-tool-group button small {
+  font-size: 10px;
+  line-height: 12px;
+}
+.desktop-tool-group button:hover:not(:disabled) {
+  background: #f6f6f6;
+  border-color: #bcbcbc;
+}
+.desktop-tool-group button:active:not(:disabled) {
+  background: #d1d1d1;
+}
+.desktop-tool-group button:disabled {
+  opacity: 0.35;
+}
+.desktop-tool-group:last-child {
+  border-right: 0;
+}
+.app > .sidebar {
+  position: fixed;
+  top: var(--desktop-header);
+  bottom: var(--status-height);
+  left: 0;
+  width: var(--navigator-width);
+  padding: 0;
+  background: #f2f2f2;
+  color: #222;
+  border-right: 1px solid #9e9e9e;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  box-shadow: inset -3px 0 #dedede;
+}
+.sidebar .navigator-search {
+  flex-shrink: 0;
+  width: calc(100% - 13px);
+  height: 24px;
+  min-height: 24px;
+  margin: 6px 7px;
+  padding: 3px 7px;
+  border: 1px solid #b6b6b6;
+  border-radius: 3px;
+  background: #fff;
+  color: #222;
+  font-size: 11px;
+  box-shadow: inset 0 1px 2px #0000000b;
+}
+.sidebar .navigator-search::placeholder {
+  color: #888;
+}
+.sidebar .navigator-search:focus {
+  outline: 2px solid #90bdf0;
+  outline-offset: -1px;
+}
+.sidebar .sheet-navigator {
+  padding: 0 3px 0 0;
+  flex: 1;
+  min-height: 120px;
+  overflow: auto;
+  background: #f9f9f9;
+}
+.sidebar .navigator-section {
+  margin: 0 0 6px;
+}
+.sidebar .navigator-section h2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ececec;
+  padding: 0 8px 0 3px;
+  margin: 0;
+  border-top: 1px solid #d4d4d4;
+  border-bottom: 1px solid #d4d4d4;
+  font-size: 11px;
+  font-weight: 600;
+  color: #222;
+  text-transform: none;
+  letter-spacing: 0;
+  height: 25px;
+}
+.sidebar .navigator-section h2 > button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  height: 100%;
+  font-size: 11px;
+  text-align: left;
+  color: #282828;
+}
+.sidebar .navigator-section h2 svg {
+  color: #777;
+}
+.sidebar .navigator-section h2 svg.expanded {
+  transform: rotate(90deg);
+}
+.sidebar .navigator-section h2 > span {
+  font-size: 10px;
+  color: #7b7b7b;
+  opacity: 1;
+}
+.sidebar .sheet-link {
+  min-height: 23px;
+  padding: 4px 7px 4px 22px;
+  margin: 0;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 15px;
+  color: #222;
+  border-radius: 0;
+  gap: 6px;
+}
+.sidebar .sheet-link svg {
+  width: 13px;
+  height: 13px;
+  color: #6688b3;
+  stroke-width: 1.5;
+}
+.sidebar .sheet-link.selected {
+  background: #d5e6f8;
+  color: #111;
+  box-shadow:
+    inset 0 1px #c4d9f1,
+    inset 0 -1px #c4d9f1;
+}
+.sidebar .sheet-link.selected svg {
+  color: #3874b6;
+}
+.sidebar .sheet-link:hover:not(.selected) {
+  background: #e8edf3;
+}
+.sidebar .stale-dot {
+  color: #bd7c23;
+  font-size: 15px;
+}
+.sidebar .navigator-new {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  padding: 4px 8px 4px 24px;
+  color: #606060;
+  text-align: left;
+  font-size: 10px;
+  font-style: italic;
+  min-height: 23px;
+  border-radius: 0;
+}
+.sidebar .navigator-new svg {
+  color: #999;
+  width: 12px;
+  height: 12px;
+}
+.sidebar .navigator-new:hover {
+  background: #e7edf4;
+  color: #222;
+}
+.sidebar .family-navigator {
+  flex-shrink: 0;
+  height: 190px;
+  max-height: 32%;
+  min-height: 90px;
+  margin: 0;
+  padding: 0 3px 10px 0;
+  border-top: 4px double #aaa;
+  background: #f4f4f4;
+  overflow: auto;
+}
+.sidebar .family-navigator h2 {
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 600;
+  height: 27px;
+  color: #222;
+  letter-spacing: 0;
+  text-transform: none;
+  background: #e9e9e9;
+  border-bottom: 1px solid #c4c4c4;
+  margin: 0 0 3px;
+}
+.sidebar .family-navigator h2 small {
+  font-size: 9px;
+  color: #777;
+  display: block;
+}
+.sidebar .family-navigator button {
+  font-size: 11px;
+  line-height: 15px;
+  border-radius: 0;
+  padding: 4px 9px 4px 18px;
+  color: #333;
+  gap: 6px;
+}
+.sidebar .family-navigator button > span {
+  color: #6688b3;
+}
+.sidebar .family-navigator button.selected {
+  background: #d5e6f8;
+  color: #111;
+}
+.sidebar .family-navigator button:hover:not(.selected) {
+  background: #e9edf2;
+}
+.app > main {
+  margin: var(--desktop-header) 0 var(--status-height) var(--navigator-width);
+  width: calc(100% - var(--navigator-width));
+  height: calc(100vh - var(--desktop-header) - var(--status-height));
+  min-height: 417px;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  overflow: hidden;
+}
+.app > main .main-content {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #eee;
+}
+.desktop-sheet-strip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 29px;
+  min-height: 29px;
+  padding: 3px 8px;
+  background: linear-gradient(#f9f9f9, #ededed);
+  border-bottom: 1px solid #b7b7b7;
+}
+.sheet-kind-icon {
+  display: flex;
+  align-items: center;
+  color: #5e7fa6;
+}
+.app > main .desktop-sheet-strip .project-title {
+  font:
+    500 12px -apple-system,
+    BlinkMacSystemFont,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  letter-spacing: 0;
+  width: auto;
+  flex: 1;
+  min-width: 70px;
+  padding: 2px 5px;
+  margin: 0;
+  height: 22px;
+  color: #222;
+  border: 1px solid transparent;
+  border-radius: 2px;
+}
+.app > main .desktop-sheet-strip .project-title:focus {
+  background: white;
+  border-color: #7da9db;
+  outline: 1px solid #a9c8ec;
+}
+.desktop-sheet-type {
+  font-size: 10px;
+  color: #717171;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.app > main .button {
+  font:
+    11px -apple-system,
+    BlinkMacSystemFont,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  min-height: 23px;
+  padding: 3px 9px;
+  background: linear-gradient(white, #e8e8e8);
+  color: #222;
+  gap: 5px;
+  box-shadow: 0 1px 1px #00000008;
+}
+.app > main .button:hover {
+  background: linear-gradient(#fff, #e0e0e0);
+}
+.app > main .button.primary {
+  background: linear-gradient(#4d9be8, #2777cb);
+  border-color: #2770bb;
+  color: #fff;
+}
+.app > main .button.primary:hover {
+  background: linear-gradient(#3d90e2, #176cc1);
+}
+.app > main .button svg {
+  width: 13px;
+  height: 13px;
+}
+.app > main select {
+  font-family: inherit;
+  color: #222;
+  background: linear-gradient(#fff, #f1f1f1);
+  border: 1px solid #b1b1b1;
+  border-radius: 3px;
+  font-size: 11px;
+  padding: 2px 5px;
+  height: 23px;
+}
+.app > main input:focus,
+.app > main select:focus {
+  outline: 2px solid #83b6ef;
+  outline-offset: -1px;
+}
+.app > main .analysis-bar {
+  min-height: 33px;
+  height: auto;
+  flex-shrink: 0;
+  padding: 4px 8px;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid #c2c2c2;
+  border-radius: 0;
+  background: #f1f1f1;
+  gap: 9px;
+  box-shadow: none;
+}
+.app > main .analysis-bar > .analysis-icon {
+  display: none;
+}
+.app > main .analysis-bar > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.app > main .analysis-bar label {
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #565656;
+  margin: 0;
+}
+.app > main .analysis-bar select {
+  font-size: 11px;
+  font-weight: 400;
+  color: #202020;
+  margin: 0;
+  max-width: 230px;
+  background: linear-gradient(#fff, #efefef);
+  padding: 2px 5px;
+}
+.app > main .analysis-bar .analysis-hint {
+  font-size: 10px;
+  color: #767676;
+  display: block;
+  margin-left: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.app > main .analysis-bar .button {
+  font-size: 10px;
+  min-height: 23px;
+  padding: 3px 9px;
+  margin-left: auto;
+}
+.app > main .analysis-bar .model-choice {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}
+.app > main .model-choice select {
+  width: 190px;
+  max-width: 190px;
+}
+.app > main .alert,
+.app > main .recovery-notice {
+  flex-shrink: 0;
+  margin: 0;
+  border-radius: 0;
+  font-size: 11px;
+  padding: 7px 10px;
+  line-height: 1.4;
+}
+.app > main .alert.error {
+  background: #fff1ed;
+  border: 0;
+  border-bottom: 1px solid #e4b1a7;
+  color: #8b382b;
+}
+.app > main .alert.notice {
+  background: #fff9df;
+  border: 0;
+  border-bottom: 1px solid #e0d59f;
+  color: #665528;
+}
+.app > main .alert button {
+  padding: 1px;
+}
+.app > main .recovery-notice {
+  border-width: 0 0 1px;
+}
+.app > main .workspace-grid.sheet-data-view {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.app > main .card {
+  border: 0;
+  border-radius: 0;
+  background: white;
+  box-shadow: none;
+}
+.app > main .data-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.app > main .sheet-graph-view .data-card,
+.app > main .sheet-data-view .graph-card {
+  display: none;
+}
+.app > main .data-card .card-heading {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 25px;
+  padding: 2px 8px;
+  border: 0;
+  z-index: 2;
+  background: #eee;
+}
+.app > main .data-card .card-heading > div {
+  display: none;
+}
+.app > main .data-card .small-select {
+  font-size: 10px;
+  height: 21px;
+  padding: 1px 4px;
+}
+.app > main .data-tools {
+  height: 25px;
+  min-height: 25px;
+  padding: 2px 96px 2px 8px;
+  gap: 7px;
+  border-bottom: 1px solid #b7b7b7;
+  background: #eee;
+  color: #6b6b6b;
+  font-size: 10px;
+}
+.app > main .table-indicator {
+  display: none;
+}
+.app > main .sample-select select {
+  font-size: 10px;
+  height: 20px;
+  max-width: 170px;
+  border: 1px solid #b9b9b9;
+  background: #fff;
+  padding: 0 3px;
+  color: #555;
+}
+.app > main .sheet-wrap {
+  max-height: none;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 0;
+  background: #fff;
+}
+.app > main .sheet {
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  width: max-content;
+  min-width: 100%;
+  font:
+    12px -apple-system,
+    BlinkMacSystemFont,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+}
+.app > main .sheet th,
+.app > main .sheet td {
+  border-right: 1px solid #c2c2c2;
+  border-bottom: 1px solid #d1d1d1;
+  padding: 0;
+}
+.app > main .sheet thead th {
+  height: 59px;
+  min-width: 112px;
+  width: 112px;
+  font-weight: 400;
+  background: #efefef;
+  vertical-align: top;
+  color: #222;
+}
+.app > main .sheet thead th.row-number,
+.app > main .sheet .row-number {
+  width: 35px;
+  min-width: 35px;
+  background: #e7e7e7;
+  font-size: 11px;
+  color: #686868;
+  vertical-align: middle;
+  border-right-color: #aeb2b7;
+}
+.app > main .sheet thead th.row-number {
+  font-size: 11px;
+  color: #888;
+}
+.app > main .column-letter {
+  height: 19px;
+  line-height: 19px;
+  margin: 0;
+  border-bottom: 1px solid #b9b9b9;
+  background: linear-gradient(#f8f8f8, #e6e6e6);
+  font-size: 11px;
+  color: #333;
+}
+.app > main .sheet th input {
+  display: block;
+  width: 100%;
+  height: 23px;
+  border-radius: 0;
+  padding: 0 4px;
+  font-size: 12px;
+  color: #222;
+  background: white;
+  border: 0;
+  text-align: center;
+}
+.app > main .sheet th input::placeholder {
+  color: #bbb;
+}
+.app > main .column-entry-kind {
+  display: block;
+  height: 17px;
+  line-height: 17px;
+  border-top: 1px solid #c2c2c2;
+  background: #e8e8e8;
+  font-size: 10px;
+  color: #777;
+}
+.app > main .column-line {
+  display: none;
+}
+.app > main .sheet td {
+  height: 23px;
+  background: #fff;
+}
+.app > main .sheet td input {
+  height: 23px;
+  padding: 0 5px;
+  font-size: 12px;
+  color: #171717;
+  text-align: right;
+  line-height: 23px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+}
+.app > main .sheet td:hover {
+  background: #fff;
+}
+.app > main .sheet td input:focus {
+  background: #d9ebff;
+  outline: 2px solid #398dde;
+  outline-offset: -1px;
+}
+.app > main .sheet td input.invalid-cell {
+  background: #ffebe6;
+  color: #a03f32;
+}
+.app > main .sheet tbody tr:focus-within > .row-number {
+  background: #c4ddf5;
+  color: #245f99;
+}
+.app > main .sheet tbody .row-number button {
+  color: #9a5853;
+}
+.app > main .sheet thead th.add-column {
+  width: 27px;
+  min-width: 27px;
+  vertical-align: middle;
+}
+.app > main .add-column button {
+  color: #788799;
+  padding: 3px;
+}
+.app > main .sheet .blank-cell {
+  background: #f5f5f5;
+}
+.app > main .sheet-footer {
+  flex-shrink: 0;
+  height: 24px;
+  padding: 3px 8px;
+  border-top: 1px solid #b5b5b5;
+  background: #f0f0f0;
+  font-size: 10px;
+  color: #757575;
+}
+.app > main .sheet-footer .text-button {
+  font-size: 10px;
+  color: #333;
+}
+.app > main .table-tip {
+  display: none;
+}
+.app > main .workspace-grid.sheet-graph-view {
+  display: block;
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  padding: 22px 25px;
+  background: #bdbdbd;
+}
+.app > main .sheet-graph-view .graph-card {
+  max-width: 870px;
+  min-height: 590px;
+  margin: 0 auto;
+  background: white;
+  border: 1px solid #929292;
+  box-shadow: 0 2px 7px #0002;
+  padding: 14px 20px;
+}
+.app > main .graph-card > .card-heading {
+  display: none;
+}
+.app > main .graph-types {
+  padding: 0;
+  gap: 0;
+  display: flex;
+  width: fit-content;
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+.app > main .graph-types button {
+  font-size: 10px;
+  padding: 3px 12px;
+  border: 0;
+  border-right: 1px solid #bbb;
+  border-radius: 0;
+  background: linear-gradient(#fff, #e8e8e8);
+  color: #444;
+}
+.app > main .graph-types button:last-child {
+  border-right: 0;
+}
+.app > main .graph-types button.selected {
+  background: linear-gradient(#4893dd, #2876bf);
+  color: #fff;
+}
+.app > main .chart-title {
+  font:
+    600 16px Arial,
+    sans-serif;
+  letter-spacing: 0;
+  color: black;
+  margin: 16px 0 5px;
+}
+.app > main .sheet-graph-view .plot {
+  max-height: 520px;
+  padding: 0 15px;
+}
+.app > main .plot text {
+  font-family: Arial, sans-serif;
+  fill: #333;
+}
+.app > main .plot .axis-label {
+  fill: #222;
+}
+.app > main .legend {
+  margin: 2px 8px 0;
+  gap: 18px;
+}
+.app > main .legend span {
+  font-size: 11px;
+  color: #333;
+}
+.app > main .graph-caption {
+  font-size: 10px;
+  color: #777;
+  padding: 12px 0 20px;
+}
+.app > main .export-row {
+  border-top: 1px solid #ddd;
+  background: white;
+  padding: 11px 0 0;
+  font-size: 10px;
+  color: #666;
+}
+.app > main .export-row button {
+  font-size: 10px;
+  border-color: #aaa;
+  background: linear-gradient(#fff, #e8e8e8);
+  color: #333;
+  border-radius: 3px;
+  padding: 3px 9px;
+}
+.app > main .results-card {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: #fff;
+}
+.app > main .results-card > .card-heading {
+  height: 30px;
+  min-height: 30px;
+  padding: 4px 9px;
+  background: #f0f0f0;
+  border-bottom: 1px solid #bcbcbc;
+}
+.app > main .results-card > .card-heading h2 {
+  font-size: 12px;
+  color: #155fc1;
+  font-weight: 600;
+}
+.app > main .results-card > .card-heading svg {
+  color: #6580a1;
+  width: 14px;
+  height: 14px;
+}
+.app > main .complete-badge {
+  font-size: 10px;
+  color: #66765f;
+}
+.app > main .results-content {
+  padding: 0 0 20px;
+}
+.app > main .result-warning {
+  font-size: 11px;
+  line-height: 1.4;
+  border-radius: 0;
+  margin: 0;
+  padding: 7px 10px;
+  border-bottom: 1px solid #e2d6b4;
+  background: #fff8e5;
+  color: #866c36;
+}
+.app > main .results-content h3 {
+  font-size: 12px;
+  color: #222;
+  margin: 0;
+  padding: 14px 9px 6px;
+  background: #fff;
+  font-weight: 600;
+}
+.app > main .analysis-output {
+  border-collapse: collapse;
+  width: max-content;
+  min-width: 600px;
+  max-width: 100%;
+  font-size: 12px;
+  background: white;
+  text-align: left;
+}
+.app > main .analysis-output th,
+.app > main .analysis-output td {
+  height: 25px;
+  border-right: 1px solid #c4c4c4;
+  border-bottom: 1px solid #eee1d4;
+  font-weight: 400;
+  padding: 3px 8px;
+}
+.app > main .analysis-output thead th {
+  background: #efefef;
+  border-bottom: 1px solid #bdbdbd;
+  color: #075bd2;
+  font-size: 12px;
+  text-align: center;
+  font-weight: 600;
+  height: 31px;
+}
+.app > main .analysis-output .output-row-number {
+  background: #eaeaea;
+  color: #7d7d7d;
+  width: 35px;
+  min-width: 35px;
+  text-align: center;
+  font-size: 10px;
+  padding: 2px 3px;
+  border-bottom-color: #d3d3d3;
+}
+.app > main .analysis-output tbody th:nth-child(2) {
+  min-width: 280px;
+}
+.app > main .analysis-output td {
+  min-width: 250px;
+  font-variant-numeric: tabular-nums;
+}
+.app > main .results-table-wrap {
+  overflow: auto;
+}
+.app > main .results-table {
+  width: max-content;
+  min-width: 600px;
+  border-collapse: collapse;
+  text-align: right;
+  font-size: 12px;
+}
+.app > main .results-table th,
+.app > main .results-table td {
+  height: 25px;
+  padding: 3px 9px;
+  border-right: 1px solid #c7c7c7;
+  border-bottom: 1px solid #eee1d4;
+  color: #222;
+  font-weight: 400;
+  min-width: 130px;
+}
+.app > main .results-table th:first-child {
+  min-width: 280px;
+  font-weight: 400;
+  text-align: left;
+}
+.app > main .results-table thead th {
+  background: #f0f0f0;
+  color: #333;
+  font-size: 11px;
+  border-top: 1px solid #c3c3c3;
+  border-bottom: 1px solid #bcbcbc;
+  font-weight: 500;
+}
+.app > main .extended-summary {
+  margin: 0;
+}
+.app > main .extended-summary summary {
+  font-size: 12px;
+  color: #222;
+  font-weight: 600;
+  padding: 12px 9px 6px;
+  margin: 0;
+}
+.app > main .undefined-stat {
+  display: block;
+  color: #8c7453;
+  font-size: 10px;
+  line-height: 1.3;
+  max-width: 230px;
+  white-space: normal;
+  margin-top: 3px;
+}
+.app > main .result-footnote {
+  color: #666;
+  font-size: 10px;
+  line-height: 1.5;
+  padding: 8px 10px;
+  margin: 0;
+  max-width: 750px;
+}
+.app > main .results-content > .button {
+  margin: 5px 9px;
+}
+.app > main .empty-results {
+  padding: 40px 20px;
+  align-items: flex-start;
+  text-align: left;
+}
+.app > main .empty-results > div {
+  display: none;
+}
+.app > main .empty-results h3 {
+  font:
+    600 13px -apple-system,
+    BlinkMacSystemFont,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  color: #444;
+  margin-bottom: 5px;
+}
+.app > main .empty-results p {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+  margin: 8px 0 15px;
+}
+.desktop-statusbar {
+  position: fixed;
+  inset: auto 0 0;
+  height: var(--status-height);
+  z-index: 15;
+  background: linear-gradient(#f1f1f1, #e1e1e1);
+  border-top: 1px solid #a8a8a8;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 7px;
+  color: #575757;
+  font-size: 10px;
+}
+.status-view-buttons {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.status-view-buttons button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  width: 26px;
+  padding: 2px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: #6381a3;
+}
+.status-view-buttons button.selected {
+  border-color: #a2a2a2;
+  background: #fff;
+  box-shadow: inset 0 0 1px #aaa;
+}
+.desktop-statusbar select {
+  height: 21px !important;
+  max-width: 300px;
+  min-width: 120px;
+  font-size: 10px !important;
+  padding: 0 3px !important;
+}
+.status-save {
+  margin-left: auto;
+  color: #666;
+  white-space: nowrap;
+}
+@media (max-width: 1100px) {
+  .app {
+    --navigator-width: 185px;
+  }
+  .desktop-tool-group {
+    padding: 0 6px;
+  }
+  .desktop-tool-group button {
+    padding: 3px 4px;
+  }
+  .app > main .analysis-bar .analysis-hint {
+    display: none;
+  }
+  .app > main .sheet-graph-view .graph-card {
+    min-height: 500px;
+  }
+}
+@media (max-width: 700px) {
+  .app {
+    --navigator-width: 145px;
+    --desktop-header: 113px;
+  }
+  .desktop-titlebar {
+    height: 24px;
+  }
+  .desktop-menubar {
+    height: 22px;
+  }
+  .desktop-toolbar {
+    height: 67px;
+  }
+  .desktop-menu > summary {
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+  .desktop-tool-group {
+    padding: 0 5px;
+  }
+  .desktop-tool-group > span {
+    font-size: 9px;
+  }
+  .desktop-tool-group button small {
+    font-size: 9px;
+  }
+  .desktop-toolbar::-webkit-scrollbar {
+    height: 4px;
+  }
+  .desktop-titlebar .workbook-name {
+    font-size: 11px;
+    max-width: 65%;
+  }
+  .document-state {
+    display: none;
+  }
+  .app > .sidebar .family-navigator {
+    height: 140px;
+    max-height: 30%;
+  }
+  .sidebar .sheet-link {
+    font-size: 10px;
+    padding-left: 14px;
+  }
+  .sidebar .navigator-section h2 > button {
+    font-size: 10px;
+  }
+  .sidebar .navigator-new {
+    padding-left: 14px;
+    font-size: 9px;
+  }
+  .sidebar .family-navigator button {
+    font-size: 10px;
+    padding-left: 10px;
+  }
+  .sidebar .family-navigator h2 small {
+    display: none;
+  }
+  .desktop-sheet-type {
+    display: none;
+  }
+  .app > main .analysis-bar {
+    gap: 5px;
+    flex-wrap: wrap;
+    padding: 4px 5px;
+  }
+  .app > main .analysis-bar select {
+    font-size: 10px;
+    max-width: 170px;
+  }
+  .app > main .analysis-bar .button {
+    margin-left: 0;
+    font-size: 9px;
+  }
+  .app > main .data-tools {
+    font-size: 9px;
+    padding-left: 5px;
+  }
+  .app > main .data-tools > span {
+    display: none;
+  }
+  .app > main .sample-select {
+    margin-left: 0;
+  }
+  .app > main .sample-select select {
+    max-width: 120px;
+    font-size: 9px;
+  }
+  .app > main .workspace-grid.sheet-graph-view {
+    padding: 10px;
+  }
+  .app > main .sheet-graph-view .graph-card {
+    width: 650px;
+    max-width: none;
+    min-height: 480px;
+    margin: 0;
+    padding: 12px;
+  }
+  .desktop-statusbar {
+    gap: 5px;
+    font-size: 9px;
+  }
+  .desktop-statusbar > span:not(.status-save) {
+    display: none;
+  }
+  .desktop-statusbar select {
+    max-width: 180px;
+    min-width: 90px;
+  }
+  .status-save {
+    font-size: 8px;
+  }
+  .desktop-app-name {
+    font-size: 10px;
+    left: 7px;
+  }
+}

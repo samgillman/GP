@@ -5,6 +5,9 @@ import {
   ArrowUpFromLine,
   BarChart3,
   Check,
+  FileText,
+  FilePlus2,
+  Copy,
   ChevronDown,
   ChevronRight,
   FlaskConical,
@@ -102,8 +105,48 @@ import {
   shouldHandleHistoryShortcut,
 } from "./workbook-history";
 import type { HistoryOptions } from "./workbook-history";
+function DesktopMenu({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  const menu = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    function dismiss(event: PointerEvent) {
+      if (event.target instanceof Node && !menu.current?.contains(event.target)) {
+        if (menu.current) menu.current.open = false;
+      }
+    }
+    document.addEventListener("pointerdown", dismiss);
+    return () => document.removeEventListener("pointerdown", dismiss);
+  }, []);
+  return (
+    <details
+      ref={menu}
+      name="workbook-menu"
+      className="desktop-menu"
+      onClick={(event) => {
+        if ((event.target as HTMLElement).closest("button"))
+          event.currentTarget.open = false;
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") event.currentTarget.open = false;
+      }}
+    >
+      <summary>{label}</summary>
+      <div role="menu" aria-label={`${label} menu`}>
+        {children}
+      </div>
+    </details>
+  );
+}
 export default function App() {
   const [advanced, setAdvanced] = useState(false);
+  const [collapsedSections, setCollapsedSections] = useState<
+    Record<string, boolean>
+  >({});
   const [restoration] = useState(() =>
     restoreWorkbook((key) => localStorage.getItem(key)),
   );
@@ -217,8 +260,7 @@ export default function App() {
       ? selectedSheet
       : graphSheet?.resultId
         ? (workbook.sheets.find((s) => s.id === graphSheet.resultId) as
-            | ResultSheet
-            | undefined)
+            ResultSheet | undefined)
         : undefined;
   const result =
     linkedResult?.status === "current" ? linkedResult.result : null;
@@ -436,10 +478,24 @@ export default function App() {
     count = project.columns
       .slice(xy ? 1 : 0)
       .reduce((n, c) => n + c.values.filter((v) => v.trim()).length, 0);
+  const displayedRows = Math.max(rows, 32);
+  const displayedColumns = Array.from(
+    { length: Math.max(project.columns.length, 8) },
+    (_, i) => project.columns[i] ?? { name: `Series ${i + 1}`, values: [] },
+  );
+  function expandColumns(p: Project, col: number) {
+    const columns = [...p.columns];
+    while (columns.length <= col)
+      columns.push({
+        name: `Series ${columns.length + 1}`,
+        values: Array(rows).fill(""),
+      });
+    return columns;
+  }
   function updateCell(col: number, row: number, value: string) {
     change((p) => ({
       ...p,
-      columns: p.columns.map((c, i) =>
+      columns: expandColumns(p, col).map((c, i) =>
         i !== col
           ? c
           : {
@@ -739,6 +795,43 @@ export default function App() {
     )
       change(sample(type));
   }
+  function saveWorkbook() {
+    download(
+      new Blob([JSON.stringify(workbook)], { type: "application/json" }),
+      `${workbook.name.replace(/[^a-zA-Z0-9_-]/g, "-")}.gp.json`,
+    );
+    setNotice("Workbook downloaded with data, linked results, and graphs.");
+  }
+  function exportData() {
+    download(
+      new Blob([exportCsv(project.columns)], { type: "text/csv" }),
+      "GP-data.csv",
+    );
+  }
+  function createLinkedGraph() {
+    setWorkbook((w) =>
+      addGraph(
+        w,
+        source.id,
+        selectedSheet.kind === "results" ? selectedSheet.id : null,
+      ),
+    );
+  }
+  function focusSheetName() {
+    document
+      .querySelector<HTMLInputElement>('[aria-label="Sheet name"]')
+      ?.focus();
+  }
+  async function copyData() {
+    try {
+      await navigator.clipboard.writeText(exportCsv(project.columns));
+      setNotice("Data table copied as CSV.");
+    } catch {
+      setError(
+        "Clipboard access is unavailable. Use Export CSV to save the table.",
+      );
+    }
+  }
   if (advanced) return <AdvancedAnalyses onBack={() => setAdvanced(false)} />;
   return (
     <div
@@ -747,19 +840,311 @@ export default function App() {
         historyRef.current = breakHistoryGroup(historyRef.current);
       }}
     >
-      <aside className="sidebar">
-        <a className="brand" href="#" aria-label="GP workspace">
-          <span className="brand-symbol">
-            <Activity size={22} />
+      <header className="desktop-chrome">
+        <div className="desktop-titlebar">
+          <span className="desktop-app-name">
+            <FileText size={13} />
+            GP
           </span>
-          <strong>
-            GP<span className="brand-dot">.</span>
-          </strong>
-        </a>
-        <button className="nav-button" onClick={() => setNewTable(true)}>
-          <Plus size={17} />
-          New Data Table and Graph
-        </button>
+          <input
+            aria-label="Workbook name"
+            className="workbook-name"
+            value={workbook.name}
+            onChange={(e) =>
+              setWorkbook(
+                (w) => ({ ...w, name: e.target.value }),
+                editOptions("Rename workbook"),
+              )
+            }
+          />
+          <span className="document-state">
+            {recovery
+              ? "Autosave paused"
+              : saved
+                ? "Saved"
+                : "Not saved in browser"}
+          </span>
+        </div>
+        <nav className="desktop-menubar" aria-label="Application menu">
+          <DesktopMenu label="File">
+            <button role="menuitem" onClick={() => setNewTable(true)}>
+              New Data Table and Graph…
+            </button>
+            <button role="menuitem" onClick={() => projectRef.current?.click()}>
+              Open workbook…
+            </button>
+            <button role="menuitem" onClick={saveWorkbook}>
+              Save workbook
+            </button>
+            <hr />
+            <button role="menuitem" onClick={() => fileRef.current?.click()}>
+              Import data…
+            </button>
+            <button role="menuitem" onClick={exportData}>
+              Export data as CSV…
+            </button>
+          </DesktopMenu>
+          <DesktopMenu label="Edit">
+            <button
+              role="menuitem"
+              disabled={!history.past.length}
+              onClick={() => applyHistory("undo")}
+            >
+              Undo <kbd>⌘Z / Ctrl+Z</kbd>
+            </button>
+            <button
+              role="menuitem"
+              disabled={!history.future.length}
+              onClick={() => applyHistory("redo")}
+            >
+              Redo <kbd>⇧⌘Z / Ctrl+Y</kbd>
+            </button>
+            <hr />
+            <button role="menuitem" onClick={focusSheetName}>
+              Rename sheet
+            </button>
+            <button role="menuitem" onClick={() => void copyData()}>
+              Copy table as CSV
+            </button>
+          </DesktopMenu>
+          <DesktopMenu label="View">
+            <button role="menuitem" onClick={() => setActive("data")}>
+              Data table
+            </button>
+            <button role="menuitem" onClick={() => setActive("results")}>
+              Tabular results
+            </button>
+            <button role="menuitem" onClick={() => setActive("graph")}>
+              Graph
+            </button>
+            <hr />
+            <button
+              role="menuitem"
+              onClick={() =>
+                document
+                  .querySelector<HTMLInputElement>(
+                    '[aria-label="Search sheets"]',
+                  )
+                  ?.focus()
+              }
+            >
+              Search navigator
+            </button>
+          </DesktopMenu>
+          <DesktopMenu label="Insert">
+            <button role="menuitem" onClick={() => setNewTable(true)}>
+              New Data Table and Graph…
+            </button>
+            <button role="menuitem" onClick={createLinkedGraph}>
+              New graph of existing data
+            </button>
+          </DesktopMenu>
+          <DesktopMenu label="Analyze">
+            <button role="menuitem" onClick={() => setAnalyzeDialog(true)}>
+              Analyze Data…
+            </button>
+            <button role="menuitem" disabled={busy} onClick={() => void run()}>
+              {selectedSheet.kind === "results"
+                ? "Recalculate analysis"
+                : "Run selected analysis"}
+            </button>
+            <hr />
+            <button role="menuitem" onClick={() => setAdvanced(true)}>
+              Grouped and survival analyses…
+            </button>
+          </DesktopMenu>
+          <DesktopMenu label="Change">
+            <button role="menuitem" onClick={focusSheetName}>
+              Sheet name…
+            </button>
+            <button
+              role="menuitem"
+              disabled={active !== "graph"}
+              onClick={() => setFormatDialog(true)}
+            >
+              Format Graph…
+            </button>
+          </DesktopMenu>
+          <DesktopMenu label="Family">
+            <button role="menuitem" onClick={() => selectSheet(source.id)}>
+              Source data table
+            </button>
+            {workbook.sheets
+              .filter((s) => s.kind !== "data" && s.dataId === source.id)
+              .map((s) => (
+                <button
+                  role="menuitem"
+                  key={s.id}
+                  onClick={() => selectSheet(s.id)}
+                >
+                  {s.name}
+                </button>
+              ))}
+          </DesktopMenu>
+        </nav>
+        <div className="desktop-toolbar" aria-label="Workbook toolbar">
+          <div className="desktop-tool-group">
+            <span>File</span>
+            <div>
+              <button
+                aria-label="Open workbook"
+                title="Open workbook"
+                onClick={() => projectRef.current?.click()}
+              >
+                <FolderOpen />
+                <small>Open</small>
+              </button>
+              <button
+                aria-label="Save workbook"
+                title="Save workbook"
+                onClick={saveWorkbook}
+              >
+                <Save />
+                <small>Save</small>
+              </button>
+            </div>
+          </div>
+          <div className="desktop-tool-group">
+            <span>Sheet</span>
+            <div>
+              <button
+                aria-label="New Data Table and Graph"
+                title="New Data Table and Graph"
+                onClick={() => setNewTable(true)}
+              >
+                <FilePlus2 />
+                <small>New</small>
+              </button>
+              <button title="Rename current sheet" onClick={focusSheetName}>
+                <FileText />
+                <small>Rename</small>
+              </button>
+            </div>
+          </div>
+          <div className="desktop-tool-group">
+            <span>Undo</span>
+            <div>
+              <button
+                aria-label="Undo"
+                disabled={!history.past.length}
+                title={
+                  history.past.length
+                    ? `Undo: ${history.past.at(-1)!.label}`
+                    : "Nothing to undo"
+                }
+                onClick={() => applyHistory("undo")}
+              >
+                <Undo2 />
+                <small>Undo</small>
+              </button>
+              <button
+                aria-label="Redo"
+                disabled={!history.future.length}
+                title={
+                  history.future.length
+                    ? `Redo: ${history.future.at(-1)!.label}`
+                    : "Nothing to redo"
+                }
+                onClick={() => applyHistory("redo")}
+              >
+                <Redo2 />
+                <small>Redo</small>
+              </button>
+            </div>
+          </div>
+          <div className="desktop-tool-group">
+            <span>Clipboard</span>
+            <div>
+              <button
+                aria-label="Copy data as CSV"
+                onClick={() => void copyData()}
+              >
+                <Copy />
+                <small>Copy CSV</small>
+              </button>
+            </div>
+          </div>
+          <div className="desktop-tool-group">
+            <span>Analysis</span>
+            <div>
+              <button
+                aria-label="Analyze Data…"
+                title="Choose an analysis and datasets"
+                onClick={() => setAnalyzeDialog(true)}
+              >
+                <FlaskConical />
+                <small>Analyze…</small>
+              </button>
+              <button
+                aria-label="Grouped & survival"
+                title="Grouped and survival analyses"
+                onClick={() => setAdvanced(true)}
+              >
+                <Grid2X2 />
+                <small>Grouped / survival</small>
+              </button>
+            </div>
+          </div>
+          <div className="desktop-tool-group">
+            <span>Change</span>
+            <div>
+              <button
+                aria-label="New graph of existing data"
+                onClick={createLinkedGraph}
+              >
+                <BarChart3 />
+                <small>New graph</small>
+              </button>
+              <button
+                aria-label="Format Graph…"
+                disabled={active !== "graph"}
+                onClick={() => setFormatDialog(true)}
+              >
+                <Settings2 />
+                <small>Format…</small>
+              </button>
+            </div>
+          </div>
+          <div className="desktop-tool-group">
+            <span>Import</span>
+            <div>
+              <button
+                aria-label="Import data"
+                title="Import CSV or supported Prism raw data"
+                onClick={() => fileRef.current?.click()}
+              >
+                <ArrowUpFromLine />
+                <small>Import…</small>
+              </button>
+            </div>
+          </div>
+          <div className="desktop-tool-group">
+            <span>Export</span>
+            <div>
+              <button
+                aria-label="CSV"
+                title="Export data as CSV"
+                onClick={exportData}
+              >
+                <ArrowDownToLine />
+                <small>CSV</small>
+              </button>
+              {active === "graph" && (
+                <button
+                  disabled={exporting}
+                  title="Export current figure as PDF"
+                  aria-label="Export graph as PDF"
+                  onClick={() => void exportGraph("pdf")}
+                >
+                  <FileText />
+                  <small>PDF</small>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+      <aside className="sidebar">
         <input
           className="navigator-search"
           aria-label="Search sheets"
@@ -777,7 +1162,18 @@ export default function App() {
           ).map(([kind, label]) => (
             <section className="navigator-section" key={kind}>
               <h2>
-                {label}
+                <button
+                  aria-expanded={!collapsedSections[kind]}
+                  onClick={() =>
+                    setCollapsedSections((v) => ({ ...v, [kind]: !v[kind] }))
+                  }
+                >
+                  <ChevronRight
+                    size={12}
+                    className={collapsedSections[kind] ? "" : "expanded"}
+                  />
+                  {label}
+                </button>
                 <span>
                   {workbook.sheets.filter((s) => s.kind === kind).length}
                 </span>
@@ -786,6 +1182,7 @@ export default function App() {
                 .filter(
                   (s) =>
                     s.kind === kind &&
+                    !collapsedSections[kind] &&
                     s.name.toLowerCase().includes(sheetSearch.toLowerCase()),
                 )
                 .map((s) => (
@@ -813,6 +1210,25 @@ export default function App() {
                     )}
                   </button>
                 ))}
+              {!collapsedSections[kind] && (
+                <button
+                  className="navigator-new"
+                  onClick={() =>
+                    kind === "data"
+                      ? setNewTable(true)
+                      : kind === "results"
+                        ? setAnalyzeDialog(true)
+                        : createLinkedGraph()
+                  }
+                >
+                  <Plus size={12} />
+                  {kind === "data"
+                    ? "New Data Table…"
+                    : kind === "results"
+                      ? "New Analysis…"
+                      : "New Graph…"}
+                </button>
+              )}
             </section>
           ))}
         </div>
@@ -842,128 +1258,34 @@ export default function App() {
               </button>
             ))}
         </section>
-        <button className="nav-button" onClick={() => setAdvanced(true)}>
-          <FlaskConical size={18} />
-          Grouped &amp; survival
-        </button>
-        <div className="side-bottom">
-          <span className="status-dot" />
-          {browserOnly ? "Browser workspace" : "Local workspace"}
-          <small>
-            {browserOnly
-              ? "Your data stays in your browser."
-              : "Analysis runs in this environment."}
-          </small>
-        </div>
       </aside>
       <main>
-        <header className="topbar">
-          <div className="breadcrumb">
-            Workspace <ChevronRight size={14} />
-            <input
-              className="workbook-name"
-              aria-label="Workbook name"
-              value={workbook.name}
-              onChange={(e) =>
-                setWorkbook(
-                  (w) => ({ ...w, name: e.target.value }),
-                  editOptions("Rename workbook"),
-                )
-              }
-            />
-          </div>
-          <div
-            className="history-controls"
-            aria-label="Workbook edit history"
-            title="Up to 40 changes, limited to 32 MiB of snapshots. History is not saved with the workbook."
-          >
-            <button
-              className="button small"
-              aria-label="Undo"
-              disabled={!history.past.length}
-              title={
-                history.past.length
-                  ? `Undo: ${history.past.at(-1)!.label} (Ctrl/Cmd+Z)`
-                  : "Nothing to undo"
-              }
-              onClick={() => applyHistory("undo")}
-            >
-              <Undo2 size={15} />
-              <span>Undo</span>
-            </button>
-            <button
-              className="button small"
-              aria-label="Redo"
-              disabled={!history.future.length}
-              title={
-                history.future.length
-                  ? `Redo: ${history.future.at(-1)!.label} (Ctrl/Cmd+Shift+Z)`
-                  : "Nothing to redo"
-              }
-              onClick={() => applyHistory("redo")}
-            >
-              <Redo2 size={15} />
-              <span>Redo</span>
-            </button>
-          </div>
-          <span className={`save-state ${saved ? "" : "unsaved"}`}>
-            <Check size={13} />
-            {recovery
-              ? "Autosave paused"
-              : saved
-                ? "Saved on this browser"
-                : "Browser storage unavailable"}
-          </span>
-          <button
-            className="button small"
-            onClick={() => {
-              download(
-                new Blob([JSON.stringify(workbook)], {
-                  type: "application/json",
-                }),
-                `${workbook.name.replace(/[^a-zA-Z0-9_-]/g, "-")}.gp.json`,
-              );
-              setNotice(
-                "Workbook downloaded with data, linked results, and graphs.",
-              );
-            }}
-          >
-            <Save size={15} />
-            Save workbook
-          </button>
-        </header>
         <div className="main-content">
-          <div className="page-heading">
-            <div>
-              <div className="eyebrow">
-                SCIENTIFIC WORKSPACE <span> / </span>{" "}
-                {xy ? "XY DATA" : "COLUMN DATA"}
-              </div>
-              <input
-                className="project-title"
-                aria-label="Sheet name"
-                value={selectedSheet.name}
-                onChange={(e) => renameSheet(e.target.value)}
-              />
-              <p>
-                {selectedSheet.kind === "data"
-                  ? "Data table"
-                  : selectedSheet.kind === "graph"
-                    ? "Graph sheet"
-                    : "Results sheet"}{" "}
-                ·{" "}
-                {selectedSheet.kind === "data"
-                  ? "Linked sheets appear in Family"
-                  : `Source: ${source.name}`}
-              </p>
-            </div>
-            <button
-              className="button"
-              onClick={() => projectRef.current?.click()}
-            >
-              <FolderOpen size={16} />
-              Open workbook
-            </button>
+          <div className="desktop-sheet-strip">
+            <span className="sheet-kind-icon">
+              {active === "data" ? (
+                <Table2 size={15} />
+              ) : active === "graph" ? (
+                <BarChart3 size={15} />
+              ) : (
+                <FileText size={15} />
+              )}
+            </span>
+            <input
+              className="project-title"
+              aria-label="Sheet name"
+              value={selectedSheet.name}
+              onChange={(e) => renameSheet(e.target.value)}
+            />
+            <span className="desktop-sheet-type">
+              {active === "data"
+                ? xy
+                  ? "XY table"
+                  : "Column table"
+                : active === "graph"
+                  ? "Graph"
+                  : "Tabular results"}
+            </span>
           </div>
           <input
             ref={fileRef}
@@ -1054,66 +1376,6 @@ export default function App() {
               </button>
             </div>
           )}
-          <div className="workspace-toolbar">
-            <div className="tabs">
-              <button
-                className={active === "data" ? "active" : ""}
-                onClick={() => setActive("data")}
-              >
-                <Table2 size={16} />
-                Data table
-              </button>
-              <button
-                className={active === "graph" ? "active" : ""}
-                onClick={() => setActive("graph")}
-              >
-                <BarChart3 size={16} />
-                Graph
-              </button>
-              <button
-                className={active === "results" ? "active" : ""}
-                onClick={() => setActive("results")}
-              >
-                <FlaskConical size={16} />
-                Results{" "}
-                {result && (
-                  <span className="badge">
-                    {result.results.length || result.summary.length}
-                  </span>
-                )}
-              </button>
-            </div>
-            <div className="toolbar-actions">
-              <button
-                className="text-button"
-                onClick={() => fileRef.current?.click()}
-                title="Import CSV, Prism XML, or supported Prism ZIP raw data"
-              >
-                <ArrowUpFromLine size={15} />
-                Import data
-              </button>
-              <button
-                className="text-button"
-                onClick={() =>
-                  download(
-                    new Blob([exportCsv(project.columns)], {
-                      type: "text/csv",
-                    }),
-                    "GP-data.csv",
-                  )
-                }
-              >
-                <ArrowDownToLine size={15} />
-                CSV
-              </button>
-            </div>
-          </div>
-          {browserOnly && (
-            <p className="browser-note">
-              Runs on your device. The first analysis and figure export take
-              longer while the engine loads.
-            </p>
-          )}
           {active === "graph" && linkedResult?.status === "stale" && (
             <div className="alert notice" role="status">
               This graph's linked analysis needs recalculation. Select its
@@ -1121,33 +1383,6 @@ export default function App() {
               remains visible.
             </div>
           )}
-          <div className="workbook-actions">
-            <button className="button" onClick={() => setAnalyzeDialog(true)}>
-              <FlaskConical size={15} />
-              Analyze Data…
-            </button>
-            <button
-              className="button"
-              onClick={() =>
-                setWorkbook((w) =>
-                  addGraph(
-                    w,
-                    source.id,
-                    selectedSheet.kind === "results" ? selectedSheet.id : null,
-                  ),
-                )
-              }
-            >
-              <Plus size={15} />
-              New graph of existing data
-            </button>
-            {active === "graph" && (
-              <button className="button" onClick={() => setFormatDialog(true)}>
-                <Settings2 size={15} />
-                Format Graph…
-              </button>
-            )}
-          </div>
           {selectedSheet.kind === "graph" &&
             !selectedSheet.columnIndices.length && (
               <div className="alert notice" role="status">
@@ -1330,16 +1565,19 @@ export default function App() {
                     <thead>
                       <tr>
                         <th className="row-number">#</th>
-                        {project.columns.map((c, i) => (
+                        {displayedColumns.map((c, i) => (
                           <th key={i}>
                             <div className="column-letter">
                               {xy && i === 0
                                 ? "X"
-                                : String.fromCharCode(65 + i - (xy ? 1 : 0))}
+                                : `Group ${String.fromCharCode(65 + i - (xy ? 1 : 0))}`}
                               <button
                                 title={`Remove ${c.name}`}
                                 aria-label={`Remove column ${c.name}`}
-                                disabled={project.columns.length <= 1}
+                                disabled={
+                                  project.columns.length <= 1 ||
+                                  i >= project.columns.length
+                                }
                                 onClick={() =>
                                   change((p) => ({
                                     ...p,
@@ -1354,11 +1592,12 @@ export default function App() {
                             </div>
                             <input
                               aria-label={`Column ${i + 1} name`}
-                              value={c.name}
+                              value={i < project.columns.length ? c.name : ""}
+                              placeholder="Title"
                               onChange={(e) =>
                                 change((p) => ({
                                   ...p,
-                                  columns: p.columns.map((v, j) =>
+                                  columns: expandColumns(p, i).map((v, j) =>
                                     j === i
                                       ? { ...v, name: e.target.value }
                                       : v,
@@ -1366,6 +1605,9 @@ export default function App() {
                                 }))
                               }
                             />
+                            <span className="column-entry-kind">
+                              {xy && i === 0 ? "X" : "Y"}
+                            </span>
                             <span
                               className="column-line"
                               style={{
@@ -1403,13 +1645,14 @@ export default function App() {
                       </tr>
                     </thead>
                     <tbody>
-                      {Array.from({ length: rows }, (_, r) => (
+                      {Array.from({ length: displayedRows }, (_, r) => (
                         <tr key={r}>
                           <th className="row-number">
                             <span>{r + 1}</span>
                             <button
                               aria-label={`Remove row ${r + 1}`}
                               title={`Remove row ${r + 1}`}
+                              disabled={r >= rows}
                               onClick={() =>
                                 change((p) => ({
                                   ...p,
@@ -1423,7 +1666,7 @@ export default function App() {
                               <X size={11} />
                             </button>
                           </th>
-                          {project.columns.map((c, col) => {
+                          {displayedColumns.map((c, col) => {
                             let valid = true;
                             try {
                               numeric(c.values[r] ?? "");
@@ -1492,10 +1735,6 @@ export default function App() {
                     </span>
                     <h2>{graphSheet?.name ?? "Graph"}</h2>
                   </div>
-                  <span className="live-badge">
-                    <span />
-                    LIVE
-                  </span>
                 </div>
                 <div className="graph-types">
                   {(["scatter", "bar", "box", "line"] as const).map((t) => (
@@ -1542,15 +1781,6 @@ export default function App() {
                     ? " · Run analysis to show confidence intervals"
                     : ""}
                 </div>
-                <div className="graph-format-action">
-                  <button
-                    className="button"
-                    onClick={() => setFormatDialog(true)}
-                  >
-                    <Settings2 size={15} />
-                    Format Graph…
-                  </button>
-                </div>
                 <div className="export-row">
                   <span>
                     <ArrowDownToLine size={14} />
@@ -1593,7 +1823,7 @@ export default function App() {
                   <div>
                     <FlaskConical size={30} />
                   </div>
-                  <h3>Let your data tell the story.</h3>
+                  <h3>No current results</h3>
                   <p>
                     Choose an analysis above and run it to see your results.
                     <br />
@@ -1622,53 +1852,62 @@ export default function App() {
                       {w}
                     </div>
                   ))}
-                  {result.results.length > 0 && (
-                    <div className="result-metrics">
+                  <table className="analysis-output">
+                    <thead>
+                      <tr>
+                        <th className="output-row-number" />
+                        <th colSpan={2}>{analysisLabels[project.analysis]}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <th className="output-row-number">1</th>
+                        <th>Table analyzed</th>
+                        <td>{source.name}</td>
+                      </tr>
                       {result.results.map((r, i) => (
-                        <div key={i}>
-                          <span>{r.label}</span>
-                          <strong>
+                        <tr key={i}>
+                          <th className="output-row-number">{i + 2}</th>
+                          <th>{r.label}</th>
+                          <td>
                             {typeof r.value === "number"
                               ? fmt(r.value)
                               : (r.value ?? "—")}
-                          </strong>
-                        </div>
+                          </td>
+                        </tr>
                       ))}
-                    </div>
-                  )}
+                    </tbody>
+                  </table>
                   <h3>Summary statistics</h3>
                   <div className="results-table-wrap">
                     <table className="results-table">
                       <thead>
                         <tr>
-                          <th>Dataset</th>
-                          <th>n</th>
-                          <th>Mean</th>
-                          <th>SD</th>
-                          <th>SEM</th>
-                          <th>Median</th>
-                          <th>95% CI</th>
+                          <th>Statistic</th>
+                          {result.summary.map((c) => (
+                            <th key={c.name}>{c.name}</th>
+                          ))}
                         </tr>
                       </thead>
                       <tbody>
-                        {result.summary.map((s, i) => (
-                          <tr key={i}>
-                            <th>
-                              <i
-                                style={{
-                                  background: palette[i % palette.length],
-                                }}
-                              />
-                              {s.name}
-                            </th>
-                            <td>{s.n}</td>
-                            <td>{fmt(s.mean)}</td>
-                            <td>{fmt(s.sd)}</td>
-                            <td>{fmt(s.sem)}</td>
-                            <td>{fmt(s.median)}</td>
-                            <td>
-                              {fmt(s.ci_low)} – {fmt(s.ci_high)}
-                            </td>
+                        {(
+                          [
+                            ["n", "Number of values"],
+                            ["mean", "Mean"],
+                            ["sd", "Standard deviation"],
+                            ["sem", "Std. error of mean"],
+                            ["median", "Median"],
+                            ["min", "Minimum"],
+                            ["max", "Maximum"],
+                            ["ci_low", "Lower 95% CI"],
+                            ["ci_high", "Upper 95% CI"],
+                          ] as const
+                        ).map(([key, label]) => (
+                          <tr key={key}>
+                            <th>{label}</th>
+                            {result.summary.map((c) => (
+                              <td key={c.name}>{fmt(c[key])}</td>
+                            ))}
                           </tr>
                         ))}
                       </tbody>
@@ -1723,11 +1962,60 @@ export default function App() {
               )}
             </section>
           )}
-          <footer className="page-footer">
+          <footer className="desktop-statusbar">
+            <div className="status-view-buttons">
+              <button
+                aria-label="Show data table"
+                className={active === "data" ? "selected" : ""}
+                onClick={() => setActive("data")}
+                title="Data table"
+              >
+                <Table2 size={15} />
+              </button>
+              <button
+                aria-label="Show results"
+                className={active === "results" ? "selected" : ""}
+                onClick={() => setActive("results")}
+                title="Results"
+              >
+                <FileText size={15} />
+              </button>
+              <button
+                aria-label="Show graph"
+                className={active === "graph" ? "selected" : ""}
+                onClick={() => setActive("graph")}
+                title="Graph"
+              >
+                <BarChart3 size={15} />
+              </button>
+            </div>
+            <select
+              aria-label="Current sheet"
+              value={selectedSheet.id}
+              onChange={(e) => selectSheet(e.target.value)}
+            >
+              {workbook.sheets.map((sh) => (
+                <option key={sh.id} value={sh.id}>
+                  {sh.name}
+                </option>
+              ))}
+            </select>
             <span>
-              <Activity size={13} /> GP / Scientific workspace
+              {active === "data"
+                ? `${rows} rows · ${project.columns.length} columns · ${count} values`
+                : active === "results"
+                  ? "Tabular results"
+                  : "Graph sheet"}
             </span>
-            <span>Independent analysis tools · Built for clear thinking</span>
+            <span className="status-save">
+              {busy
+                ? "Analyzing…"
+                : recovery
+                  ? "Autosave paused"
+                  : saved
+                    ? "Saved in browser"
+                    : "Browser storage unavailable"}
+            </span>
           </footer>
         </div>
       </main>

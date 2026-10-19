@@ -1,0 +1,11 @@
+{
+  "passed": [
+    "empty-cell editing and undo",
+    "menu dismissal",
+    "modal focus trap and restoration",
+    "graph sheet visibility",
+    "analysis result display",
+    "mobile viewport containment"
+  ],
+  "page_errors": []
+}

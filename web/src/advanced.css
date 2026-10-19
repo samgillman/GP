@@ -1,38 +1,48 @@
 .advanced-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 32px 28px 64px;
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0 18px 24px;
+  background: #ededed;
+  color: #222;
+  font:
+    13px -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 }
 .advanced-page h1 {
   margin: 8px 0;
-  font-size: 30px;
-  letter-spacing: -0.8px;
+  font-size: 17px;
+  letter-spacing: 0;
 }
 .advanced-page h2 {
   margin: 0 0 12px;
-  font-size: 21px;
+  font-size: 14px;
 }
 .advanced-page h3 {
-  margin: 28px 0 14px;
-  font-size: 16px;
+  margin: 18px 0 8px;
+  font-size: 13px;
 }
 .advanced-page p {
-  line-height: 1.6;
+  line-height: 1.45;
 }
 .advanced-header {
-  margin-bottom: 26px;
+  margin: 0 -18px 14px;
+  padding: 8px 18px 10px;
+  border-bottom: 1px solid #b5b5b5;
+  background: linear-gradient(#f4f4f4, #dedede);
 }
 .advanced-eyebrow {
   font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: #237d74;
-  margin: 24px 0 0;
+  letter-spacing: 0;
+  color: #0069d9;
+  margin: 4px 0 0;
   font-weight: 700;
 }
 .advanced-page .advanced-back {
   padding: 8px 0;
-  color: #237d74;
+  color: #0069d9;
   font-weight: 600;
 }
 .advanced-tabs {
@@ -40,29 +50,29 @@
   gap: 5px;
   padding: 5px;
   width: fit-content;
-  border-radius: 9px;
-  background: #e8eeea;
-  margin-bottom: 22px;
+  border-radius: 4px;
+  background: #dedede;
+  margin-bottom: 14px;
 }
 .advanced-tabs button {
-  padding: 11px 20px;
-  border-radius: 6px;
+  padding: 4px 16px;
+  border-radius: 4px;
 }
 .advanced-tabs button[aria-selected="true"] {
   background: #fff;
-  color: #17685f;
+  color: #005bbf;
   box-shadow: 0 1px 4px #203e3010;
   font-weight: 600;
 }
 .advanced-card {
   background: #fff;
-  border: 1px solid #e1e7e3;
-  border-radius: 12px;
-  padding: 28px;
-  margin-bottom: 24px;
+  border: 1px solid #bcbcbc;
+  border-radius: 3px;
+  padding: 16px;
+  margin-bottom: 14px;
 }
 .advanced-note {
-  color: #60716e;
+  color: #626262;
   font-size: 13px;
 }
 .advanced-toolbar {
@@ -70,18 +80,18 @@
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  margin: 20px 0;
+  margin: 12px 0;
 }
 .advanced-toolbar button,
 .advanced-download {
-  border: 1px solid #d9e3dd;
-  padding: 9px 13px;
-  border-radius: 6px;
+  border: 1px solid #bcbcbc;
+  padding: 4px 12px;
+  border-radius: 4px;
   background: #fff;
 }
 .advanced-toolbar button:hover,
 .advanced-download:hover {
-  background: #eff5f1;
+  background: #e8eef7;
 }
 .advanced-toolbar label {
   display: flex;
@@ -92,10 +102,10 @@
 }
 .advanced-page select {
   background: #fff;
-  padding: 8px;
-  border: 1px solid #cddad2;
+  padding: 3px 8px;
+  border: 1px solid #ababab;
   border-radius: 5px;
-  color: #293d40;
+  color: #222222;
 }
 .advanced-editor-label {
   display: block;
@@ -112,21 +122,21 @@
   font:
     13px/1.65 ui-monospace,
     monospace;
-  border: 1px solid #cddad2;
-  border-radius: 6px;
+  border: 1px solid #ababab;
+  border-radius: 4px;
   padding: 13px 15px;
-  color: #293d40;
-  background: #fbfcfa;
+  color: #222222;
+  background: #ffffff;
 }
 .advanced-page textarea:focus-visible {
-  outline: 2px solid #8bbeb6;
+  outline: 2px solid #75aff8;
   outline-offset: 2px;
 }
 .advanced-mappings {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-  margin: 22px 0;
+  gap: 12px;
+  margin: 14px 0;
 }
 .advanced-mappings label {
   display: flex;
@@ -159,8 +169,8 @@
 }
 .advanced-page th,
 .advanced-page td {
-  padding: 11px 14px;
-  border-bottom: 1px solid #e6ece7;
+  padding: 4px 8px;
+  border: 1px solid #d7d7d7;
   text-align: right;
 }
 .advanced-page th:first-child,
@@ -168,8 +178,8 @@
   text-align: left;
 }
 .advanced-page thead th {
-  background: #f2f6f2;
-  color: #4c625c;
+  background: #eeeeee;
+  color: #444444;
   font-weight: 600;
   position: sticky;
   top: 0;
@@ -182,24 +192,24 @@
   border-bottom: 0;
 }
 .advanced-run {
-  margin-top: 24px;
+  margin-top: 14px;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 12px;
 }
 .advanced-primary {
   color: white;
-  background: #237d74;
-  border-radius: 7px;
-  padding: 12px 20px;
+  background: #0069d9;
+  border-radius: 4px;
+  padding: 5px 18px;
   font-weight: 600;
   flex-shrink: 0;
 }
 .advanced-primary:hover {
-  background: #19665e;
+  background: #005bbf;
 }
 .advanced-run span {
-  color: #60716e;
+  color: #626262;
   font-size: 12px;
   line-height: 1.5;
 }
@@ -211,7 +221,7 @@
 .advanced-error {
   padding: 12px 15px;
   background: #fff1ed;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 .advanced-result-heading {
   display: flex;
@@ -231,17 +241,17 @@
   display: flex;
   gap: 45px;
   flex-wrap: wrap;
-  padding: 20px;
-  border-radius: 8px;
-  background: #f4f7f3;
+  padding: 12px;
+  border-radius: 2px;
+  background: #f0f0f0;
 }
 .advanced-stats dt {
   font-size: 12px;
-  color: #60716e;
+  color: #626262;
 }
 .advanced-stats dd {
-  margin: 8px 0 0;
-  font-size: 20px;
+  margin: 4px 0 0;
+  font-size: 14px;
   font-variant-numeric: tabular-nums;
 }
 .advanced-detail {
@@ -250,9 +260,9 @@
 .advanced-assumptions {
   padding: 1px 20px 15px;
   margin-top: 28px;
-  border-radius: 7px;
-  background: #f7f8f4;
-  color: #53675d;
+  border-radius: 4px;
+  background: #f2f2f2;
+  color: #565656;
   font-size: 13px;
 }
 .advanced-assumptions h3 {
@@ -260,17 +270,17 @@
 }
 .advanced-assumptions li {
   margin: 8px 0;
-  line-height: 1.6;
+  line-height: 1.45;
 }
 @media (max-width: 650px) {
   .advanced-page {
-    padding: 18px 12px 32px;
+    padding: 0 12px 24px;
   }
   .advanced-page h1 {
-    font-size: 25px;
+    font-size: 17px;
   }
   .advanced-card {
-    padding: 18px;
+    padding: 12px;
   }
   .advanced-tabs {
     width: 100%;
@@ -292,5 +302,40 @@
   }
   .advanced-stats {
     gap: 22px;
+  }
+}
+
+.advanced-page .advanced-header p {
+  margin: 4px 0;
+}
+.advanced-page .advanced-tabs {
+  border: 1px solid #b8b8b8;
+  padding: 2px;
+  gap: 2px;
+}
+.advanced-page .advanced-tabs button[aria-selected="true"] {
+  color: #fff;
+  background: #087af0;
+  box-shadow: 0 1px 2px #0002;
+}
+.advanced-page .advanced-primary {
+  border: 1px solid #0061cf;
+  background: linear-gradient(#258dff, #0875e8);
+  font-weight: 500;
+}
+.advanced-page .advanced-back {
+  border: 1px solid #b7b7b7;
+  border-radius: 4px;
+  padding: 3px 10px;
+  background: #fafafa;
+  color: #222;
+  font-weight: 400;
+}
+@media (max-width: 650px) {
+  .advanced-page .advanced-header {
+    margin-left: -12px;
+    margin-right: -12px;
+    padding-left: 12px;
+    padding-right: 12px;
   }
 }

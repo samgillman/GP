@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-10-19T17:12:28.813981+00:00",
+  "generated_at_utc": "2026-10-19T17:35:03.689937+00:00",
   "target": {
     "product": "GraphPad Prism",
     "version": "11.1.0",
@@ -206,7 +206,7 @@
         },
         {
           "path": "/workspace/gp-evidence/native-pass2/browser-advanced.json",
-          "sha256": "06089de379f3690c69fa83d35889afd8b31a7508e09aa485ff2cc219e00fe95e"
+          "sha256": "1790a821ea670cc3b2bc88418c59b617c21339b3e79d52fd5fef1539ec5191df"
         }
       ],
       "implementation_sources": [
@@ -483,7 +483,7 @@
         },
         {
           "path": "/workspace/gp-evidence/native-pass2/browser-advanced.json",
-          "sha256": "06089de379f3690c69fa83d35889afd8b31a7508e09aa485ff2cc219e00fe95e"
+          "sha256": "1790a821ea670cc3b2bc88418c59b617c21339b3e79d52fd5fef1539ec5191df"
         }
       ],
       "implementation_sources": [
@@ -528,7 +528,7 @@
         },
         {
           "path": "/workspace/gp-evidence/native-pass2/browser-advanced.json",
-          "sha256": "06089de379f3690c69fa83d35889afd8b31a7508e09aa485ff2cc219e00fe95e"
+          "sha256": "1790a821ea670cc3b2bc88418c59b617c21339b3e79d52fd5fef1539ec5191df"
         }
       ],
       "implementation_sources": [
@@ -803,7 +803,7 @@
         },
         {
           "path": "/workspace/gp-evidence/native-pass2/browser-workbook.json",
-          "sha256": "19b3294b9dc5336996c6f4b6999e635765c80670db1e81460542909367b8a9a1"
+          "sha256": "57d27488a9a3ea60c9b593cfd2ca1f8e13e535edceccf5ee37903232ae7e10fd"
         },
         {
           "path": "/workspace/gp-evidence/native-pass2/browser-recovery.json",
@@ -811,11 +811,11 @@
         },
         {
           "path": "/workspace/gp-evidence/native-pass2/browser-workbook-export.json",
-          "sha256": "def26497abe1d6fa8590cfe15592515ed32e3aab25cd6d2663f76723524de637"
+          "sha256": "c9e122d9bddcc976632ade44ecbbda257420ded07c3b871310db3968dec89d9c"
         },
         {
           "path": "/workspace/gp-evidence/native-pass2/browser-history.json",
-          "sha256": "129485964cfbb9c9e50eda515be570419d0ba516e345a4dfa4a4bde64e0654f6"
+          "sha256": "975ab8b13f37f419c1bd5c20da381bfbd959a5d8da52b77b58856bdd37e1d436"
         },
         {
           "path": "/workspace/gp-evidence/native-pass2/browser-history-race.json",
@@ -853,7 +853,7 @@
       "implementation_sources": [
         {
           "path": "web/src/App.tsx",
-          "sha256": "9d252232ea9590a2ad2b073ce62bf724faf4e6a0ca1c5a6f0b85e502578c03b4"
+          "sha256": "85684247aff9f690eec7e9d4b4e42f48dc93c0203837949a2598dfc1deb0a70d"
         },
         {
           "path": "web/src/data.ts",
@@ -869,7 +869,7 @@
         },
         {
           "path": "web/src/WorkbookDialogs.tsx",
-          "sha256": "9c756feca05d932e84c908d96b420550cf32b918d71c4b8723ff0f0604f6be80"
+          "sha256": "7e5fd3c6bf937e5271332d48ccdf46e220302425011a5c59933855c109b2a49a"
         },
         {
           "path": "web/src/workbook-storage.ts",
@@ -1017,7 +1017,7 @@
       "scope": "Prism workbook, table editing, analysis and graph dialog interactions",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
-      "verification_status": "recovered_core_workbook_and_dialog_structure_implemented_browser_checked_full_UI_equivalence_not_established",
+      "verification_status": "macOS_visual_reference_correction_and_Chromium_workflows_checked_full_equivalence_not_established",
       "evidence": [
         {
           "path": "/workspace/gp-evidence/resources-pass2/nibs.json",
@@ -1029,7 +1029,7 @@
         },
         {
           "path": "/workspace/gp-evidence/native-pass2/browser-workbook.json",
-          "sha256": "19b3294b9dc5336996c6f4b6999e635765c80670db1e81460542909367b8a9a1"
+          "sha256": "57d27488a9a3ea60c9b593cfd2ca1f8e13e535edceccf5ee37903232ae7e10fd"
         },
         {
           "path": "/workspace/gp-evidence/native-pass2/browser-recovery.json",
@@ -1037,11 +1037,11 @@
         },
         {
           "path": "/workspace/gp-evidence/native-pass2/browser-workbook-export.json",
-          "sha256": "def26497abe1d6fa8590cfe15592515ed32e3aab25cd6d2663f76723524de637"
+          "sha256": "c9e122d9bddcc976632ade44ecbbda257420ded07c3b871310db3968dec89d9c"
         },
         {
           "path": "/workspace/gp-evidence/native-pass2/browser-history.json",
-          "sha256": "129485964cfbb9c9e50eda515be570419d0ba516e345a4dfa4a4bde64e0654f6"
+          "sha256": "975ab8b13f37f419c1bd5c20da381bfbd959a5d8da52b77b58856bdd37e1d436"
         },
         {
           "path": "/workspace/gp-evidence/native-pass2/browser-history-race.json",
@@ -1074,12 +1074,24 @@
         {
           "path": "/workspace/gp-evidence/native-pass3/graph-set-full.json",
           "sha256": "9869e5491c8a30f0cea0669a5d4ac3dfc432b3973a4c60c484f1f5cda0f720ce"
+        },
+        {
+          "path": "docs/ui-visual-references.json",
+          "sha256": "1c8a2bb697cc871954735728b06e0af94671092ad62f7ee2441b49cc91a72bd8"
+        },
+        {
+          "path": "docs/ui-macos-correction.md",
+          "sha256": "e916b4dac96943202729c641d5a63504dda33c3426f8d7443758c086fd16a728"
+        },
+        {
+          "path": "docs/images/checks.json",
+          "sha256": "151169f6caf3395753ec16d2bddf5c214196b3ee89760e58f3d0de64fc7ef577"
         }
       ],
       "implementation_sources": [
         {
           "path": "web/src/App.tsx",
-          "sha256": "9d252232ea9590a2ad2b073ce62bf724faf4e6a0ca1c5a6f0b85e502578c03b4"
+          "sha256": "85684247aff9f690eec7e9d4b4e42f48dc93c0203837949a2598dfc1deb0a70d"
         },
         {
           "path": "docs/prism-ui-map.md",
@@ -1100,6 +1112,26 @@
         {
           "path": "web/src/workbook-history.test.ts",
           "sha256": "bf98c76b286343821a5cb0fc9ac26813df4347445cb49c26183ffb0ad22485bb"
+        },
+        {
+          "path": "web/src/WorkbookDialogs.tsx",
+          "sha256": "7e5fd3c6bf937e5271332d48ccdf46e220302425011a5c59933855c109b2a49a"
+        },
+        {
+          "path": "web/src/desktop.css",
+          "sha256": "d9e53d9e8c31e4c4a180e49b812f0a9731655021f7e324adaa1fdb30a9c57a23"
+        },
+        {
+          "path": "web/src/dialog-desktop.css",
+          "sha256": "56651ba037a49fd9ba81254e2503cdc2965eaf5bcd5824b1b9bdb5f892574122"
+        },
+        {
+          "path": "web/src/advanced.css",
+          "sha256": "b5ba863736e7a55521137b5a884958a4d2062ca0f7d7b49be5cc5430093544d8"
+        },
+        {
+          "path": "scripts/check_desktop_ui.py",
+          "sha256": "599223b6fe83394e35b953d754a798a8a1c65e22bee3711964737e07b9a86c0b"
         }
       ],
       "remaining_obligations": [
@@ -3895,7 +3927,7 @@
     },
     {
       "path": "web/src/App.tsx",
-      "sha256": "9d252232ea9590a2ad2b073ce62bf724faf4e6a0ca1c5a6f0b85e502578c03b4"
+      "sha256": "85684247aff9f690eec7e9d4b4e42f48dc93c0203837949a2598dfc1deb0a70d"
     },
     {
       "path": "web/src/Plot.tsx",
@@ -3943,7 +3975,7 @@
     },
     {
       "path": "web/src/WorkbookDialogs.tsx",
-      "sha256": "9c756feca05d932e84c908d96b420550cf32b918d71c4b8723ff0f0604f6be80"
+      "sha256": "7e5fd3c6bf937e5271332d48ccdf46e220302425011a5c59933855c109b2a49a"
     }
   ],
   "refresh_notes": "Source changes after generated_at_utc require rechecking statuses. Passing a bounded saved case does not verify every native option or edge case."
