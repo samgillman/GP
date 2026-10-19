@@ -1,0 +1,2014 @@
+{
+  "schema_version": 1,
+  "scope": "Every function in the recovered Prism 11 in-table function catalogue",
+  "source_metadata": {
+    "version": "1.0",
+    "last_updated": "2025-10-22",
+    "case_sensitive": false,
+    "notes": [
+      "Function names are NOT case-sensitive",
+      "Most mathematical functions operate element-wise on columns/variables",
+      "Invalid calculations return blank/empty values silently",
+      "Blank cells in arithmetic propagate (5 + blank = blank)",
+      "Optional parameters use defaults when omitted but must be specified in order",
+      "Maximum numeric value: approximately 1.655\u00d710\u00b3\u2070\u2078"
+    ],
+    "angle_units": "Unless otherwise specified, all trigonometric functions use radians"
+  },
+  "operators": {
+    "arithmetic": [
+      {
+        "operator": "+",
+        "name": "Addition",
+        "example": "5 + 3",
+        "result": "8"
+      },
+      {
+        "operator": "-",
+        "name": "Subtraction",
+        "example": "10 - 4",
+        "result": "6"
+      },
+      {
+        "operator": "*",
+        "name": "Multiplication",
+        "example": "7 * 6",
+        "result": "42"
+      },
+      {
+        "operator": "/",
+        "name": "Division",
+        "example": "20 / 4",
+        "result": "5"
+      },
+      {
+        "operator": "^",
+        "name": "Exponentiation",
+        "examples": [
+          {
+            "expression": "2^10",
+            "result": "1024"
+          },
+          {
+            "expression": "x^3.5",
+            "description": "arbitrary powers"
+          }
+        ]
+      }
+    ],
+    "comparison": [
+      {
+        "operator": "=",
+        "name": "Equals",
+        "example": "x = 5"
+      },
+      {
+        "operator": "<>",
+        "name": "Not equals",
+        "example": "x <> 0"
+      },
+      {
+        "operator": "<",
+        "name": "Less than",
+        "example": "x < 100"
+      },
+      {
+        "operator": ">",
+        "name": "Greater than",
+        "example": "x > 0"
+      },
+      {
+        "operator": "<=",
+        "name": "Less than or equal",
+        "example": "x <= 10"
+      },
+      {
+        "operator": ">=",
+        "name": "Greater than or equal",
+        "example": "x >= 0"
+      }
+    ],
+    "logical": {
+      "function_syntax": [
+        "AND(condition1, condition2, ...)",
+        "OR(condition1, condition2, ...)",
+        "NOT(condition)"
+      ],
+      "infix_syntax": [
+        "condition1 AND condition2",
+        "condition1 OR condition2"
+      ],
+      "note": "Both function and infix syntax work identically"
+    },
+    "precedence": [
+      "Exponentiation (^)",
+      "Multiplication and Division (*, /)",
+      "Addition and Subtraction (+, -)",
+      "Comparison operators (=, <>, <, >, <=, >=)",
+      "Logical operators (NOT, AND, OR)"
+    ]
+  },
+  "requirements": [
+    {
+      "id": "TF001",
+      "title": "ABS",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "ABS"
+      },
+      "signature": "ABS(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF002",
+      "title": "CEIL",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "CEIL"
+      },
+      "signature": "CEIL(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF003",
+      "title": "FLOOR",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "FLOOR"
+      },
+      "signature": "FLOOR(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF004",
+      "title": "INT",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "INT"
+      },
+      "signature": "INT(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF005",
+      "title": "ROUND",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "ROUND"
+      },
+      "signature": "ROUND(x, digits)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF006",
+      "title": "MOD",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "MOD"
+      },
+      "signature": "a MOD b",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF007",
+      "title": "SGN",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "SGN"
+      },
+      "signature": "SGN(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF008",
+      "title": "SQR",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "SQR"
+      },
+      "signature": "SQR(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF009",
+      "title": "SQRT",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "SQRT"
+      },
+      "signature": "SQRT(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF010",
+      "title": "MAX",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "MAX"
+      },
+      "signature": [
+        "MAX(x, y, ...)",
+        "MAX(Variable)"
+      ],
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF011",
+      "title": "MIN",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "MIN"
+      },
+      "signature": [
+        "MIN(x, y, ...)",
+        "MIN(Variable)"
+      ],
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF012",
+      "title": "SUM",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "SUM"
+      },
+      "signature": [
+        "SUM(x, y, ...)",
+        "SUM(Variable)"
+      ],
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF013",
+      "title": "FACT",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "FACT"
+      },
+      "signature": "FACT(n)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF014",
+      "title": "SIN",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "SIN"
+      },
+      "signature": "SIN(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF015",
+      "title": "COS",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "COS"
+      },
+      "signature": "COS(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF016",
+      "title": "TAN",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "TAN"
+      },
+      "signature": "TAN(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF017",
+      "title": "ARCSIN",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "ARCSIN"
+      },
+      "signature": "ARCSIN(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF018",
+      "title": "ARCCOS",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "ARCCOS"
+      },
+      "signature": "ARCCOS(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF019",
+      "title": "ARCTAN",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "ARCTAN"
+      },
+      "signature": "ARCTAN(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF020",
+      "title": "ARCTAN2",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "ARCTAN2"
+      },
+      "signature": "ARCTAN2(y, x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF021",
+      "title": "SINH",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "SINH"
+      },
+      "signature": "SINH(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF022",
+      "title": "COSH",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "COSH"
+      },
+      "signature": "COSH(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF023",
+      "title": "TANH",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "TANH"
+      },
+      "signature": "TANH(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF024",
+      "title": "ARCSINH",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "ARCSINH"
+      },
+      "signature": "ARCSINH(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF025",
+      "title": "ARCCOSH",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "ARCCOSH"
+      },
+      "signature": "ARCCOSH(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF026",
+      "title": "ARCTANH",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "ARCTANH"
+      },
+      "signature": "ARCTANH(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF027",
+      "title": "RAD",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "RAD"
+      },
+      "signature": "RAD(degrees)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF028",
+      "title": "DEG",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "DEG"
+      },
+      "signature": "DEG(radians)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF029",
+      "title": "EXP",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "EXP"
+      },
+      "signature": "EXP(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF030",
+      "title": "LN",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "LN"
+      },
+      "signature": "LN(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF031",
+      "title": "LOG",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "LOG"
+      },
+      "signature": "LOG(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF032",
+      "title": "LOG10",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "LOG10"
+      },
+      "signature": "LOG10(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF033",
+      "title": "LOG2",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "LOG2"
+      },
+      "signature": "LOG2(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF034",
+      "title": "LOGIT",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "LOGIT"
+      },
+      "signature": "LOGIT(p)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF035",
+      "title": "NORMDIST",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "NORMDIST"
+      },
+      "signature": "NORMDIST(x, mean, sd, tail_type)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF036",
+      "title": "NORMINV",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "NORMINV"
+      },
+      "signature": "NORMINV(p, mean, sd, tail_type)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF037",
+      "title": "NORMPDF",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "NORMPDF"
+      },
+      "signature": "NORMPDF(x, mean, sd)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF038",
+      "title": "ZDIST",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "ZDIST"
+      },
+      "signature": "ZDIST(z, tail_type)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF039",
+      "title": "ZINV",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "ZINV"
+      },
+      "signature": "ZINV(p, tail_type)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF040",
+      "title": "ZPDF",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "ZPDF"
+      },
+      "signature": "ZPDF(z)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF041",
+      "title": "TDIST",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "TDIST"
+      },
+      "signature": "TDIST(t, df)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF042",
+      "title": "TINV",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "TINV"
+      },
+      "signature": "TINV(p, df)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF043",
+      "title": "TPDF",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "TPDF"
+      },
+      "signature": "TPDF(t, df)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF044",
+      "title": "CHIDIST",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "CHIDIST"
+      },
+      "signature": "CHIDIST(x2, df)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF045",
+      "title": "CHIINV",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "CHIINV"
+      },
+      "signature": "CHIINV(p, df)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF046",
+      "title": "CHISQC",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "CHISQC"
+      },
+      "signature": "CHISQC(x, df)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF047",
+      "title": "FDIST",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "FDIST"
+      },
+      "signature": "FDIST(f, df1, df2)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF048",
+      "title": "FINV",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "FINV"
+      },
+      "signature": "FINV(p, df1, df2)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF049",
+      "title": "FPDF",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "FPDF"
+      },
+      "signature": "FPDF(f, df1, df2)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF050",
+      "title": "BINOMIAL",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "BINOMIAL"
+      },
+      "signature": "BINOMIAL(k, n, p)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF051",
+      "title": "ERF",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "ERF"
+      },
+      "signature": "ERF(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF052",
+      "title": "ERFC",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "ERFC"
+      },
+      "signature": "ERFC(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF053",
+      "title": "PROBIT",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "PROBIT"
+      },
+      "signature": "PROBIT(p)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF054",
+      "title": "GAUSS",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "GAUSS"
+      },
+      "signature": "GAUSS(mean, sd)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF055",
+      "title": "RND",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "RND"
+      },
+      "signature": "RND(lower, upper)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF056",
+      "title": "MEAN",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "MEAN"
+      },
+      "signature": "MEAN(Variable)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF057",
+      "title": "STDEV",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "STDEV"
+      },
+      "signature": "STDEV(Variable)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF058",
+      "title": "STDERR",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "STDERR"
+      },
+      "signature": "STDERR(Variable)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF059",
+      "title": "COUNT",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "COUNT"
+      },
+      "signature": "COUNT(Variable)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF060",
+      "title": "CENTER",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "CENTER"
+      },
+      "signature": "CENTER(Variable)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF061",
+      "title": "STANDARDIZE",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "STANDARDIZE"
+      },
+      "signature": "STANDARDIZE(Variable)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF062",
+      "title": "GAMMA",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "GAMMA"
+      },
+      "signature": "GAMMA(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF063",
+      "title": "GAMMALN",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "GAMMALN"
+      },
+      "signature": "GAMMALN(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF064",
+      "title": "IGAMMA",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "IGAMMA"
+      },
+      "signature": "IGAMMA(shape, x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF065",
+      "title": "IGAMMAC",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "IGAMMAC"
+      },
+      "signature": "IGAMMAC(shape, x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF066",
+      "title": "PSI",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "PSI"
+      },
+      "signature": "PSI(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF067",
+      "title": "BETA",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "BETA"
+      },
+      "signature": "BETA(a, b)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF068",
+      "title": "IBETA",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "IBETA"
+      },
+      "signature": "IBETA(a, b, x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF069",
+      "title": "BESSELJ",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "BESSELJ"
+      },
+      "signature": "BESSELJ(n, x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF070",
+      "title": "BESSELY",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "BESSELY"
+      },
+      "signature": "BESSELY(n, x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF071",
+      "title": "BESSELI",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "BESSELI"
+      },
+      "signature": "BESSELI(n, x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF072",
+      "title": "BESSELK",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "BESSELK"
+      },
+      "signature": "BESSELK(n, x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF073",
+      "title": "HYPGEOMETRICM",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "HYPGEOMETRICM"
+      },
+      "signature": "HYPGEOMETRICM(a, b, x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF074",
+      "title": "HYPGEOMETRICU",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "HYPGEOMETRICU"
+      },
+      "signature": "HYPGEOMETRICU(a, b, x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF075",
+      "title": "HYPGEOMETRICF",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "HYPGEOMETRICF"
+      },
+      "signature": "HYPGEOMETRICF(a, b, c, x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF076",
+      "title": "IF",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "IF"
+      },
+      "signature": "IF(condition, value_if_true, value_if_false)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF077",
+      "title": "AND",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "AND"
+      },
+      "signature": [
+        "AND(condition1, condition2, ...)",
+        "condition1 AND condition2"
+      ],
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF078",
+      "title": "OR",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "OR"
+      },
+      "signature": [
+        "OR(condition1, condition2, ...)",
+        "condition1 OR condition2"
+      ],
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF079",
+      "title": "NOT",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "NOT"
+      },
+      "signature": "NOT(condition)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF080",
+      "title": "IS_DEFINED",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "IS_DEFINED"
+      },
+      "signature": "IS_DEFINED(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF081",
+      "title": "CONCATENATE",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "CONCATENATE"
+      },
+      "signature": "CONCATENATE(text1, text2, ...)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "TF082",
+      "title": "PERC",
+      "status": "not_started",
+      "source": {
+        "relative_path": "Resources/en.lproj/InTableTransform_Functions.json",
+        "sha256": "4c6ae5c7fa66d004dca3bc74d79687d9d2f98e83b267690b4eed566e546a88ae",
+        "key": "PERC"
+      },
+      "signature": "PERC(x)",
+      "dependencies": [
+        "W003",
+        "D009"
+      ],
+      "acceptance": [
+        "Implement documented argument order, optional defaults, return types, vector/aggregate semantics and domains.",
+        "Test supplied examples plus missing values, invalid domains, boundary values and case-insensitive names.",
+        "Verify output/blank/error semantics against Prism 11 references; deterministic seeded testing for random functions.",
+        "Integrate parser, dependency updates, persistence, undo, row/type changes and import/export."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    }
+  ]
+}

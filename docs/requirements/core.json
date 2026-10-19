@@ -1,0 +1,1095 @@
+{
+  "schema_version": 1,
+  "scope": "Evidence, workbook, table/editing, preferences, external integrations and release requirements",
+  "requirements": [
+    {
+      "id": "R001",
+      "title": "Versioned reference corpus and evidence provenance",
+      "phase": 0,
+      "status": "partial",
+      "guide_sections": [
+        "intro",
+        "8.3",
+        "Appendix B",
+        "Appendix C"
+      ],
+      "dependencies": [],
+      "acceptance": [
+        "Retain source hash, version/platform, section/image identity and evidence type for every claim.",
+        "Separate Prism 10 author observations, documentation/resource-only statements, saved Prism 11 outputs, direct Prism 11 runtime tests and GP design choices."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "R002",
+      "title": "Full guide and resource inventory traceability",
+      "phase": 0,
+      "status": "partial",
+      "guide_sections": [
+        "all"
+      ],
+      "dependencies": [],
+      "acceptance": [
+        "All 226 guide sections, 32 existing coverage families, 152 equation records and 82 in-table functions map to explicit requirements or source-context entries.",
+        "Every discovered menu/control/option/test example is triaged; new discoveries reopen affected requirements."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "R003",
+      "title": "Executable macOS reference test harness",
+      "phase": 0,
+      "status": "reference_blocked",
+      "guide_sections": [
+        "Appendix B"
+      ],
+      "dependencies": [],
+      "acceptance": [
+        "Acquire authorized macOS execution and a usable Prism installation; retain app version, settings, inputs, outputs, screenshots and action traces.",
+        "Use copies of generated/supplied fixtures, not unrelated personal projects.",
+        "Do not certify unresolved runtime-only semantics from screenshots or decompilation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "R004",
+      "title": "Numerical comparison and rendering harness",
+      "phase": 0,
+      "status": "partial",
+      "guide_sections": [
+        "3",
+        "4",
+        "5"
+      ],
+      "dependencies": [],
+      "acceptance": [
+        "Compare structured output including missing/undefined states and numerical tolerances justified per quantity.",
+        "Compare screen and export geometry/fonts/ticks/colors/cropping against reference captures; review platform font differences explicitly.",
+        "Keep fixtures, provenance and test commands reproducible."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "R005",
+      "title": "Resolve conflicting guide statements and versions",
+      "phase": 0,
+      "status": "not_started",
+      "guide_sections": [
+        "2.2.6",
+        "2.5.3",
+        "6",
+        "7",
+        "8.3"
+      ],
+      "dependencies": [],
+      "acceptance": [
+        "Track conflicts without guessing: Column preaveraged conversion, Mac linked text import, script log encodings, recalculation on open, SVG scripting support.",
+        "Resolve each with versioned runtime or authoritative artifact evidence before parity closure."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "R006",
+      "title": "Regression/CI release gates and persistent work queue",
+      "phase": 0,
+      "status": "partial",
+      "guide_sections": [
+        "all"
+      ],
+      "dependencies": [],
+      "acceptance": [
+        "Run schema, numeric, format, worker/server, interaction, browser and export checks appropriate to every changed subsystem.",
+        "A checked requirement has implementation plus GP tests; verified-equivalent additionally has adequate Prism references.",
+        "Keep each unmet requirement open with next action and blocker."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "W001",
+      "title": "Stable identities and versioned schema migrations",
+      "phase": 1,
+      "status": "partial",
+      "guide_sections": [
+        "1.1",
+        "2.1"
+      ],
+      "dependencies": [],
+      "acceptance": [
+        "Assign stable identities to rows, datasets, replicates, subjects, cells, analyses, graph objects and layout placements.",
+        "Migrate existing GP v1/v2 without losing drafts, links, settings, exclusions or results; reject malformed/cyclic/dangling references.",
+        "Rename/reorder/delete never silently retarget dependencies."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "W002",
+      "title": "Automatic recomputation of existing direct analyses",
+      "phase": 1,
+      "status": "not_started",
+      "guide_sections": [
+        "1.1",
+        "1.7",
+        "3.7",
+        "9.1"
+      ],
+      "dependencies": [
+        "W001"
+      ],
+      "acceptance": [
+        "Editing or pasting valid data refreshes every eligible linked analysis without clicking Run.",
+        "Debounce incomplete typing, cancel superseded jobs and reject late responses after edits, undo, open/recovery and disposal.",
+        "Navigation and unrelated edits do not steal focus or suppress needed work.",
+        "Failures attach to the affected result, do not display old output as current or retry indefinitely.",
+        "Derived refreshes preserve undo/redo; static worker and server modes have matching behavior."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "W003",
+      "title": "General dependency graph and chained results",
+      "phase": 1,
+      "status": "not_started",
+      "guide_sections": [
+        "1.1",
+        "3.7",
+        "3.8",
+        "2.5.2"
+      ],
+      "dependencies": [
+        "W001",
+        "W002"
+      ],
+      "acceptance": [
+        "Topologically update transforms, analyses of analyses, linked cells, info constants, graphs and layouts.",
+        "Detect cycles, fan-out, deletion, missing inputs and error propagation; unrelated families remain unchanged."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "W004",
+      "title": "Freeze/unfreeze data, results and graphs",
+      "phase": 1,
+      "status": "not_started",
+      "guide_sections": [
+        "1.7",
+        "2.10",
+        "8.2"
+      ],
+      "dependencies": [
+        "W001",
+        "W003"
+      ],
+      "acceptance": [
+        "Frozen data reject edits; frozen results and graphs retain their scientific snapshot when upstream data change.",
+        "Unfreeze updates downstream state; persistence, duplication, undo and export honor freeze state.",
+        "Determine native handling of changed parameters and frozen dependencies before parity closure."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "W005",
+      "title": "Complete undo transactions and redo semantics",
+      "phase": 1,
+      "status": "partial",
+      "guide_sections": [
+        "1.5",
+        "1.6",
+        "4.3"
+      ],
+      "dependencies": [
+        "W001"
+      ],
+      "acceptance": [
+        "Cover cell blocks, formats, exclusions, object edits, sheet/family operations, analysis parameters and scripts.",
+        "Continuous typing/dragging is grouped appropriately; Apply commits once; Cancel restores only uncommitted changes.",
+        "Async derived results neither add user edits nor erase redo; document replacements cancel outstanding work."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "W006",
+      "title": "Autosave, recovery, dirty state and multiple documents",
+      "phase": 1,
+      "status": "partial",
+      "guide_sections": [
+        "1.3",
+        "5.3",
+        "8.1"
+      ],
+      "dependencies": [
+        "W001"
+      ],
+      "acceptance": [
+        "Separate saved-to-file, saved-in-browser and unsaved edits; recover crashes/quota failures without overwriting originals.",
+        "Implement new/open/recent/close/close-all/save/save-as/duplicate/revert/backup and independent open documents.",
+        "User-visible browser file limitations are concrete; do not claim native Finder document actions exist."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "W007",
+      "title": "Complete five-section workbook navigation",
+      "phase": 2,
+      "status": "partial",
+      "guide_sections": [
+        "1.1",
+        "1.3",
+        "1.6"
+      ],
+      "dependencies": [
+        "W001"
+      ],
+      "acceptance": [
+        "Data/Info/Results/Graphs/Layouts sections, searchable names, disclosure, New actions and current-family ordering.",
+        "Back/forward, previous-sheet switch, linked-sheet menu, sheet chooser, section shortcuts, show/hide navigator.",
+        "All actions retain identity and correct context under undo/delete/duplicate/import."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "W008",
+      "title": "Gallery and thumbnail navigation",
+      "phase": 2,
+      "status": "not_started",
+      "guide_sections": [
+        "1.3",
+        "1.5"
+      ],
+      "dependencies": [
+        "W001",
+        "W007"
+      ],
+      "acceptance": [
+        "Section/family galleries show live thumbnails and multi-selection; switch sheet/gallery without document mutation.",
+        "Large projects virtualize rendering and invalidate only affected thumbnails."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "W009",
+      "title": "Sheet/family lifecycle and organization",
+      "phase": 2,
+      "status": "not_started",
+      "guide_sections": [
+        "1.5",
+        "2.4.3",
+        "2.10",
+        "8.2"
+      ],
+      "dependencies": [
+        "W001",
+        "W003"
+      ],
+      "acceptance": [
+        "Create with/without graph; rename/reorder/multiselect/highlight/delete sheets.",
+        "Duplicate sheet and whole family with new identities and remapped internal links; save/export/print/delete family.",
+        "Deletion previews dependent consequences and supports undo; preserve shared sources correctly."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "W010",
+      "title": "Info sheets and dynamic constants",
+      "phase": 2,
+      "status": "not_started",
+      "guide_sections": [
+        "1.1",
+        "2.8",
+        "8.1",
+        "8.2"
+      ],
+      "dependencies": [
+        "W001",
+        "W003"
+      ],
+      "acceptance": [
+        "Named typed constants and free notes; default experiment metadata; add/remove/reorder/import rows.",
+        "Link/unlink table families; insert live info/analysis constants into text, axes, ticks and model constraints.",
+        "Rename/delete/invalid constants update dependents predictably and serialize losslessly."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "W011",
+      "title": "Floating notes and scientific warning notes",
+      "phase": 2,
+      "status": "not_started",
+      "guide_sections": [
+        "1.3",
+        "2.9",
+        "3.6"
+      ],
+      "dependencies": [
+        "W001"
+      ],
+      "acceptance": [
+        "Create six colors; edit rich text/links; move/resize/minimize/delete; retain sheet association and undo.",
+        "Attach scientific diagnostics to results/graphs; manage focus and warning preferences without hiding failed fits."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "D001",
+      "title": "Typed cell representation, missingness and exclusions",
+      "phase": 3,
+      "status": "not_started",
+      "guide_sections": [
+        "2.1",
+        "2.6",
+        "2.11"
+      ],
+      "dependencies": [
+        "W001",
+        "W003"
+      ],
+      "acceptance": [
+        "Store value separately from missing/excluded/censored/error states; preserve raw entered text and precision.",
+        "Blank differs from zero; reversible exclusion retains original numeric value and affects analysis/graph/export consistently.",
+        "Support number, text, date and elapsed-time representations without unsafe coercion."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "D002",
+      "title": "Raw Column table: stacked and paired entry",
+      "phase": 3,
+      "status": "partial",
+      "guide_sections": [
+        "2.2.5",
+        "2.3.2"
+      ],
+      "dependencies": [
+        "D001"
+      ],
+      "acceptance": [
+        "Independent unequal-length columns and matched rows with subject IDs; pairing set explicitly in analysis.",
+        "Missing pairs and missing repeated measures follow verified analysis rules."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "D003",
+      "title": "XY table: X formats and replicate Y layouts",
+      "phase": 3,
+      "status": "partial",
+      "guide_sections": [
+        "2.1",
+        "2.3.1"
+      ],
+      "dependencies": [
+        "D001"
+      ],
+      "acceptance": [
+        "Numeric X, horizontal X errors, dates and elapsed time; reference origin/units and locale parsing.",
+        "Single Y, replicate subcolumns, raw plotting and correct numeric spacing; row titles are not X data.",
+        "Zero concentration controls are supported where model mathematics permits; log-concentration remains a different input domain."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "D004",
+      "title": "Preaveraged and asymmetric error entry",
+      "phase": 3,
+      "status": "not_started",
+      "guide_sections": [
+        "2.2.6",
+        "2.4.4"
+      ],
+      "dependencies": [
+        "D001"
+      ],
+      "acceptance": [
+        "Mean/SD/SE/CV with or without N; plus/minus errors; low/high and explicit upper/lower limits.",
+        "Relabeling SD/SEM does not numerically convert observations; table conversion behavior is explicit and tested.",
+        "Only mathematically supported analyses run; raw-only residual/repeated-measures options are unavailable."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "D005",
+      "title": "Native Grouped tables and subject matching",
+      "phase": 3,
+      "status": "not_started",
+      "guide_sections": [
+        "2.3.3"
+      ],
+      "dependencies": [
+        "D001",
+        "D004"
+      ],
+      "acceptance": [
+        "Row/column factors, replicate subcolumns, mean/error entry, missing cells and factor labels.",
+        "Support subject-along-rows and subject-across-columns matching; preserve experimental unit identity.",
+        "Represent documented three-way 2\u00d72\u00d7K encoding and integrate existing standalone ANOVA workspace."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "D006",
+      "title": "Contingency tables",
+      "phase": 3,
+      "status": "not_started",
+      "guide_sections": [
+        "2.3.4"
+      ],
+      "dependencies": [
+        "D001"
+      ],
+      "acceptance": [
+        "Integer nonnegative counts, row/outcome labels, zero-margin validation; reject percentage/continuous inputs.",
+        "Use correct orientation for prospective/retrospective and diagnostic analyses."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "D007",
+      "title": "Native Survival tables",
+      "phase": 3,
+      "status": "not_started",
+      "guide_sections": [
+        "2.3.5"
+      ],
+      "dependencies": [
+        "D001",
+        "W002"
+      ],
+      "acceptance": [
+        "Time plus sparse per-group event/censor indicators, subject IDs, elapsed time or start/end dates.",
+        "Create survival analysis and graph automatically; integrate existing KM/logrank workspace.",
+        "Validate ties, censoring, missing membership, nonpositive/invalid times according to references."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "D008",
+      "title": "Parts-of-whole tables",
+      "phase": 3,
+      "status": "not_started",
+      "guide_sections": [
+        "2.3.6"
+      ],
+      "dependencies": [
+        "D001"
+      ],
+      "acceptance": [
+        "Category titles, values/counts, expected distributions; correct zero-total and invalid-negative behavior.",
+        "Feed fraction, goodness-of-fit and pie/donut/stacked plots."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "D009",
+      "title": "Multiple-variable tables",
+      "phase": 3,
+      "status": "not_started",
+      "guide_sections": [
+        "2.3.7"
+      ],
+      "dependencies": [
+        "D001"
+      ],
+      "acceptance": [
+        "Label/continuous/categorical/text variables, reference levels, subject rows and numeric precision.",
+        "Explicit type conversion, missing policy, group-variable mapping and graph axis-variable assignment."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "D010",
+      "title": "Nested tables",
+      "phase": 3,
+      "status": "not_started",
+      "guide_sections": [
+        "2.3.8"
+      ],
+      "dependencies": [
+        "D001"
+      ],
+      "acceptance": [
+        "Treatment datasets contain experimental-unit subcolumns containing technical observations with unequal n.",
+        "Experimental units drive degrees of freedom; no silent flattening of technical replicates."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "D011",
+      "title": "Format Data Table and loss-aware conversions",
+      "phase": 3,
+      "status": "not_started",
+      "guide_sections": [
+        "2.4.4"
+      ],
+      "dependencies": [
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010"
+      ],
+      "acceptance": [
+        "Change kind, subcolumns, errors, date origins/units with a review of data that no longer fit.",
+        "Undo restores full original; compatible analyses/graphs remap and recalculate; incompatible dependents are explicit."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "D012",
+      "title": "Row and dataset titles and per-cell display formatting",
+      "phase": 3,
+      "status": "not_started",
+      "guide_sections": [
+        "2.1",
+        "2.7"
+      ],
+      "dependencies": [
+        "D001"
+      ],
+      "acceptance": [
+        "Independent labels, hide/show row titles, fixed dataset lettering, replicate headers, decimal display and cell highlights.",
+        "Labels propagate to results/legends/category axes without changing numeric precision.",
+        "Selected-point formatting links to the corresponding graph observations by identity."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "E001",
+      "title": "Spreadsheet selection and keyboard navigation",
+      "phase": 4,
+      "status": "not_started",
+      "guide_sections": [
+        "1.6",
+        "2.5.1"
+      ],
+      "dependencies": [
+        "D001"
+      ],
+      "acceptance": [
+        "Single cell, rectangular/disjoint ranges, row/column/all selection, anchor/extent and scrolling.",
+        "Arrow/Tab/Enter/Shift movement, edit mode, selection shortcuts, delete/clear and clipboard act on correct cells.",
+        "Test focus, accessibility, bounds, virtualized large tables and browser-reserved shortcut alternatives."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "E002",
+      "title": "Insert/delete/reorder/sort data blocks",
+      "phase": 4,
+      "status": "not_started",
+      "guide_sections": [
+        "2.5.1"
+      ],
+      "dependencies": [
+        "E001",
+        "D011"
+      ],
+      "acceptance": [
+        "Insert cells/rows/datasets/subcolumns, clear versus delete, sort X/row-title and reverse row order.",
+        "Move all related replicate/error/subject metadata together; stable links/exclusions survive; undo is atomic."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "E003",
+      "title": "Create numeric series",
+      "phase": 4,
+      "status": "not_started",
+      "guide_sections": [
+        "2.5.1"
+      ],
+      "dependencies": [
+        "E001"
+      ],
+      "acceptance": [
+        "Linear/geometric/time sequences with start/end/step/count; overflow/domain/cell-placement validation.",
+        "Preview resulting block and apply as one undoable edit."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "E004",
+      "title": "Clipboard copy/cut/paste/transpose and Paste Special",
+      "phase": 4,
+      "status": "partial",
+      "guide_sections": [
+        "2.5.2"
+      ],
+      "dependencies": [
+        "E001",
+        "D001"
+      ],
+      "acceptance": [
+        "Parse numeric and HTML/text clipboard precision, titles, subcolumns, locale/decimal separators and missing/excluded modes.",
+        "Paste placement/filtering/transposition, multi-cell cut/undo and incomplete clipboard payloads are tested.",
+        "Browser permission errors provide supported file/manual alternatives without data loss."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "E005",
+      "title": "Live linked data/result blocks",
+      "phase": 4,
+      "status": "not_started",
+      "guide_sections": [
+        "2.5.2"
+      ],
+      "dependencies": [
+        "E001",
+        "W003"
+      ],
+      "acceptance": [
+        "Paste Link records typed range references, read-only red-outline destination and native update semantics.",
+        "Unlink/Format/Update and double-click editing preserve values; cycles and missing sources are detected."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "E006",
+      "title": "Text file import and project merge",
+      "phase": 4,
+      "status": "partial",
+      "guide_sections": [
+        "2.5.3"
+      ],
+      "dependencies": [
+        "D011",
+        "W009"
+      ],
+      "acceptance": [
+        "CSV/TXT/DAT/PRN delimiters/encoding/headers/filters/placement, all supported table forms and preview.",
+        "Merge projects remaps identities and preserves dependencies; distinguish open/import/merge.",
+        "Mac direct Excel import is not assumed; test supported HTML clipboard instead."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "E007",
+      "title": "Exclusion UI and output policy",
+      "phase": 4,
+      "status": "not_started",
+      "guide_sections": [
+        "2.6"
+      ],
+      "dependencies": [
+        "D001",
+        "E001",
+        "W003"
+      ],
+      "acceptance": [
+        "Toggle excluded selected cells without deleting values; blue italic/asterisk display and status explanations.",
+        "Exclude from calculations and plotted observations; clipboard/export choices number/asterisk/blank preserve intended semantics.",
+        "Undo/reload/native file roundtrip retain exclusions; results-side exclusion maps to source identities."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "P001",
+      "title": "Welcome/project creation, tutorials and portfolio",
+      "phase": 2,
+      "status": "partial",
+      "guide_sections": [
+        "1.2",
+        "2.4.1",
+        "2.4.2",
+        "8.2"
+      ],
+      "dependencies": [
+        "W009",
+        "D011"
+      ],
+      "acceptance": [
+        "Eight table-family previews/options; create empty or tutorial; open/recent/clone tabs; template/example/method entry points.",
+        "Every supported tutorial opens with correct data layout, links and explanatory notes; catalogue tracks missing examples explicitly.",
+        "Do not redistribute proprietary assets as GP interface assets."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "P002",
+      "title": "Context menus, compact toolbars and command routing",
+      "phase": 2,
+      "status": "partial",
+      "guide_sections": [
+        "1.4",
+        "1.5",
+        "1.7"
+      ],
+      "dependencies": [
+        "W007"
+      ],
+      "acceptance": [
+        "Map every documented menu/toolbar command to a real capability and precise disabled reason until implemented.",
+        "Sheet-specific groups and two-row toolbar; menus/shortcuts/context commands share handlers and enabled state.",
+        "Record all Prism 11 resource commands missing from the guide as further requirements."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "P003",
+      "title": "Status bar, zoom, inspector, rulers and viewport",
+      "phase": 2,
+      "status": "not_started",
+      "guide_sections": [
+        "1.3",
+        "1.5"
+      ],
+      "dependencies": [
+        "W007"
+      ],
+      "acceptance": [
+        "Show/hide toolbar/navigator/inspector/status, sheet/gallery/section controls and contextual cell or graph coordinates.",
+        "Zoom-to-page/graph, 50\u20131000%, reset preferences, graph/layout rulers/grid and accessibility remain coherent."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "P004",
+      "title": "Appearance, typography, accessibility and native interaction fidelity",
+      "phase": 2,
+      "status": "partial",
+      "guide_sections": [
+        "1.3",
+        "1.6",
+        "1.7",
+        "8.1"
+      ],
+      "dependencies": [],
+      "acceptance": [
+        "Light/dark/system, correct white sheet/graph surfaces, font metrics, tab/field spacing, keyboard focus and dialog placement.",
+        "Screen reader semantics, high DPI, focus return, Escape, modal nesting, keyboard alternatives and resize/mobile fallback.",
+        "Compare reference screenshots and interactions for every implemented screen; do not equate theme with pixel parity."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "P005",
+      "title": "View preferences",
+      "phase": 12,
+      "status": "not_started",
+      "guide_sections": [
+        "8.1"
+      ],
+      "dependencies": [
+        "P004",
+        "W011"
+      ],
+      "acceptance": [
+        "Persist table/navigator/note fonts, inches/cm, zoom/reset, combined Data+Results folder, tooltips/warnings and alert reset.",
+        "Spell checking/autocomplete titles, locale date order and axis minus-glyph setting; preferences affect correct scope only."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "P006",
+      "title": "New graph defaults and style scope",
+      "phase": 12,
+      "status": "not_started",
+      "guide_sections": [
+        "8.1"
+      ],
+      "dependencies": [
+        "P005"
+      ],
+      "acceptance": [
+        "Persist shape/dimensions/frame/thickness/ticks/fonts/symbols/lines/bar/error/spacing/jitter/color/decimal/title/page/text/table defaults.",
+        "New graphs inherit defaults; existing graphs only change through explicit Magic/style application."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "P007",
+      "title": "Analysis defaults and result number formats",
+      "phase": 12,
+      "status": "not_started",
+      "guide_sections": [
+        "8.1",
+        "3.4"
+      ],
+      "dependencies": [
+        "W001"
+      ],
+      "acceptance": [
+        "P-value scientific/decimal thresholds, row/title truncation, per-analysis saved-default option groups and reset.",
+        "Default choice never rewrites existing analysis specification."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "P008",
+      "title": "File/clipboard/print/location/Info defaults",
+      "phase": 12,
+      "status": "not_started",
+      "guide_sections": [
+        "8.1"
+      ],
+      "dependencies": [
+        "W006",
+        "E004",
+        "W010"
+      ],
+      "acceptance": [
+        "Autosave interval/on-navigation; clipboard blanks/exclusions/precision/separators/background; native compatibility setting.",
+        "Print grid/labels/header metadata, browser-accessible remembered locations, default Info constants and auto-creation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "P009",
+      "title": "Diagnostics, help and update information",
+      "phase": 12,
+      "status": "not_started",
+      "guide_sections": [
+        "1.5",
+        "8.1",
+        "8.2"
+      ],
+      "dependencies": [
+        "R006"
+      ],
+      "acceptance": [
+        "Help, contextual guides, tutorial pointers, appropriate-test checklists and reproducible error logs.",
+        "Report GP version/build and update availability honestly; do not present a GraphPad license or claim access to its private account services."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "X001",
+      "title": "Cloud/power/QuickCalcs/GraphPad account services",
+      "phase": 13,
+      "status": "external_blocked",
+      "guide_sections": [
+        "1.2",
+        "1.4",
+        "1.5",
+        "8.1",
+        "8.2"
+      ],
+      "dependencies": [],
+      "acceptance": [
+        "Catalogue every external service interaction and identify supported public links versus authenticated APIs.",
+        "Actual account-based integration requires documented API/access and user-authorized credentials; never implement fake successful login/publication/license checks.",
+        "Keep unavailable third-party functionality open as external dependency; browser substitute is not silently counted as native equivalence."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "X002",
+      "title": "LabArchives and native office/share integrations",
+      "phase": 13,
+      "status": "external_blocked",
+      "guide_sections": [
+        "1.5",
+        "5.4"
+      ],
+      "dependencies": [],
+      "acceptance": [
+        "Specify LabArchives, PowerPoint, Keynote, Word, mail/share-sheet behaviors and test supported API/file/clipboard adapters.",
+        "Record platform/browser limitations and actual access prerequisites; no unrequested external messages or publication."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "Q001",
+      "title": "Large-project performance and resource limits",
+      "phase": 14,
+      "status": "partial",
+      "guide_sections": [
+        "1.3",
+        "2",
+        "3",
+        "4",
+        "7"
+      ],
+      "dependencies": [],
+      "acceptance": [
+        "Benchmark large matrices, many sheets/objects, worker memory, fit cancellation and rendering responsiveness.",
+        "Bound parsing/execution/output allocations; limits are visible and tested, not silent truncation.",
+        "Virtualize tables/navigators and cache only by complete versioned inputs."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "Q002",
+      "title": "Malformed files, data isolation and fault recovery",
+      "phase": 14,
+      "status": "partial",
+      "guide_sections": [
+        "5",
+        "6",
+        "7"
+      ],
+      "dependencies": [],
+      "acceptance": [
+        "Validate archive expansion/path traversal/duplicate IDs/cyclic references/nonfinite values/corrupt binaries.",
+        "Treat imported scripts as data until user runs them; restrict script file access to selected workspaces/files.",
+        "Recover quota, worker failure, interrupted import/save and network failure without losing source files."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "Q003",
+      "title": "Supported browser/OS and accessible workflow matrix",
+      "phase": 14,
+      "status": "partial",
+      "guide_sections": [
+        "1",
+        "4",
+        "5",
+        "6"
+      ],
+      "dependencies": [],
+      "acceptance": [
+        "Test Chromium, Firefox and Safari/WebKit desktop; macOS keyboard behavior and high-DPI; mobile fallback.",
+        "Test cold/offline-capable static runtime, server mode, downloads, file picker/clipboard capabilities and preference storage failures."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "Q004",
+      "title": "Public deployment identity and production verification",
+      "phase": 15,
+      "status": "verification_blocked",
+      "guide_sections": [],
+      "dependencies": [],
+      "acceptance": [
+        "Embed immutable source/build identity and deployment metadata in served app.",
+        "Verify gp.samgillman.org HTML/assets/version against expected Git commit and production smoke workflows; stale cache/service worker cannot hide updates.",
+        "Verify Cloudflare build settings, preview/production separation, rollback and failed-build reporting.",
+        "If network or hosting access is unavailable, record exact blocker and never claim live deployment verified."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    },
+    {
+      "id": "Q005",
+      "title": "Reference-driven end-to-end acceptance and release audit",
+      "phase": 16,
+      "status": "not_started",
+      "guide_sections": [
+        "all"
+      ],
+      "dependencies": [
+        "R003",
+        "R004",
+        "R006",
+        "Q001",
+        "Q002",
+        "Q003",
+        "Q004"
+      ],
+      "acceptance": [
+        "Execute every guide recipe end-to-end across all table families and compare applicable Prism 11 numerical/format/UI/export outputs.",
+        "Reconcile every requirement, model, function, command, source section and unresolved native finding with implementation and evidence.",
+        "No open material requirement or unknown reference behavior can be silently waived or replaced by a percentage.",
+        "Publish exact supported limitations and obtain an explicit scope decision for unavoidable native/service dependencies before claiming full completion."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": [],
+      "limitations": []
+    }
+  ]
+}

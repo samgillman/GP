@@ -1,0 +1,767 @@
+{
+  "note": "Named shared capability contracts map to accountable workstreams. These are not a strict topological graph; consumer and infrastructure contracts can overlap. Requirement-level prerequisites remain in each register. Refine broad contracts as schemas are implemented.",
+  "contracts": {
+    "D_TABLE": {
+      "requirement_ids": [
+        "D001",
+        "D004",
+        "D005",
+        "D009",
+        "D010"
+      ]
+    },
+    "D_WORKBOOK": {
+      "requirement_ids": [
+        "W001",
+        "W003",
+        "W004",
+        "W005"
+      ]
+    },
+    "D_PARAMS": {
+      "requirement_ids": [
+        "A005",
+        "A022",
+        "A035"
+      ]
+    },
+    "D_RESULTS": {
+      "requirement_ids": [
+        "A023",
+        "A024",
+        "A026"
+      ]
+    },
+    "D_REFERENCE": {
+      "requirement_ids": [
+        "R001",
+        "R003",
+        "R004"
+      ]
+    },
+    "D_FITS": {
+      "requirement_ids": [
+        "R004",
+        "A213",
+        "A214",
+        "A215"
+      ]
+    },
+    "D_DESIGN": {
+      "requirement_ids": [
+        "D005",
+        "D010"
+      ]
+    },
+    "D_MULTIPLICITY": {
+      "requirement_ids": [
+        "A034",
+        "A154",
+        "A155"
+      ]
+    },
+    "D_RENDER": {
+      "requirement_ids": [
+        "G001",
+        "G002"
+      ]
+    },
+    "D_EXPR": {
+      "requirement_ids": [
+        "W003",
+        "TF001"
+      ]
+    },
+    "D_RANDOM": {
+      "requirement_ids": [
+        "A326"
+      ]
+    },
+    "D_PROJECT_IO": {
+      "requirement_ids": [
+        "F002"
+      ]
+    },
+    "table:column": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "table:xy": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "table:replicate-subcolumns": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "table:summary-error-formats": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "table:grouped": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "table:contingency": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "table:survival": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "analysis:survival": {
+      "requirement_ids": [
+        "A001",
+        "A023",
+        "A034",
+        "R004"
+      ]
+    },
+    "table:parts-of-whole": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "table:multiple-variables": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "table:nested": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "workbook:sheet-identity": {
+      "requirement_ids": [
+        "W001",
+        "W003",
+        "W005",
+        "W007",
+        "W009",
+        "W010",
+        "A023"
+      ]
+    },
+    "workbook:result-tables": {
+      "requirement_ids": [
+        "W001",
+        "W003",
+        "W005",
+        "W007",
+        "W009",
+        "W010",
+        "A023"
+      ]
+    },
+    "analysis:graph-output-contract": {
+      "requirement_ids": [
+        "A001",
+        "A023",
+        "A034",
+        "R004"
+      ]
+    },
+    "workbook:dependency-graph": {
+      "requirement_ids": [
+        "W001",
+        "W003",
+        "W005",
+        "W007",
+        "W009",
+        "W010",
+        "A023"
+      ]
+    },
+    "workbook:graph-inputs": {
+      "requirement_ids": [
+        "W001",
+        "W003",
+        "W005",
+        "W007",
+        "W009",
+        "W010",
+        "A023"
+      ]
+    },
+    "preferences:graph-defaults": {
+      "requirement_ids": [
+        "P005",
+        "P006",
+        "P007",
+        "P008"
+      ]
+    },
+    "workbook:cross-table-graph-inputs": {
+      "requirement_ids": [
+        "W001",
+        "W003",
+        "W005",
+        "W007",
+        "W009",
+        "W010",
+        "A023"
+      ]
+    },
+    "fonts:availability-and-metrics": {
+      "requirement_ids": [
+        "F029"
+      ]
+    },
+    "scene:object-model": {
+      "requirement_ids": [
+        "G001",
+        "G002",
+        "G034",
+        "G054"
+      ]
+    },
+    "history:object-transactions": {
+      "requirement_ids": [
+        "W005"
+      ]
+    },
+    "scene:selection-and-transforms": {
+      "requirement_ids": [
+        "G001",
+        "G002",
+        "G034",
+        "G054"
+      ]
+    },
+    "workbook:multi-selection": {
+      "requirement_ids": [
+        "W001",
+        "W003",
+        "W005",
+        "W007",
+        "W009",
+        "W010",
+        "A023"
+      ]
+    },
+    "history:dialog-transactions": {
+      "requirement_ids": [
+        "W005"
+      ]
+    },
+    "scene:stable-dataset-style-ids": {
+      "requirement_ids": [
+        "G001",
+        "G002",
+        "G034",
+        "G054"
+      ]
+    },
+    "scene:style-channel-model": {
+      "requirement_ids": [
+        "G001",
+        "G002",
+        "G034",
+        "G054"
+      ]
+    },
+    "analysis:descriptive-conventions": {
+      "requirement_ids": [
+        "A001",
+        "A023",
+        "A034",
+        "R004"
+      ]
+    },
+    "table:row-titles": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "analysis:quantile-conventions": {
+      "requirement_ids": [
+        "A001",
+        "A023",
+        "A034",
+        "R004"
+      ]
+    },
+    "workbook:multiple-representations-per-dataset": {
+      "requirement_ids": [
+        "W001",
+        "W003",
+        "W005",
+        "W007",
+        "W009",
+        "W010",
+        "A023"
+      ]
+    },
+    "table:selection-identity": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "workbook:linked-text": {
+      "requirement_ids": [
+        "W001",
+        "W003",
+        "W005",
+        "W007",
+        "W009",
+        "W010",
+        "A023"
+      ]
+    },
+    "scene:shared-render-layout": {
+      "requirement_ids": [
+        "G001",
+        "G002",
+        "G034",
+        "G054"
+      ]
+    },
+    "scene:color-alpha": {
+      "requirement_ids": [
+        "G001",
+        "G002",
+        "G034",
+        "G054"
+      ]
+    },
+    "analysis:probability-transform": {
+      "requirement_ids": [
+        "A001",
+        "A023",
+        "A034",
+        "R004"
+      ]
+    },
+    "fonts:metrics": {
+      "requirement_ids": [
+        "F029"
+      ]
+    },
+    "text:rich-document": {
+      "requirement_ids": [
+        "W011"
+      ]
+    },
+    "fonts:glyph-coverage": {
+      "requirement_ids": [
+        "F029"
+      ]
+    },
+    "scene:shape-model": {
+      "requirement_ids": [
+        "G001",
+        "G002",
+        "G034",
+        "G054"
+      ]
+    },
+    "analysis:named-constants": {
+      "requirement_ids": [
+        "A001",
+        "A023",
+        "A034",
+        "R004"
+      ]
+    },
+    "table:info-sheets": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "scene:embedded-table": {
+      "requirement_ids": [
+        "G001",
+        "G002",
+        "G034",
+        "G054"
+      ]
+    },
+    "scene:bitmap-object": {
+      "requirement_ids": [
+        "G001",
+        "G002",
+        "G034",
+        "G054"
+      ]
+    },
+    "analysis:comparisons-contract": {
+      "requirement_ids": [
+        "A001",
+        "A023",
+        "A034",
+        "R004"
+      ]
+    },
+    "analysis:p-value-display-policy": {
+      "requirement_ids": [
+        "A001",
+        "A023",
+        "A034",
+        "R004"
+      ]
+    },
+    "analysis:complete-pairwise-comparisons": {
+      "requirement_ids": [
+        "A001",
+        "A023",
+        "A034",
+        "R004"
+      ]
+    },
+    "analysis:chaining": {
+      "requirement_ids": [
+        "A001",
+        "A023",
+        "A034",
+        "R004"
+      ]
+    },
+    "preferences:versioned-registry": {
+      "requirement_ids": [
+        "P005",
+        "P006",
+        "P007",
+        "P008"
+      ]
+    },
+    "analysis:multiple-t": {
+      "requirement_ids": [
+        "A001",
+        "A023",
+        "A034",
+        "R004"
+      ]
+    },
+    "automation:SetAxisLimits": {
+      "requirement_ids": [
+        "S001"
+      ]
+    },
+    "analysis:concentration-models": {
+      "requirement_ids": [
+        "A001",
+        "A023",
+        "A034",
+        "R004"
+      ]
+    },
+    "workbook:new-layout-sheet": {
+      "requirement_ids": [
+        "W001",
+        "W003",
+        "W005",
+        "W007",
+        "W009",
+        "W010",
+        "A023"
+      ]
+    },
+    "workbook:ordered-graph-sheets": {
+      "requirement_ids": [
+        "W001",
+        "W003",
+        "W005",
+        "W007",
+        "W009",
+        "W010",
+        "A023"
+      ]
+    },
+    "scene:transforms": {
+      "requirement_ids": [
+        "G001",
+        "G002",
+        "G034",
+        "G054"
+      ]
+    },
+    "workbook:cross-project-import": {
+      "requirement_ids": [
+        "W001",
+        "W003",
+        "W005",
+        "W007",
+        "W009",
+        "W010",
+        "A023"
+      ]
+    },
+    "native:layout-record-schema": {
+      "requirement_ids": [
+        "F002",
+        "F031"
+      ]
+    },
+    "preferences:export-settings": {
+      "requirement_ids": [
+        "P005",
+        "P006",
+        "P007",
+        "P008"
+      ]
+    },
+    "clipboard:browser-native-bridge": {
+      "requirement_ids": [
+        "E004",
+        "E005"
+      ]
+    },
+    "integration:presentation-apps": {
+      "requirement_ids": [
+        "X001",
+        "X002"
+      ]
+    },
+    "automation:script-runtime": {
+      "requirement_ids": [
+        "S001"
+      ]
+    },
+    "table:exclusions": {
+      "requirement_ids": [
+        "D001",
+        "D002",
+        "D003",
+        "D004",
+        "D005",
+        "D006",
+        "D007",
+        "D008",
+        "D009",
+        "D010",
+        "D012",
+        "W010",
+        "E007"
+      ]
+    },
+    "native:full-document-schema": {
+      "requirement_ids": [
+        "F002",
+        "F031"
+      ]
+    },
+    "workbook:roundtrip": {
+      "requirement_ids": [
+        "W001",
+        "W003",
+        "W005",
+        "W007",
+        "W009",
+        "W010",
+        "A023"
+      ]
+    },
+    "native:pzfx-writer": {
+      "requirement_ids": [
+        "F002",
+        "F031"
+      ]
+    },
+    "analysis:reusable-parameter-records": {
+      "requirement_ids": [
+        "A001",
+        "A023",
+        "A034",
+        "R004"
+      ]
+    },
+    "storage:journal-and-recovery": {
+      "requirement_ids": [
+        "W006"
+      ]
+    },
+    "storage:document-identity": {
+      "requirement_ids": [
+        "W006"
+      ]
+    },
+    "printing:pagination": {
+      "requirement_ids": [
+        "L001"
+      ]
+    },
+    "integration:native-share": {
+      "requirement_ids": [
+        "X001",
+        "X002"
+      ]
+    },
+    "integration:GraphPad-Cloud-auth/API": {
+      "requirement_ids": [
+        "X001",
+        "X002"
+      ]
+    },
+    "integration:LabArchives-auth/API": {
+      "requirement_ids": [
+        "X001",
+        "X002"
+      ]
+    }
+  }
+}

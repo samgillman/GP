@@ -1,0 +1,862 @@
+{
+  "schema_version": 1,
+  "source": {
+    "filename": "PRISM11_DIFFERENCES.md",
+    "sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
+    "bytes": 23876,
+    "fully_read_by": "primary agent",
+    "target": "Prism11.1.0build110218",
+    "comparison": "Prism10.3.1build100464",
+    "note": "Latest user comparison; text fully reviewed including diff against prior revision. Companion HTML supplies 10 embedded screenshots. Referenced projects and research dumps remain unavailable."
+  },
+  "headings": [
+    "Prism 11 vs Prism 10: what is different",
+    "The short version",
+    "1. What you notice first: the interface",
+    "Welcome dialog",
+    "Toolbar",
+    "Menus (full dumps in `research/p11_menus_*_context.txt`)",
+    "Smaller interface changes",
+    "2. The big addition: long-format (Multiple variables) data as a full workflow",
+    "2.1 In-table formulas (calculated variables), 11.0.0, Pro",
+    "2.2 Classic analyses straight from long-format data, 11.0.0, Pro",
+    "2.3 Multifactor ANOVA, 11.0.0, Pro",
+    "2.4 Effect sizes, 11.0.0, Pro",
+    "2.5 Graphs from long-format data, 11.1.0, Pro",
+    "3. Statistics changes since 10.3.1",
+    "4. Graphs: what changed and what did not",
+    "5. Files and compatibility",
+    "6. Scripting and automation",
+    "7. Licensing and system requirements [GraphPad]",
+    "8. Hidden: \"Prism Copilot\" AI assistant [bundle, seen]",
+    "9. About the Prism 10 install on this Mac [verified]",
+    "10. What was not checked live"
+  ],
+  "requirements": [
+    {
+      "id": "V11-001",
+      "title": "Welcome CLOUD group, Collaborate and power entry points",
+      "phase": 2,
+      "status": "not_started",
+      "source_section": "1",
+      "source_claim_type": "seen",
+      "dependencies": [],
+      "acceptance": [
+        "CLOUD sits between CREATE and LEARN; distinguish cloud links from locally implemented table creation.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-002",
+      "title": "Multiple-variable tutorial catalogue",
+      "phase": 2,
+      "status": "not_started",
+      "source_section": "1",
+      "source_claim_type": "seen",
+      "dependencies": [],
+      "acceptance": [
+        "Track all 20 tutorials, including formulas, long-format paired t, multifactor/effect sizes, nonlinear and KM examples.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-003",
+      "title": "Prism 11 context toolbar layout",
+      "phase": 2,
+      "status": "not_started",
+      "source_section": "1",
+      "source_claim_type": "seen",
+      "dependencies": [],
+      "acceptance": [
+        "Data panel: Transform/fx, Change Row Order, Create Series, Exclude Values / Decimal Format. Print and LA panels removed from every sheet; Draw removed from data. Send groups LabArchives/Luma; print remains in File.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-004",
+      "title": "Prism 11 menu and shortcut changes",
+      "phase": 2,
+      "status": "not_started",
+      "source_section": "1",
+      "source_claim_type": "seen",
+      "dependencies": [],
+      "acceptance": [
+        "Unified Import; clone-family wording; calculated-variable = shortcut; unlink calculated variable; variable types/column widths/titles/subcolumn titles/Tan; number-at-risk actions; revised Help/Share names.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-005",
+      "title": "Result tabs with close controls",
+      "phase": 5,
+      "status": "not_started",
+      "source_section": "1",
+      "source_claim_type": "seen",
+      "dependencies": [],
+      "acceptance": [
+        "Replace results dropdown-style assumptions with real named subtabs and correct close/reopen/persistence behavior; compare native semantics before deleting result data.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-006",
+      "title": "Variable header names, type icons and data Inspector",
+      "phase": 3,
+      "status": "not_started",
+      "source_section": "1",
+      "source_claim_type": "seen",
+      "dependencies": [],
+      "acceptance": [
+        "Multiple-variable placeholder Name versus classic Column Title; label/categorical/continuous types; inspector edits calculated columns.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-007",
+      "title": "Freeze raw data tables",
+      "phase": 1,
+      "status": "not_started",
+      "source_section": "1",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Frozen raw tables reject edits; update Prism10 conflicting claim rather than treating it as confirmed old behavior.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-008",
+      "title": "Shift+Cmd+Arrow stops at first empty cell",
+      "phase": 4,
+      "status": "not_started",
+      "source_section": "1",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Test gaps, excluded cells, first/last cell, selection extension and browser shortcut constraints.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-009",
+      "title": "Version-specific recent files, scripts and diagnostics",
+      "phase": 12,
+      "status": "not_started",
+      "source_section": "1",
+      "source_claim_type": "seen",
+      "dependencies": [],
+      "acceptance": [
+        "Keep GP storage versioned and distinguish imported reference app logs/settings; do not conflate Prism10 and11 recent files.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-010",
+      "title": "Calculated-variable Inspector, dependencies and unlink",
+      "phase": 8,
+      "status": "not_started",
+      "source_section": "2.1",
+      "source_claim_type": "seen",
+      "dependencies": [],
+      "acceptance": [
+        "Only Multiple-variable tables allow formulas; = and fx open editor; name expression variable highlights searchable functions; italic fx outputs recalculate; unlink preserves materialized values.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-011",
+      "title": "qPCR calculation and plain-text transform roundtrip",
+      "phase": 8,
+      "status": "not_started",
+      "source_section": "2.1",
+      "source_claim_type": "seen",
+      "dependencies": [],
+      "acceptance": [
+        "C-D, E-F and 2^(-G) cascade through rows/analyses/graphs; transform field persists exactly with identity-safe references and missing/error behavior.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-012",
+      "title": "Long-format classic analyses and grouped fits",
+      "phase": 5,
+      "status": "not_started",
+      "source_section": "2.2",
+      "source_claim_type": "seen/GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Assign response/factor/subject/X/time/event variables for t/nonparametric, multifactor, nonlinear and KM; each categorical combination has the correct analysis/fit without silent wide pivot.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-013",
+      "title": "Multifactor Type III model design and interactions",
+      "phase": 6,
+      "status": "not_started",
+      "source_section": "2.3",
+      "source_claim_type": "seen/GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Arbitrary factor count, configured main/two-/three-way terms, unbalanced TypeIII SS, coding/rank checks; explicitly no multifactor repeated-measures support.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-014",
+      "title": "Multifactor comparison families and automatic graphs",
+      "phase": 6,
+      "status": "not_started",
+      "source_section": "2.3",
+      "source_claim_type": "seen/GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Main/simple/cell comparisons; proper corrections and CI tables; auto grouped bar and Dunnett-style comparison CI plot linked to results.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-015",
+      "title": "Expanded ANOVA effect sizes",
+      "phase": 6,
+      "status": "not_started",
+      "source_section": "2.4",
+      "source_claim_type": "seen/GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "eta-squared, partial eta-squared, Cohen f per relevant effect and design; verify denominators and any intervals rather than aliasing all formulas.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-016",
+      "title": "t-test and contingency effect sizes",
+      "phase": 6,
+      "status": "not_started",
+      "source_section": "2.4",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Report-effect-sizes option: Cohen d, Hedges g, unpaired Glass delta; contingency phi and Cramer V with CIs and verified conventions.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-017",
+      "title": "Long-format categorical graph families and layers",
+      "phase": 9,
+      "status": "not_started",
+      "source_section": "2.5",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "All 11 Multiple variables types: scatter, strip, summary-symbol, bar+strip, before-after bar+strip, before-after strip, box/whisker, violin, bar, bubble, heat map. Configure X/Y variable type, color definition, composable summary/error/connecting layers and mean/median/geometric summaries with appropriate SD/SEM/CI/range/IQR.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-018",
+      "title": "Long-format category Level Order and compatibility",
+      "phase": 9,
+      "status": "not_started",
+      "source_section": "2.5",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Level Order: entry, row, name, frequency, manual; access from Variable Types and legend context. Persist role/order mapping; no assumed automatic P annotations; report empty old-version graphs and no-pzfx support.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-019",
+      "title": "GG correction of one-RM-factor two-way interaction",
+      "phase": 6,
+      "status": "not_started",
+      "source_section": "3",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Use corrected interaction dfs/P under target11.1, compare uncorrected and earlier-version references; test epsilon limits and sphericity settings.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-020",
+      "title": "Lognormal comparison families",
+      "phase": 6,
+      "status": "not_started",
+      "source_section": "3",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Lognormal unpaired/Welch/one-sample ratio/multiple t; ordinary/Brown-Forsythe-Welch/RM one-way. Normal/Lognormal/Nonparametric distribution choice; positive-domain checks, geometric means/ratios/transformed intervals.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-021",
+      "title": "Survival number-at-risk and censor table",
+      "phase": 9,
+      "status": "not_started",
+      "source_section": "3",
+      "source_claim_type": "seen/GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Add/format/remove table below X axis; align times, at-risk/censor counts, shaded CI bands and medianCI; verify event/censor tie boundary conventions.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-022",
+      "title": "Survival pairwise comparisons and median uncertainty",
+      "phase": 8,
+      "status": "not_started",
+      "source_section": "3",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Pairwise families and adjustments plus95% median intervals; preserve censoring and undefined median cases.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-023",
+      "title": "Fixed-slope-one Gaddum/Schild models",
+      "phase": 7,
+      "status": "not_started",
+      "source_section": "3",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Catalogue specific fixed-slope variants, constraints and derived affinity/shift parameters; validate saved examples and slope interpretation.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-024",
+      "title": "Fractional confidence levels",
+      "phase": 5,
+      "status": "not_started",
+      "source_section": "3",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Allow99.9% and other supported decimal confidence values in dialog/spec/save/analysis; do not round to integers.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-025",
+      "title": "Ineffective correction explanations and q-based discovery flags",
+      "phase": 6,
+      "status": "not_started",
+      "source_section": "3",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Two-way outputs explain when correction has no effect; nested one-way discoveries follow q, not raw P; regression tests straddle thresholds.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-026",
+      "title": "Categorical-interaction multiple-regression ANOVA table",
+      "phase": 7,
+      "status": "not_started",
+      "source_section": "3",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Full term-level ANOVA for categorical interactions with correct coding/df and model terms.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-027",
+      "title": "Format Axes continuity and expanded decimal controls",
+      "phase": 9,
+      "status": "not_started",
+      "source_section": "4",
+      "source_claim_type": "seen/GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Retain five-tab behavior and native origin/autorange semantics; add appropriate decimal precision fields and formatting tests.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-028",
+      "title": "Log-Y change selects geometric summary/error defaults",
+      "phase": 9,
+      "status": "not_started",
+      "source_section": "4",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Linear-to-log changes default summary/errors to geometric mean with geometricSD/CI in applicable families including Column; verify scope, override persistence and nonpositive data.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-029",
+      "title": "Small and dashed error bars",
+      "phase": 9,
+      "status": "not_started",
+      "source_section": "4",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Render error bars shorter than symbols; support solid/dash/dot where available and verify per-family native applicability.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-030",
+      "title": "Magic copies graph/X/Y titles separately",
+      "phase": 12,
+      "status": "not_started",
+      "source_section": "4",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Independent title-copy switches preserve other text and live constants unless selected.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-031",
+      "title": "Reopen one-row autoscale regression",
+      "phase": 9,
+      "status": "not_started",
+      "source_section": "4",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Opening saved one-row table/graph recomputes correct automatic range, no stale or degenerate limits.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-032",
+      "title": "Custom-axis nonlinear confidence-band clipping",
+      "phase": 9,
+      "status": "not_started",
+      "source_section": "4",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Compute/render bands across intended custom range, clip only at selected plotting bounds.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-033",
+      "title": "Repeated-source layout graph placement stability",
+      "phase": 10,
+      "status": "not_started",
+      "source_section": "4",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Two or more graphs sharing one table render/update/save/open/export in a layout without crash or link corruption.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-034",
+      "title": "Vector layout text and reference-band shading",
+      "phase": 10,
+      "status": "not_started",
+      "source_section": "4",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "EPS text remains vector where supported; fill-between-extra-tick-and-Y shades correct region for signs/reversed/log axes.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-035",
+      "title": "Prism 11 container format/minimum-version stamps",
+      "phase": 11,
+      "status": "not_started",
+      "source_section": "5",
+      "source_claim_type": "seen",
+      "dependencies": [],
+      "acceptance": [
+        "Observed1-6-1 current stamps; classiccontentmin10.1, formulasmin11.0, observedmultifactormin11.1; version based on actual features, not blanket success.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-036",
+      "title": "PCFF graph/layout continuity cross-check",
+      "phase": 11,
+      "status": "not_started",
+      "source_section": "5",
+      "source_claim_type": "seen",
+      "dependencies": [],
+      "acceptance": [
+        "Author reports same99members/chunk types for resaved sample; obtain/compare actual artifacts before treating offsets as generally compatible.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-037",
+      "title": "Older-version frozen/empty feature behavior",
+      "phase": 11,
+      "status": "not_started",
+      "source_section": "5",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Compatibility warnings distinguish editable/view-only/frozen/empty/unsupported and .pzfx losses; native old-version opening requires runtime test.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-038",
+      "title": "Info slash-value save defect and result-row changes",
+      "phase": 11,
+      "status": "not_started",
+      "source_section": "5",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Test slash-containing Info constants in pzf/pzfx versus prism; preserve originals and expose lossy compatibility instead of silently corrupting. Version-index WCell/WRow row mappings.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-039",
+      "title": "Explicit Prism version selection for native automation",
+      "phase": 13,
+      "status": "not_started",
+      "source_section": "5",
+      "source_claim_type": "seen",
+      "dependencies": [],
+      "acceptance": [
+        "Avoid ambiguous sharedbundleidentifier; adapters address exact app version and capture version in outputs.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-040",
+      "title": "Prism 11 SVG script export and core script semantics",
+      "phase": 13,
+      "status": "not_started",
+      "source_section": "6",
+      "source_claim_type": "seen",
+      "dependencies": [],
+      "acceptance": [
+        "Open/CreateLog/Save/GoTo/PNG/PDF execute in intended target; ExportSVG produces actual vector editable text; do not carry forward10.3SVGfailure as11limitation.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-041",
+      "title": "Script resolution quantization",
+      "phase": 13,
+      "status": "not_started",
+      "source_section": "6",
+      "source_claim_type": "seen",
+      "dependencies": [],
+      "acceptance": [
+        "Measure exported pixels for150/400→300ppi and600→600, plus supported300/600/1200; retain size/unit assumptions.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-042",
+      "title": "Script loop placement and dotted filename fixes",
+      "phase": 13,
+      "status": "not_started",
+      "source_section": "6",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "InsertData in ForEachSheet with4+tables targetscorrecttable/cells; export preserves full dotted sheet-derived filename.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-043",
+      "title": "No invented native commands for new features",
+      "phase": 13,
+      "status": "not_started",
+      "source_section": "6",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "No native formula/multifactor/levelorder/effectsize commands assumed; any GP extension explicitly namespaced and does not count as native command parity.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-044",
+      "title": "Prism 11 cloud/Luma/browser-login integrations",
+      "phase": 13,
+      "status": "not_started",
+      "source_section": "1,7",
+      "source_claim_type": "seen/GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Track Collaborate/publication/unlink/Luma send-configure-signin/browserSSO as genuine external dependencies; no fake authentication or license gate.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-045",
+      "title": "Plan/version/platform and entitlement reference matrix",
+      "phase": 0,
+      "status": "not_started",
+      "source_section": "7",
+      "source_claim_type": "GraphPad",
+      "dependencies": [],
+      "acceptance": [
+        "Reference host macOS12+; record licensed feature availability for correct comparison; scientific implementation is not copied license enforcement; read-only/export behavior of Procontent requires native fixtures.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-046",
+      "title": "Unverified delta behaviors and missing reference files",
+      "phase": 0,
+      "status": "not_started",
+      "source_section": "10",
+      "source_claim_type": "author-not-checked",
+      "dependencies": [],
+      "acceptance": [
+        "New graph settings/Level Order/effects/log defaults/dashed scope/older opening remain author-unverified. Ten screenshots are now embedded in companion HTML; associated projects/research dumps are still missing. Inspect images without treating them as interaction traces.",
+        "Retain Prism version and reference evidence; author [seen] is not a GP-agent runtime observation."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-047",
+      "title": "Prism 11 Settings changes",
+      "phase": 12,
+      "status": "not_started",
+      "source_section": "1",
+      "source_claim_type": "bundle",
+      "dependencies": [],
+      "acceptance": [
+        "Remove Paste a Graph from Another Project as option from File & Printer; licence-tab Luma connection is external; other retained preferences need regression checks."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-048",
+      "title": "Formula blank/error/reference semantics",
+      "phase": 8,
+      "status": "not_started",
+      "source_section": "2.1",
+      "source_claim_type": "bundle",
+      "dependencies": [],
+      "acceptance": [
+        "All 82 resource functions; arithmetic/comparison precedence; blanks stay blank; unknown names, deleted-column #REF! and cycles produce distinct diagnostics and never corrupt original data."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-049",
+      "title": "Restricted mean survival time",
+      "phase": 8,
+      "status": "not_started",
+      "source_section": "3",
+      "source_claim_type": "bundle",
+      "dependencies": [],
+      "acceptance": [
+        "Implement RMST with explicit restriction horizon, integration/counts, uncertainty and comparison options only where supported by versioned evidence; acquire native fixtures."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-050",
+      "title": "Optimal K-means cluster count",
+      "phase": 8,
+      "status": "not_started",
+      "source_section": "3",
+      "source_claim_type": "GraphPad/bundle",
+      "dependencies": [],
+      "acceptance": [
+        "Inventory approximately20 source indices including gap, silhouette and Calinski-Harabasz; specify candidate k, repetitions, random seeds, tie/degeneracy and index recommendations; do not imply the named3 exhaust the catalogue."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-051",
+      "title": "Regression profile-likelihood versus Wald confidence intervals",
+      "phase": 7,
+      "status": "not_started",
+      "source_section": "3",
+      "source_claim_type": "GraphPad/bundle",
+      "dependencies": [],
+      "acceptance": [
+        "Multiple linear, logistic and Cox per-source supported CI choices; asymmetry, optimizer/convergence and boundary tests; verify exactly which model outputs support each option."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-052",
+      "title": "Custom symbol shapes and older-version compatibility",
+      "phase": 9,
+      "status": "not_started",
+      "source_section": "4",
+      "source_claim_type": "bundle",
+      "dependencies": [],
+      "acceptance": [
+        "Persist custom shapes in scene and native metadata, render/export them correctly and report older-version warnings; verify allowed shape definition/limits."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-053",
+      "title": "Prism 11 error-bar diagnostics",
+      "phase": 9,
+      "status": "not_started",
+      "source_section": "4",
+      "source_claim_type": "seen/bundle",
+      "dependencies": [],
+      "acceptance": [
+        "Some error bars may not be visible; distinguish clipped-axis-limit and log-axis notes, keep calculations intact, and compare relevant screenshots/settings."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-054",
+      "title": "Hidden unreleased Copilot reference boundary",
+      "phase": 13,
+      "status": "not_started",
+      "source_section": "8",
+      "source_claim_type": "bundle/seen",
+      "dependencies": [],
+      "acceptance": [
+        "Record hidden CopilotEnabled/toggleCopilot and author-reported graph lookup/create/Magic/title tools; keep disabled by default as reference. No analysis/data-edit tools assumed. No probing or enabling prerelease GraphPad service; any future integration requires actual supported authorized interface."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "V11-055",
+      "title": "Modified Prism 10 reference provenance",
+      "phase": 0,
+      "status": "not_started",
+      "source_section": "9",
+      "source_claim_type": "author-verified",
+      "dependencies": [],
+      "acceptance": [
+        "Record author report of added activation-hook library and non-GraphPad signature. Recheck behavior-sensitive references against signed Prism11 or independent fixtures. Do not reproduce licensing bypass, execute injected library, or equate author claims with locally verified signatures."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    }
+  ],
+  "superseded_source": {
+    "filename": "PRISM11_DIFFERENCES.md",
+    "sha256": "3f89bf9ec98384ca7b3778bd78d12196d1d05fb4ad41971a8ab73141e270ee87",
+    "bytes": 18522,
+    "fully_read_by": "primary agent",
+    "target": "Prism11.1.0build110218",
+    "comparison": "Prism10.3.1build100464",
+    "note": "User-supplied comparison; retain [seen]/[bundle]/[GraphPad] attribution. Linked local screenshots/projects/research files not included in upload."
+  }
+}

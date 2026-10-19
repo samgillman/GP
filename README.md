@@ -6,6 +6,8 @@ The interface now uses a compact macOS-style workbook, light navigator, dense sp
 
 **View → Use system appearance / Light appearance / Dark appearance** controls the workbook theme. The [supplied Prism 10 macOS guide](docs/prism10-guide-findings.md) provides newer screenshots and a concrete list of remaining workflow differences.
 
+The [completion plan](docs/completion-plan.md) and [execution log](docs/completion-progress.md) track the full guide, Prism 11 differences, outstanding features and verification requirements. Planned work is not completed work.
+
 ![GP workbook](docs/images/data.png)
 
 ## Browser app
@@ -23,7 +25,7 @@ python3 -m http.server 8001 --bind 127.0.0.1 --directory web/dist-static
 
 Open **http://localhost:8001** in a browser on that same computer. Keep the terminal running; Ctrl+C stops the server. The first build downloads dependencies, and the first calculation loads the scientific runtime. No Prism installation or REA setup is needed to run GP.
 
-For a public website, connect this repository's `main` branch to Cloudflare Pages, use **Build command** `bash scripts/build_site.sh`, **Build output directory** `web/dist-static`, and **NODE_VERSION** `24.18.0`. See [the hosting guide](docs/browser-hosting.md) for the full steps. No public website has been published yet.
+For a public website, connect this repository's `main` branch to Cloudflare Pages, use **Build command** `bash scripts/build_site.sh`, **Build output directory** `web/dist-static`, and **NODE_VERSION** `24.18.0`. See [the hosting guide](docs/browser-hosting.md) for the full steps. The requested public domain is **gp.samgillman.org**. Its deployed version has not been independently verified from this environment; a GitHub push alone does not establish that the site is updated.
 
 ## Server development mode
 

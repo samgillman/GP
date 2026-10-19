@@ -1,0 +1,2817 @@
+# Section 3 analysis requirements plan
+
+**Planning only. No implementation or repository changes in this audit.**
+
+**Complete reading boundary:** every word of `/workspace/gp-evidence/prism10-guide/text.txt` lines **2677–4626 inclusive**, from `3. Analyses` through the final `3.12 Gotchas` paragraph, before `4. Graphs`. This includes section indexes **47–71**, all catalogue tables, parameter tabs/options, P-value styles, recipes, numerical examples and warnings. Guide SHA-256: `d93bc626cdc8b1f838d9943a527558389a6a2cf34f2bc92211a5e41552165800`.
+
+Inventory: **384 method/option/workflow obligations + 152 separately named equation obligations = 536 requirements**. IDs run `A001`–`A536`; original A001–A504 and all model IDs remain unchanged. The JSON sibling contains exact per-model parameter/intermediate/derived inventories, source hashes/notes, and all recovered relevant resource labels/bindings.
+
+The guide is Prism 10.3.1; supplied resources are Prism 11.1.0. Neither observed formulas nor historical saved results establish complete runtime equivalence. Guide “per GraphPad docs” statements remain docs-only.
+
+## Main findings
+
+- Guide describes Prism10.3.1 build464 and distinguishes directly seen behavior from per-GraphPad-docs statements; target artifact is Prism11.1.0 build110218. Resource presence does not prove identical behavior/defaults across versions.
+- The full PRISM11_DIFFERENCES.md user attachment was also read; author seen/bundle/GraphPad attribution is retained and is not fresh runtime evidence. 17 supplementary version-specific analysis obligations are included before model records.
+- The full section3 text was read, including 3.6 P-value styles subsection whose title does not begin3.; complete boundary is text.txt lines2677–4626 inclusive, section indexes47–71 inclusive.
+- Guide nonlinear ten-tab content marks Method, Initial Values, Range, Output, Confidence, Diagnostics and Flag as not opened; ANOVA parameter/how-to details and several reuse actions are docs-only. These cannot be relabeled observed runtime.
+- Guide says concentration X0 is valid; current standalone dose_response and normalized_dose_inhibition reject it. Treat this as an explicit correction obligation and retain zero-dose tests.
+- Current AnalysisRequest exposes only column/xy plus seven method strings; factorial and survival use separate endpoint schemas. No generic request can yet represent grouped replicates, arbitrary model choices, parameter ties or analysis graph.
+- Current fitting code uses GP-specific normalization, finite bounds, multiple starts and least_squares/curve_fit. Recovered equation formulas and close saved fits do not establish native optimizer or uncertainty equivalence.
+- Coverage ledger is bounded family-level evidence and a snapshot. Its partial statuses are not a claim that every suboption in this inventory exists. This audit did not execute tests or modify application code.
+- Current UI/workbook partial status is taken from source-hashed coverage ledger, not independently revalidated by this backend planning scope. Parent workflow/UI audit must reconcile the corresponding requirements.
+- Normality, model-selection, covariance, one-way/two-way/RM/mixed posttest numerical conventions still require explicit native or saved cases, not guesses from library defaults.
+- Unbalanced factorial sums-of-squares, repeated/mixed finite-sample df, exact/asymptotic threshold, tie/zero policy, normalized-with-weighting prohibition and automatic algorithm switches remain separate uncertainties.
+- 152 model records include duplicates/parameterizations and are not 152 unique algorithms. Every record remains separately traceable to its original family/object index.
+- Runtime unknowns are not a reason to omit implementation planning; they are acceptance gates. Independent standard algorithms can be implemented with explicit behavior while equivalence remains unestablished.
+
+## Dependencies
+
+- **D_TABLE** — External data-table contract: typed layouts, dataset/row/subject/factor IDs, replicate subcolumns, units, missing and exclusion masks; never silently flatten.
+- **D_WORKBOOK** — External project DAG/workbook contract: stable sheet IDs, analysis source links, revisions, freezing, propagation, saved parameters and undo.
+- **D_PARAMS** — Typed, versioned per-analysis parameter schema plus edit/validate/persist/default UI semantics, preserving irrelevant-setting disablement rules.
+- **D_RESULTS** — Structured full-precision result pages/tables, estimates/intervals/diagnostics/counts/provenance separate from display strings and explicit undefined states.
+- **D_REFERENCE** — Source-bound numerical acceptance corpus: original data/settings, hashes, version, precision/tolerance, exact edge fixtures and supported-platform runtime observations when needed.
+- **D_FITS** — Common numerical fitting/model engine: stable scaling, constraints/shared parameters, loss/weights, initial values/convergence, diagnostics and uncertainty.
+- **D_DESIGN** — Explicit experimental design/model matrix: biological units, subject/block/factor coding, repeated/random effects, contrasts and estimability.
+- **D_MULTIPLICITY** — Common contrast/family engine: family membership, methods, adjusted P/q/discoveries, simultaneous intervals and graph-reference IDs.
+- **D_RENDER** — External graph contract: graphable results/curves/bands/annotations, stable IDs and live/frozen updates, native renderer fidelity tested separately.
+- **D_EXPR** — Bounded typed expression/transformation engine: explicit numeric functions, domain errors, parameter/constant references, dependencies, no arbitrary code execution.
+- **D_RANDOM** — Documented reproducible RNG/seed and bounded simulation/iteration policy; native random-stream equivalence unresolved.
+- **D_PROJECT_IO** — External native/project/method/example/template persistence contracts and faithful roundtrip, preserving unsupported content explicitly.
+
+## Method and option requirements
+
+Each acceptance criterion includes the common numerical/provenance gates in the JSON. “Partial” means a bounded core, never complete equivalence.
+
+
+### analysis workflow
+
+- **A001 — Nonmutating analysis nodes linked to source sheets** · guide 3.1, 3.7, 3.12 · `partial_workbook_ledger`
+  - Acceptance: Creating/editing an analysis leaves all original cells/exclusion metadata unchanged; node stores source IDs, selected datasets, typed settings and result versions; result is named analysis of table.
+  - Dependencies: D_WORKBOOK, D_TABLE, D_PARAMS, D_RESULTS, D_RENDER.
+  - Unknowns: Coverage ledger reports a partial workbook; Python requests are stateless, so native graph lifecycle has no server contract.
+  - Current/source evidence: docs/prism-coverage.json:workbook_workflow.
+- **A002 — Live dependency recalculation and graph/significance refresh** · guide 3.1, 3.7, 3.12 · `partial_workbook_ledger`
+  - Acceptance: Editing, pasting, exclusion toggling or parameter change invalidates and recomputes every dependent result/graph in topological order, including branches; stale responses never replace newer revisions.
+  - Dependencies: D_WORKBOOK, D_TABLE, D_PARAMS, D_RESULTS, D_RENDER.
+  - Unknowns: Native timing, undo grouping, cyclic-reference response and error propagation remain unknown.
+  - Current/source evidence: docs/prism-coverage.json:workbook_workflow.
+- **A003 — Freeze and unfreeze results/graphs** · guide 3.1, 3.7, 3.12 · `partial_workbook_ledger`
+  - Acceptance: Freeze captures values/settings/source revision; upstream edits preserve frozen results; unfreeze recomputes against current inputs; save/reopen preserves freeze state.
+  - Dependencies: D_WORKBOOK, D_TABLE, D_PARAMS, D_RESULTS, D_RENDER.
+  - Unknowns: Check interaction between a frozen intermediate result and unfrozen descendants.
+  - Current/source evidence: docs/prism-coverage.json:workbook_workflow.
+- **A004 — Analyze different data without losing settings** · guide 3.1, 3.7, 3.12 · `partial_workbook_ledger`
+  - Acceptance: Retarget datasets/table while preserving compatible options; incompatible design changes are explicit; counts and provenance update.
+  - Dependencies: D_WORKBOOK, D_TABLE, D_PARAMS, D_RESULTS, D_RENDER.
+  - Unknowns: Which parameter choices survive a native table-kind change remains unresolved.
+  - Current/source evidence: docs/prism-coverage.json:workbook_workflow.
+- **A005 — Analysis parameter editing routes and context** · guide 3.1, 3.7, 3.12 · `partial_workbook_ledger`
+  - Acceptance: Cmd+T on results/graphs, toolbar button and result-header click reopen same persisted typed parameters; layouts retain Selected Text meaning; cancel must not change result.
+  - Dependencies: D_WORKBOOK, D_TABLE, D_PARAMS, D_RESULTS, D_RENDER.
+  - Unknowns: Full native parameter dialog bindings and Apply/OK/Cancel timing require observation.
+  - Current/source evidence: docs/prism-coverage.json:workbook_workflow.
+- **A006 — Family-panel and linked-sheet navigation** · guide 3.1, 3.7, 3.12 · `partial_workbook_ledger`
+  - Acceptance: Show data > analyses > chained analyses > graphs, including correct selected node; Cmd+L and Results navigation reach linked sheets.
+  - Dependencies: D_WORKBOOK, D_TABLE, D_PARAMS, D_RESULTS, D_RENDER.
+  - Unknowns: Multiple-parent selection behavior and shortcut differences between OS targets remain open.
+  - Current/source evidence: docs/prism-coverage.json:workbook_workflow.
+
+### analysis selection
+
+- **A007 — Analyze entry routes** · guide 3.2, 3.3, 3.5.1, 3.5.2 · `partial_ui_or_missing_choices`
+  - Acceptance: Analyze toolbar, menu, Navigator New Analysis and Insert New Analysis open the same request builder with current table preselected.
+  - Dependencies: D_WORKBOOK, D_PARAMS, D_TABLE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: docs/prism-coverage.json:prism_ui_ux.
+- **A008 — Table-specific analysis shortcuts** · guide 3.2, 3.3, 3.5.1, 3.5.2 · `partial_ui_or_missing_choices`
+  - Acceptance: XY: linear/nonlinear/simple-logistic/interpolate; Column: compare two/three+; Grouped: two-way/multiple-t/row stats; Contingency: chi-square-Fisher/fraction; Parts: goodness-of-fit/fraction; Multiple variables: correlation/multiple-linear/multiple-logistic/PCA; Nested: nested-t/nested-ANOVA; no manual shortcut required for automatic survival.
+  - Dependencies: D_WORKBOOK, D_PARAMS, D_TABLE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: docs/prism-coverage.json:prism_ui_ux.
+- **A009 — Searchable analysis catalogue grouped by table and purpose** · guide 3.2, 3.3, 3.5.1, 3.5.2 · `partial_ui_or_missing_choices`
+  - Acceptance: Expose every method enumerated in this inventory, under the guide tree/purpose menus; unsupported options are explicit, never routed to a different calculation; search supports method names/synonyms.
+  - Dependencies: D_WORKBOOK, D_PARAMS, D_TABLE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: docs/prism-coverage.json:prism_ui_ux.
+- **A010 — Recently used analyses** · guide 3.2, 3.3, 3.5.1, 3.5.2 · `partial_ui_or_missing_choices`
+  - Acceptance: Retain a bounded MRU history of real analyses and reopen with correct type; switching workbooks must not point to stale source IDs.
+  - Dependencies: D_WORKBOOK, D_PARAMS, D_TABLE.
+  - Unknowns: Native MRU scope and persistence limits are unknown.
+  - Current/source evidence: docs/prism-coverage.json:prism_ui_ux.
+- **A011 — Select input table or transform result** · guide 3.2, 3.3, 3.5.1, 3.5.2 · `partial_ui_or_missing_choices`
+  - Acceptance: Table selector includes data and eligible result tables; type compatibility is validated; never parse display-formatted values as full-precision input.
+  - Dependencies: D_WORKBOOK, D_PARAMS, D_TABLE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: docs/prism-coverage.json:prism_ui_ux.
+- **A012 — Dataset subset selection, Select All and Deselect All** · guide 3.2, 3.3, 3.5.1, 3.5.2 · `partial_ui_or_missing_choices`
+  - Acceptance: A t test can use two selected columns from a three-column table without copying data; omitted datasets do not affect n, df or multiplicity families.
+  - Dependencies: D_WORKBOOK, D_PARAMS, D_TABLE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: docs/prism-coverage.json:prism_ui_ux.
+- **A013 — Use built-in, saved-method or another-table analysis recipe** · guide 3.2, 3.3, 3.5.1, 3.5.2 · `partial_ui_or_missing_choices`
+  - Acceptance: Use selector dispatches explicit recipe type and parameters; no recipe silently inherits source data.
+  - Dependencies: D_WORKBOOK, D_PARAMS, D_TABLE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: docs/prism-coverage.json:prism_ui_ux.
+- **A014 — Automatic survival analysis creation** · guide 3.2, 3.3, 3.5.1, 3.5.2 · `partial_ui_or_missing_choices`
+  - Acceptance: Creating a supported survival table links a correctly coded survival analysis and graph; editing coding recalculates without duplicate results.
+  - Dependencies: D_WORKBOOK, D_PARAMS, D_TABLE.
+  - Unknowns: Guide identifies this from tutorial rather than a tested workflow.
+  - Current/source evidence: docs/prism-coverage.json:prism_ui_ux.
+
+### analysis reuse
+
+- **A015 — Transform and normalize analysis chaining** · guide 3.8, 3.10 · `not_implemented`
+  - Acceptance: Normalize→normalized fit, X-transform→log fit, baseline removal→t/ANOVA, row-statistics→graph and fraction-total→parts graph retain full-precision typed intermediate tables; one source edit propagates through chain.
+  - Dependencies: D_WORKBOOK, D_PARAMS, D_PROJECT_IO, D_RENDER.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A016 — Duplicate family** · guide 3.8, 3.10 · `not_implemented`
+  - Acceptance: Clone data, analyses, graphs and linked info with fresh IDs; paste replacement data recomputes clone without modifying original.
+  - Dependencies: D_WORKBOOK, D_PARAMS, D_PROJECT_IO, D_RENDER.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A017 — Wand analyze/graph by example** · guide 3.8, 3.10 · `not_implemented`
+  - Acceptance: Apply another in-project table's analyses and graph settings to current data, preserving optional naming prefix and validating compatible structure.
+  - Dependencies: D_WORKBOOK, D_PARAMS, D_PROJECT_IO, D_RENDER.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A018 — Save/apply method without data** · guide 3.8, 3.10 · `not_implemented`
+  - Acceptance: Round-trip analysis/graph recipe only; applying to populated data preserves its cells and creates all intended nodes/options.
+  - Dependencies: D_WORKBOOK, D_PARAMS, D_PROJECT_IO, D_RENDER.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A019 — Saved example from graph** · guide 3.8, 3.10 · `not_implemented`
+  - Acceptance: Persist graph plus linked data/info/analyses; clone as new project and replace data while links remain correct.
+  - Dependencies: D_WORKBOOK, D_PARAMS, D_PROJECT_IO, D_RENDER.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A020 — Whole-project template** · guide 3.8, 3.10 · `not_implemented`
+  - Acceptance: Create a reusable legacy whole-project recipe; instantiate clean IDs and bindings without mutating template.
+  - Dependencies: D_WORKBOOK, D_PARAMS, D_PROJECT_IO, D_RENDER.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A021 — Save family as independent project** · guide 3.8, 3.10 · `not_implemented`
+  - Acceptance: Export exactly the selected dependency family with linked info and necessary constants; reopen with identical analyses.
+  - Dependencies: D_WORKBOOK, D_PARAMS, D_PROJECT_IO, D_RENDER.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A022 — Per-analysis option defaults** · guide 3.8, 3.10 · `not_implemented`
+  - Acceptance: Opt-in saved defaults affect future analyses only, scoped to relevant tab/family; existing analysis parameters remain explicit and unchanged.
+  - Dependencies: D_WORKBOOK, D_PARAMS, D_PROJECT_IO, D_RENDER.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+
+### result contract
+
+- **A023 — Structured multi-page results** · guide 3.6, 3.11.6 · `not_implemented`
+  - Acceptance: Produce header, page IDs, grouped labeled sections and one value column per dataset; next/previous result tabs traverse all pages without losing units or metadata.
+  - Dependencies: D_RESULTS, D_WORKBOOK, D_RENDER, D_PROJECT_IO.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A024 — Input provenance and effective sample counts** · guide 3.6, 3.11.6 · `not_implemented`
+  - Acceptance: Every result identifies input table/dataset IDs, selected/excluded/missing observations, test, tails, confidence and contrast direction; expose biological versus technical-replicate n.
+  - Dependencies: D_RESULTS, D_WORKBOOK, D_RENDER, D_PROJECT_IO.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A025 — Effect-first report with confidence intervals** · guide 3.6, 3.11.6 · `not_implemented`
+  - Acceptance: Provide effect/CI before P value; t results include difference, uncertainty, t/df, effect size, sample sizes and requested variance diagnostics; fits include parameters/CIs, goodness, constraints, count.
+  - Dependencies: D_RESULTS, D_WORKBOOK, D_RENDER, D_PROJECT_IO.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A026 — Explicit undefined/unstable/very-wide/ambiguous/flagged states** · guide 3.6, 3.11.6 · `not_implemented`
+  - Acceptance: Represent numerical value and diagnostic state separately, never NaN strings masquerading as numbers; preserve notes and diagnostics across UI/export.
+  - Dependencies: D_RESULTS, D_WORKBOOK, D_RENDER, D_PROJECT_IO.
+  - Unknowns: Current code gives generic warnings or errors; exact Prism classification thresholds need recovered rules/reference cases.
+- **A027 — Analysis-specific assumption checklist** · guide 3.6, 3.11.6 · `not_implemented`
+  - Acceptance: Interpret checklist corresponds to selected test, design and method; paired, independence, distribution, variance, weighting and model-identifiability assumptions are not conflated.
+  - Dependencies: D_RESULTS, D_WORKBOOK, D_RENDER, D_PROJECT_IO.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A028 — Result-only formatting and exports** · guide 3.6, 3.11.6 · `not_implemented`
+  - Acceptance: Background/decimal changes affect presentation only; export TXT, CSV and XML retains labels, source metadata and precision policy; result-cell exclusions obey a documented dependency policy.
+  - Dependencies: D_RESULTS, D_WORKBOOK, D_RENDER, D_PROJECT_IO.
+  - Unknowns: Result exclusion semantics and XML result schema still require evidence.
+
+### result format
+
+- **A029 — P-value style: GP** · guide 3.6, 3.4.1, 3.12 · `not_implemented`
+  - Acceptance: Format 4-decimal leading-zero examples 0.1234/ns, 0.0332/*, 0.0021/**, 0.0002/***, <0.0001/****; use full-precision P for classification, never rounded display. Test P exactly .05/.01/.001/.0001 and immediately adjacent values.
+  - Dependencies: D_RESULTS, D_PARAMS.
+  - Unknowns: Guide and Prism11 NIB examples differ in APA/NEJM rounding details; no runtime rounding equivalence claim.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A030 — P-value style: APA** · guide 3.6, 3.4.1, 3.12 · `not_implemented`
+  - Acceptance: Format no-leading-zero, nominal three-place style with < .001 floor and at most three stars; resolve actual two/three-significant-digit NIB examples against guide; use full-precision P for classification, never rounded display. Test P exactly .05/.01/.001/.0001 and immediately adjacent values.
+  - Dependencies: D_RESULTS, D_PARAMS.
+  - Unknowns: Guide and Prism11 NIB examples differ in APA/NEJM rounding details; no runtime rounding equivalence claim.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A031 — P-value style: NEJM** · guide 3.6, 3.4.1, 3.12 · `not_implemented`
+  - Acceptance: Format leading-zero, nominal three-place style with <0.001 floor and at most three stars; reconcile NIB examples; use full-precision P for classification, never rounded display. Test P exactly .05/.01/.001/.0001 and immediately adjacent values.
+  - Dependencies: D_RESULTS, D_PARAMS.
+  - Unknowns: Guide and Prism11 NIB examples differ in APA/NEJM rounding details; no runtime rounding equivalence claim.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A032 — P-value style: Custom N digits** · guide 3.6, 3.4.1, 3.12 · `not_implemented`
+  - Acceptance: Format user-selected decimal count, ns through four-star mapping; use full-precision P for classification, never rounded display. Test P exactly .05/.01/.001/.0001 and immediately adjacent values.
+  - Dependencies: D_RESULTS, D_PARAMS.
+  - Unknowns: Guide and Prism11 NIB examples differ in APA/NEJM rounding details; no runtime rounding equivalence claim.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A033 — P-value style: One-or-none** · guide 3.6, 3.4.1, 3.12 · `not_implemented`
+  - Acceptance: Format only ns or * at selected alpha, recovered Prism11 option beyond guide; use full-precision P for classification, never rounded display. Test P exactly .05/.01/.001/.0001 and immediately adjacent values.
+  - Dependencies: D_RESULTS, D_PARAMS.
+  - Unknowns: Guide and Prism11 NIB examples differ in APA/NEJM rounding details; no runtime rounding equivalence claim.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A034 — Unrounded significance thresholds** · guide 3.4.1, 3.6, 3.12 · `not_implemented`
+  - Acceptance: Compute * at P≤.05, **≤.01, ***≤.001, ****≤.0001 independently of digits; reconcile displayed P<alpha versus inclusive star cutoffs.
+  - Dependencies: D_RESULTS, D_PARAMS.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A035 — Non-P significant digits and confidence/alpha** · guide 3.4.1, 3.6, 3.12 · `not_implemented`
+  - Acceptance: Default four significant digits is separate from P formatting; changing confidence recomputes intervals and linked alpha without double-rounding.
+  - Dependencies: D_RESULTS, D_PARAMS.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A036 — Analysis output defaults and user changes** · guide 3.4.1, 3.6, 3.12 · `not_implemented`
+  - Acceptance: Changing a future default does not retroactively restyle/recompute existing results unless requested.
+  - Dependencies: D_RESULTS, D_PARAMS.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+
+### data processing
+
+- **A037 — Transform X/Y values** · guide 3.5.1, 3.5.2, 3.8 · `not_implemented`
+  - Acceptance: Select transformation and datasets; produce linked typed output retaining missing/excluded positions; formula-domain violations produce explicit cell diagnostics.
+  - Dependencies: D_TABLE, D_EXPR, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Complete transform catalogue and parser/coercion semantics are recovered separately, not enumerated by guide section 3.
+- **A038 — Transform concentrations X** · guide 3.5.1, 3.5.2, 3.8 · `not_implemented`
+  - Acceptance: Explicit original-unit↔log10 concentration conversion preserves units and row links; log(0)/negative dose are undefined and never silently clamped.
+  - Dependencies: D_TABLE, D_EXPR, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A039 — Normalize definition of zero** · guide 3.5.1, 3.5.2, 3.8 · `not_implemented`
+  - Acceptance: min per dataset, first row or entered constant each validated against replicate means; negative normalized individual replicates permitted.
+  - Dependencies: D_TABLE, D_EXPR, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A040 — Normalize definition of 100** · guide 3.5.1, 3.5.2, 3.8 · `not_implemented`
+  - Acceptance: max per dataset, last row, sum of all values or entered constant; denominator zero handled explicitly; behavior with missing rows controlled.
+  - Dependencies: D_TABLE, D_EXPR, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A041 — Normalize percentages versus fractions** · guide 3.5.1, 3.5.2, 3.8 · `not_implemented`
+  - Acceptance: 100 or 1 output scale is explicit, and normalized model fixed plateaus match selected scale; do not clip out-of-range observations.
+  - Dependencies: D_TABLE, D_EXPR, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A042 — Normalize replicate handling and scientific constraints** · guide 3.5.1, 3.5.2, 3.8 · `not_implemented`
+  - Acceptance: Define extrema from row replicate means while transforming original observations; warning/control prevents unsupported normalized+weighted fit combination; validate controls are intentional.
+  - Dependencies: D_TABLE, D_EXPR, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A043 — Normalize linked output and graph** · guide 3.5.1, 3.5.2, 3.8 · `not_implemented`
+  - Acceptance: Output normalized table optionally gets graph and is eligible for chained fixed-plateau fitting without altering raw data.
+  - Dependencies: D_TABLE, D_EXPR, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A044 — Prune rows** · guide 3.5.1, 3.5.2, 3.8 · `not_implemented`
+  - Acceptance: Persist row-selection rule; output exact retained rows with source identities and exclusions; downstream paired subjects remain aligned.
+  - Dependencies: D_TABLE, D_EXPR, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Actual selection modes, interval/end-point and blank-row conventions unresolved.
+- **A045 — Remove baseline** · guide 3.5.1, 3.5.2, 3.8 · `not_implemented`
+  - Acceptance: User/first-last/control-derived baselines and associated constants produce explicit subtraction linked to source; units and uncertainty policy documented.
+  - Dependencies: D_TABLE, D_EXPR, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact native baseline modes require additional parameter resource evidence.
+- **A046 — Column math** · guide 3.5.1, 3.5.2, 3.8 · `not_implemented`
+  - Acceptance: Operations between datasets/constants preserve row alignment, missing/excluded masks and divide-by-zero diagnostics; no positional corruption after pruning.
+  - Dependencies: D_TABLE, D_EXPR, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A047 — Transpose X and Y** · guide 3.5.1, 3.5.2, 3.8 · `not_implemented`
+  - Acceptance: Swap eligible XY coordinate datasets with labels and associations retained; reject incompatible replicate/error layouts explicitly.
+  - Dependencies: D_TABLE, D_EXPR, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A048 — Fraction of Total** · guide 3.5.1, 3.5.2, 3.8 · `not_implemented`
+  - Acceptance: Column/row/grand denominator choice, fractions/percentages, zero totals, negative counts and excluded values have specified semantics; chained parts-of-whole graph uses same denominator.
+  - Dependencies: D_TABLE, D_EXPR, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Guide lists table contexts but does not enumerate native denominator/default choices.
+- **A049 — Extract and rearrange multiple-variable data** · guide 3.5.1, 3.5.2, 3.8 · `not_implemented`
+  - Acceptance: Select columns/rows, pivot/group keys, preserve categorical levels and subject identity; reconstruct saved extraction case before acceptance.
+  - Dependencies: D_TABLE, D_EXPR, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A050 — Select and transform multiple-variable data** · guide 3.5.1, 3.5.2, 3.8 · `not_implemented`
+  - Acceptance: Explicit selection predicate and transformation pipeline preserve original variables and derivation provenance; typed expressions cannot execute arbitrary code.
+  - Dependencies: D_TABLE, D_EXPR, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+
+### descriptive
+
+- **A051 — Count, mean, sample SD, SEM, median, min/max and mean t CI** · guide 3.5.1, 3.4.1 · `partial_backend_saved_cases`
+  - Acceptance: Compare all 18 saved core values; add n=0/1/2, ties, constants, excluded/missing values, confidence levels and large-offset/tiny-scale cases.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Two 14-point saved columns establish one configuration only.
+  - Current/source evidence: gp/statistics.py, gp/descriptive.py, tests/test_descriptive.py, docs/prism-coverage.json:column_descriptive.
+- **A052 — Sum, range, coefficient of variation** · guide 3.5.1, 3.4.1 · `partial_backend_saved_cases`
+  - Acceptance: Compare saved sums/ranges/CVs; test zero/negative mean and scale invariance; current positive-mean-only CV policy must be reconciled with native behavior.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: gp/statistics.py, gp/descriptive.py, tests/test_descriptive.py, docs/prism-coverage.json:column_descriptive.
+- **A053 — Quartiles and configurable percentiles** · guide 3.5.1, 3.4.1 · `partial_backend_saved_cases`
+  - Acceptance: Type-6 interpolation matches saved Q1/Q3/P10/P90; include endpoint clipping, ties and n<4; explicitly interpret percentileLevel90 as 10th–90th in observed fixture.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Current GP only fixed P10/P90; arbitrary percentile choice not exposed.
+  - Current/source evidence: gp/statistics.py, gp/descriptive.py, tests/test_descriptive.py, docs/prism-coverage.json:column_descriptive.
+- **A054 — Bias-corrected skewness and excess kurtosis** · guide 3.5.1, 3.4.1 · `partial_backend_saved_cases`
+  - Acceptance: Compare saved values; n<3/n<4, constant vectors, cancellation and extreme range return explicit undefined reasons.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: gp/statistics.py, gp/descriptive.py, tests/test_descriptive.py, docs/prism-coverage.json:column_descriptive.
+- **A055 — Geometric mean, geometric SD factor and geometric mean CI** · guide 3.5.1, 3.4.1 · `partial_backend_saved_cases`
+  - Acceptance: Compare 2 saved positive columns; t CI on logs; zero/negative observations prohibit geometric outputs rather than silently dropping them; scale and overflow tests.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: gp/statistics.py, gp/descriptive.py, tests/test_descriptive.py, docs/prism-coverage.json:column_descriptive.
+- **A056 — QC mean ±1/2/3 SD outputs** · guide 3.5.1, 3.4.1 · `partial_backend_saved_cases`
+  - Acceptance: Compare saved QC lines and ensure sample-SD convention; label as reference lines, not predictive/QC pass-fail models.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: gp/statistics.py, gp/descriptive.py, tests/test_descriptive.py, docs/prism-coverage.json:column_descriptive.
+- **A057 — Median confidence interval** · guide 3.5.1, 3.4.1 · `not_implemented`
+  - Acceptance: Implement recovered interval convention, confidence attainable at small n and tied observations; compare exact saved/native cases before claiming equivalence.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Not implemented; exact native order-statistic/interpolation policy unknown.
+  - Current/source evidence: resources-pass2/feature-map.json:ColumnStatistics.nib, docs/prism-descriptive-evidence.md.
+- **A058 — Configurable output selection and display** · guide 3.5.1, 3.4.1 · `not_implemented`
+  - Acceptance: Select any supported summary/QC/percentile/interval field independently; stored precision and visible field choice are separate, matching saved option-versus-results evidence.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:ColumnStatistics.nib, docs/prism-descriptive-evidence.md.
+- **A059 — Replicate summary mode: average rows** · guide 3.5.1, 3.4.1 · `not_implemented`
+  - Acceptance: Average technical subcolumns within each row then summarize biological row means, preserve varying replicate counts and excluded cells.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:ColumnStatistics.nib, docs/prism-descriptive-evidence.md.
+- **A060 — Replicate summary mode: per subcolumn** · guide 3.5.1, 3.4.1 · `not_implemented`
+  - Acceptance: Produce separate result series for each subcolumn without accidental flattening; preserve labels and n.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:ColumnStatistics.nib, docs/prism-descriptive-evidence.md.
+- **A061 — Replicate summary mode: pooled values** · guide 3.5.1, 3.4.1 · `not_implemented`
+  - Acceptance: Where offered, explicitly pool all eligible subcolumns; report observation unit and warn against pseudoreplication.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:ColumnStatistics.nib, docs/prism-descriptive-evidence.md.
+- **A062 — Harmonic mean domain and method** · guide 3.5.1, 3.4.1 · `not_implemented`
+  - Acceptance: Recovered localization identifies harmonic mean requiring positive observations; enumerate whether user-selectable, formula and missing/zero handling before implementation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Resource-only beyond section 3 method list; inclusion and defaults require further evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:ColumnStatistics.nib, docs/prism-descriptive-evidence.md.
+
+### two group tests
+
+- **A063 — Welch unpaired t-test** · guide 3.4.1, 3.11.1, 3.12 · `partial_backend`
+  - Acceptance: Compare signed mean difference, SE, fractional df, two-sided P and CI against independent references, unbalanced variances, n=2 and one/both zero variances.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Current core is two-sided only, first-minus-second; guide equal-SD recipe is not a Welch oracle.
+  - Current/source evidence: gp/statistics.py, tests/test_statistics.py, tests/test_prism_reference.py.
+- **A064 — Paired t-test** · guide 3.4.1, 3.11.1, 3.12 · `partial_backend`
+  - Acceptance: Preserve complete subject-row pairs; compare saved paired case, absolute reported t, signed difference/CI, SD/SEM differences, R² and effect sizes; reverse groups and insert asymmetric missing rows.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: GP Hedges correction formula and all edge policies need more native evidence.
+  - Current/source evidence: gp/statistics.py, tests/test_statistics.py, tests/test_prism_reference.py.
+- **A065 — Equal-variance Student unpaired t-test** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Guide Male n5/Female n6: means44.20/55, B−A10.80, SE9.010, t1.199,df9,P.2613,CI[-9.583,31.18],eta².1377; compare full precision from source dataset and unequal-size tests.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Current backend has no Student choice; guide screenshot values are rounded, not full-precision tolerances.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A066 — Paired ratio t-test** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Log paired positive observations, test mean log ratio and back-transform effect/CI; preserve pairing and explicitly reject zeros/negatives.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Guide identifies via docs; precise ratio orientation/reporting conventions need evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A067 — Lognormal unpaired equal-geometric-SD test** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Fit/test in log domain with geometric-mean ratio and asymmetric CI; compare saved/native result to independent log-t reference.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Prism11 NIB observes distribution selection; exact test enum/default not established.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A068 — Lognormal Welch test** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Use unequal log variances and fractional df; require positive complete observations and verify output ratio direction and back-transformation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A069 — Mann–Whitney two-group test** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Separate U/rank statistics and exact/asymptotic P; cover unequal n, all ties, repeated ties, n threshold and alternative tails; do not label as a general median test without shape assumption.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A070 — Kolmogorov–Smirnov two-sample test** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Compare empirical-CDF maximum distance, exact/asymptotic/tied/discrete conventions and one-/two-tailed availability; distinguish from normality KS.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A071 — Wilcoxon matched-pairs signed-rank test** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Rank absolute paired differences; test ties, zero differences, all-zero/no complete pairs, exact and asymptotic P and two tails.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A072 — Wilcoxon zero handling: discard versus Pratt** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Explicitly select discard-all-zero-differences or Pratt ranking; verify ranks, effective n, variance and P change against hand-enumerated small cases.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A073 — Mann–Whitney CI of location difference** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Implement and label the recovered shift/median-difference interval method, cover tied/unequal samples and unattainable confidence; expose equal-shape assumption.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Native estimator and exact CI convention unresolved.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A074 — Test alternative and one-tailed direction** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Two-tailed recommended; one-tailed requires explicit predeclared alternative; contrast reversal swaps lower/upper alternative and mirrors CI consistently.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A075 — Contrast direction A−B versus B−A** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Effect and CI endpoints reverse signs/order; P unchanged for two-sided; result wording and graph annotation follow same direction.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A076 — T-test variance comparison output** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Guide equal-SD example F1.680 numerator df5/denominator df4,P.6354; verify larger-variance orientation and exact F two-tail convention; variance pretest is not an automatic test selector.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A077 — Standardized t-test effect sizes** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Cohen d, Hedges g and Glass delta require explicit design-specific denominator/correction/control; test symmetry, small n and zero denominator.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Paired d/g are present; unpaired/Glass/native correction precision remain open.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A078 — T-test AICc model comparison** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Define null/alternative likelihood and parameter counts; compare evidence for models, account n≤k+1; do not infer AICc from t alone without verified definition.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A079 — T-test optional descriptive output** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Selected datasets get descriptive pages with same exclusion masks; paired analysis counts distinguish original columns from complete paired rows.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A080 — T-test residual diagnostics** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Residual-vs-predicted, absolute residual/homoscedasticity, QQ and heatmap values agree with selected paired/unpaired/log model; normality tests use correct residuals.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+- **A081 — T-test estimation, differences, ranks and correlation graphs** · guide 3.4.1, 3.11.1, 3.12 · `not_implemented`
+  - Acceptance: Generate supported optional graph datasets: paired differences, nonparametric ranks, paired correlation and CI-of-effect estimation; source edits update them.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TTests.nib.
+
+### one sample tests
+
+- **A082 — One-sample t test** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Compare mean to user hypothetical value (including 0/1/100), t/df/P and discrepancy CI; test n1, zero variance, negative scale and exclusions.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneSampleTest.nib.
+- **A083 — One-sample ratio t test** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Positive observations and positive hypothetical geometric mean; test log means and back-transform ratio discrepancy CI; no silent omission of invalid observations.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneSampleTest.nib.
+- **A084 — One-sample Wilcoxon signed-rank** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Test against hypothetical median with zero-discard/Pratt and ties; exact and asymptotic thresholds explicit; count observations used.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneSampleTest.nib.
+- **A085 — One-sample output and replicate modes** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Discrepancy CI toggle, alpha, display digits/P style and averaged/per-subcolumn/pooled replicate choices persist; compare outputs after each mode switch.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneSampleTest.nib.
+
+### distribution checks
+
+- **A086 — D’Agostino–Pearson omnibus** · guide 3.5.1, 3.4.1, 3.4.3 · `not_implemented`
+  - Acceptance: Independent numerical reference plus saved/native settings; verify minimum sample size, biased/unbiased moment convention, extreme skew/kurtosis and constant vector; report method, n, statistic, P/limits and decision.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:ColumnStatistics.nib, resources-pass2/feature-map.json:TTests.nib.
+- **A087 — Shapiro–Wilk** · guide 3.5.1, 3.4.1, 3.4.3 · `not_implemented`
+  - Acceptance: Independent numerical reference plus saved/native settings; verify n bounds, ties, constants, large n approximation/warning and sample-order invariance; report method, n, statistic, P/limits and decision.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:ColumnStatistics.nib, resources-pass2/feature-map.json:TTests.nib.
+- **A088 — Anderson–Darling** · guide 3.5.1, 3.4.1, 3.4.3 · `not_implemented`
+  - Acceptance: Independent numerical reference plus saved/native settings; verify estimated mean/variance correction, statistic and P approximation, constant/short vectors; report method, n, statistic, P/limits and decision.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:ColumnStatistics.nib, resources-pass2/feature-map.json:TTests.nib.
+- **A089 — Kolmogorov–Smirnov normality with Dallal–Wilkinson–Lilliefors P** · guide 3.5.1, 3.4.1, 3.4.3 · `not_implemented`
+  - Acceptance: Independent numerical reference plus saved/native settings; verify estimated parameters, valid P range, small sample/tie behavior; distinct from two-sample KS; report method, n, statistic, P/limits and decision.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:ColumnStatistics.nib, resources-pass2/feature-map.json:TTests.nib.
+- **A090 — Lognormality tests** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Apply selected normality test to valid log observations; explicitly distinguish original normality versus lognormality conclusions and reject nonpositive data.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A091 — Normality-of-residuals versus raw-data tests** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Route tests to raw values or model residuals according to request; show effective n/fit adjustment and do not present acceptance as proof of normality.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A092 — Frequency distribution** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Specify bin number/width/origin, edges and count/fraction/cumulative outputs; test values exactly on bin edges, missing/nonfinite entries and empty bins.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Guide lists analysis but does not describe exact bin rules; recover parameters before coding.
+- **A093 — ROC analysis** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Group coding and positive class, threshold direction, sensitivity/specificity, AUC, interval and cutoff outputs; tied scores, complete separation, empty class and reversed direction tested.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: AUC/CI method choices, exact native threshold endpoints and comparison options not yet recovered.
+- **A094 — Bland–Altman method comparison** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Paired complete measurements, bias, limits of agreement, uncertainties and optional scale/ratio choices; test ties, unequal magnitudes and missing pairs.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Native denominator, limits/CI and log-transform options unresolved.
+
+### outliers
+
+- **A095 — ROUT outlier identification** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Compare Q aggressiveness, multiple outliers and retained/clean data masks; distinguish standalone identification from robust-curve ROUT; preserve raw values/exclusion provenance, support averaged/per-subcolumn/pooled observation mode and recomputation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:RemoveOutliers.nib.
+- **A096 — Grubbs single outlier** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Compare alpha, one-/two-sided convention, tiny n and exact threshold; identify at most one point; preserve raw values/exclusion provenance, support averaged/per-subcolumn/pooled observation mode and recomputation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:RemoveOutliers.nib.
+- **A097 — Iterative Grubbs** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Compare explicit not-recommended label, sequential stopping and multiplicity behavior; multiple outliers and masking; preserve raw values/exclusion provenance, support averaged/per-subcolumn/pooled observation mode and recomputation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:RemoveOutliers.nib.
+
+### multiplicity
+
+- **A098 — Analyze stack of P values** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Validate P in [0,1], retain label/order/missing status; selected correction applied only to explicit family; report adjusted P or q/discoveries according to method, never conflate FWER and FDR.
+  - Dependencies: D_MULTIPLICITY, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Available native methods/defaults and missing-P family denominator must be recovered.
+
+### one way anova
+
+- **A099 — Ordinary one-way ANOVA** · guide 3.4.3, 3.5.1, 3.9, 3.11.2 · `partial_backend`
+  - Acceptance: Retain current independent balanced/unbalanced-size F calculation; add full SS/df/MS table, effect metrics, diagnostics and saved reference cases; empty groups/zero residual variance are explicit.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: gp/statistics.py, tests/test_statistics.py.
+- **A100 — Welch one-way ANOVA** · guide 3.4.3, 3.5.1, 3.9, 3.11.2 · `not_implemented`
+  - Acceptance: Unequal variances/sample sizes, fractional denominator df and chosen posttest are verified; constant or n<2 groups handled explicitly.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib.
+- **A101 — Brown–Forsythe unequal-variance ANOVA** · guide 3.4.3, 3.5.1, 3.9, 3.11.2 · `not_implemented`
+  - Acceptance: Implement location omnibus test separately from Brown–Forsythe variance diagnostic; verify df correction and unequal n.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Native corrected/original variants and simultaneous reporting unresolved.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib.
+- **A102 — Lognormal one-way ANOVA** · guide 3.4.3, 3.5.1, 3.9, 3.11.2 · `not_implemented`
+  - Acceptance: Positive values, log-domain group model and geometric effect ratios/intervals; independent and repeated mode applicability verified.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib.
+- **A103 — Kruskal–Wallis** · guide 3.4.3, 3.5.1, 3.9, 3.11.2 · `not_implemented`
+  - Acceptance: Tie-corrected rank statistic, df/P and small-sample exact/asymptotic rules; Dunn comparisons use same ranks/family.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib.
+- **A104 — Friedman repeated-measures rank test** · guide 3.4.3, 3.5.1, 3.9, 3.11.2 · `not_implemented`
+  - Acceptance: Require aligned blocks, tie correction and explicit complete-block/missing policy; posttests reflect repeated design.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib.
+- **A105 — One-way repeated-measures ANOVA** · guide 3.4.3, 3.5.1, 3.9, 3.11.2 · `not_implemented`
+  - Acceptance: Represent subject/block factor explicitly; verify treatment/subject/error SS, paired covariance and complete data; row permutation within one condition must alter pairing.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib.
+- **A106 — Sphericity assumed (uncorrected repeated ANOVA)** · guide 3.4.3, 3.5.1, 3.9, 3.11.2 · `not_implemented`
+  - Acceptance: Report uncorrected numerator/denominator df and P; compare complete data reference with known compound symmetry.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib.
+- **A107 — Geisser–Greenhouse repeated-measures correction** · guide 3.4.3, 3.5.1, 3.9, 3.11.2 · `not_implemented`
+  - Acceptance: Estimate epsilon, bound correctly, adjust df/P, retain effect estimates; test epsilon boundaries and >2 conditions.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib.
+- **A108 — One-way mixed-effects repeated model** · guide 3.4.3, 3.5.1, 3.9, 3.11.2 · `not_implemented`
+  - Acceptance: Handle missing observations using verified likelihood/variance-component method, finite-sample df and covariance constraints; compare with repeated ANOVA on complete balanced data.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: NIB calls maximum likelihood; REML versus ML and df algorithm require authoritative reconstruction, not assumption.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib.
+- **A109 — Automatic repeated ANOVA versus mixed selection** · guide 3.4.3, 3.5.1, 3.9, 3.11.2 · `not_implemented`
+  - Acceptance: No-missing chooses documented ANOVA; missing chooses mixed; record selected algorithm instead of hiding automatic switch.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib.
+- **A110 — Mixed model initial values and variance boundary policy** · guide 3.4.3, 3.5.1, 3.9, 3.11.2 · `not_implemented`
+  - Acceptance: GLM-derived or explicit starts; select keep nonnegative zero component, remove term/refit or unconstrained NOBOUND when offered; test singular/boundary convergence and negative variance behavior.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib.
+- **A111 — One-way linear trend follow-up** · guide 3.4.3, 3.5.1, 3.9, 3.11.2 · `not_implemented`
+  - Acceptance: Use column order or verified scores; calculate contrast and residual test without substituting arbitrary numeric labels; permutation/reference cases.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib.
+- **A112 — One-way diagnostics and optional outputs** · guide 3.4.3, 3.5.1, 3.9, 3.11.2 · `not_implemented`
+  - Acceptance: Brown–Forsythe/Bartlett variance tests, residual normality, QQ/residual/heatmap/homoscedasticity plots, descriptive/goodness/effect/AICc outputs match selected design; graph ranks/differences only where meaningful.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib.
+
+### factorial anova
+
+- **A113 — Balanced ordinary two-way ANOVA with interaction** · guide 3.4.3, 3.5.1, 3.11.3 · `partial_backend_saved_case`
+  - Acceptance: Preserve current source-hashed 3×3×4 oracle: Frow97.1848260277159,Fcolumn40.29152238210756,Finteraction1.2753514339835832,error df27; verify cell/marginal means and SS identity.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: gp/factorial_anova.py, tests/test_factorial_anova.py.
+- **A114 — Two-way main-effects-only model** · guide 3.4.3, 3.5.1, 3.11.3 · `not_implemented`
+  - Acceptance: Explicit interaction off refits correct additive model and error df; compare against full model and unbalanced references.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TwoWayANOVA.nib, resources-pass2/feature-map.json:ThreeWayANOVA.nib, resources-pass2/feature-map.json:NWayOrdinaryANOVA.nib.
+- **A115 — Two-way unbalanced replicates and missing cells** · guide 3.4.3, 3.5.1, 3.11.3 · `not_implemented`
+  - Acceptance: Determine sums-of-squares type/model coding and estimability; reproduce guide 2×2 example with one missing replicate; reject truly unestimable terms precisely.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Current backend rejects all unequal counts; native Type I/II/III conventions are unresolved.
+  - Current/source evidence: resources-pass2/feature-map.json:TwoWayANOVA.nib, resources-pass2/feature-map.json:ThreeWayANOVA.nib, resources-pass2/feature-map.json:NWayOrdinaryANOVA.nib.
+- **A116 — Two-way repeated rows, columns or both factors** · guide 3.4.3, 3.5.1, 3.11.3 · `not_implemented`
+  - Acceptance: Stable subject IDs across repeat dimension(s); verify design-specific error terms and covariance/sphericity corrections, not ordinary pseudo-replication.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TwoWayANOVA.nib, resources-pass2/feature-map.json:ThreeWayANOVA.nib, resources-pass2/feature-map.json:NWayOrdinaryANOVA.nib.
+- **A117 — Two-way mixed-effects with missing repeats** · guide 3.4.3, 3.5.1, 3.11.3 · `not_implemented`
+  - Acceptance: Preserve subject/factor structure; verified likelihood, df and boundary settings; switching ordinary/RM/mixed cannot silently drop missing cells.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TwoWayANOVA.nib, resources-pass2/feature-map.json:ThreeWayANOVA.nib, resources-pass2/feature-map.json:NWayOrdinaryANOVA.nib.
+- **A118 — Two-way factor/subject labels and summaries** · guide 3.4.3, 3.5.1, 3.11.3 · `not_implemented`
+  - Acceptance: Persist row/column/matched-set names; show interaction first, then main effects, cell/row/column/grand means, explanatory narrative and exact source counts.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TwoWayANOVA.nib, resources-pass2/feature-map.json:ThreeWayANOVA.nib, resources-pass2/feature-map.json:NWayOrdinaryANOVA.nib.
+- **A119 — Three-way ordinary ANOVA** · guide 3.4.3, 3.5.1, 3.11.3 · `not_implemented`
+  - Acceptance: Map grouped column-pairs and row factor to explicit 3-factor design; include all selected interactions; compare source-bound 48/144-observation multifactor oracles.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TwoWayANOVA.nib, resources-pass2/feature-map.json:ThreeWayANOVA.nib, resources-pass2/feature-map.json:NWayOrdinaryANOVA.nib.
+- **A120 — Three-way repeated-measures design** · guide 3.4.3, 3.5.1, 3.11.3 · `not_implemented`
+  - Acceptance: Match each offered factor/subcolumn arrangement, sphericity settings and block effects; verify covariance structure and complete-subject handling.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TwoWayANOVA.nib, resources-pass2/feature-map.json:ThreeWayANOVA.nib, resources-pass2/feature-map.json:NWayOrdinaryANOVA.nib.
+- **A121 — Three-way mixed-effects design** · guide 3.4.3, 3.5.1, 3.11.3 · `not_implemented`
+  - Acceptance: Support missing repeated values and shared variance-boundary/initialization choices; compare full model estimates and convergence diagnostics.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TwoWayANOVA.nib, resources-pass2/feature-map.json:ThreeWayANOVA.nib, resources-pass2/feature-map.json:NWayOrdinaryANOVA.nib.
+- **A122 — Three-way model factor names and consolidated output** · guide 3.4.3, 3.5.1, 3.11.3 · `not_implemented`
+  - Acceptance: Define paired-column factors and row factor; optional A+B/C+D or A+C/B+D consolidation creates linked two-way input without treating collapsed levels as originally independent.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TwoWayANOVA.nib, resources-pass2/feature-map.json:ThreeWayANOVA.nib, resources-pass2/feature-map.json:NWayOrdinaryANOVA.nib.
+- **A123 — Multifactor ANOVA model term selection** · guide 3.4.3, 3.5.1, 3.11.3 · `not_implemented`
+  - Acceptance: Explicit categorical coding, intercept and chosen interactions; test rank deficiency, empty levels, contrasts and adjusted/unadjusted effect metrics using recovered saved designs.
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TwoWayANOVA.nib, resources-pass2/feature-map.json:ThreeWayANOVA.nib, resources-pass2/feature-map.json:NWayOrdinaryANOVA.nib.
+- **A124 — ANOVA standardized effect sizes and goodness metrics** · guide 3.4.3, 3.5.1, 3.11.3 · `not_implemented`
+  - Acceptance: Distinguish eta², partial eta², omega² and %total variation where exposed; use recovered definitions and saved values, never label SS/total as partial eta².
+  - Dependencies: D_DESIGN, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:TwoWayANOVA.nib, resources-pass2/feature-map.json:ThreeWayANOVA.nib, resources-pass2/feature-map.json:NWayOrdinaryANOVA.nib.
+
+### nested models
+
+- **A125 — Nested t-test** · guide 3.2, 3.5.1, 3.5.2, 3.12 · `not_implemented`
+  - Acceptance: Separate animal/cluster versus technical-observation levels; nested random effect and group effect verified; scrambling observations within subcolumn leaves result unchanged; unequal cluster sizes tested.
+  - Dependencies: D_DESIGN, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NestedTTest.nib, resources-pass2/feature-map.json:NestedOneWayANOVA.nib.
+- **A126 — Nested one-way ANOVA** · guide 3.2, 3.5.1, 3.5.2, 3.12 · `not_implemented`
+  - Acceptance: Model multiple groups with within-subject/cluster repeats; test independent subject counts, within/between variation, omnibus and nested posttests.
+  - Dependencies: D_DESIGN, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NestedTTest.nib, resources-pass2/feature-map.json:NestedOneWayANOVA.nib.
+- **A127 — Nested variance-component boundary policies** · guide 3.2, 3.5.1, 3.5.2, 3.12 · `not_implemented`
+  - Acceptance: Keep zero random effect, remove/refit, or full unconstrained fit as selected; document contrast to RM defaults; singular fits remain diagnosable.
+  - Dependencies: D_DESIGN, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NestedTTest.nib, resources-pass2/feature-map.json:NestedOneWayANOVA.nib.
+- **A128 — Nested diagnostics and summary graphs** · guide 3.2, 3.5.1, 3.5.2, 3.12 · `not_implemented`
+  - Acceptance: Residual/QQ/homoscedasticity, goodness-of-fit, difference CI (nested t), grand mean CI (nested ANOVA), direction and precision settings propagate to result/graph.
+  - Dependencies: D_DESIGN, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NestedTTest.nib, resources-pass2/feature-map.json:NestedOneWayANOVA.nib.
+
+### multiple comparison method
+
+- **A129 — Tukey** · guide 3.9, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Independent analytic/reference tests for all-pairs studentized-range inference; balanced/unbalanced n and simultaneous CIs; compare one saved/native family with original settings; report effect/direction/P/CI availability separately.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib, resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A130 — Dunnett** · guide 3.9, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Independent analytic/reference tests for chosen control versus others, correlated contrasts and simultaneous CIs; control index permutation; compare one saved/native family with original settings; report effect/direction/P/CI availability separately.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib, resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A131 — Šídák** · guide 3.9, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Independent analytic/reference tests for single-step adjusted P and CI; stable evaluation near P0/1; family count exact; compare one saved/native family with original settings; report effect/direction/P/CI availability separately.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib, resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A132 — Holm–Šídák** · guide 3.9, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Independent analytic/reference tests for step-down ordering, monotonic adjusted P, tied ranks and no unsupported simultaneous CIs; compare one saved/native family with original settings; report effect/direction/P/CI availability separately.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib, resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A133 — Bonferroni** · guide 3.9, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Independent analytic/reference tests for m×P capped at1 and simultaneous alpha/m intervals; empty/singleton families; compare one saved/native family with original settings; report effect/direction/P/CI availability separately.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib, resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A134 — Fisher LSD** · guide 3.9, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Independent analytic/reference tests for unadjusted planned comparisons with explicit no-correction label and verified omnibus gating; compare one saved/native family with original settings; report effect/direction/P/CI availability separately.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib, resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A135 — Newman–Keuls** · guide 3.9, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Independent analytic/reference tests for range-dependent sequential rule and no substitution with Tukey; not-recommended status preserved; compare one saved/native family with original settings; report effect/direction/P/CI availability separately.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib, resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A136 — Games–Howell** · guide 3.9, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Independent analytic/reference tests for unequal-variance pairwise df, studentized range and intervals, including small/unequal n; compare one saved/native family with original settings; report effect/direction/P/CI availability separately.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib, resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A137 — Dunnett T3** · guide 3.9, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Independent analytic/reference tests for heteroscedastic all-pairs procedure distinct from control-only Dunnett; correct distribution/df; compare one saved/native family with original settings; report effect/direction/P/CI availability separately.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib, resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A138 — Tamhane T2** · guide 3.9, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Independent analytic/reference tests for heteroscedastic pairwise test and multiplicity correction/interval convention; compare one saved/native family with original settings; report effect/direction/P/CI availability separately.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib, resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A139 — Dunn** · guide 3.9, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Independent analytic/reference tests for mean ranks, tie correction and chosen multiplicity adjustment after Kruskal–Wallis; compare one saved/native family with original settings; report effect/direction/P/CI availability separately.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib, resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A140 — Benjamini–Hochberg FDR** · guide 3.9, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Independent analytic/reference tests for ordered P and monotonic q/adjusted P; target Q distinct from alpha; compare one saved/native family with original settings; report effect/direction/P/CI availability separately.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib, resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A141 — Benjamini–Yekutieli FDR** · guide 3.9, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Independent analytic/reference tests for harmonic dependence correction, tied P and family size; compare one saved/native family with original settings; report effect/direction/P/CI availability separately.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib, resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A142 — Benjamini–Krieger–Yekutieli two-stage FDR** · guide 3.9, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Independent analytic/reference tests for two-stage estimated-null/discovery procedure and native q output semantics; all/none discoveries; compare one saved/native family with original settings; report effect/direction/P/CI availability separately.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib, resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A143 — No correction** · guide 3.9, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Independent analytic/reference tests for individual P with explicit family-wise risk statement, no fabricated adjusted P; compare one saved/native family with original settings; report effect/direction/P/CI availability separately.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:OneWayANOVA.nib, resources-pass2/feature-map.json:MultipleTTests.nib.
+
+### comparison design
+
+- **A144 — One-way all pairs** · guide 3.9, 3.4.3, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: k(k−1)/2 unique contrasts; label deterministic and apply chosen shared family. Verify contrast matrix, effect variance/df and count against original model; missing/unestimable contrasts are explicit.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A145 — One-way versus chosen control** · guide 3.9, 3.4.3, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: k−1 contrasts with user control; sign follows specified direction. Verify contrast matrix, effect variance/df and count against original model; missing/unestimable contrasts are explicit.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A146 — Preselected pairs** · guide 3.9, 3.4.3, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: validate distinct existing group IDs, no duplicates; record prespecification requirement. Verify contrast matrix, effect variance/df and count against original model; missing/unestimable contrasts are explicit.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A147 — Two-way row cell comparison when exactly two columns** · guide 3.9, 3.4.3, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: one within-row contrast per eligible row. Verify contrast matrix, effect variance/df and count against original model; missing/unestimable contrasts are explicit.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A148 — Two-way column cell comparison when exactly two rows** · guide 3.9, 3.4.3, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: one within-column contrast per eligible column. Verify contrast matrix, effect variance/df and count against original model; missing/unestimable contrasts are explicit.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A149 — Two-way simple effects within each row** · guide 3.9, 3.4.3, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: 3+ columns; all-pair/control/preselected column contrasts at fixed row. Verify contrast matrix, effect variance/df and count against original model; missing/unestimable contrasts are explicit.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A150 — Two-way simple effects within each column** · guide 3.9, 3.4.3, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: 3+ rows; row contrasts at fixed column. Verify contrast matrix, effect variance/df and count against original model; missing/unestimable contrasts are explicit.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A151 — Two-way main column and main row effects** · guide 3.9, 3.4.3, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: averaging/marginal-means conventions under unbalance explicit; interaction interpretation warning. Verify contrast matrix, effect variance/df and count against original model; missing/unestimable contrasts are explicit.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A152 — All cell means across rows/columns** · guide 3.9, 3.4.3, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: disable for one RM factor where guide disallows; support verified both-RM/non-RM cases. Verify contrast matrix, effect variance/df and count against original model; missing/unestimable contrasts are explicit.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A153 — Cell means against cells in own row and own column** · guide 3.9, 3.4.3, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: combine without duplicate contrasts; preserve requested family partition. Verify contrast matrix, effect variance/df and count against original model; missing/unestimable contrasts are explicit.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A154 — Family per row or column** · guide 3.9, 3.4.3, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: adjust each partition independently; compare to one-family output with known P vector. Verify contrast matrix, effect variance/df and count against original model; missing/unestimable contrasts are explicit.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A155 — One family across all comparisons** · guide 3.9, 3.4.3, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: all eligible contrasts share correction; family membership and count shown. Verify contrast matrix, effect variance/df and count against original model; missing/unestimable contrasts are explicit.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A156 — Three-way comparison patterns** · guide 3.9, 3.4.3, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: all cells, control A1, cells differing in one factor, row1-versus-below and row means/control supported only when model permits. Verify contrast matrix, effect variance/df and count against original model; missing/unestimable contrasts are explicit.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A157 — Multifactor main/simple/cell comparisons** · guide 3.9, 3.4.3, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: chosen primary factor and fixed levels define estimable contrasts; verify saved Dunnett model. Verify contrast matrix, effect variance/df and count against original model; missing/unestimable contrasts are explicit.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A158 — Adjusted P and simultaneous CI toggle** · guide 3.9, 3.4.3, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: never confuse raw/adjusted P or use simultaneous CIs for method lacking them; confidence matches family alpha. Verify contrast matrix, effect variance/df and count against original model; missing/unestimable contrasts are explicit.
+  - Dependencies: D_MULTIPLICITY, D_DESIGN, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+
+### comparison graphs
+
+- **A159 — Pairwise comparison graph annotations** · guide 3.9, 3.11.1, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Add/format/choose/remove/show-all/hide-all link to analysis contrast IDs and recompute stars from raw P; graphical positions do not redefine statistical families.
+  - Dependencies: D_MULTIPLICITY, D_RENDER, D_WORKBOOK, D_RESULTS.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A160 — Compact Letter Display** · guide 3.9, 3.11.1, 3.11.2, 3.11.3 · `not_implemented`
+  - Acceptance: Build letters from actual significance graph, preserve ties/order and compare nontransitive A~B/B~C/A≁C case; selected family and alpha explicitly recorded.
+  - Dependencies: D_MULTIPLICITY, D_RENDER, D_WORKBOOK, D_RESULTS.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+
+### multiple tests
+
+- **A161 — Multiple t-tests per row** · guide 3.2, 3.5.1, 3.5.2, 3.12 · `not_implemented`
+  - Acceptance: Each row is separate experiment; unpaired Student/Welch, paired/ratio and lognormal choices use row-specific missing and pairing semantics; distinct from factorial ANOVA.
+  - Dependencies: D_TABLE, D_PARAMS, D_MULTIPLICITY, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A162 — Multiple nonparametric tests per row** · guide 3.2, 3.5.1, 3.5.2, 3.12 · `not_implemented`
+  - Acceptance: Row-specific Mann–Whitney, Wilcoxon or two-sample KS with ties/zero policies; common multiplicity correction uses all eligible row P values.
+  - Dependencies: D_TABLE, D_PARAMS, D_MULTIPLICITY, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A163 — Per-row versus whole-table variance assumption** · guide 3.2, 3.5.1, 3.5.2, 3.12 · `not_implemented`
+  - Acceptance: Choose per-row pooled SD, Welch or whole-table common SD when offered; verify df and variance borrowing, unequal row replicate counts.
+  - Dependencies: D_TABLE, D_PARAMS, D_MULTIPLICITY, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A164 — Multiple-test FWER versus FDR decision** · guide 3.2, 3.5.1, 3.5.2, 3.12 · `not_implemented`
+  - Acceptance: Selected alpha or Q governs discoverability; expose BH/BY/BKY and Holm–Šídák/Šídák-Bonferroni/Bonferroni-Dunn choices; preserve names versus mathematical aliases.
+  - Dependencies: D_TABLE, D_PARAMS, D_MULTIPLICITY, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleTTests.nib.
+- **A165 — Volcano and surprise outputs** · guide 3.2, 3.5.1, 3.5.2, 3.12 · `not_implemented`
+  - Acceptance: Report −log2(adjusted P), −log10(adjusted P), effect/ratio direction and linked volcano plot; exact P0 uses explicit infinite/display-capped representation, not silent finite invention.
+  - Dependencies: D_TABLE, D_PARAMS, D_MULTIPLICITY, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleTTests.nib.
+
+### xy regression
+
+- **A166 — Simple linear regression core** · guide 3.2, 3.5.1 · `partial_backend`
+  - Acceptance: Existing unweighted slope/intercept/R²/slope-CI/P and paired XY omission remain; add residual SE/intercept CI and reference datasets; constant X/Y and extreme units have explicit results.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: gp/statistics.py, tests/test_statistics.py.
+- **A167 — Linear fit through specified point** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Force line through user X0/Y0 or hooked constants; correct free-parameter count, df and confidence; through-origin differs from unconstrained fit.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+- **A168 — Linear replicate mode** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Fit each Y replicate as observation or only per-X mean, with exact n/weights distinction; missing individual replicates preserve X association.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+- **A169 — Linear unknown-X interpolation** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Known calibration pairs fit model, missing-X rows are unknowns; invert with appropriate interval and ambiguity/zero-slope handling.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+- **A170 — Linear X CI at specified Y** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Calculate verified inverse-prediction confidence interval; handle denominator crossing/undefined or unbounded intervals.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+- **A171 — Linear Y CI at specified X** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Mean-response uncertainty uses leverage and residual df; distinguish from new-observation prediction interval.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+- **A172 — Linear confidence and prediction bands** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: 90/95/99 settings yield correct separate bands; endpoints/interpolation grid configurable without refitting original points.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+- **A173 — Linear multiple-series slope/intercept comparison** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Nested model constraints and extra-sum-of-squares inference verify shared slope/intercept versus separate lines and unequal n.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+- **A174 — Linear runs test and residual plot** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Order residuals by verified rule, handle exact zero residuals/ties and small n; plot corresponds to fit residuals.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+- **A175 — Deming regression error ratio** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Equal-unit/equal-SD orthogonal fit or specified SDX/SDY; scaling and swapped X/Y reciprocity tested; reject nonpositive uncertainty.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+- **A176 — Deming uncertainty and predictions** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Parameter CI, unknown standard-curve interpolation and Y CI at X follow verified method; replicate mean/individual modes preserve df assumptions.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+- **A177 — Deming line comparison/runs/range settings** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Reproduce slope/intercept tests, runs diagnostics and displayed line range; hooks to constants remain live.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+- **A178 — Simple logistic regression** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Binary-response coding, predictor, likelihood and inference outputs; complete/quasi separation, duplicated predictors and extreme logits handled explicitly.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Guide lists method; detailed native parameter options and penalization behavior not recovered.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+- **A179 — Fit spline** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Recover natural/clamped/interpolating/smoothing choices; test exact knots, boundary/extrapolation, duplicate X and missing pairs before selecting algorithm.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Do not infer a default SciPy spline flavor from catalogue label.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+- **A180 — Fit LOWESS** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Neighborhood fraction, robust iterations, weighting and duplicate-X output conventions require recovered settings; compare analytic trend plus outlier cases.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+- **A181 — Smooth curve** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Recover moving-window/Savitzky–Golay/other methods, window/order/boundaries; test constant/polynomial signals, unequal X and missing rows.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+- **A182 — Differentiate curve** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Derivative order, coordinate spacing and boundary stencil produce known derivative of polynomial/sine fixtures; original units carried through.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+- **A183 — Integrate curve** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Numerical integration algorithm, baseline and cumulative versus scalar output explicit; polynomial integrals, uneven spacing and duplicates checked.
+  - Dependencies: D_TABLE, D_PARAMS, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:LinearRegression.nib, resources-pass2/feature-map.json:DemingLinearRegression.nib.
+
+### xy summary
+
+- **A184 — Area under curve and baseline** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Fixed Y or mean-of-first/last baseline with live constant hook; analytically known piecewise-linear triangle/trapezoid fixtures; units and negative-area sign explicit.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:AreaUnderCurve.nib, resources-pass2/feature-map.json:Correlation.nib.
+- **A185 — AUC peak identification and thresholds** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Positive peaks only or include below-baseline; minimum height absolute/percent-range and width/adjacent-point count; exact baseline crossings and plateaus tested.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Native integration rule, interpolation and peak-boundary inclusivity require source/saved references.
+  - Current/source evidence: resources-pass2/feature-map.json:AreaUnderCurve.nib, resources-pass2/feature-map.json:Correlation.nib.
+- **A186 — Row statistics on XY/grouped/contingency** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Compute requested row-wise summaries across selected datasets/replicates with exclusions and missing cells; produce linked typed table eligible for graph/further analysis.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:AreaUnderCurve.nib, resources-pass2/feature-map.json:Correlation.nib.
+- **A187 — Pearson correlation** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Selected pair, X-versus-each-Y or matrix; correlation, CI, one/two-tailed P, n; constant column/extreme scales/tied values verified.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:AreaUnderCurve.nib, resources-pass2/feature-map.json:Correlation.nib.
+- **A188 — Spearman rank correlation** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Tie-averaged ranks, exact/asymptotic P and CI convention; monotonic transform invariance and small n tested.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:AreaUnderCurve.nib, resources-pass2/feature-map.json:Correlation.nib.
+- **A189 — Correlation matrix missing policy** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Pairwise complete or remove entire row as selected; show per-pair n and note non-positive-semidefinite pairwise matrix possibility.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:AreaUnderCurve.nib, resources-pass2/feature-map.json:Correlation.nib.
+- **A190 — Correlation matrix heatmap** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Cells display corresponding correlation/P/n with labels and stable color scaling; user subset and data edits update matrix/graph.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:AreaUnderCurve.nib, resources-pass2/feature-map.json:Correlation.nib.
+
+### nonlinear engine
+
+- **A191 — Independent unweighted nonlinear fitting core** · guide 3.4.2, 3.11.4, 3.12 · `partial_backend`
+  - Acceptance: Preserve current 10 registered equations and separate concentration 4PL; compare known synthetic parameters and saved bounded fits while explicitly recording GP optimizer/bounds.
+  - Dependencies: D_TABLE, D_FITS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Current implementation is not native solver parity and imposes undocumented-to-Prism finite search bounds.
+  - Current/source evidence: gp/regression_models.py, gp/statistics.py, tests/test_regression_models.py.
+
+### nonlinear model selection
+
+- **A192 — Equation library hierarchy and ordering** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: Expose all 18 families and 152 source-bound equation records below; canonical model ID distinguishes concentration/log, stimulation/inhibition, normalized/free-plateau variants.
+  - Dependencies: D_EXPR, D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: gp/regression_models.py, resources-pass2/equations.json, resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A193 — Equation descriptions, notes and help links** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: Present independently worded domain/parameter guidance, record source evidence; notes never act as executable instructions.
+  - Dependencies: D_EXPR, D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: gp/regression_models.py, resources-pass2/equations.json, resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A194 — Create/clone/edit/delete/import user equation** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: Bounded expression parser, named parameters/intermediates/derived outputs, validation and versioned provenance; no arbitrary Python/JavaScript eval.
+  - Dependencies: D_EXPR, D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: gp/regression_models.py, resources-pass2/equations.json, resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A195 — Equation order and grouping edits** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: Move Up/Down and add/remove operations persist without breaking stored analyses referencing model IDs.
+  - Dependencies: D_EXPR, D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: gp/regression_models.py, resources-pass2/equations.json, resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A196 — X interpretation concentration versus log10** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: Explicit model domain/unit metadata drives validation; never apply logarithm twice; log-X can be negative and X0 in concentration form can be valid.
+  - Dependencies: D_EXPR, D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: gp/regression_models.py, resources-pass2/equations.json, resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A197 — Zero-dose concentration evaluation and fitting** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: Allow X=0 for valid [Agonist]/[Inhibitor] parameterizations using mathematical limits with sign-aware Hill slope; fit raw X including zero while log-scaled display handles zero separately.
+  - Dependencies: D_EXPR, D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Current dose_response and normalized_dose_inhibition reject zero doses, contradicting guide; needs a correction, not documentation-only workaround.
+  - Current/source evidence: gp/regression_models.py, resources-pass2/equations.json, resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A198 — Derived fit parameters** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: Compute source-defined logEC50/EC50, span, half-life/time constant, Ki and other transforms; propagate domain/uncertainty flags to derived quantities.
+  - Dependencies: D_EXPR, D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: gp/regression_models.py, resources-pass2/equations.json, resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A199 — Interpolation of unknown standard-curve X** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: Choose none or supported confidence interval; preserve unknown row/replicate identities and multiple-root ambiguity; X-column-stacked versus Y-column-side-by-side output.
+  - Dependencies: D_EXPR, D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: gp/regression_models.py, resources-pass2/equations.json, resources-pass2/feature-map.json:NonlinearRegression.nib.
+
+### nonlinear method
+
+- **A200 — Least-squares loss** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement/verify residual sum-of-squares objective, scaling, replicate counts and residual df; compare source-bound small analytic case plus ill-conditioned/boundary cases; persist settings and selected dataset scope.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A201 — Robust loss** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement/verify specified residual distribution/tuning, outlier resistance and iteration convergence; comparison tab disabled where native forbids; compare source-bound small analytic case plus ill-conditioned/boundary cases; persist settings and selected dataset scope.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A202 — Poisson likelihood** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement/verify nonnegative count outcomes, zero counts, mean positivity, likelihood/deviance and overdispersion reporting; compare source-bound small analytic case plus ill-conditioned/boundary cases; persist settings and selected dataset scope.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A203 — No weighting** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement/verify equal observation contribution, not equal-X mean contribution; compare source-bound small analytic case plus ill-conditioned/boundary cases; persist settings and selected dataset scope.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A204 — Weight by 1/Y** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement/verify zero/negative observations and whether observed or predicted Y defines weights; compare source-bound small analytic case plus ill-conditioned/boundary cases; persist settings and selected dataset scope.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A205 — Weight by 1/Y²** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement/verify relative-error objective, near-zero observations and unit scaling; compare source-bound small analytic case plus ill-conditioned/boundary cases; persist settings and selected dataset scope.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A206 — Weight by 1/Y^K** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement/verify user exponent K, domains and iterated/model-dependent weights if supported; compare source-bound small analytic case plus ill-conditioned/boundary cases; persist settings and selected dataset scope.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A207 — Fit each replicate** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement/verify every valid Y replicate enters loss separately, n/df reflect raw observations; compare source-bound small analytic case plus ill-conditioned/boundary cases; persist settings and selected dataset scope.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A208 — Fit replicate means only** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement/verify per-dose means enter loss once with exclusions preserved and correct n; compare source-bound small analytic case plus ill-conditioned/boundary cases; persist settings and selected dataset scope.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A209 — Preaveraged mean/SD-or-SEM/N fitting** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement/verify reconstruct appropriate contribution of scatter and N rather than treating aggregate as one raw datum; compare source-bound small analytic case plus ill-conditioned/boundary cases; persist settings and selected dataset scope.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A210 — Ignore entered SD/SEM/N** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement/verify explicit choice fits means only and records ignored uncertainties; compare source-bound small analytic case plus ill-conditioned/boundary cases; persist settings and selected dataset scope.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A211 — Automatic convergence settings** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement/verify record native tolerances, maximum iterations, automatic strict switching and stopping/failure state; compare source-bound small analytic case plus ill-conditioned/boundary cases; persist settings and selected dataset scope.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A212 — Strict convergence and user iteration limit** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement/verify validate positive bounded limits, solver stopped versus converged classification; reproducible restarts; compare source-bound small analytic case plus ill-conditioned/boundary cases; persist settings and selected dataset scope.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A213 — Automatic initial values** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement/verify derive each model-specific guess from source or observed reference; verify perturbation and edge cases; compare source-bound small analytic case plus ill-conditioned/boundary cases; persist settings and selected dataset scope.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A214 — User initial values** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement/verify per-dataset/shared parameter start values validated against constraints; compare source-bound small analytic case plus ill-conditioned/boundary cases; persist settings and selected dataset scope.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A215 — Plot initial-value curve without fitting** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement/verify no optimizer invoked, output labels say model prediction rather than estimate and no fabricated P/CI; compare source-bound small analytic case plus ill-conditioned/boundary cases; persist settings and selected dataset scope.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+
+### nonlinear constraint
+
+- **A216 — No constraint** · guide 3.4.2, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Persist no constraint as explicit typed parameter rule; validate feasibility/units, count truly free parameters, use correct derivative/CI boundaries and update on linked-source edit; report applied constraints in results.
+  - Dependencies: D_FITS, D_PARAMS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact strict versus inclusive boundary enforcement, native defaults and parameter-sharing degrees of freedom must be validated.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A217 — Fixed constant** · guide 3.4.2, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Persist fixed constant as explicit typed parameter rule; validate feasibility/units, count truly free parameters, use correct derivative/CI boundaries and update on linked-source edit; report applied constraints in results.
+  - Dependencies: D_FITS, D_PARAMS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact strict versus inclusive boundary enforcement, native defaults and parameter-sharing degrees of freedom must be validated.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A218 — Must be less than** · guide 3.4.2, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Persist must be less than as explicit typed parameter rule; validate feasibility/units, count truly free parameters, use correct derivative/CI boundaries and update on linked-source edit; report applied constraints in results.
+  - Dependencies: D_FITS, D_PARAMS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact strict versus inclusive boundary enforcement, native defaults and parameter-sharing degrees of freedom must be validated.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A219 — Must be greater than** · guide 3.4.2, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Persist must be greater than as explicit typed parameter rule; validate feasibility/units, count truly free parameters, use correct derivative/CI boundaries and update on linked-source edit; report applied constraints in results.
+  - Dependencies: D_FITS, D_PARAMS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact strict versus inclusive boundary enforcement, native defaults and parameter-sharing degrees of freedom must be validated.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A220 — Absolute value less than** · guide 3.4.2, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Persist absolute value less than as explicit typed parameter rule; validate feasibility/units, count truly free parameters, use correct derivative/CI boundaries and update on linked-source edit; report applied constraints in results.
+  - Dependencies: D_FITS, D_PARAMS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact strict versus inclusive boundary enforcement, native defaults and parameter-sharing degrees of freedom must be validated.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A221 — Between zero and bound** · guide 3.4.2, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Persist between zero and bound as explicit typed parameter rule; validate feasibility/units, count truly free parameters, use correct derivative/CI boundaries and update on linked-source edit; report applied constraints in results.
+  - Dependencies: D_FITS, D_PARAMS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact strict versus inclusive boundary enforcement, native defaults and parameter-sharing degrees of freedom must be validated.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A222 — Shared value across datasets** · guide 3.4.2, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Persist shared value across datasets as explicit typed parameter rule; validate feasibility/units, count truly free parameters, use correct derivative/CI boundaries and update on linked-source edit; report applied constraints in results.
+  - Dependencies: D_FITS, D_PARAMS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact strict versus inclusive boundary enforcement, native defaults and parameter-sharing degrees of freedom must be validated.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A223 — Shared with upper/lower/absolute/zero-bound restriction** · guide 3.4.2, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Persist shared with upper/lower/absolute/zero-bound restriction as explicit typed parameter rule; validate feasibility/units, count truly free parameters, use correct derivative/CI boundaries and update on linked-source edit; report applied constraints in results.
+  - Dependencies: D_FITS, D_PARAMS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact strict versus inclusive boundary enforcement, native defaults and parameter-sharing degrees of freedom must be validated.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A224 — Dataset constant from column title** · guide 3.4.2, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Persist dataset constant from column title as explicit typed parameter rule; validate feasibility/units, count truly free parameters, use correct derivative/CI boundaries and update on linked-source edit; report applied constraints in results.
+  - Dependencies: D_FITS, D_PARAMS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact strict versus inclusive boundary enforcement, native defaults and parameter-sharing degrees of freedom must be validated.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A225 — Dataset constant equal to mean X** · guide 3.4.2, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Persist dataset constant equal to mean x as explicit typed parameter rule; validate feasibility/units, count truly free parameters, use correct derivative/CI boundaries and update on linked-source edit; report applied constraints in results.
+  - Dependencies: D_FITS, D_PARAMS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact strict versus inclusive boundary enforcement, native defaults and parameter-sharing degrees of freedom must be validated.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A226 — Relative constraint parameter A greater than multiplier times B** · guide 3.4.2, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Persist relative constraint parameter a greater than multiplier times b as explicit typed parameter rule; validate feasibility/units, count truly free parameters, use correct derivative/CI boundaries and update on linked-source edit; report applied constraints in results.
+  - Dependencies: D_FITS, D_PARAMS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact strict versus inclusive boundary enforcement, native defaults and parameter-sharing degrees of freedom must be validated.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A227 — Hook bound/fixed value to info or analysis constant** · guide 3.4.2, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Persist hook bound/fixed value to info or analysis constant as explicit typed parameter rule; validate feasibility/units, count truly free parameters, use correct derivative/CI boundaries and update on linked-source edit; report applied constraints in results.
+  - Dependencies: D_FITS, D_PARAMS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact strict versus inclusive boundary enforcement, native defaults and parameter-sharing degrees of freedom must be validated.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+
+### nonlinear comparison
+
+- **A228 — No comparison** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: fit chosen models independently without manufacturing model-choice output; independent reference and a source-bound model comparison with original settings required.
+  - Dependencies: D_FITS, D_DESIGN, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A229 — Two equations per dataset** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: fit both using same eligible observations and likelihood scale; compare nested models with F or nonnested with AICc; independent reference and a source-bound model comparison with original settings required.
+  - Dependencies: D_FITS, D_DESIGN, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A230 — Selected unshared parameters differ across datasets** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: compare separate fits against global fit sharing selected parameters, retaining unshared nuisance parameters; independent reference and a source-bound model comparison with original settings required.
+  - Dependencies: D_FITS, D_DESIGN, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A231 — Parameter versus hypothetical value** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: nested fixed-parameter null versus free alternative with correct df and boundaries; independent reference and a source-bound model comparison with original settings required.
+  - Dependencies: D_FITS, D_DESIGN, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A232 — One curve for all datasets** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: global all-parameter shared fit versus independent curves, not average-of-fitted-parameters; independent reference and a source-bound model comparison with original settings required.
+  - Dependencies: D_FITS, D_DESIGN, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A233 — Extra sum-of-squares F method** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: require nested models and correct change in free-parameter count; rejected singular/negative-SS differences diagnosed; independent reference and a source-bound model comparison with original settings required.
+  - Dependencies: D_FITS, D_DESIGN, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A234 — AICc method** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: likelihood, n/k convention, finite-sample correction and evidence/probability report; n≤k+1 diagnosed; independent reference and a source-bound model comparison with original settings required.
+  - Dependencies: D_FITS, D_DESIGN, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+- **A235 — Choose other fit when ambiguous/flagged** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: explicit option records skipped formal comparison and reason rather than reporting spurious statistical significance; independent reference and a source-bound model comparison with original settings required.
+  - Dependencies: D_FITS, D_DESIGN, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:NonlinearRegression.nib.
+
+### nonlinear range output
+
+- **A236 — Fit X-range inclusion limits** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: Explicit min/max exclude fit observations while retaining raw table; boundary inclusivity and counts tested independently from curve display range.
+  - Dependencies: D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A237 — Curve display min/max and point count** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: Changing drawing range/density changes plotted samples only; no data exclusion or parameter refit; nonlinear/log domain valid.
+  - Dependencies: D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A238 — Summary table/graph of selected parameters** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: Per-dataset parameter rows with optional SE/CI; bar labels column titles/A-B or XY X from column titles; unknown label coercions explicitly rejected.
+  - Dependencies: D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A239 — Parameter-only versus parameter-with-SE/CI output** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: Enablement reflects fit method/CI type and identifiability; precision formatting never truncates stored estimates.
+  - Dependencies: D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A240 — Ki from IC50, Schild dose ratios and legacy outputs** · guide 3.4.2, 3.11.4 · `not_implemented`
+  - Acceptance: Require supplied KD/ligand and source-derived formulas; verify unit consistency and uncertainty/domain handling before exposing legacy calculation.
+  - Dependencies: D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+
+### nonlinear uncertainty
+
+- **A241 — Symmetric asymptotic parameter intervals** · guide 3.4.2, 3.6, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Validate covariance/Jacobian and critical distribution, selected confidence, active constraints and singular matrix handling; use asymmetric/boundary/weak-plateau cases and ordinary well-conditioned reference; guide truncated CI endpoints cannot count as exact numerical oracle.
+  - Dependencies: D_FITS, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A242 — Asymmetric profile-likelihood parameter intervals** · guide 3.4.2, 3.6, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Validate profile each parameter with nuisance refit; likelihood-ratio threshold, bracketing, unbounded/very-wide results and direction-dependent limits; use asymmetric/boundary/weak-plateau cases and ordinary well-conditioned reference; guide truncated CI endpoints cannot count as exact numerical oracle.
+  - Dependencies: D_FITS, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A243 — Mean-curve confidence bands** · guide 3.4.2, 3.6, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Validate fit parameter uncertainty rather than new-observation scatter; nonlinear asymmetric cases and selected confidence; use asymmetric/boundary/weak-plateau cases and ordinary well-conditioned reference; guide truncated CI endpoints cannot count as exact numerical oracle.
+  - Dependencies: D_FITS, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A244 — New-observation prediction bands** · guide 3.4.2, 3.6, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Validate include observation/residual variance under selected model and weighting; bands widen versus confidence bands; use asymmetric/boundary/weak-plateau cases and ordinary well-conditioned reference; guide truncated CI endpoints cannot count as exact numerical oracle.
+  - Dependencies: D_FITS, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A245 — CI output format range or lower/upper** · guide 3.4.2, 3.6, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Validate same full-precision endpoints, explicit unavailable flags and exported metadata; use asymmetric/boundary/weak-plateau cases and ordinary well-conditioned reference; guide truncated CI endpoints cannot count as exact numerical oracle.
+  - Dependencies: D_FITS, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A246 — Compute CI even for unstable/ambiguous fit** · guide 3.4.2, 3.6, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Validate opt-in preserves warning and convergence status; no finite interval substituted for unbounded search; use asymmetric/boundary/weak-plateau cases and ordinary well-conditioned reference; guide truncated CI endpoints cannot count as exact numerical oracle.
+  - Dependencies: D_FITS, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A247 — Identify unstable parameters** · guide 3.4.2, 3.6, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Validate parameter-level state based on recovered identifiability rules; high R² does not clear it; use asymmetric/boundary/weak-plateau cases and ordinary well-conditioned reference; guide truncated CI endpoints cannot count as exact numerical oracle.
+  - Dependencies: D_FITS, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A248 — Identify ambiguous fit (legacy mode)** · guide 3.4.2, 3.6, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Validate fit-level classification distinct from parameter unstable, reproducing declared legacy semantics; use asymmetric/boundary/weak-plateau cases and ordinary well-conditioned reference; guide truncated CI endpoints cannot count as exact numerical oracle.
+  - Dependencies: D_FITS, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A249 — Neither unstable nor ambiguous display** · guide 3.4.2, 3.6, 3.11.4, 3.12 · `not_implemented`
+  - Acceptance: Validate retain internal diagnostics; display best-fit numeric values according to choice without erasing failure provenance; use asymmetric/boundary/weak-plateau cases and ordinary well-conditioned reference; guide truncated CI endpoints cannot count as exact numerical oracle.
+  - Dependencies: D_FITS, D_PARAMS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+
+### nonlinear diagnostics
+
+- **A250 — Residual normality tests** · guide 3.4.2, 3.11.4, 3.11.6 · `not_implemented`
+  - Acceptance: Implement Anderson–Darling, D’Agostino–Pearson, Shapiro–Wilk and corrected KS separately with correct fit residual vector; compare known-residual synthetic data and source-bound output, with numerical failure represented explicitly.
+  - Dependencies: D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A251 — Runs test** · guide 3.4.2, 3.11.4, 3.11.6 · `not_implemented`
+  - Acceptance: Implement ordered residual signs, zero residual policy and small-sample exact/asymptotic rules; compare known-residual synthetic data and source-bound output, with numerical failure represented explicitly.
+  - Dependencies: D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A252 — Replicates lack-of-fit test** · guide 3.4.2, 3.11.4, 3.11.6 · `not_implemented`
+  - Acceptance: Implement pure-error versus lack-of-fit decomposition using repeated X and n; no-replicates case undefined; compare known-residual synthetic data and source-bound output, with numerical failure represented explicitly.
+  - Dependencies: D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A253 — Homoscedasticity/appropriate-weighting test** · guide 3.4.2, 3.11.4, 3.11.6 · `not_implemented`
+  - Acceptance: Implement relationship of absolute residuals to fitted response, verified rank statistic and selected weighting; compare known-residual synthetic data and source-bound output, with numerical failure represented explicitly.
+  - Dependencies: D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A254 — Parameter covariance/dependency** · guide 3.4.2, 3.11.4, 3.11.6 · `not_implemented`
+  - Acceptance: Implement normalized Jacobian/covariance and documented dependence index, invariance to units and singular behavior; compare known-residual synthetic data and source-bound output, with numerical failure represented explicitly.
+  - Dependencies: D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A255 — Hougaard parameter skewness** · guide 3.4.2, 3.11.4, 3.11.6 · `not_implemented`
+  - Acceptance: Implement higher-order local model derivatives and minimum residual df with source-bound comparison; compare known-residual synthetic data and source-bound output, with numerical failure represented explicitly.
+  - Dependencies: D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A256 — Goodness of fit R²/adjusted R²/SSE/Sy.x** · guide 3.4.2, 3.11.4, 3.11.6 · `not_implemented`
+  - Acceptance: Implement appropriate objective and free-parameter count; non-least-squares variants explicitly label unavailable/inapplicable values; compare known-residual synthetic data and source-bound output, with numerical failure represented explicitly.
+  - Dependencies: D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A257 — Residual diagnostic graphs** · guide 3.4.2, 3.11.4, 3.11.6 · `not_implemented`
+  - Acceptance: Implement residual versus X/Y, absolute residual/homoscedasticity, QQ and actual-versus-predicted data values correct for each fit; compare known-residual synthetic data and source-bound output, with numerical failure represented explicitly.
+  - Dependencies: D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+
+### nonlinear flag rule
+
+- **A258 — R² below threshold** · guide 3.4.2, 3.6 · `not_implemented`
+  - Acceptance: Persist and apply r² below threshold against unrounded diagnostics; test equality and adjacent thresholds, missing diagnostic states, multiple simultaneous flags; include reason on affected fit.
+  - Dependencies: D_FITS, D_PARAMS, D_RESULTS.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A259 — Observation count below threshold** · guide 3.4.2, 3.6 · `not_implemented`
+  - Acceptance: Persist and apply observation count below threshold against unrounded diagnostics; test equality and adjacent thresholds, missing diagnostic states, multiple simultaneous flags; include reason on affected fit.
+  - Dependencies: D_FITS, D_PARAMS, D_RESULTS.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A260 — Parameter dependency above threshold** · guide 3.4.2, 3.6 · `not_implemented`
+  - Acceptance: Persist and apply parameter dependency above threshold against unrounded diagnostics; test equality and adjacent thresholds, missing diagnostic states, multiple simultaneous flags; include reason on affected fit.
+  - Dependencies: D_FITS, D_PARAMS, D_RESULTS.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A261 — Any normality-test P below threshold** · guide 3.4.2, 3.6 · `not_implemented`
+  - Acceptance: Persist and apply any normality-test p below threshold against unrounded diagnostics; test equality and adjacent thresholds, missing diagnostic states, multiple simultaneous flags; include reason on affected fit.
+  - Dependencies: D_FITS, D_PARAMS, D_RESULTS.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A262 — Runs/replicates-test P below threshold** · guide 3.4.2, 3.6 · `not_implemented`
+  - Acceptance: Persist and apply runs/replicates-test p below threshold against unrounded diagnostics; test equality and adjacent thresholds, missing diagnostic states, multiple simultaneous flags; include reason on affected fit.
+  - Dependencies: D_FITS, D_PARAMS, D_RESULTS.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A263 — Outlier count above threshold** · guide 3.4.2, 3.6 · `not_implemented`
+  - Acceptance: Persist and apply outlier count above threshold against unrounded diagnostics; test equality and adjacent thresholds, missing diagnostic states, multiple simultaneous flags; include reason on affected fit.
+  - Dependencies: D_FITS, D_PARAMS, D_RESULTS.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+
+### nonlinear outliers
+
+- **A264 — No special outlier handling** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement no special outlier handling with original observations preserved, correct mask/weight/n/df and explicit convergence; test masking, all/none flagged and normalized-weighted incompatibility.
+  - Dependencies: D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A265 — Robust downweighting without deletion** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement robust downweighting without deletion with original observations preserved, correct mask/weight/n/df and explicit convergence; test masking, all/none flagged and normalized-weighted incompatibility.
+  - Dependencies: D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A266 — Detect and eliminate outliers with Q** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement detect and eliminate outliers with q with original observations preserved, correct mask/weight/n/df and explicit convergence; test masking, all/none flagged and normalized-weighted incompatibility.
+  - Dependencies: D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A267 — Report outliers without deletion** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement report outliers without deletion with original observations preserved, correct mask/weight/n/df and explicit convergence; test masking, all/none flagged and normalized-weighted incompatibility.
+  - Dependencies: D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A268 — Create linked cleaned-data table** · guide 3.4.2 · `not_implemented`
+  - Acceptance: Implement create linked cleaned-data table with original observations preserved, correct mask/weight/n/df and explicit convergence; test masking, all/none flagged and normalized-weighted incompatibility.
+  - Dependencies: D_FITS, D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+
+### standard curve
+
+- **A269 — Dedicated standard-curve interpolation workflow** · guide 3.2, 3.5.1 · `not_implemented`
+  - Acceptance: Fit user-selected model from standard-curve catalogue; optional relative weighting and robust/outlier Q choices, 90/95/99 confidence bands and unknown intervals; replicate unknown arrangement preserved and nonmonotonic roots explicitly handled.
+  - Dependencies: D_FITS, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Unknowns: The dedicated dialog is not just a synonym for fitting all XY pairs; calibration/unknown roles and inverse interval conventions need direct evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:InterpolateStandardCurve.nib.
+
+### contingency
+
+- **A270 — Pearson chi-square contingency association** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Nonnegative integer count table; expected counts, df, statistic/P and small-expected-count diagnostics; zero margins and dimensionality rules.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A271 — Fisher exact contingency test** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: 2×2 exact probabilities, directional/two-sided convention, zero cells and huge counts; any extension beyond 2×2 requires recovered method.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A272 — Contingency effect measures and intervals** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Odds/risk ratios, differences and CI methods only as recovered; zero-cell corrections and orientation/control definitions explicit.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A273 — Observed versus expected goodness of fit** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Parts-of-whole category counts versus expected frequencies/proportions; sums, structural zeros, estimated-parameter df and exact/chi-square option verified.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A274 — Contingency row statistics and fraction-total context** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Counts are not treated as raw observations; denominators and category labels preserved in linked result tables.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+
+### survival
+
+- **A275 — Kaplan–Meier right-censored estimator** · guide 3.2, 3.5.1, 3.5.2 · `partial_backend_saved_cases`
+  - Acceptance: Retain current time-zero, risk/event/censor handling and saved 714-value comparison; tied event/censor times use pre-removal risk set; S0/S1 CI endpoint behavior explicit.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: gp/survival.py, gp/advanced.py, tests/test_survival.py, docs/prism-coverage.json:survival_km.
+- **A276 — Global Mantel–Cox logrank** · guide 3.2, 3.5.1, 3.5.2 · `partial_backend_saved_cases`
+  - Acceptance: Retain source-oracle statistic115.99638345184422,df2,P6.481945468483883e−26; rank-deficient groups and no events diagnosed.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: gp/survival.py, gp/advanced.py, tests/test_survival.py, docs/prism-coverage.json:survival_km.
+- **A277 — Survival table coding and time conversion** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: User-selected event/censored code, other-value ignore/missing policy, elapsed-time or start/end-date mapping; never guess outcome variable from numeric position.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_MULTIPLICITY, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:SurvivalCurve.nib.
+- **A278 — Survival fraction/percent versus death fraction/percent** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Transform survival output consistently with reversed CI endpoints for mortality; denominator n and censor markers remain identical.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_MULTIPLICITY, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:SurvivalCurve.nib.
+- **A279 — Symmetrical versus asymmetrical survival CI** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Compare Greenwood symmetric and log-log/asymmetric conventions, confidence level, S0/S1 and all-censored boundary behavior against native cases.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_MULTIPLICITY, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:SurvivalCurve.nib.
+- **A280 — Median survival and interval conventions** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: First crossing, not reached and CI endpoint crossings; complete-event and near-half survival boundary cases; compare saved medians19.5/34.4/68.6.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_MULTIPLICITY, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:SurvivalCurve.nib.
+- **A281 — Gehan–Breslow–Wilcoxon survival comparison** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Early-time weighting and tied covariance reproduce saved test; distinguish from ordinary rank-sum test.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_MULTIPLICITY, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:SurvivalCurve.nib.
+- **A282 — Logrank test for trend** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Explicit ordered group scores, ties and one-/two-sided conventions; recover saved trend statistic and settings.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_MULTIPLICITY, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:SurvivalCurve.nib.
+- **A283 — Survival two-group hazard ratio and intervals** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Recover estimator, direction and conservative legacy versus recommended SPSS/SAS setting; rare/no events and nonproportional hazards diagnosed.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_MULTIPLICITY, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:SurvivalCurve.nib.
+- **A284 — Survival pairwise comparisons** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: All pairs, control or selected pairs; global versus pairwise test stated, FWER/FDR family defined; saved Vehicle control comparisons with Holm–Šídák reproduced.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_MULTIPLICITY, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:SurvivalCurve.nib.
+- **A285 — Survival graph/risk-table outputs** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Stepped curves with true censor marks, selected interval style, at-risk counts and per-time events/censor table match numeric output; frozen graph preserves revision.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_MULTIPLICITY, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:SurvivalCurve.nib.
+
+### cox
+
+- **A286 — Cox partial likelihood core** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Implement time/outcome/predictor roles, event/censor coding and categorical/continuous terms; coefficient/HR direction and score invariance; require source-bound reference project plus independently specified statistical test cases, not package-default equivalence.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleCoxRegression.nib.
+- **A287 — Cox exact/Breslow/Efron/automatic ties** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Implement each approximation separately compared, auto threshold recovered, identical-time risk sets and multiple tied events; require source-bound reference project plus independently specified statistical test cases, not package-default equivalence.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleCoxRegression.nib.
+- **A288 — Cox reference levels** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Implement first/last/most/least-frequent or explicit categories, automatic recalculation on edit; predictions invariant under recoding; require source-bound reference project plus independently specified statistical test cases, not package-default equivalence.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleCoxRegression.nib.
+- **A289 — Cox Wald versus profile parameter CI** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Implement coefficient/HR intervals and SE availability, sparse/complete separation and boundary convergence; require source-bound reference project plus independently specified statistical test cases, not package-default equivalence.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleCoxRegression.nib.
+- **A290 — Cox parameter significance and covariance** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Implement Wald, score and partial likelihood ratio tests, parameter covariance and correlated predictors; require source-bound reference project plus independently specified statistical test cases, not package-default equivalence.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleCoxRegression.nib.
+- **A291 — Cox model comparison** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Implement nested likelihood-ratio with alpha or AIC (not AICc), same observations and response required; require source-bound reference project plus independently specified statistical test cases, not package-default equivalence.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleCoxRegression.nib.
+- **A292 — Cox goodness diagnostics** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Implement partial log-likelihood, −2LL, AIC and native pseudo-R² definition; empty model zero reference; require source-bound reference project plus independently specified statistical test cases, not package-default equivalence.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleCoxRegression.nib.
+- **A293 — Cox Harrell concordance** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Implement comparable pairs, tied risks/times and censoring conventions independently checked; require source-bound reference project plus independently specified statistical test cases, not package-default equivalence.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleCoxRegression.nib.
+- **A294 — Cox proportional-hazards diagnostics** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Implement scaled Schoenfeld residuals versus time/order and log-minus-log plot; test defined values and nonproportional synthetic case; require source-bound reference project plus independently specified statistical test cases, not package-default equivalence.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleCoxRegression.nib.
+- **A295 — Cox residual diagnostics** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Implement martingale/deviance versus covariate/linear predictor/HR, Schoenfeld, Cox–Snell/Nelson–Aalen outputs; defined at events/censor times; require source-bound reference project plus independently specified statistical test cases, not package-default equivalence.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleCoxRegression.nib.
+- **A296 — Cox predicted curves and scenarios** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Implement baseline curve, missing-outcome rows and explicit predictor scenarios with confidence; continuous unspecified values zero per recovered note; graph number limits; require source-bound reference project plus independently specified statistical test cases, not package-default equivalence.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleCoxRegression.nib.
+- **A297 — Cox residual graph encodings** · guide 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Implement optional predictor color/size variables remain presentation only and cannot change fitted likelihood; require source-bound reference project plus independently specified statistical test cases, not package-default equivalence.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleCoxRegression.nib.
+
+### multivariable
+
+- **A298 — Multiple linear regression** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Verify OLS model matrix for explicit predictors/interactions/intercept; coefficient inference, full SS/df and rank deficiency; native parameters/defaults and saved reference cases required alongside standard independent fixtures.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleLinearRegression.nib.
+- **A299 — Multiple linear Poisson variant** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Verify count outcome likelihood and selected link; nonnegative observations and overdispersion; do not use Gaussian SSE; native parameters/defaults and saved reference cases required alongside standard independent fixtures.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleLinearRegression.nib.
+- **A300 — Multiple logistic regression** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Verify binary outcome coding, parameter likelihood/ORs, complete/quasi separation, convergence and residual diagnostics; native parameters/defaults and saved reference cases required alongside standard independent fixtures.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleLinearRegression.nib.
+- **A301 — Multivariable categorical reference levels** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Verify first/last/most/least frequent or explicit level; auto-level recomputation recorded, ties deterministic; native parameters/defaults and saved reference cases required alongside standard independent fixtures.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleLinearRegression.nib.
+- **A302 — Multivariable weighted regression** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Verify none/1Y/1Y²/1Y^K with domain and observed/predicted-weight definitions; correct standard errors; native parameters/defaults and saved reference cases required alongside standard independent fixtures.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleLinearRegression.nib.
+- **A303 — Multivariable model comparison** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Verify AICc versus likelihood-ratio on same rows; selected simpler-model threshold and nestedness validation; native parameters/defaults and saved reference cases required alongside standard independent fixtures.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleLinearRegression.nib.
+- **A304 — Multivariable coefficient uncertainty** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Verify Wald versus profile intervals, covariance/correlation, SE availability and confidence formatting; native parameters/defaults and saved reference cases required alongside standard independent fixtures.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleLinearRegression.nib.
+- **A305 — Multivariable goodness metrics** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Verify multiple R, adjusted R², deviance, pseudo-R² and log likelihood appropriate to distribution; native parameters/defaults and saved reference cases required alongside standard independent fixtures.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleLinearRegression.nib.
+- **A306 — Multivariable scenario and missing-outcome prediction** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Verify explicit predictor values, reference categories, missing Y prediction and interval option; rows used for fitting distinct from prediction rows; native parameters/defaults and saved reference cases required alongside standard independent fixtures.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleLinearRegression.nib.
+- **A307 — Multivariable residual diagnostics** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Verify residual/order/QQ/absolute-residual plots and four normality tests; appropriate residual definition for Gaussian versus count/binomial; native parameters/defaults and saved reference cases required alongside standard independent fixtures.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleLinearRegression.nib.
+- **A308 — Multiple-variable descriptive/outlier workflow** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Verify select typed variables, preserve labels/categories, reuse numeric summary/ROUT/Grubbs engines without pooling unrelated columns; native parameters/defaults and saved reference cases required alongside standard independent fixtures.
+  - Dependencies: D_DESIGN, D_TABLE, D_FITS, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:MultipleLinearRegression.nib.
+
+### multivariate
+
+- **A309 — Principal component analysis** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Selected continuous variables, centering/scaling, covariance/correlation choice, eigenvalues/scores/loadings/explained variance and sign-equivalent comparisons; constant/rank-deficient data handled.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact native PCA missing-data, scaling and component-selection settings still to recover.
+  - Current/source evidence: resources-pass2/feature-map.json:HierarchicalClusteringDialog.nib, resources-pass2/feature-map.json:KMeansClusteringDialog.nib.
+- **A310 — PCA output graphics** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Scree/loading/score/biplot components, labels and scaling reflect actual numerical decomposition; arbitrary sign flips cannot count as discrepancy.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:HierarchicalClusteringDialog.nib, resources-pass2/feature-map.json:KMeansClusteringDialog.nib.
+- **A311 — Hierarchical clustering input and direction** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Row/column/both clustering, selected numeric variables and labels; column scaling precedes row scaling as recovered; missing values/constant axes explicit.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:HierarchicalClusteringDialog.nib, resources-pass2/feature-map.json:KMeansClusteringDialog.nib.
+- **A312 — Hierarchical raw/centered/standardized scaling** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: No scaling, mean0 with SD unchanged, or mean0/SD1; sample versus population SD and row/column sequencing validated.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:HierarchicalClusteringDialog.nib, resources-pass2/feature-map.json:KMeansClusteringDialog.nib.
+- **A313 — Hierarchical distance methods** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Enumerate actual native distance choices (Pearson observed) before implementation; compare distance matrices, constant vectors and asymmetry; no guessed hidden choices.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:HierarchicalClusteringDialog.nib, resources-pass2/feature-map.json:KMeansClusteringDialog.nib.
+- **A314 — Hierarchical complete/single/simple-average/group-average/Ward linkage** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Implement each as distinct recurrence with metric compatibility; verify ties and deterministic merge order against native fixture.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:HierarchicalClusteringDialog.nib, resources-pass2/feature-map.json:KMeansClusteringDialog.nib.
+- **A315 — Hierarchical cluster cut by count or height** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Boundary inclusivity, monotonic dendrogram and cluster labels tested; merge-map and cophenetic outputs preserve original row IDs.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:HierarchicalClusteringDialog.nib, resources-pass2/feature-map.json:KMeansClusteringDialog.nib.
+- **A316 — Hierarchical output and evaluation plots** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Distance/data heatmaps, merge map, cophenetic distance/correlation, dendrogram, elbow/gap/silhouette; full matrix output optional and resource bounded.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:HierarchicalClusteringDialog.nib, resources-pass2/feature-map.json:KMeansClusteringDialog.nib.
+- **A317 — K-means variable/scaling/distance/algorithm choices** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Selected continuous columns, raw/center/standardize and recovered distance/algorithm enums; empty/constant clusters, duplicate points and scale invariance.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:HierarchicalClusteringDialog.nib, resources-pass2/feature-map.json:KMeansClusteringDialog.nib.
+- **A318 — K-means count selection and reproducibility** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Explicit k or min/max search, iteration cap and positive-integer seed; repeated seed reproduces initial centroids/labels up to documented permutation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:HierarchicalClusteringDialog.nib, resources-pass2/feature-map.json:KMeansClusteringDialog.nib.
+- **A319 — K-means optimal-count diagnostics** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Elbow, gap and silhouette values, reference simulation distribution and Monte Carlo seed semantics; avoid unsupported universal best-k claim.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:HierarchicalClusteringDialog.nib, resources-pass2/feature-map.json:KMeansClusteringDialog.nib.
+- **A320 — K-means result tables** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Scaled data, initial centroids, cluster memberships/details and distance to own center retain input identities; model edit recomputes dependent graphs.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+  - Current/source evidence: resources-pass2/feature-map.json:HierarchicalClusteringDialog.nib, resources-pass2/feature-map.json:KMeansClusteringDialog.nib.
+
+### generation simulation
+
+- **A321 — Plot a function** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Select built-in/user equation and fixed parameters, X grid/range and units; generate linked numeric curve without claiming fit/uncertainty.
+  - Dependencies: D_EXPR, D_RANDOM, D_TABLE, D_FITS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A322 — Simulate XY data** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Chosen equation, X range/spacing, replicate count and scatter distribution/scale; seeded reproducibility, parameter-domain validation and independent expected-moment checks.
+  - Dependencies: D_EXPR, D_RANDOM, D_TABLE, D_FITS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A323 — Simulate column data** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Group distributions/parameters and sample sizes with random seed; generate data table preserving simulated provenance and design.
+  - Dependencies: D_EXPR, D_RANDOM, D_TABLE, D_FITS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A324 — Simulate 2×2 contingency table** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Defined n/probabilities/marginal constraints; integer nonnegative counts, fixed-versus-random margins explicit and distribution moments validated.
+  - Dependencies: D_EXPR, D_RANDOM, D_TABLE, D_FITS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A325 — Monte Carlo analysis** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Repeated simulation plus chosen analysis pipeline, seed/iteration count, failed-fit policy and summary/uncertainty; rerun reproducible and bounded.
+  - Dependencies: D_EXPR, D_RANDOM, D_TABLE, D_FITS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A326 — Rerun simulation with new scatter** · guide 3.2, 3.5.1, 3.5.2 · `not_implemented`
+  - Acceptance: Run Simulation/Cmd+K generates new trial with retained structural parameters and recorded seed; intentionally new scatter distinct from same-seed replay.
+  - Dependencies: D_EXPR, D_RANDOM, D_TABLE, D_FITS, D_WORKBOOK, D_RESULTS, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+
+### acceptance crosscut
+
+- **A327 — Guide unpaired-test end-to-end recipe** · guide 3.11.1, 3.11.2, 3.11.3, 3.11.4, 3.11.5, 3.12 · `not_implemented`
+  - Acceptance: Build named Male/Female column table, choose Student or explicit Welch, direction Female−Male,95%, optional descriptive/estimation, obtain linked result and graph stars; match guide rounded Student values only for equal-SD setting.
+  - Dependencies: D_TABLE, D_WORKBOOK, D_PARAMS, D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A328 — Guide one-way posttest recipe** · guide 3.11.1, 3.11.2, 3.11.3, 3.11.4, 3.11.5, 3.12 · `not_implemented`
+  - Acceptance: Control n6,Treated n5,Treated+Antagonist n6; ordinary ANOVA plus separately Tukey-all-pairs and Dunnett-control; CI/adjusted-P/results page/CLD and raw-data edits all linked.
+  - Dependencies: D_TABLE, D_WORKBOOK, D_PARAMS, D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A329 — Guide two-way Šídák recipe** · guide 3.11.1, 3.11.2, 3.11.3, 3.11.4, 3.11.5, 3.12 · `not_implemented`
+  - Acceptance: Wild-type/GPP5 by serum-starved/normal-culture with one missing replicate; ordinary interaction model, within-row contrasts and family per row; interaction, main effects, CIs and stars correct.
+  - Dependencies: D_TABLE, D_WORKBOOK, D_PARAMS, D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A330 — Guide dose-response recipe** · guide 3.11.1, 3.11.2, 3.11.3, 3.11.4, 3.11.5, 3.12 · `not_implemented`
+  - Acceptance: Concentration X including0, triplicate Ys in two conditions; [Agonist] variable slope,EC50>0, profile intervals and displayed log axis; every replicate counts; fit report includes unstable plateaus, logEC50,span,SSE,Sy.x,df and counts.
+  - Dependencies: D_TABLE, D_WORKBOOK, D_PARAMS, D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Guide estimates/CI endpoints are screenshot-rounded/truncated; target Prism10.3.1 runtime and Prism11 saved results may differ; do not invent precise missing CI values.
+- **A331 — Guide normalization-to-fit recipe** · guide 3.11.1, 3.11.2, 3.11.3, 3.11.4, 3.11.5, 3.12 · `not_implemented`
+  - Acceptance: Choose verified zero/100 anchors from replicate means; output percentages/fractions linked to appropriate fixed-plateau fit; reject incompatible normalized+weighted workflow.
+  - Dependencies: D_TABLE, D_WORKBOOK, D_PARAMS, D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A332 — No pseudoreplication in workflow defaults** · guide 3.11.1, 3.11.2, 3.11.3, 3.11.4, 3.11.5, 3.12 · `not_implemented`
+  - Acceptance: Technical triplicates require row-average or nested design choice; n labels clearly distinguish subjects, rows and observations; cannot silently reinterpret replicates as biological independence.
+  - Dependencies: D_TABLE, D_WORKBOOK, D_PARAMS, D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A333 — No silent method substitution or undefined-value coercion** · guide 3.11.1, 3.11.2, 3.11.3, 3.11.4, 3.11.5, 3.12 · `not_implemented`
+  - Acceptance: Unsupported selection gives explicit state; failed model, invalid domain, insufficient data or infinite statistic cannot become a different test,0 or finite placeholder.
+  - Dependencies: D_TABLE, D_WORKBOOK, D_PARAMS, D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A334 — Reference provenance and version reconciliation** · guide 3.11.1, 3.11.2, 3.11.3, 3.11.4, 3.11.5, 3.12 · `not_implemented`
+  - Acceptance: Every numerical acceptance run records dataset/parameter/source hashes, Prism version/build, full versus rounded saved precision, GP version and tolerance; document Prism10-guide versus Prism11-resource conflicts.
+  - Dependencies: D_TABLE, D_WORKBOOK, D_PARAMS, D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+- **A335 — Runtime-only unknown closure** · guide 3.11.1, 3.11.2, 3.11.3, 3.11.4, 3.11.5, 3.12 · `not_implemented`
+  - Acceptance: Use supported-platform Prism for defaults, enablement, tiny-n/tie boundary behavior and UI-derived results unresolved by static evidence; leave each unresolved explicitly until observed.
+  - Dependencies: D_TABLE, D_WORKBOOK, D_PARAMS, D_FITS, D_RESULTS, D_RENDER, D_REFERENCE.
+  - Unknowns: Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.
+
+### prism11 analysis delta
+
+- **A336 — Long-format t and nonparametric role mapping** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: Multiple-variables response/group/subject assignments feed same t/nonparametric engines as equivalent wide tables; paired subjects matched by stable ID; missing duplicate/unmatched subjects explicitly diagnosed.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §2.2 author-reported seen; current generic analysis schema only column/XY; no fresh Prism11 execution by this agent.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+- **A337 — Long-format nonlinear categorical combinations** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: Choose X/response plus categorical split variables; each genotype×sex combination gets its own fit without reshaping or changing replicate n; compare wide-equivalent and sparse-combination cases.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §2.2 seen catalogue, grouping behavior attributed to GraphPad; model/solver options need source-bound validation.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+- **A338 — Long-format Kaplan–Meier role mapping** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: Map time/outcome/group categories into survival analysis with complete subject identity and codes; compare saved 135-row oracle and wide-equivalent groups.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §2.2; existing endpoint receives pre-separated groups rather than native role-mapped table.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+- **A339 — Prism11 multifactor Type III unbalanced sums of squares** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: Any supported factor count with selected main/two-/three-way interactions; explicit TypeIII hypothesis contrasts for unbalanced design; reference-level invariance and rank-deficient/missing-cell estimability checked.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §2.3 author-seen plus GraphPad; this resolves intended multifactor SS type, not classic two-way or exact contrast coding details.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+- **A340 — Multifactor does not support repeated measures** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: Reject repeated/subject-matched design in multifactor workflow and direct user to classic grouped RM/mixed design; never silently ordinary-fit dependent observations.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §2.3 GraphPad-only; exact native UI disablement unknown.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+- **A341 — Prism11 ANOVA eta², partial eta² and Cohen f** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: Expose requested effect outputs for one-/two-/three-way/RM/multifactor with explicit SS denominator and f conversion; compare saved effect-size oracle and independent unbalanced/RM cases.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §2.4; seen multifactor only, others GraphPad; native interval and RM denominator conventions need evidence.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+- **A342 — Contingency phi and Cramér V with CI** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: Compute effect sizes and native-compatible intervals, table orientation/dimension and n; include2×2,larger tables,zero margins and noncentral-chi-square boundary cases.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §2.4 GraphPad-only; interval method and zero/small-n policies not directly observed.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+- **A343 — Two-way one-RM-factor Geisser–Greenhouse interaction correction** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: For target11.1 apply correction to interaction as well as applicable main term, recording epsilon/adjusted df/P; compare same dataset under declared pre10.5 legacy and post10.5 rules.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §3 GraphPad change in10.5; native epsilon/interaction formula requires reference, but old10.3 behavior must not be default target.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+- **A344 — Lognormal methods as post10.5 choices** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: Unpaired equal-SD/Welch, one-sample ratio and one-way ANOVA report geometric means/ratios; positive-domain and asymmetric CI tests; preserve version capability metadata.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §3 clarifies lognormal choices absent from10.3.1 runtime may still be required for11.1.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+- **A345 — Gaddum/Schild slope-fixed-at1 equations** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: Support exact recovered constrained-slope parameterizations in model registry, distinguish fit-slope counterpart; verify dose-ratio/Schild transforms and slope1 limit.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §3 GraphPad arrival10.4; link to matching records in152-model inventory; no broad replacement of free-slope model.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+- **A346 — Fractional t-test confidence levels including99.9%** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: Numeric parameter accepts99.9%→.999 without integer rounding, recomputes interval and alpha consistently; invalid0/100/nonfinite values rejected.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §3 GraphPad11.1; backend already accepts confidence .999 but complete UI/default/persistence validation pending.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+- **A347 — Explain no-effect multiplicity correction cases** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: When a family has a single effective comparison, clearly explain equal raw/adjusted P; family partition/count retained; do not manufacture apparent correction.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §3 GraphPad11.1; wording and exact disabled/enabled circumstances not independently observed.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+- **A348 — Nested ANOVA discoveries use q, not raw P** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: For FDR output decide discoveries against selected q/Q convention; fixture with rawP<alpha but q≥Q must be non-discovery; annotation/export uses same result.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §3 GraphPad11.1 fix; exact q definition tied to selected BKY/BH/BY engine remains explicit requirement.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+- **A349 — Multiple linear categorical-interaction ANOVA table** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: Return full ANOVA decomposition for selected categorical interactions with native SS/hypothesis convention and residual df; compare equivalent factorial fit and singular-design diagnostics.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §3 GraphPad11.0; precise model term ordering and SS type still require reference.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+- **A350 — Prism11 survival median CI and pairwise/risk outputs** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: Combine explicit95% median-survival CI, pairwise corrected contrasts and at-risk/censored display in role-mapped workflow; compare saved case plus not-reached endpoints.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §3 arrival10.5; current partial KM core covers one oracle but not complete settings/UI.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+- **A351 — Prism11 result pages as real closable tabs** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: Implement named Tabular results/Multiple comparisons tabs with close controls while preserving underlying analysis/results and keyboard navigation; distinguish from old dropdown strip.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §1 author-reported seen; parent UI worker owns layout, analysis owns stable result-page IDs and persistence semantics.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+- **A352 — Computed variables are ordinary analysis inputs** · guide Prism11 differences §2, Prism11 differences §3 · `not_implemented`
+  - Acceptance: Live multiple-variables formula output may serve as response, predictor/group-valid field or graph variable; dependency chain recomputes full precision after raw-cell edit and respects frozen raw tables.
+  - Dependencies: D_TABLE, D_DESIGN, D_PARAMS, D_RESULTS, D_WORKBOOK, D_REFERENCE.
+  - Unknowns: User source §2.1/§2.2 author-reported seen; expression types/allowed categorical use require explicit schema, not coercion.
+  - Current/source evidence: /workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md.
+
+## Named equation obligations
+
+Every row also requires the nonlinear engine/method/constraint/uncertainty/comparison acceptance above. See JSON for source parameter and derived-output names, notes and exact hashes. No record is collapsed merely because it shares a formula.
+
+
+### Binding - Competitive
+
+- **A353 — One site - Fit Ki** · `not_implemented`
+  - Parameters: logKi, HotNM, HotKdNM, Top, Bottom.
+  - Derived: Ki.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check fixed ligand/Kd inputs, common-unit conversion, one/two-site identifiability and limiting competitor concentrations. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Competitive`, object 6; GP IDs: none.
+- **A354 — One site - Fit logIC50** · `not_implemented`
+  - Parameters: Top, Bottom, LogIC50.
+  - Derived: IC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check fixed ligand/Kd inputs, common-unit conversion, one/two-site identifiability and limiting competitor concentrations. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Competitive`, object 48; GP IDs: none.
+- **A355 — Two sites - Fit Ki** · `not_implemented`
+  - Parameters: logKiLo, HotNM, HotKdNMLo, logKiHi, HotKdNMHi, Top, Bottom, FractionHi.
+  - Derived: KiLo, KiHi.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check fixed ligand/Kd inputs, common-unit conversion, one/two-site identifiability and limiting competitor concentrations. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Competitive`, object 68; GP IDs: none.
+- **A356 — Two sites - Fit logIC50** · `not_implemented`
+  - Parameters: Top, Bottom, FractionHi, LogIC50HI, LogIC50Lo.
+  - Derived: IC50Hi, IC50Lo.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check fixed ligand/Kd inputs, common-unit conversion, one/two-site identifiability and limiting competitor concentrations. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Competitive`, object 100; GP IDs: none.
+- **A357 — One site -- Heterologous with depletion** · `not_implemented`
+  - Parameters: KdnM, SpAct, vol, NS, LogKi, Hot, Bmax.
+  - Derived: Ki.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check fixed ligand/Kd inputs, common-unit conversion, one/two-site identifiability and limiting competitor concentrations. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Competitive`, object 127; GP IDs: none.
+- **A358 — One site -- Homologous** · `not_implemented`
+  - Parameters: logKD, NS, HotnM, Bmax.
+  - Derived: Kd.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check fixed ligand/Kd inputs, common-unit conversion, one/two-site identifiability and limiting competitor concentrations. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Competitive`, object 158; GP IDs: none.
+- **A359 — Allosteric modulator titration** · `not_implemented`
+  - Parameters: logKb, logAlpha, HotKDnm, RadioligandNM, Y0.
+  - Derived: Kb, Alpha.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check fixed ligand/Kd inputs, common-unit conversion, one/two-site identifiability and limiting competitor concentrations. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Competitive`, object 185; GP IDs: none.
+
+### Binding - Kinetics
+
+- **A360 — Dissociation - One phase exponential decay** · `not_implemented`
+  - Parameters: Y0, NS, K.
+  - Derived: HalfLife.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check time0, positive rate constants, association/dissociation phase transitions and reaction-specific fixed concentrations. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Kinetics`, object 6; GP IDs: none.
+- **A361 — Association kinetics - One conc. of hot** · `not_implemented`
+  - Parameters: Koff, Kon, Hotnm, Bmax.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check time0, positive rate constants, association/dissociation phase transitions and reaction-specific fixed concentrations. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Kinetics`, object 45; GP IDs: none.
+- **A362 — Association kinetics - Two or more conc. of hot.** · `not_implemented`
+  - Parameters: Koff, Kon, Hotnm, Bmax.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check time0, positive rate constants, association/dissociation phase transitions and reaction-specific fixed concentrations. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Kinetics`, object 82; GP IDs: none.
+- **A363 — Association then dissociation** · `not_implemented`
+  - Parameters: HotNM, Kon, Koff, Bmax, Time0, NS.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check time0, positive rate constants, association/dissociation phase transitions and reaction-specific fixed concentrations. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Kinetics`, object 106; GP IDs: none.
+- **A364 — Kinetics of competitive binding** · `not_implemented`
+  - Parameters: K1, L, K2, K3, I, K4, Bmax.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check time0, positive rate constants, association/dissociation phase transitions and reaction-specific fixed concentrations. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Kinetics`, object 138; GP IDs: none.
+
+### Binding - Saturation
+
+- **A365 — One site -- Total** · `not_implemented`
+  - Parameters: Bmax, Kd, NS, Background.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration0, positive affinities, nonspecific linear term, one/two-site aliasing and plateau identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Saturation`, object 6; GP IDs: none.
+- **A366 — One site -- Total, accounting for ligand depletion** · `not_implemented`
+  - Parameters: KdnM, Vol, SpecAct, NS, Bmax.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration0, positive affinities, nonspecific linear term, one/two-site aliasing and plateau identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Saturation`, object 40; GP IDs: none.
+- **A367 — One site -- Total and nonspecific binding** · `not_implemented`
+  - Parameters: Bmax, Kd, NS, Background.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration0, positive affinities, nonspecific linear term, one/two-site aliasing and plateau identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Saturation`, object 63; GP IDs: none.
+- **A368 — One site -- Specific binding** · `not_implemented`
+  - Parameters: Bmax, Kd.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration0, positive affinities, nonspecific linear term, one/two-site aliasing and plateau identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Saturation`, object 82; GP IDs: none.
+- **A369 — Two sites -- Specific binding** · `not_implemented`
+  - Parameters: BmaxHi, KdHi, BmaxLo, KdLo.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration0, positive affinities, nonspecific linear term, one/two-site aliasing and plateau identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Saturation`, object 98; GP IDs: none.
+- **A370 — Two sites -- Total and nonspecific binding** · `not_implemented`
+  - Parameters: BmaxHi, KdHi, BmaxLo, KdLo, NS, Background.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration0, positive affinities, nonspecific linear term, one/two-site aliasing and plateau identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Saturation`, object 128; GP IDs: none.
+- **A371 — Allosteric modulator shift** · `not_implemented`
+  - Parameters: logalpha, logKB, KDHot, Allo, Bmax.
+  - Derived: Alpha, Kb.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration0, positive affinities, nonspecific linear term, one/two-site aliasing and plateau identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Saturation`, object 152; GP IDs: none.
+- **A372 — Specific binding with Hill slope** · `not_implemented`
+  - Parameters: Bmax, h, Kd.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration0, positive affinities, nonspecific linear term, one/two-site aliasing and plateau identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Binding - Saturation`, object 188; GP IDs: none.
+
+### Classic equations from prior versions of Prism
+
+- **A373 — One site binding (hyperbola)** · `not_implemented`
+  - Parameters: Bmax, Kd.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 6; GP IDs: none.
+- **A374 — Two site binding (hyperbola)** · `not_implemented`
+  - Parameters: Bmax1, Kd1, Bmax2, Kd2.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 47; GP IDs: none.
+- **A375 — Sigmoidal dose-response** · `not_implemented`
+  - Parameters: Bottom, Top, LogEC50.
+  - Derived: EC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 74; GP IDs: none.
+- **A376 — Sigmoidal dose-response (variable slope)** · `not_implemented`
+  - Parameters: Bottom, Top, LogEC50, HillSlope.
+  - Derived: EC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 105; GP IDs: none.
+- **A377 — One site competition** · `not_implemented`
+  - Parameters: Bottom, Top, LogEC50.
+  - Derived: EC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 131; GP IDs: none.
+- **A378 — Two site competition** · `not_implemented`
+  - Parameters: Bottom, Top, Fraction1, LogEC50_1, LogEC50_2.
+  - Derived: EC50_1, EC50_2.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 155; GP IDs: none.
+- **A379 — Boltzmann sigmoidal** · `not_implemented`
+  - Parameters: Bottom, Top, V50, Slope.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 188; GP IDs: none.
+- **A380 — One phase exponential decay** · `not_implemented`
+  - Parameters: Span, K, Plateau.
+  - Derived: HalfLife, Tau.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 212; GP IDs: none.
+- **A381 — Two phase exponential decay** · `not_implemented`
+  - Parameters: Span1, K1, Span2, K2, Plateau.
+  - Derived: HalfLife_1, HalfLife_2, Tau_1, Tau_2.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 242; GP IDs: none.
+- **A382 — One phase exponential association** · `not_implemented`
+  - Parameters: Ymax, K.
+  - Derived: HalfLife, Tau.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 277; GP IDs: none.
+- **A383 — Two phase exponential association** · `not_implemented`
+  - Parameters: Ymax1, K1, Ymax2, K2.
+  - Derived: HalfLife_1, HalfLife_2, Tau_1, Tau_2.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 302; GP IDs: none.
+- **A384 — Exponential growth** · `not_implemented`
+  - Parameters: Start, K.
+  - Derived: Doubling Time.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 331; GP IDs: none.
+- **A385 — Power series: Y=A*X^B + C*X^D** · `not_implemented`
+  - Parameters: A, B, C, D.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 357; GP IDs: none.
+- **A386 — Polynomial: First Order (straight line)** · `not_implemented`
+  - Parameters: Intercept, Slope.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 383; GP IDs: none.
+- **A387 — Polynomial: Second Order (Y=A + B*X + C*X^2)** · `not_implemented`
+  - Parameters: A, B, C.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 406; GP IDs: none.
+- **A388 — Polynomial: Third Order (Y=A + B*X + C*X^2 + D*X^3)** · `not_implemented`
+  - Parameters: A, B, C, D.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 428; GP IDs: none.
+- **A389 — Polynomial: Fourth Order (Y=A + B*X + C*X^2 + D*X^3 + E*X^4)** · `not_implemented`
+  - Parameters: A, B, C, D, E.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 450; GP IDs: none.
+- **A390 — Sine wave** · `not_implemented`
+  - Parameters: BaseLine, Amplitude, Frequency, PhaseShift.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 473; GP IDs: none.
+- **A391 — Gaussian distribution** · `not_implemented`
+  - Parameters: AREA, SD, Mean.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check legacy parameterization/name conventions and equivalence or deliberate differences to modern counterpart; do not silently remap. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Classic equations from prior versions of Prism`, object 499; GP IDs: none.
+
+### Dose-response - Inhibition
+
+- **A392 — log(inhibitor) vs. response (three parameters)** · `not_implemented`
+  - Parameters: Bottom, Top, LogIC50.
+  - Derived: IC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration versus log10 domain, inhibition Hill-sign convention, zero-dose limits, normalized0/100 plateaus and IC50/logIC50 conversion. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Inhibition`, object 6; GP IDs: none.
+- **A393 — log(inhibitor) vs. response -- Variable slope (four parameters)** · `partial_backend_independent_model`
+  - Parameters: Bottom, Top, LogIC50, HillSlope.
+  - Derived: IC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration versus log10 domain, inhibition Hill-sign convention, zero-dose limits, normalized0/100 plateaus and IC50/logIC50 conversion. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Inhibition`, object 57; GP IDs: log_dose_inhibition.
+- **A394 — log(inhibitor) vs. normalized response** · `not_implemented`
+  - Parameters: LogIC50.
+  - Derived: IC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration versus log10 domain, inhibition Hill-sign convention, zero-dose limits, normalized0/100 plateaus and IC50/logIC50 conversion. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Inhibition`, object 83; GP IDs: none.
+- **A395 — log(inhibitor) vs. normalized response -- Variable slope** · `partial_backend_independent_model`
+  - Parameters: LogIC50, HillSlope.
+  - Derived: IC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration versus log10 domain, inhibition Hill-sign convention, zero-dose limits, normalized0/100 plateaus and IC50/logIC50 conversion. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Inhibition`, object 108; GP IDs: normalized_log_dose_inhibition.
+- **A396 — [Inhibitor] vs. response (three parameters)** · `not_implemented`
+  - Parameters: Bottom, Top, IC50.
+  - Derived: logIC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration versus log10 domain, inhibition Hill-sign convention, zero-dose limits, normalized0/100 plateaus and IC50/logIC50 conversion. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Inhibition`, object 133; GP IDs: none.
+- **A397 — [Inhibitor] vs. response -- Variable slope (four parameters)** · `not_implemented`
+  - Parameters: Bottom, Top, IC50, HillSlope.
+  - Derived: logIC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration versus log10 domain, inhibition Hill-sign convention, zero-dose limits, normalized0/100 plateaus and IC50/logIC50 conversion. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Inhibition`, object 159; GP IDs: none.
+- **A398 — [Inhibitor] vs. normalized response** · `not_implemented`
+  - Parameters: IC50.
+  - Derived: logIC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration versus log10 domain, inhibition Hill-sign convention, zero-dose limits, normalized0/100 plateaus and IC50/logIC50 conversion. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Inhibition`, object 184; GP IDs: none.
+- **A399 — [Inhibitor] vs. normalized response -- Variable slope** · `partial_backend_independent_model`
+  - Parameters: IC50, HillSlope.
+  - Derived: logIC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration versus log10 domain, inhibition Hill-sign convention, zero-dose limits, normalized0/100 plateaus and IC50/logIC50 conversion. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Inhibition`, object 209; GP IDs: normalized_dose_inhibition.
+
+### Dose-response - Special, X is concentration
+
+- **A400 — Asymmetric (five parameter), X is concentration** · `not_implemented`
+  - Parameters: S, EC50, HillSlope, Top, Bottom.
+  - Derived: logEC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check zero/positive dose domain, model-specific asymmetry/biphasic/bell limits, required fixed constants and branch identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is concentration`, object 6; GP IDs: none.
+- **A401 — Biphasic, X is concentration** · `not_implemented`
+  - Parameters: Top, Bottom, Frac, EC50_1, nH1, EC50_2, nH2.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check zero/positive dose domain, model-specific asymmetry/biphasic/bell limits, required fixed constants and branch identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is concentration`, object 56; GP IDs: none.
+- **A402 — Bell-shaped, X is concentration** · `not_implemented`
+  - Parameters: Plateau1, Dip, Plateau2, EC50_1, nH1, EC50_2, nH2.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check zero/positive dose domain, model-specific asymmetry/biphasic/bell limits, required fixed constants and branch identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is concentration`, object 88; GP IDs: none.
+- **A403 — Operational model -- Receptor depletion, X is concentration** · `not_implemented`
+  - Parameters: Ka, Tau, n, Basal, Effectmax.
+  - Derived: logTau, logKa.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check zero/positive dose domain, model-specific asymmetry/biphasic/bell limits, required fixed constants and branch identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is concentration`, object 117; GP IDs: none.
+- **A404 — Operational model -- Partial agonist, X is concentration** · `not_implemented`
+  - Parameters: Ka, Tau, n, Basal, Effectmax, EC50.
+  - Derived: logTau, logKa, logEC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check zero/positive dose domain, model-specific asymmetry/biphasic/bell limits, required fixed constants and branch identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is concentration`, object 151; GP IDs: none.
+- **A405 — Gaddum/Schild EC50 shift, X is concentration** · `not_implemented`
+  - Parameters: B, pA2, SchildSlope, Bottom, Top, EC50, HillSlope.
+  - Derived: LogEC50, LogA2.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check zero/positive dose domain, model-specific asymmetry/biphasic/bell limits, required fixed constants and branch identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is concentration`, object 177; GP IDs: none.
+- **A406 — Gaddum/Schild EC50 shift (SchildSlope=1), X is concentration** · `not_implemented`
+  - Parameters: B, pA2, Bottom, Top, EC50, HillSlope.
+  - Derived: LogEC50, LogA2, LogKb.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check zero/positive dose domain, model-specific asymmetry/biphasic/bell limits, required fixed constants and branch identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is concentration`, object 209; GP IDs: none.
+- **A407 — Allosteric EC50 shift, X is concentration** · `not_implemented`
+  - Parameters: B, KB, alpha, Bottom, Top, EC50, HillSlope.
+  - Derived: logKb, logEC50, logAlpha.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check zero/positive dose domain, model-specific asymmetry/biphasic/bell limits, required fixed constants and branch identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is concentration`, object 235; GP IDs: none.
+- **A408 — [Agonist] vs. response -- Find ECanything** · `not_implemented`
+  - Parameters: ECF, F, HillSlope, Bottom, Top.
+  - Derived: logECF.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check zero/positive dose domain, model-specific asymmetry/biphasic/bell limits, required fixed constants and branch identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is concentration`, object 266; GP IDs: none.
+- **A409 — EC50 shift, X is concentration** · `not_implemented`
+  - Parameters: EC50Control, EC50Ratio, Bottom, Top, HillSlope.
+  - Derived: logEC50Control.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check zero/positive dose domain, model-specific asymmetry/biphasic/bell limits, required fixed constants and branch identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is concentration`, object 296; GP IDs: none.
+- **A410 — Absolute IC50, X is concentration** · `not_implemented`
+  - Parameters: Top, Baseline, Bottom, AbsoluteIC50, HillSlope.
+  - Derived: LogAbsoluteIC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check zero/positive dose domain, model-specific asymmetry/biphasic/bell limits, required fixed constants and branch identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is concentration`, object 325; GP IDs: none.
+
+### Dose-response - Special, X is log(concentration)
+
+- **A411 — Asymmetric (five parameter), X is log(concentration)** · `not_implemented`
+  - Parameters: LogEC50, HillSlope, S, Top, Bottom.
+  - Derived: EC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check negative log doses, transform equivalence to concentration twin, asymmetry/biphasic/bell limits and correct logarithm base. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)`, object 6; GP IDs: none.
+- **A412 — Biphasic, X is log(concentration)** · `not_implemented`
+  - Parameters: Top, Bottom, Frac, LogEC50_1, nH1, LogEC50_2, nH2.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check negative log doses, transform equivalence to concentration twin, asymmetry/biphasic/bell limits and correct logarithm base. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)`, object 57; GP IDs: none.
+- **A413 — Bell-shaped, X is log(concentration)** · `not_implemented`
+  - Parameters: Plateau1, Dip, Plateau2, LogEC50_1, nH1, LogEC50_2, nH2.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check negative log doses, transform equivalence to concentration twin, asymmetry/biphasic/bell limits and correct logarithm base. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)`, object 89; GP IDs: none.
+- **A414 — Operational model -- Receptor depletion, X is log(concentration)** · `not_implemented`
+  - Parameters: logKA, logtau, n, Basal, Effectmax.
+  - Derived: Tau, Ka.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check negative log doses, transform equivalence to concentration twin, asymmetry/biphasic/bell limits and correct logarithm base. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)`, object 118; GP IDs: none.
+- **A415 — Operational model -- Partial agonist, X is log(concentration)** · `not_implemented`
+  - Parameters: logKA, logtau, n, Basal, Effectmax, LogEC50.
+  - Derived: Tau, KA, EC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check negative log doses, transform equivalence to concentration twin, asymmetry/biphasic/bell limits and correct logarithm base. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)`, object 152; GP IDs: none.
+- **A416 — Gaddum/Schild EC50 shift, X is log(concentration)** · `not_implemented`
+  - Parameters: LogEC50, B, pA2, SchildSlope, Bottom, Top, HillSlope.
+  - Derived: EC50, A2.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check negative log doses, transform equivalence to concentration twin, asymmetry/biphasic/bell limits and correct logarithm base. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)`, object 180; GP IDs: none.
+- **A417 — Gaddum/Schild EC50 shift (SchildSlope=1), X is log(concentration)** · `not_implemented`
+  - Parameters: LogEC50, B, pA2, Bottom, Top, HillSlope.
+  - Derived: EC50, A2, Kb.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check negative log doses, transform equivalence to concentration twin, asymmetry/biphasic/bell limits and correct logarithm base. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)`, object 212; GP IDs: none.
+- **A418 — Allosteric EC50 shift, X is log(concentration)** · `not_implemented`
+  - Parameters: LogEC50, LogKB, Logalpha, B, Bottom, Top, HillSlope.
+  - Derived: Kb.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check negative log doses, transform equivalence to concentration twin, asymmetry/biphasic/bell limits and correct logarithm base. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)`, object 240; GP IDs: none.
+- **A419 — log(agonist) vs. response -- Find ECanything** · `not_implemented`
+  - Parameters: logECF, HillSlope, F, Bottom, Top.
+  - Derived: ECF.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check negative log doses, transform equivalence to concentration twin, asymmetry/biphasic/bell limits and correct logarithm base. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)`, object 269; GP IDs: none.
+- **A420 — EC50 shift, X is log(concentration)** · `not_implemented`
+  - Parameters: LogEC50Control, EC50Ratio, Bottom, Top, HillSlope.
+  - Derived: EC50Control.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check negative log doses, transform equivalence to concentration twin, asymmetry/biphasic/bell limits and correct logarithm base. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)`, object 302; GP IDs: none.
+- **A421 — Absolute IC50, X is log(concentration)** · `not_implemented`
+  - Parameters: Top, Baseline, Bottom, LogAbsoluteIC50, HillSlope.
+  - Derived: AbsoluteIC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check negative log doses, transform equivalence to concentration twin, asymmetry/biphasic/bell limits and correct logarithm base. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)`, object 330; GP IDs: none.
+
+### Dose-response - Stimulation
+
+- **A422 — log(agonist) vs. response (three parameters)** · `not_implemented`
+  - Parameters: Bottom, Top, LogEC50.
+  - Derived: EC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration versus log10 domain, stimulation Hill-sign convention, zero-dose limits, fixed/free Hill and normalized0/100 variants. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Stimulation`, object 6; GP IDs: none.
+- **A423 — log(agonist) vs. response -- Variable slope (four parameters)** · `partial_backend_independent_model`
+  - Parameters: Bottom, Top, LogEC50, HillSlope.
+  - Derived: EC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration versus log10 domain, stimulation Hill-sign convention, zero-dose limits, fixed/free Hill and normalized0/100 variants. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Stimulation`, object 57; GP IDs: log_dose_stimulation.
+- **A424 — log(agonist) vs. normalized response** · `not_implemented`
+  - Parameters: LogEC50.
+  - Derived: EC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration versus log10 domain, stimulation Hill-sign convention, zero-dose limits, fixed/free Hill and normalized0/100 variants. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Stimulation`, object 83; GP IDs: none.
+- **A425 — log(agonist) vs. normalized response -- Variable slope** · `not_implemented`
+  - Parameters: LogEC50, HillSlope.
+  - Derived: EC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration versus log10 domain, stimulation Hill-sign convention, zero-dose limits, fixed/free Hill and normalized0/100 variants. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Stimulation`, object 108; GP IDs: none.
+- **A426 — [Agonist] vs. response (three parameters)** · `not_implemented`
+  - Parameters: Bottom, Top, EC50.
+  - Derived: logEC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration versus log10 domain, stimulation Hill-sign convention, zero-dose limits, fixed/free Hill and normalized0/100 variants. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Stimulation`, object 133; GP IDs: none.
+- **A427 — [Agonist] vs. response -- Variable slope (four parameters)** · `partial_related_standalone_4pl`
+  - Parameters: Bottom, Hillslope, Top, EC50.
+  - Derived: logEC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration versus log10 domain, stimulation Hill-sign convention, zero-dose limits, fixed/free Hill and normalized0/100 variants. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Stimulation`, object 159; GP IDs: none.
+- **A428 — [Agonist] vs. normalized response** · `not_implemented`
+  - Parameters: EC50.
+  - Derived: logEC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration versus log10 domain, stimulation Hill-sign convention, zero-dose limits, fixed/free Hill and normalized0/100 variants. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Stimulation`, object 185; GP IDs: none.
+- **A429 — [Agonist] vs. normalized response -- Variable slope** · `not_implemented`
+  - Parameters: HillSlope, EC50.
+  - Derived: logEC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check concentration versus log10 domain, stimulation Hill-sign convention, zero-dose limits, fixed/free Hill and normalized0/100 variants. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Dose-response - Stimulation`, object 210; GP IDs: none.
+
+### Enzyme kinetics - Inhibition
+
+- **A430 — Competitive inhibition** · `not_implemented`
+  - Parameters: Km, I, Ki, Vmax.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check substrate/inhibitor0, positive kinetic constants, fixed substrate values and competitive/noncompetitive/uncompetitive limiting cases. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Enzyme kinetics - Inhibition`, object 6; GP IDs: none.
+- **A431 — Noncompetitive inhibition** · `not_implemented`
+  - Parameters: Vmax, I, Ki, KM.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check substrate/inhibitor0, positive kinetic constants, fixed substrate values and competitive/noncompetitive/uncompetitive limiting cases. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Enzyme kinetics - Inhibition`, object 50; GP IDs: none.
+- **A432 — Uncompetitive inhibition** · `not_implemented`
+  - Parameters: Vmax, I, AlphaKi, Km.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check substrate/inhibitor0, positive kinetic constants, fixed substrate values and competitive/noncompetitive/uncompetitive limiting cases. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Enzyme kinetics - Inhibition`, object 76; GP IDs: none.
+- **A433 — Mixed model inhibition** · `not_implemented`
+  - Parameters: Vmax, I, Alpha, Ki, Km.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check substrate/inhibitor0, positive kinetic constants, fixed substrate values and competitive/noncompetitive/uncompetitive limiting cases. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Enzyme kinetics - Inhibition`, object 95; GP IDs: none.
+- **A434 — Substrate inhibition** · `not_implemented`
+  - Parameters: Vmax, Km, Ki.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check substrate/inhibitor0, positive kinetic constants, fixed substrate values and competitive/noncompetitive/uncompetitive limiting cases. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Enzyme kinetics - Inhibition`, object 120; GP IDs: none.
+- **A435 — Morrison Ki** · `not_implemented`
+  - Parameters: Vo, Et, Ki, S, Km.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check substrate/inhibitor0, positive kinetic constants, fixed substrate values and competitive/noncompetitive/uncompetitive limiting cases. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Enzyme kinetics - Inhibition`, object 144; GP IDs: none.
+
+### Enzyme kinetics - Velocity as a function of substrate
+
+- **A436 — Michaelis-Menten** · `partial_backend_independent_model`
+  - Parameters: Vmax, Km.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check substrate0, saturation and positive affinity; cooperativity and allosteric parameter identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Enzyme kinetics - Velocity as a function of substrate`, object 6; GP IDs: michaelis_menten.
+- **A437 — kcat** · `not_implemented`
+  - Parameters: Et, kcat, Km.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check substrate0, saturation and positive affinity; cooperativity and allosteric parameter identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Enzyme kinetics - Velocity as a function of substrate`, object 38; GP IDs: none.
+- **A438 — Allosteric sigmoidal** · `not_implemented`
+  - Parameters: Vmax, h, Khalf.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check substrate0, saturation and positive affinity; cooperativity and allosteric parameter identifiability. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Enzyme kinetics - Velocity as a function of substrate`, object 70; GP IDs: none.
+
+### Exponential
+
+- **A439 — One phase decay** · `partial_backend_independent_model`
+  - Parameters: Y0, Plateau, K.
+  - Derived: Half Life, Tau.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check time0, plateau, positive rate, half-life/time-constant transforms and multi-component label/permutation ambiguity. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Exponential`, object 6; GP IDs: one_phase_decay.
+- **A440 — Plateau followed by one phase decay** · `not_implemented`
+  - Parameters: X0, Y0, Plateau, K.
+  - Derived: Half Life, Tau.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check time0, plateau, positive rate, half-life/time-constant transforms and multi-component label/permutation ambiguity. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Exponential`, object 58; GP IDs: none.
+- **A441 — Two phase decay** · `partial_backend_independent_model`
+  - Parameters: Y0, Plateau, PercentFast, KFast, KSlow.
+  - Derived: Half Life (Slow), Half Life (Fast), Tau (slow), Tau (fast).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check time0, plateau, positive rate, half-life/time-constant transforms and multi-component label/permutation ambiguity. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Exponential`, object 84; GP IDs: two_phase_decay.
+- **A442 — Three phase decay** · `not_implemented`
+  - Parameters: Y0, Plateau, PercentFast, KFast, PercentSlow, KSlow, Kmedium.
+  - Derived: Half Life (Slow), Half Life (Fast), Half Life (Medium).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check time0, plateau, positive rate, half-life/time-constant transforms and multi-component label/permutation ambiguity. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Exponential`, object 124; GP IDs: none.
+- **A443 — One-phase association** · `partial_backend_independent_model`
+  - Parameters: Y0, Plateau, K.
+  - Derived: Tau, Half-time.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check time0, plateau, positive rate, half-life/time-constant transforms and multi-component label/permutation ambiguity. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Exponential`, object 155; GP IDs: one_phase_association.
+- **A444 — Plateau followed by one phase association** · `not_implemented`
+  - Parameters: X0, Y0, Plateau, K.
+  - Derived: Tau, Half Life.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check time0, plateau, positive rate, half-life/time-constant transforms and multi-component label/permutation ambiguity. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Exponential`, object 180; GP IDs: none.
+- **A445 — Two phase association** · `not_implemented`
+  - Parameters: Plateau, Y0, PercentFast, KFast, KSlow.
+  - Derived: Fast HalfLife, Slow HalfLife, Fast Tau, Slow Tau.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check time0, plateau, positive rate, half-life/time-constant transforms and multi-component label/permutation ambiguity. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Exponential`, object 204; GP IDs: none.
+- **A446 — Exponential growth equation** · `not_implemented`
+  - Parameters: Y0, k.
+  - Derived: Tau, Doubling Time.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check time0, plateau, positive rate, half-life/time-constant transforms and multi-component label/permutation ambiguity. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Exponential`, object 238; GP IDs: none.
+
+### Gaussian
+
+- **A447 — Gaussian** · `partial_backend_independent_model`
+  - Parameters: Amplitude, Mean, SD.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check center/symmetry, strictly positive width, amplitude-versus-area parameterization and multi-peak component ambiguity. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Gaussian`, object 6; GP IDs: gaussian.
+- **A448 — Sum of two Gaussians** · `not_implemented`
+  - Parameters: Amplitude1, Mean1, SD1, Amplitude2, Mean2, SD2.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check center/symmetry, strictly positive width, amplitude-versus-area parameterization and multi-peak component ambiguity. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Gaussian`, object 39; GP IDs: none.
+- **A449 — Lognormal** · `not_implemented`
+  - Parameters: A, GeoMean, GeoSD.
+  - Derived: LnGeoMean, LnGeoSD.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check center/symmetry, strictly positive width, amplitude-versus-area parameterization and multi-peak component ambiguity. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Gaussian`, object 61; GP IDs: none.
+- **A450 — Cumulative Gaussian -- Percents** · `not_implemented`
+  - Parameters: Mean, SD.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check center/symmetry, strictly positive width, amplitude-versus-area parameterization and multi-peak component ambiguity. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Gaussian`, object 88; GP IDs: none.
+- **A451 — Cumulative Gaussian -- Fraction** · `not_implemented`
+  - Parameters: Mean, SD.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check center/symmetry, strictly positive width, amplitude-versus-area parameterization and multi-peak component ambiguity. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Gaussian`, object 114; GP IDs: none.
+- **A452 — Cumulative Gaussian -- Counts** · `not_implemented`
+  - Parameters: Mean, SD, N.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check center/symmetry, strictly positive width, amplitude-versus-area parameterization and multi-peak component ambiguity. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Gaussian`, object 138; GP IDs: none.
+- **A453 — Lorentzian (Cauchy)** · `not_implemented`
+  - Parameters: Amplitude, Center, Width.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check center/symmetry, strictly positive width, amplitude-versus-area parameterization and multi-peak component ambiguity. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Gaussian`, object 163; GP IDs: none.
+- **A454 — Sum of two Lorentzians** · `not_implemented`
+  - Parameters: Amplitude1, Center1, Width1, Amplitude2, Center2, Width2.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check center/symmetry, strictly positive width, amplitude-versus-area parameterization and multi-peak component ambiguity. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Gaussian`, object 179; GP IDs: none.
+
+### Growth curves
+
+- **A455 — Exponential (Malthusian) growth** · `not_implemented`
+  - Parameters: Y0, k.
+  - Derived: DoublingTime.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check initial population, carrying capacity/lag, positive rate/domain and growth-law limiting cases. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Growth curves`, object 6; GP IDs: none.
+- **A456 — Exponential growth with log(population)** · `not_implemented`
+  - Parameters: logY0, k.
+  - Derived: DoublingTime.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check initial population, carrying capacity/lag, positive rate/domain and growth-law limiting cases. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Growth curves`, object 51; GP IDs: none.
+- **A457 — Exponential plateau** · `not_implemented`
+  - Parameters: YM, Y0, k.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check initial population, carrying capacity/lag, positive rate/domain and growth-law limiting cases. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Growth curves`, object 77; GP IDs: none.
+- **A458 — Gompertz growth** · `not_implemented`
+  - Parameters: YM, Y0, K.
+  - Derived: 1/K.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check initial population, carrying capacity/lag, positive rate/domain and growth-law limiting cases. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Growth curves`, object 101; GP IDs: none.
+- **A459 — Logistic growth** · `not_implemented`
+  - Parameters: YM, Y0, k.
+  - Derived: 1/k.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check initial population, carrying capacity/lag, positive rate/domain and growth-law limiting cases. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Growth curves`, object 125; GP IDs: none.
+- **A460 — Beta growth then decay** · `not_implemented`
+  - Parameters: Ym, Te, Tm.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check initial population, carrying capacity/lag, positive rate/domain and growth-law limiting cases. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Growth curves`, object 148; GP IDs: none.
+
+### Linear quadratic curves
+
+- **A461 — Linear quadratic cell death (Y is fraction of cells surviving)** · `not_implemented`
+  - Parameters: A, B.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check linear limit, nonnegative time/dose where applicable and linear–quadratic parameter covariance. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Linear quadratic curves`, object 6; GP IDs: none.
+- **A462 — Linear quadratic survival (Y is percentage)** · `not_implemented`
+  - Parameters: A, B.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check linear limit, nonnegative time/dose where applicable and linear–quadratic parameter covariance. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Linear quadratic curves`, object 44; GP IDs: none.
+- **A463 — Linear quadratic survival (Y is # alive cells)** · `not_implemented`
+  - Parameters: Y0, A, B.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check linear limit, nonnegative time/dose where applicable and linear–quadratic parameter covariance. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Linear quadratic curves`, object 61; GP IDs: none.
+- **A464 — Linear quadratic cell death (Y is fraction of dead cells)** · `not_implemented`
+  - Parameters: A, B.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check linear limit, nonnegative time/dose where applicable and linear–quadratic parameter covariance. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Linear quadratic curves`, object 79; GP IDs: none.
+- **A465 — Linear quadratic survival (Y is percentage cells dead)** · `not_implemented`
+  - Parameters: A, B.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check linear limit, nonnegative time/dose where applicable and linear–quadratic parameter covariance. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Linear quadratic curves`, object 96; GP IDs: none.
+- **A466 — Linear quadratic survival (Y is # dead cells)** · `not_implemented`
+  - Parameters: Y0, A, B.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check linear limit, nonnegative time/dose where applicable and linear–quadratic parameter covariance. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Linear quadratic curves`, object 113; GP IDs: none.
+
+### Lines
+
+- **A467 — Straight line** · `partial_backend_independent_model`
+  - Parameters: YIntercept, Slope.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check slope/intercept constraints, piecewise joins and X/Y domain including breakpoints; compare exact analytic linear solutions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Lines`, object 6; GP IDs: straight_line.
+- **A468 — Line through point (X0, Y0)** · `not_implemented`
+  - Parameters: Slope, X0, Y0.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check slope/intercept constraints, piecewise joins and X/Y domain including breakpoints; compare exact analytic linear solutions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Lines`, object 47; GP IDs: none.
+- **A469 — Line through origin** · `not_implemented`
+  - Parameters: Slope.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check slope/intercept constraints, piecewise joins and X/Y domain including breakpoints; compare exact analytic linear solutions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Lines`, object 63; GP IDs: none.
+- **A470 — Horizontal line** · `not_implemented`
+  - Parameters: Mean.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check slope/intercept constraints, piecewise joins and X/Y domain including breakpoints; compare exact analytic linear solutions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Lines`, object 78; GP IDs: none.
+- **A471 — Semilog line -- X is log, Y is linear** · `not_implemented`
+  - Parameters: Yintercept, Slope.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check slope/intercept constraints, piecewise joins and X/Y domain including breakpoints; compare exact analytic linear solutions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Lines`, object 94; GP IDs: none.
+- **A472 — Semilog line -- X is linear,  Y is log** · `not_implemented`
+  - Parameters: Yintercept, Slope.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check slope/intercept constraints, piecewise joins and X/Y domain including breakpoints; compare exact analytic linear solutions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Lines`, object 118; GP IDs: none.
+- **A473 — Log-log line -- X and Y both log** · `not_implemented`
+  - Parameters: YIntercept, Slope.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check slope/intercept constraints, piecewise joins and X/Y domain including breakpoints; compare exact analytic linear solutions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Lines`, object 142; GP IDs: none.
+- **A474 — Segmental linear regression** · `not_implemented`
+  - Parameters: intercept1, slope1, X0, slope2.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check slope/intercept constraints, piecewise joins and X/Y domain including breakpoints; compare exact analytic linear solutions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Lines`, object 166; GP IDs: none.
+- **A475 — Continuous hinge function. Segmental regression lines with gentle connection** · `not_implemented`
+  - Parameters: Intercept, Slope1, X0, Slope2, Delta.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check slope/intercept constraints, piecewise joins and X/Y domain including breakpoints; compare exact analytic linear solutions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Lines`, object 195; GP IDs: none.
+- **A476 — Cumulative Gaussian --  Percentages** · `not_implemented`
+  - Parameters: Mean, SD.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check slope/intercept constraints, piecewise joins and X/Y domain including breakpoints; compare exact analytic linear solutions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Lines`, object 215; GP IDs: none.
+- **A477 — Cumulative Gaussian -- Fractions** · `not_implemented`
+  - Parameters: Mean, SD.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check slope/intercept constraints, piecewise joins and X/Y domain including breakpoints; compare exact analytic linear solutions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Lines`, object 241; GP IDs: none.
+- **A478 — Two intersecting lines. Fit the crossing point.** · `not_implemented`
+  - Parameters: Ycross, Xcross, Slope.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check slope/intercept constraints, piecewise joins and X/Y domain including breakpoints; compare exact analytic linear solutions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Lines`, object 264; GP IDs: none.
+
+### Polynomial
+
+- **A479 — First order polynomial (straight line)** · `not_implemented`
+  - Parameters: B0, B1.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check required rank/distinct-X count, high-degree conditioning, parameter order and extrapolation; compare analytic least-squares where applicable. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Polynomial`, object 6; GP IDs: none.
+- **A480 — Centered first order polynomial (straight line)** · `not_implemented`
+  - Parameters: B0, B1, MeanX.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check required rank/distinct-X count, high-degree conditioning, parameter order and extrapolation; compare analytic least-squares where applicable. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Polynomial`, object 29; GP IDs: none.
+- **A481 — Second order polynomial (quadratic)** · `not_implemented`
+  - Parameters: B0, B1, B2.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check required rank/distinct-X count, high-degree conditioning, parameter order and extrapolation; compare analytic least-squares where applicable. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Polynomial`, object 47; GP IDs: none.
+- **A482 — Centered second order polynomial (quadratic)** · `not_implemented`
+  - Parameters: B0, B1, MeanX, B2.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check required rank/distinct-X count, high-degree conditioning, parameter order and extrapolation; compare analytic least-squares where applicable. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Polynomial`, object 64; GP IDs: none.
+- **A483 — Third order polynomial  (cubic)** · `not_implemented`
+  - Parameters: B0, B1, B2, B3.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check required rank/distinct-X count, high-degree conditioning, parameter order and extrapolation; compare analytic least-squares where applicable. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Polynomial`, object 80; GP IDs: none.
+- **A484 — Centered third order polynomial  (cubic)** · `not_implemented`
+  - Parameters: B0, B1, MeanX, B2, B3.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check required rank/distinct-X count, high-degree conditioning, parameter order and extrapolation; compare analytic least-squares where applicable. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Polynomial`, object 97; GP IDs: none.
+- **A485 — Fourth order polynomial** · `not_implemented`
+  - Parameters: B0, B1, B2, B3, B4.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check required rank/distinct-X count, high-degree conditioning, parameter order and extrapolation; compare analytic least-squares where applicable. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Polynomial`, object 113; GP IDs: none.
+- **A486 — Centered fourth order polynomial** · `not_implemented`
+  - Parameters: B0, B1, MeanX, B2, B3, B4.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check required rank/distinct-X count, high-degree conditioning, parameter order and extrapolation; compare analytic least-squares where applicable. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Polynomial`, object 130; GP IDs: none.
+- **A487 — Fifth order polynomial** · `not_implemented`
+  - Parameters: B0, B1, B2, B3, B4, B5.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check required rank/distinct-X count, high-degree conditioning, parameter order and extrapolation; compare analytic least-squares where applicable. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Polynomial`, object 146; GP IDs: none.
+- **A488 — Centered fifth order polynomial** · `not_implemented`
+  - Parameters: B0, B1, MeanX, B2, B3, B4, B5.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check required rank/distinct-X count, high-degree conditioning, parameter order and extrapolation; compare analytic least-squares where applicable. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Polynomial`, object 163; GP IDs: none.
+- **A489 — Sixth order polynomial** · `not_implemented`
+  - Parameters: B0, B1, B2, B3, B4, B5, B6.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check required rank/distinct-X count, high-degree conditioning, parameter order and extrapolation; compare analytic least-squares where applicable. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Polynomial`, object 179; GP IDs: none.
+- **A490 — Centered sixth order polynomial** · `not_implemented`
+  - Parameters: B0, B1, MeanX, B2, B3, B4, B5, B6.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check required rank/distinct-X count, high-degree conditioning, parameter order and extrapolation; compare analytic least-squares where applicable. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Polynomial`, object 196; GP IDs: none.
+
+### Sine waves
+
+- **A491 — Standard sine wave** · `not_implemented`
+  - Parameters: Amplitude, Wavelength, PhaseShift.
+  - Derived: Frequency.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check period/frequency units, phase equivalence/modulo, aliasing/irregular sampling and damped envelopes. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Sine waves`, object 6; GP IDs: none.
+- **A492 — Damped sine wave** · `not_implemented`
+  - Parameters: Amplitude, K, Wavelength, PhaseShift.
+  - Derived: Frequency, HalfLife.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check period/frequency units, phase equivalence/modulo, aliasing/irregular sampling and damped envelopes. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Sine waves`, object 45; GP IDs: none.
+- **A493 — Sinc()** · `not_implemented`
+  - Parameters: Amplitude, Wavelength.
+  - Derived: Frequency.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check period/frequency units, phase equivalence/modulo, aliasing/irregular sampling and damped envelopes. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Sine waves`, object 70; GP IDs: none.
+- **A494 — Sine wave with nonzero baseline** · `not_implemented`
+  - Parameters: Amplitude, Wavelength, PhaseShift, Baseline.
+  - Derived: Frequency.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check period/frequency units, phase equivalence/modulo, aliasing/irregular sampling and damped envelopes. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Sine waves`, object 90; GP IDs: none.
+
+### Standard curves to interpolate
+
+- **A495 — Line** · `not_implemented`
+  - Parameters: YIntercept, Slope.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check inverse-root uniqueness, calibration/unknown split, boundaries/extrapolation and unknown replicate interval conventions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Standard curves to interpolate`, object 6; GP IDs: none.
+- **A496 — Sigmoidal, 4PL, X is log(concentration)** · `not_implemented`
+  - Parameters: Top, Bottom, LogIC50, HillSlope.
+  - Derived: IC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check inverse-root uniqueness, calibration/unknown split, boundaries/extrapolation and unknown replicate interval conventions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Standard curves to interpolate`, object 47; GP IDs: none.
+- **A497 — Sigmoidal, 4PL, X is concentration** · `not_implemented`
+  - Parameters: Bottom, Top, IC50, HillSlope.
+  - Derived: logIC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check inverse-root uniqueness, calibration/unknown split, boundaries/extrapolation and unknown replicate interval conventions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Standard curves to interpolate`, object 84; GP IDs: none.
+- **A498 — Asymmetric Sigmoidal, 5PL, X is log(concentration)** · `not_implemented`
+  - Parameters: LogEC50, HillSlope, S, Top, Bottom.
+  - Derived: EC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check inverse-root uniqueness, calibration/unknown split, boundaries/extrapolation and unknown replicate interval conventions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Standard curves to interpolate`, object 104; GP IDs: none.
+- **A499 — Asymmetric Sigmoidal, 5PL, X is concentration** · `not_implemented`
+  - Parameters: S, EC50, HillSlope, Top, Bottom.
+  - Derived: logEC50.
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check inverse-root uniqueness, calibration/unknown split, boundaries/extrapolation and unknown replicate interval conventions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Standard curves to interpolate`, object 135; GP IDs: none.
+- **A500 — Semilog line** · `not_implemented`
+  - Parameters: Slope, Yintercept.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check inverse-root uniqueness, calibration/unknown split, boundaries/extrapolation and unknown replicate interval conventions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Standard curves to interpolate`, object 155; GP IDs: none.
+- **A501 — Hyperbola (X is concentration)** · `not_implemented`
+  - Parameters: Bmax, Kd.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check inverse-root uniqueness, calibration/unknown split, boundaries/extrapolation and unknown replicate interval conventions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Standard curves to interpolate`, object 179; GP IDs: none.
+- **A502 — Second order polynomial (quadratic)** · `not_implemented`
+  - Parameters: B0, B1, B2.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check inverse-root uniqueness, calibration/unknown split, boundaries/extrapolation and unknown replicate interval conventions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Standard curves to interpolate`, object 205; GP IDs: none.
+- **A503 — Third order polynomial  (cubic)** · `not_implemented`
+  - Parameters: B0, B1, B2, B3.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check inverse-root uniqueness, calibration/unknown split, boundaries/extrapolation and unknown replicate interval conventions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Standard curves to interpolate`, object 230; GP IDs: none.
+- **A504 — Pade (1,1) approximant** · `not_implemented`
+  - Parameters: A0, A1, B1.
+  - Derived: (none recorded).
+  - Acceptance: Evaluate this exact parameterization against source-defined equations at hand-computable/domain-boundary points; fit noiseless identifiable data and noisy reference data with full n/df/SSE/parameter checks; check inverse-root uniqueness, calibration/unknown split, boundaries/extrapolation and unknown replicate interval conventions. Derived outputs require their own units/domain checks. No equation is complete until applicable constraint, weighting, replicate, uncertainty and comparison settings above are tested.
+  - Evidence: `SharedSupport/Equations/Cache/Standard curves to interpolate`, object 253; GP IDs: none.
+
+## Integration order
+
+1. Agree typed table/design, analysis parameters, result pages and DAG contracts before expanding individual algorithms.
+2. Close explicit contradictions first: concentration zero doses, Student versus Welch choice, contrast/tail selection, and technical-replicate handling.
+3. Implement core descriptive/distribution/group tests and the common multiplicity/contrast engine with complete source-bound acceptance cases.
+4. Extend grouped/RM/mixed/nested designs and use the same family/contrast engine; unbalanced conventions must be resolved before claiming the guide two-way recipe.
+5. Build nonlinear method/constraint/shared-parameter/uncertainty foundation; implement each named catalogue record against that foundation, not independent ad hoc solvers.
+6. Extend XY processing/interpolation, contingency, multivariable, survival/Cox, PCA/clustering and simulation using explicit typed contracts.
+7. Integrate every catalogue choice into persisted UI parameter dialogs, linked multi-page results/graphs/reuse, and execute the six guide recipes plus boundary matrices.
+8. Close version/runtime unknowns with supported-platform observations; retain unresolved items rather than marking umbrella families complete.
+
+This audit did not rerun tests: existing verification counts come from inspected code/tests/coverage and source-bound evidence. It added only this planning artifact and its evidence-side generator.
+
+## Revised Prism11 comparison supplement (A505 onward)
+
+Read all changes in `/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md` against the previously fully read attachment. SHA-256 `d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117`. These are attributed user comparisons, not fresh runtime checks. Added **32** requirements without changing earlier IDs.
+
+The existing Wine oracle provides **17 named cluster criteria**, including their full saved values and recommended k. The source says approximately20; additional names remain unresolved. Overall saved recommendation is k3; metric-specific choices differ, so do not assume simple maximum/minimum or a majority vote.
+
+- **A505 — Lognormal multiple t-tests per row** · `not_implemented`
+  - Acceptance: Expose row-wise normal/lognormal/nonparametric design choice explicitly; lognormal pooled-geometric-SD, Welch or paired-ratio tests preserve subject matching and report geometric means/ratios and back-transformed CIs. Apply selected FWER/FDR family across valid row P values. Test unequal row n, asymmetric missing pairs, zero/negative observations, multiplicative rescaling and multiple-testing order.
+  - Unknowns: Revised comparison explicitly names multiple lognormal t-tests since10.5, corroborating existing NIB choices. Native row/global variance borrowing, default method and exact small-n behavior need independent references.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Cross-links: A161, A344. Source: revised comparison and evidence in JSON.
+- **A506 — Lognormal Brown–Forsythe one-way ANOVA** · `not_implemented`
+  - Acceptance: Fit/test unequal-variance group locations on valid log observations using Brown–Forsythe ANOVA, distinct from variance diagnostics. Report geometric groups/ratios, adjusted df and chosen compatible posttests. Compare ordinary-versus-log behavior, unequal n/log variance, one constant group and zero/negative invalid observations.
+  - Unknowns: Revised §3 names Brown–Forsythe/Welch lognormal ANOVA; exact modified Brown–Forsythe variant, effect-size denominator and posttest enablement still need source-bound evidence.
+  - Dependencies: D_DESIGN, D_PARAMS, D_TABLE, D_RESULTS, D_MULTIPLICITY, D_REFERENCE.
+  - Cross-links: A101, A102. Source: revised comparison and evidence in JSON.
+- **A507 — Lognormal Welch one-way ANOVA** · `not_implemented`
+  - Acceptance: Use Welch omnibus calculation on log responses with fractional df, geometric summaries and back-transformed location contrasts. Test unbalanced n/heteroscedastic logs and large multiplicative unit changes; match direct log-domain reference without silently discarding nonpositive values.
+  - Unknowns: Revised §3 explicitly includes lognormal Welch; native uncertainty/contrast/normality settings and degenerate variance behavior remain to validate.
+  - Dependencies: D_DESIGN, D_PARAMS, D_TABLE, D_RESULTS, D_MULTIPLICITY, D_REFERENCE.
+  - Cross-links: A100, A102. Source: revised comparison and evidence in JSON.
+- **A508 — Lognormal repeated-measures one-way ANOVA** · `not_implemented`
+  - Acceptance: Preserve matched subject rows, analyze log values and report geometric effects. Verify no-correction versus Geisser–Greenhouse settings, missing-subject policy and log-domain covariance; compare same complete data to explicit logged RM fit and source-bound native output.
+  - Unknowns: Revised §3 explicitly includes lognormal RM ANOVA; whether/lognormal mixed-effects fallback is offered must be observed rather than assumed.
+  - Dependencies: D_DESIGN, D_PARAMS, D_TABLE, D_RESULTS, D_MULTIPLICITY, D_REFERENCE.
+  - Cross-links: A105, A102. Source: revised comparison and evidence in JSON.
+- **A509 — Restricted mean survival time estimate and restriction horizon** · `not_implemented`
+  - Acceptance: Compute RMST as the integral of the right-continuous Kaplan–Meier survival function from0 to an explicitly recorded restriction time tau, handling event/censor ties and a last partial interval. Hand-integrate step-curve fixtures; all-censored RMST=tau when support permits. Distinguish median, unrestricted mean and RMST; user/automatic tau and common versus group-specific horizon must be explicit.
+  - Unknowns: Revised §3 names RMST but no horizon/default rule. Current gp/survival.py has no RMST. Recover native tau choice and whether tail extrapolation is disallowed before claiming equivalence.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Cross-links: A275, A280. Source: revised comparison and evidence in JSON.
+- **A510 — Restricted mean survival time confidence interval** · `not_implemented`
+  - Acceptance: Implement native-selected RMST variance/CI estimator with censored observations, recorded confidence and horizon; independently verify area-covariance calculation or other recovered method, complete-event data, tiny n, all censored and events exactly at tau. Show undefined intervals explicitly and preserve full numeric endpoints.
+  - Unknowns: Recovered localization key60580 states95% CI of restricted mean survival time; estimator, transformation, confidence configurability and comparison/difference options remain unknown. Do not claim group RMST comparison merely because per-group RMST exists.
+  - Dependencies: D_TABLE, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Cross-links: A350. Source: revised comparison and evidence in JSON.
+- **A511 — Multiple linear regression: Profile-likelihood asymmetric CI** · `not_implemented`
+  - Acceptance: Multiple linear regression offers an explicit profile-likelihood asymmetric parameter-CI choice, recorded per analysis and propagated to results. For Gaussian or count-likelihood model as selected; OLS analytic intervals are an independent special-case check. Profile each target with nuisance parameters refitted, selected likelihood-ratio threshold and proper bracket/unbounded/convergence diagnostics; asymmetric and constrained fixtures must distinguish it from Wald. Compare well-conditioned ordinary cases and source-bound sparse/boundary cases; changing display format must not change numeric estimates.
+  - Unknowns: Revised §3 dates profile/Wald options to10.6 and attributes to GraphPad/bundle. Exact critical distribution, likelihood scaling, optimizer tolerances, coefficient versus effect CI labeling and default selection require native/saved confirmation.
+  - Dependencies: D_FITS, D_DESIGN, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Cross-links: A304, A289. Source: revised comparison and evidence in JSON.
+- **A512 — Multiple linear regression: Wald symmetric CI** · `not_implemented`
+  - Acceptance: Multiple linear regression offers an explicit wald symmetric parameter-CI choice, recorded per analysis and propagated to results. For Gaussian or count-likelihood model as selected; OLS analytic intervals are an independent special-case check. Use model-specific observed/expected-information covariance and critical distribution with coefficient SE availability; back-transformed effect intervals may be asymmetric even when coefficient interval is symmetric; singular information gives explicit undefined output. Compare well-conditioned ordinary cases and source-bound sparse/boundary cases; changing display format must not change numeric estimates.
+  - Unknowns: Revised §3 dates profile/Wald options to10.6 and attributes to GraphPad/bundle. Exact critical distribution, likelihood scaling, optimizer tolerances, coefficient versus effect CI labeling and default selection require native/saved confirmation.
+  - Dependencies: D_FITS, D_DESIGN, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Cross-links: A304, A289. Source: revised comparison and evidence in JSON.
+- **A513 — Multiple logistic regression: Profile-likelihood asymmetric CI** · `not_implemented`
+  - Acceptance: Multiple logistic regression offers an explicit profile-likelihood asymmetric parameter-CI choice, recorded per analysis and propagated to results. For binomial model with categorical interactions and sparse or separated outcomes; odds-ratio intervals transform logit coefficient limits. Profile each target with nuisance parameters refitted, selected likelihood-ratio threshold and proper bracket/unbounded/convergence diagnostics; asymmetric and constrained fixtures must distinguish it from Wald. Compare well-conditioned ordinary cases and source-bound sparse/boundary cases; changing display format must not change numeric estimates.
+  - Unknowns: Revised §3 dates profile/Wald options to10.6 and attributes to GraphPad/bundle. Exact critical distribution, likelihood scaling, optimizer tolerances, coefficient versus effect CI labeling and default selection require native/saved confirmation.
+  - Dependencies: D_FITS, D_DESIGN, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Cross-links: A304, A289. Source: revised comparison and evidence in JSON.
+- **A514 — Multiple logistic regression: Wald symmetric CI** · `not_implemented`
+  - Acceptance: Multiple logistic regression offers an explicit wald symmetric parameter-CI choice, recorded per analysis and propagated to results. For binomial model with categorical interactions and sparse or separated outcomes; odds-ratio intervals transform logit coefficient limits. Use model-specific observed/expected-information covariance and critical distribution with coefficient SE availability; back-transformed effect intervals may be asymmetric even when coefficient interval is symmetric; singular information gives explicit undefined output. Compare well-conditioned ordinary cases and source-bound sparse/boundary cases; changing display format must not change numeric estimates.
+  - Unknowns: Revised §3 dates profile/Wald options to10.6 and attributes to GraphPad/bundle. Exact critical distribution, likelihood scaling, optimizer tolerances, coefficient versus effect CI labeling and default selection require native/saved confirmation.
+  - Dependencies: D_FITS, D_DESIGN, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Cross-links: A304, A289. Source: revised comparison and evidence in JSON.
+- **A515 — Cox regression: Profile-likelihood asymmetric CI** · `not_implemented`
+  - Acceptance: Cox regression offers an explicit profile-likelihood asymmetric parameter-CI choice, recorded per analysis and propagated to results. For partial likelihood with selected tie method; hazard-ratio intervals transform log-hazard coefficient limits. Profile each target with nuisance parameters refitted, selected likelihood-ratio threshold and proper bracket/unbounded/convergence diagnostics; asymmetric and constrained fixtures must distinguish it from Wald. Compare well-conditioned ordinary cases and source-bound sparse/boundary cases; changing display format must not change numeric estimates.
+  - Unknowns: Revised §3 dates profile/Wald options to10.6 and attributes to GraphPad/bundle. Exact critical distribution, likelihood scaling, optimizer tolerances, coefficient versus effect CI labeling and default selection require native/saved confirmation.
+  - Dependencies: D_FITS, D_DESIGN, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Cross-links: A304, A289. Source: revised comparison and evidence in JSON.
+- **A516 — Cox regression: Wald symmetric CI** · `not_implemented`
+  - Acceptance: Cox regression offers an explicit wald symmetric parameter-CI choice, recorded per analysis and propagated to results. For partial likelihood with selected tie method; hazard-ratio intervals transform log-hazard coefficient limits. Use model-specific observed/expected-information covariance and critical distribution with coefficient SE availability; back-transformed effect intervals may be asymmetric even when coefficient interval is symmetric; singular information gives explicit undefined output. Compare well-conditioned ordinary cases and source-bound sparse/boundary cases; changing display format must not change numeric estimates.
+  - Unknowns: Revised §3 dates profile/Wald options to10.6 and attributes to GraphPad/bundle. Exact critical distribution, likelihood scaling, optimizer tolerances, coefficient versus effect CI labeling and default selection require native/saved confirmation.
+  - Dependencies: D_FITS, D_DESIGN, D_PARAMS, D_TABLE, D_RESULTS, D_REFERENCE.
+  - Cross-links: A304, A289. Source: revised comparison and evidence in JSON.
+- **A517 — K-means optimal-k choice versus per-metric recommendations** · `not_implemented`
+  - Acceptance: Calculate every enabled native metric for each candidate k, report each metric recommendation and one overall chosen k using a recovered explicit selection rule. Preserve missing/undefined metric states. Compare bundled Wine sample with STANDARDIZE, Euclidean distance, HARTIGAN_WONG, k1..8,maxIter10 and saved seed53273; saved overall optimal k is3. First compare metrics using saved partitions to avoid conflating objective correctness with different RNG/initialization.
+  - Unknowns: Revised source says approximately20 indices. One current source-hashed oracle exposes17 named recommendations; overall vote/tie/priority/elbow rule and complete metric inventory are unresolved, not inferred from a single k3 result.
+  - Dependencies: D_TABLE, D_RANDOM, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A518 — Optimal-cluster criterion inventory and undefined boundary policy** · `not_implemented`
+  - Acceptance: Enumerate every selectable native criterion from runtime/complete localization/schema evidence, assign each a persistent ID, metric direction and recommended-k rule; keep the17 observed below separate. Test k1, k=n, constant features, identical observations, empty/singleton clusters, last-k criteria needing k+1 and tied recommendations. Undefined is not numeric zero.
+  - Unknowns: Do not manufacture three missing methods to turn approximately20 into exactly20. Current Wine results contain17 named optimalClustering.metrics; more selectable metrics may exist elsewhere.
+  - Dependencies: D_TABLE, D_RANDOM, D_PARAMS, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A519 — Optimal-cluster metric: Ball-Hall** · `not_implemented`
+  - Acceptance: Independently compute Ball-Hall: verify mean within-cluster dispersion, weighting by cluster size and elbow/selection rule distinct from simple minimum. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=3, reported value=423.5830384372693. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A520 — Optimal-cluster metric: C index** · `not_implemented`
+  - Acceptance: Independently compute C index: verify sum of within-pair distances versus smallest/largest eligible pair distances, ties and equal denominator. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=8, reported value=0.08631052845287995. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A521 — Optimal-cluster metric: Calinski-Harabasz** · `not_implemented`
+  - Acceptance: Independently compute Calinski-Harabasz: verify between/within dispersion degrees of freedom; k1,k=n and zero within scatter. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=3, reported value=70.94000800315116. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A522 — Optimal-cluster metric: Davies-Bouldin** · `not_implemented`
+  - Acceptance: Independently compute Davies-Bouldin: verify within-cluster scatter definition and centroid-distance maximum ratios; coincident centroids. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=3, reported value=1.4681431955799333. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A523 — Optimal-cluster metric: Dunn** · `not_implemented`
+  - Acceptance: Independently compute Dunn: verify minimum intercluster versus maximum intracluster distance convention; singleton and zero-diameter clusters. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=3, reported value=0.23225671390419228. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A524 — Optimal-cluster metric: Frey** · `not_implemented`
+  - Acceptance: Independently compute Frey: verify adjacent-k change in within/between distances and native threshold/selection convention; missing k+1. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=2, reported value=0.3417994808306852. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A525 — Optimal-cluster metric: Gamma** · `not_implemented`
+  - Acceptance: Independently compute Gamma: verify concordant/discordant pair-of-distances enumeration and tied-distance exclusion. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=8, reported value=0.8514539558085833. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A526 — Optimal-cluster metric: Gap** · `not_implemented`
+  - Acceptance: Independently compute Gap: verify log dispersion versus reference-simulation expectation and SE, reference distribution/PCA rotation, seed and one-SE selection rule. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=3, reported value=1.200197080122745. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A527 — Optimal-cluster metric: Gplus** · `not_implemented`
+  - Acceptance: Independently compute Gplus: verify discordance normalization and tied-distance policy. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=8, reported value=0.021258488350683613. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A528 — Optimal-cluster metric: Hartigan** · `not_implemented`
+  - Acceptance: Independently compute Hartigan: verify adjacent-k WCSS reduction and n−k degrees scaling, threshold versus maximum/elbow rule. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=3, reported value=14.431899181768957. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A529 — Optimal-cluster metric: Krzanowski-Lai** · `not_implemented`
+  - Acceptance: Independently compute Krzanowski-Lai: verify dimension-adjusted successive dispersion differences and required neighboring k values. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=3, reported value=3.893497939305996. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A530 — Optimal-cluster metric: McClain-Rao** · `not_implemented`
+  - Acceptance: Independently compute McClain-Rao: verify mean within/between pair distances, pair-count normalization and singleton clusters. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=8, reported value=0.5855938555304802. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A531 — Optimal-cluster metric: Ptbiserial** · `not_implemented`
+  - Acceptance: Independently compute Ptbiserial: verify point-biserial correlation between distance and same-cluster indicator, sign convention and pair weighting. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=5, reported value=0.624272674903604. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A532 — Optimal-cluster metric: Ratkowsky** · `not_implemented`
+  - Acceptance: Independently compute Ratkowsky: verify average variance explained across variables, normalization by k and constant-feature handling. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=3, reported value=0.38632477592229125. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A533 — Optimal-cluster metric: Silhouette** · `not_implemented`
+  - Acceptance: Independently compute Silhouette: verify a/b distance averages, singleton policy, equal distances and label permutation. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=3, reported value=0.2848589191898987. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A534 — Optimal-cluster metric: Tau** · `not_implemented`
+  - Acceptance: Independently compute Tau: verify rank-association normalization, concordance/tied-distance convention and zero denominator. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=3, reported value=0.33290423902746746. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A535 — Optimal-cluster metric: Trace W** · `not_implemented`
+  - Acceptance: Independently compute Trace W: verify within-cluster scatter-matrix trace and native elbow criterion rather than blindly choosing largest k. Compare metric across every valid saved Wine k, plus hand-checkable tiny partitions. Saved native recommendation: k=3, reported value=1270.7491153118078. Separately verify recommended-k algorithm, not just raw metric value; near ties/undefined states preserve deterministic behavior.
+  - Unknowns: Exact mathematical variant, distance compatibility, optimization direction/threshold/elbow rule and native tie-break are not fully established by the metric label or a single saved recommendation.
+  - Dependencies: D_TABLE, D_PARAMS, D_RANDOM, D_RESULTS, D_REFERENCE.
+  - Cross-links: A319. Source: revised comparison and evidence in JSON.
+- **A536 — Revalidate material Prism10-derived conclusions against trusted target references** · `unresolved`
+  - Acceptance: Retain guide observations as attributed historical evidence; establish provenance/version for every numerical or workflow equivalence gate. Confirm material behavior/defaults on the supplied authentic targetPrism11 or independently source-hashed official references. No license-hook code or bypass behavior is imported, reproduced or needed by GP.
+  - Unknowns: Revised user document §9 reports its Prism10 install was modified and not GraphPad-signed; this audit has not verified that separate installation or established the modification scope. Its author claim that statistics are unaffected is not sufficient to promote all guide outputs to trusted target oracles.
+  - Dependencies: D_REFERENCE.
+  - Cross-links: (new obligation). Source: revised comparison and evidence in JSON.
