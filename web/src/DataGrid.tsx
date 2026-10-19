@@ -57,11 +57,14 @@ export type DataGridProps = {
   onInsertColumn?(index: number): void;
   onClearRange?(range: GridRange): void;
   onError?(message: string): void;
+  // Publishes user selections and restored selections to linked graph views.
   onSelectionChange?(range: GridRange): void;
   focusCell?: { column: number; row: number; token: number };
+  readOnly?: boolean;
 };
 const sessions = new GridSessionCache();
 const consumedFocusTokens = new Map<string, number>();
+const selectedSheets = new Set<string>();
 const rowOffsets = Array.from(
   { length: GRID_ROWS + 1 },
   (_, i) => i * ROW_HEIGHT,
@@ -86,6 +89,7 @@ const Cell = memo(function Cell({
   selected,
   active,
   editing,
+  readOnly,
   handlers,
 }: {
   row: number;
@@ -95,6 +99,7 @@ const Cell = memo(function Cell({
   selected: boolean;
   active: boolean;
   editing: boolean;
+  readOnly: boolean;
   handlers: CellHandlers;
 }) {
   const cell = { row, column };
@@ -121,6 +126,7 @@ const Cell = memo(function Cell({
         autoComplete="off"
         spellCheck={false}
         value={value}
+        readOnly={readOnly}
         tabIndex={active ? 0 : -1}
         onPointerDown={(e) => handlers.pointer(e, cell)}
         onFocus={(e) => handlers.focus(e.currentTarget, cell)}
@@ -207,6 +213,7 @@ export default function DataGrid(props: DataGridProps) {
   const emitRange = useCallback(
     (next: GridRange, user: boolean) => {
       rangeRef.current = next;
+      selectedSheets.add(propsRef.current.sheetId);
       setRange(next);
       saveViewport();
       if (user) propsRef.current.onSelectionChange?.(next);
@@ -317,6 +324,15 @@ export default function DataGrid(props: DataGridProps) {
       viewport.current.scrollLeft = saved.scrollLeft;
     }
     measure();
+    const incomingFocus = propsRef.current.focusCell;
+    const hasPendingFocus =
+      incomingFocus &&
+      consumedFocusTokens.get(props.sheetId) !== incomingFocus.token;
+    // The parent may currently hold another table's selection. Restore only
+    // previously selected ranges, without moving focus or editing the workbook.
+    // A new graph-to-cell request already owns the parent's selection and wins.
+    if (selectedSheets.has(props.sheetId) && !hasPendingFocus)
+      propsRef.current.onSelectionChange?.(saved.range);
     const observer = new ResizeObserver(measure);
     if (viewport.current) observer.observe(viewport.current);
     return () => {
@@ -340,6 +356,10 @@ export default function DataGrid(props: DataGridProps) {
   }, []);
   const clearSelection = useCallback(
     (selection: GridRange) => {
+      if (propsRef.current.readOnly) {
+        fail("Unfreeze this data table before editing it.");
+        return;
+      }
       if (propsRef.current.onClearRange)
         propsRef.current.onClearRange(selection);
       else if (
@@ -430,11 +450,22 @@ export default function DataGrid(props: DataGridProps) {
         input.select();
       },
       doubleClick(input, cell) {
+        if (propsRef.current.readOnly) return;
         moveFocus(cell, { edit: true });
         input.setSelectionRange(input.value.length, input.value.length);
       },
       key(event, cell) {
         const mod = event.metaKey || event.ctrlKey;
+        if (
+          propsRef.current.readOnly &&
+          (event.key === "F2" ||
+            event.key === "Backspace" ||
+            event.key === "Delete" ||
+            (!mod && !event.altKey && event.key.length === 1))
+        ) {
+          event.preventDefault();
+          return;
+        }
         if (event.key === "Escape") {
           event.preventDefault();
           setMenu(null);
@@ -476,6 +507,7 @@ export default function DataGrid(props: DataGridProps) {
         }
       },
       change(cell, value) {
+        if (propsRef.current.readOnly) return;
         editingRef.current = true;
         setEditing(true);
         propsRef.current.onCellChange(cell.column, cell.row, value);
@@ -495,6 +527,11 @@ export default function DataGrid(props: DataGridProps) {
         );
       },
       paste(event, cell) {
+        if (propsRef.current.readOnly) {
+          event.preventDefault();
+          fail("Unfreeze this data table before pasting values.");
+          return;
+        }
         const selected = rangeRef.current;
         if (!event.clipboardData.types.includes("text/plain")) return;
         const text = event.clipboardData.getData("text/plain");
@@ -678,6 +715,7 @@ export default function DataGrid(props: DataGridProps) {
         <table
           className="sheet data-grid-table"
           role="grid"
+          aria-readonly={props.readOnly || undefined}
           aria-label="Data table"
           aria-rowcount={GRID_ROWS + 1}
           aria-colcount={GRID_COLUMNS + 1}
@@ -743,6 +781,7 @@ export default function DataGrid(props: DataGridProps) {
                     <input
                       aria-label={`Column ${run.index + 1} name`}
                       value={props.columns[run.index]?.name ?? ""}
+                      readOnly={props.readOnly}
                       placeholder={`Series ${run.index + 1}`}
                       onChange={(e) =>
                         props.onRenameColumn(run.index, e.target.value)
@@ -859,6 +898,7 @@ export default function DataGrid(props: DataGridProps) {
                           active.column === col.index
                         }
                         handlers={handlers}
+                        readOnly={!!props.readOnly}
                       />
                     ),
                   )}
@@ -870,12 +910,15 @@ export default function DataGrid(props: DataGridProps) {
       </div>
       <div className="sheet-footer data-grid-footer">
         <div>
-          <button onClick={props.onAddRow} disabled={actualRows >= GRID_ROWS}>
+          <button
+            onClick={props.onAddRow}
+            disabled={props.readOnly || actualRows >= GRID_ROWS}
+          >
             Add row
           </button>
           <button
             onClick={props.onAddColumn}
-            disabled={props.columns.length >= GRID_COLUMNS}
+            disabled={props.readOnly || props.columns.length >= GRID_COLUMNS}
           >
             Add column
           </button>
@@ -917,7 +960,7 @@ export default function DataGrid(props: DataGridProps) {
               {props.onInsertRow && (
                 <button
                   role="menuitem"
-                  disabled={actualRows >= GRID_ROWS}
+                  disabled={props.readOnly || actualRows >= GRID_ROWS}
                   onClick={() =>
                     runAction(() => props.onInsertRow!(menu.index))
                   }
@@ -927,13 +970,14 @@ export default function DataGrid(props: DataGridProps) {
               )}
               <button
                 role="menuitem"
-                disabled={menu.index >= actualRows}
+                disabled={props.readOnly || menu.index >= actualRows}
                 onClick={() => runAction(() => props.onRemoveRow(menu.index))}
               >
                 Delete row
               </button>
               <button
                 role="menuitem"
+                disabled={props.readOnly}
                 onClick={() =>
                   runAction(() =>
                     clearSelection({
@@ -954,7 +998,9 @@ export default function DataGrid(props: DataGridProps) {
               {props.onInsertColumn && (
                 <button
                   role="menuitem"
-                  disabled={props.columns.length >= GRID_COLUMNS}
+                  disabled={
+                    props.readOnly || props.columns.length >= GRID_COLUMNS
+                  }
                   onClick={() =>
                     runAction(() => props.onInsertColumn!(menu.index))
                   }
@@ -965,6 +1011,7 @@ export default function DataGrid(props: DataGridProps) {
               <button
                 role="menuitem"
                 disabled={
+                  props.readOnly ||
                   menu.index >= props.columns.length ||
                   props.columns.length <= 1
                 }
@@ -976,6 +1023,7 @@ export default function DataGrid(props: DataGridProps) {
               </button>
               <button
                 role="menuitem"
+                disabled={props.readOnly}
                 onClick={() =>
                   runAction(() =>
                     clearSelection({
@@ -1004,6 +1052,7 @@ export default function DataGrid(props: DataGridProps) {
           {menu.kind === "cell" && (
             <button
               role="menuitem"
+              disabled={props.readOnly}
               onClick={() => runAction(() => clearSelection(rangeRef.current))}
             >
               Clear selected cells

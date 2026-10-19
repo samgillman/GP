@@ -15,6 +15,7 @@ The latest **PRISM11_DIFFERENCES.md/HTML** takes precedence over the Prism 10 ba
 - [All 82 formula functions](requirements/formula-functions.json).
 - [Prism 11 changes](requirements/prism11-deltas.json), including the latest uploaded revision.
 - [Source traceability manifest](requirements/source-map.json): every guide heading, existing coverage family, recovered equation and formula.
+- [Full 1,574-row parity plan](prism-parity-plan.csv), [unaltered submitted audit](sources/prism-parity.csv), and [option-level audit requirements](requirements/parity-audit.json): every supplied row has a concrete plan, verification work, original finding and mapped owners. The AUD-Pxxxx namespace preserves original Pxxxx identifiers without replacing earlier requirements.
 - [Shared dependency contracts](requirements/dependency-contracts.json): named infrastructure dependencies and accountable workstreams.
 - [Existing implementation coverage](prism-coverage.json): historical bounded evidence, refreshed when implementation changes.
 - [Execution log](completion-progress.md): actual completed work, commands/results, current work and remaining blockers. A plan entry is not implementation evidence.
@@ -23,7 +24,7 @@ The JSON/Markdown registers together are part of this plan; they enumerate optio
 
 ## Immediate defect queue from the user’s break test
 
-The [stress, scroll and UX register](requirements/break-test-report.json) adds33explicit obligations. Fix the advertised-limit10000×20crash and render recovery first, then numeric errors, independent import defaults, virtualization/selection/scroll, analysis lifecycle, edge-case scientific reporting and storage recovery. Reproduce reported behavior against current code; preserve already verified work and never alter the user’s actual workbook for tests. Broader UI requests map to the original data/analysis/graph/menu requirements and remain open until implemented.
+The [stress, scroll and UX register](requirements/break-test-report.json) adds 36 explicit obligations. Fix the advertised-limit10000×20crash and render recovery first, then numeric errors, independent import defaults, virtualization/selection/scroll, analysis lifecycle, edge-case scientific reporting and storage recovery. Reproduce reported behavior against current code; preserve already verified work and never alter the user’s actual workbook for tests. Broader UI requests map to the original data/analysis/graph/menu requirements and remain open until implemented.
 
 ## Status and closure rules
 

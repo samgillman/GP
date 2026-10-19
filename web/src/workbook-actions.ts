@@ -46,6 +46,10 @@ export function duplicateSheet(book: Workbook, id: string): Workbook {
     id: crypto.randomUUID(),
     name,
   };
-  if (copy.kind === "data") copy.project.name = name;
+  if (copy.kind === "data") {
+    copy.project.name = name;
+    copy.project.columns = copy.project.columns.map((column) => ({ ...column, id: crypto.randomUUID() }));
+    copy.rowIds = copy.rowIds.map(() => crypto.randomUUID());
+  }
   return { ...book, sheets: [...book.sheets, copy], activeSheetId: copy.id };
 }

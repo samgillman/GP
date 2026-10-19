@@ -38,6 +38,20 @@ import type { Analysis, Graph, Project, Response, TableType } from "./data";
 import Plot from "./Plot";
 import DataGrid from "./DataGrid";
 import type { GridRange } from "./data-grid";
+import {
+  materializeSelection,
+  selectionFromRange,
+  selectedGraphPoint,
+  selectedGraphRanges,
+  sourceCellForPoint,
+} from "./workbook-selection";
+import type { WorkbookSelection } from "./workbook-selection";
+import {
+  effectiveResult,
+  effectiveSource,
+  toggleSheetFrozen,
+} from "./workbook-freeze";
+import { workbookDependencies } from "./workbook-dependencies";
 import { deleteSheet, deletionIds, duplicateSheet } from "./workbook-actions";
 import { getRecoveryWorkbook, rememberWorkbook } from "./render-recovery";
 import { errorMessage } from "./error-message";
@@ -49,6 +63,7 @@ import {
   addGraph,
   blankProject,
   dataIndices,
+  datasetSelection,
   fromProject,
   parseWorkbook,
   recordResult,
@@ -111,6 +126,13 @@ import {
   shouldHandleHistoryShortcut,
 } from "./workbook-history";
 import type { HistoryOptions } from "./workbook-history";
+import {
+  deepFreezeWorkbookState,
+  prepareWorkbookSnapshot,
+  sameWorkbookContent,
+  sameWorkbookSheet,
+} from "./workbook-snapshot";
+import type { PreparedWorkbookSnapshot } from "./workbook-snapshot";
 import {
   WorkbookRecalculator,
   applyRecalculatedResult,
@@ -215,7 +237,9 @@ export default function App() {
     };
   });
   const [recovery, setRecovery] = useState(restoration.recovery);
-  const [workbook, setWorkbookState] = useState<Workbook>(restoration.workbook),
+  const [workbook, setWorkbookState] = useState<Workbook>(() =>
+      deepFreezeWorkbookState(restoration.workbook),
+    ),
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false),
@@ -225,11 +249,33 @@ export default function App() {
     [importWarnings, setImportWarnings] = useState<string[]>([]),
     [selectedImport, setSelectedImport] = useState(0);
   const workbookRef = useRef(workbook);
-  rememberWorkbook(workbook);
-  const [selection, setSelection] = useState<{
-    dataId: string;
-    range: GridRange;
+  const snapshotRef = useRef<{
+    workbook: Workbook;
+    snapshot: PreparedWorkbookSnapshot;
   } | null>(null);
+  function preparedSnapshot(book: Workbook) {
+    if (snapshotRef.current?.workbook === book)
+      return snapshotRef.current.snapshot;
+    const snapshot = prepareWorkbookSnapshot(deepFreezeWorkbookState(book));
+    if (book === workbookRef.current)
+      snapshotRef.current = { workbook: book, snapshot };
+    return snapshot;
+  }
+  function adoptWorkbook(book: Workbook, snapshot: PreparedWorkbookSnapshot) {
+    workbookRef.current = book;
+    snapshotRef.current = { workbook: book, snapshot };
+    rememberWorkbook(book);
+    setSelection((selected) => {
+      const data =
+        selected && book.sheets.find((sheet) => sheet.id === selected.dataId);
+      return selected && data?.kind === "data"
+        ? materializeSelection(data, selected)
+        : selected;
+    });
+    setWorkbookState(book);
+  }
+  rememberWorkbook(workbook);
+  const [selection, setSelection] = useState<WorkbookSelection | null>(null);
   const [focusCell, setFocusCell] = useState<{
     dataId: string;
     column: number;
@@ -270,13 +316,12 @@ export default function App() {
         const before = workbookRef.current;
         const next = applyRecalculatedResult(before, task, result);
         if (next === before) return;
-        const limit = workbookLimitError(next);
+        const snapshot = preparedSnapshot(next);
+        const limit = workbookLimitError(snapshot);
         if (limit) throw new Error(limit);
         // Derived output is not a user edit: keep selection, undo/redo and any
         // independent manual analysis intact. The normal persistence effect saves it.
-        workbookRef.current = next;
-        rememberWorkbook(next);
-        setWorkbookState(next);
+        adoptWorkbook(next, snapshot);
       },
       changed: setRecalculations,
     });
@@ -314,7 +359,12 @@ export default function App() {
         : undefined,
     };
   }
-  function inferEditLabel(before: Workbook, next: Workbook): string {
+  function inferEditLabel(
+    before: Workbook,
+    next: Workbook,
+    beforeSnapshot: PreparedWorkbookSnapshot,
+    nextSnapshot: PreparedWorkbookSnapshot,
+  ): string {
     if (before.name !== next.name) return "Rename workbook";
     const created = next.sheets.filter(
       (s) => !before.sheets.some((p) => p.id === s.id),
@@ -333,8 +383,7 @@ export default function App() {
       next.sheets.some(
         (s) =>
           s.kind === "graph" &&
-          JSON.stringify(before.sheets.find((p) => p.id === s.id)) !==
-            JSON.stringify(s),
+          !sameWorkbookSheet(beforeSnapshot, nextSnapshot, s.id),
       )
     )
       return "Format graph";
@@ -347,19 +396,24 @@ export default function App() {
     try {
       const next =
         typeof update === "function" ? update(workbookRef.current) : update;
-      const limitError = workbookLimitError(next);
+      const nextSnapshot = preparedSnapshot(next);
+      const limitError = workbookLimitError(nextSnapshot);
       if (limitError) {
         setError(limitError);
         return false;
       }
       const previous = workbookRef.current;
-      const edited =
-        previous.name !== next.name ||
-        JSON.stringify(previous.sheets) !== JSON.stringify(next.sheets);
-      historyRef.current = commitHistory(historyRef.current, previous, next, {
-        label: inferEditLabel(previous, next),
-        ...options,
-      });
+      const beforeSnapshot = preparedSnapshot(previous);
+      const edited = !sameWorkbookContent(beforeSnapshot, nextSnapshot);
+      historyRef.current = commitHistory(
+        historyRef.current,
+        beforeSnapshot,
+        nextSnapshot,
+        {
+          label: inferEditLabel(previous, next, beforeSnapshot, nextSnapshot),
+          ...options,
+        },
+      );
       setHistory(historyRef.current);
       if (edited || options.reset) {
         controller.current?.abort();
@@ -367,10 +421,8 @@ export default function App() {
         setBusy(false);
       }
       if (options.reset) recalculator.current?.reset();
-      workbookRef.current = next;
-      rememberWorkbook(next);
+      adoptWorkbook(next, nextSnapshot);
       recalculator.current?.sync();
-      setWorkbookState(next);
       return true;
     } catch (error) {
       setError(
@@ -388,7 +440,15 @@ export default function App() {
   const selectedSheet = workbook.sheets.find(
     (s) => s.id === workbook.activeSheetId,
   )!;
-  const source = sourceSheet(workbook, selectedSheet);
+  const source = effectiveSource(workbook, selectedSheet);
+  const dependencyGraph = useMemo(
+    () => workbookDependencies(workbook),
+    [workbook.sheets],
+  );
+  const familyIds = useMemo(
+    () => new Set(dependencyGraph.family(selectedSheet.id)),
+    [dependencyGraph, selectedSheet.id],
+  );
   const graphSheet =
     selectedSheet.kind === "graph"
       ? selectedSheet
@@ -398,9 +458,8 @@ export default function App() {
   const linkedResult =
     selectedSheet.kind === "results"
       ? selectedSheet
-      : graphSheet?.resultId
-        ? (workbook.sheets.find((s) => s.id === graphSheet.resultId) as
-            ResultSheet | undefined)
+      : graphSheet
+        ? effectiveResult(workbook, graphSheet)
         : undefined;
   const result =
     linkedResult?.status === "current" ? linkedResult.result : null;
@@ -446,21 +505,12 @@ export default function App() {
     };
   }, [result, plotProject]);
   const selectedPointRanges = useMemo(() => {
-    if (selection?.dataId !== source.id) return [];
-    return (graphSheet?.columnIndices ?? dataIndices(source.project)).flatMap(
-      (column, seriesIndex) =>
-        column >= selection.range.startColumn &&
-        column <= selection.range.endColumn
-          ? [
-              {
-                seriesIndex,
-                startRow: selection.range.startRow,
-                endRow: selection.range.endRow,
-              },
-            ]
-          : [],
+    return selectedGraphRanges(
+      source,
+      graphSheet?.columnIndices ?? dataIndices(source.project),
+      selection,
     );
-  }, [selection, source.id, source.project, graphSheet]);
+  }, [selection, source, graphSheet]);
   function selectSheet(id: string) {
     controller.current?.abort();
     revision.current++;
@@ -507,7 +557,7 @@ export default function App() {
       setSaved(
         persistWorkbook(
           (key, value) => localStorage.setItem(key, value),
-          workbook,
+          preparedSnapshot(workbook),
           recovery,
         ),
       );
@@ -524,11 +574,12 @@ export default function App() {
   function applyHistory(direction: "undo" | "redo") {
     const moved = moveHistory(
       historyRef.current,
-      workbookRef.current,
+      preparedSnapshot(workbookRef.current),
       direction,
     );
     if (!moved) return;
-    const limitError = workbookLimitError(moved.workbook);
+    const movedSnapshot = preparedSnapshot(moved.workbook);
+    const limitError = workbookLimitError(movedSnapshot);
     if (limitError) {
       setError(limitError);
       return;
@@ -538,10 +589,8 @@ export default function App() {
     setBusy(false);
     historyRef.current = moved.history;
     setHistory(moved.history);
-    workbookRef.current = moved.workbook;
-    rememberWorkbook(moved.workbook);
+    adoptWorkbook(moved.workbook, movedSnapshot);
     recalculator.current?.sync();
-    setWorkbookState(moved.workbook);
     setError("");
     setNotice(`${direction === "undo" ? "Undid" : "Redid"}: ${moved.label}.`);
   }
@@ -580,7 +629,17 @@ export default function App() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [advanced, newTable, analyzeDialog, formatDialog, imported.length]);
-  function change(next: Project | ((p: Project) => Project), _data = true) {
+  function change(
+    next: Project | ((p: Project) => Project),
+    _data = true,
+    rowIds?: string[],
+  ) {
+    if (selectedSheet.kind !== "data" && selectedSheet.frozen) {
+      setError(
+        "Unfreeze this sheet before changing its analysis or graph settings.",
+      );
+      return;
+    }
     const updated = typeof next === "function" ? next(project) : next;
     controller.current?.abort();
     revision.current++;
@@ -588,16 +647,21 @@ export default function App() {
     setError("");
     setNotice("");
     setWorkbook((w) => {
-      let changed = updateData(w, source.id, {
-        ...updated,
-        graph: source.project.graph,
-        ...(selectedSheet.kind === "results"
-          ? {
-              analysis: source.project.analysis,
-              regression_model: source.project.regression_model,
-            }
-          : {}),
-      });
+      let changed = updateData(
+        w,
+        source.id,
+        {
+          ...updated,
+          graph: source.project.graph,
+          ...(selectedSheet.kind === "results"
+            ? {
+                analysis: source.project.analysis,
+                regression_model: source.project.regression_model,
+              }
+            : {}),
+        },
+        { rowIds },
+      );
       if (
         JSON.stringify(updated.graph) !== JSON.stringify(project.graph) &&
         graphSheet
@@ -638,6 +702,10 @@ export default function App() {
     }, editOptions("Edit data or analysis"));
   }
   function graph(p: Partial<Graph>) {
+    if (graphSheet?.frozen) {
+      setError("Unfreeze this graph before changing its appearance.");
+      return;
+    }
     if (graphSheet)
       setWorkbook((w) => ({
         ...w,
@@ -724,6 +792,10 @@ export default function App() {
     prefix = "",
     forceNew = false,
   ) {
+    if (selectedSheet.kind !== "data" && selectedSheet.frozen) {
+      setError("Unfreeze this sheet before running or changing its analysis.");
+      return;
+    }
     const existing = forceNew
       ? undefined
       : selectedSheet.kind === "results"
@@ -732,6 +804,7 @@ export default function App() {
           ? workbook.sheets.find(
               (s): s is ResultSheet =>
                 s.kind === "results" &&
+                !s.frozen &&
                 s.dataId === source.id &&
                 s.analysis === analysis &&
                 !s.selectionInvalid &&
@@ -800,6 +873,10 @@ export default function App() {
     setError("");
     setExporting(true);
     try {
+      if (linkedResult && linkedResult.sourceRevision !== source.revision)
+        throw new Error(
+          "The linked result uses an earlier source snapshot. Unfreeze and recalculate the result before exporting this live graph, or export a graph frozen before the data changed.",
+        );
       if (
         project.graph.error === "ci" &&
         !result &&
@@ -966,7 +1043,7 @@ export default function App() {
       setSaved(
         persistWorkbook(
           (key, value) => localStorage.setItem(key, value),
-          workbookRef.current,
+          preparedSnapshot(workbookRef.current),
           recovery,
         ),
       );
@@ -979,24 +1056,38 @@ export default function App() {
       seriesIndex
     ];
     if (column === undefined) return;
-    setSelection({
-      dataId: source.id,
-      range: {
-        startColumn: column,
-        endColumn: column,
-        startRow: row,
-        endRow: row,
-      },
-    });
     if (navigate) {
+      const liveSource = sourceSheet(workbookRef.current, selectedSheet);
+      const cell = sourceCellForPoint(source, liveSource, column, row);
+      if (!cell) {
+        setError(
+          "This point's original source cell no longer exists in the current data table.",
+        );
+        return;
+      }
+      setSelection(
+        selectionFromRange(liveSource, {
+          startColumn: cell.column,
+          endColumn: cell.column,
+          startRow: cell.row,
+          endRow: cell.row,
+        }),
+      );
       setFocusCell((previous) => ({
         dataId: source.id,
-        column,
-        row,
+        ...cell,
         token: (previous?.token ?? 0) + 1,
       }));
       selectSheet(source.id);
-    }
+    } else
+      setSelection(
+        selectionFromRange(source, {
+          startColumn: column,
+          endColumn: column,
+          startRow: row,
+          endRow: row,
+        }),
+      );
   }
   function clearRange(range: GridRange) {
     change((p) => ({
@@ -1018,17 +1109,44 @@ export default function App() {
       setError("This table has reached the 10,000-row limit.");
       return;
     }
-    change((p) => ({
-      ...p,
-      columns: p.columns.map((c) => {
-        const values = Array.from(
-          { length: Math.max(rows, row) },
-          (_, i) => c.values[i] ?? "",
-        );
-        values.splice(row, 0, "");
-        return { ...c, values };
+    const rowIds = Array.from(
+      { length: Math.max(rows, row) },
+      (_, i) => source.rowIds[i] ?? crypto.randomUUID(),
+    );
+    rowIds.splice(row, 0, crypto.randomUUID());
+    change(
+      (p) => ({
+        ...p,
+        columns: p.columns.map((c) => {
+          const values = Array.from(
+            { length: Math.max(rows, row) },
+            (_, i) => c.values[i] ?? "",
+          );
+          values.splice(row, 0, "");
+          return { ...c, values };
+        }),
       }),
-    }));
+      true,
+      rowIds,
+    );
+  }
+  function removeRow(row: number) {
+    change(
+      (p) => ({
+        ...p,
+        columns: p.columns.map((column) => ({
+          ...column,
+          values: column.values.filter((_, i) => i !== row),
+        })),
+      }),
+      true,
+      source.rowIds.filter((_, i) => i !== row),
+    );
+  }
+  function removeColumn(column: number) {
+    const columns = project.columns.filter((_, i) => i !== column);
+    const retainedRows = Math.max(0, ...columns.map((c) => c.values.length));
+    change({ ...project, columns }, true, source.rowIds.slice(0, retainedRows));
   }
   function insertColumn(column: number) {
     if (project.columns.length >= 30) {
@@ -1057,9 +1175,28 @@ export default function App() {
       setError(errorMessage(error));
     }
   }
+  function freezeSheet(id = selectedSheet.id) {
+    const target = workbookRef.current.sheets.find((sheet) => sheet.id === id);
+    if (!target) return;
+    if (
+      setWorkbook((book) => toggleSheetFrozen(book, id), {
+        label: target.frozen ? "Unfreeze sheet" : "Freeze sheet",
+      })
+    )
+      setNotice(
+        target.frozen
+          ? "Sheet unfrozen. Linked results update when their selected inputs are valid."
+          : "Sheet frozen with its current data and output.",
+      );
+  }
+  function openGraphFormatting() {
+    if (graphSheet?.frozen)
+      setError("Unfreeze this graph before changing its appearance.");
+    else setFormatDialog(true);
+  }
   function saveWorkbook() {
     download(
-      new Blob([JSON.stringify(workbook)], { type: "application/json" }),
+      new Blob([preparedSnapshot(workbook).json], { type: "application/json" }),
       `${workbook.name.replace(/[^a-zA-Z0-9_-]/g, "-")}.gp.json`,
     );
     setNotice("Workbook downloaded with data, linked results, and graphs.");
@@ -1184,6 +1321,9 @@ export default function App() {
             <button role="menuitem" onClick={() => removeSheet()}>
               Delete sheet
             </button>
+            <button role="menuitem" onClick={() => freezeSheet()}>
+              {selectedSheet.frozen ? "Unfreeze sheet" : "Freeze sheet"}
+            </button>
           </DesktopMenu>
           <DesktopMenu label="View">
             <button role="menuitem" onClick={() => setActive("data")}>
@@ -1234,7 +1374,11 @@ export default function App() {
             </button>
           </DesktopMenu>
           <DesktopMenu label="Analyze">
-            <button role="menuitem" onClick={() => setAnalyzeDialog(true)}>
+            <button
+              role="menuitem"
+              disabled={selectedSheet.kind !== "data" && selectedSheet.frozen}
+              onClick={() => setAnalyzeDialog(true)}
+            >
               Analyze Data…
             </button>
             <button role="menuitem" disabled={busy} onClick={() => void run()}>
@@ -1253,8 +1397,8 @@ export default function App() {
             </button>
             <button
               role="menuitem"
-              disabled={active !== "graph"}
-              onClick={() => setFormatDialog(true)}
+              disabled={active !== "graph" || graphSheet?.frozen}
+              onClick={openGraphFormatting}
             >
               Format Graph…
             </button>
@@ -1264,7 +1408,7 @@ export default function App() {
               Source data table
             </button>
             {workbook.sheets
-              .filter((s) => s.kind !== "data" && s.dataId === source.id)
+              .filter((s) => s.id !== source.id && familyIds.has(s.id))
               .map((s) => (
                 <button
                   role="menuitem"
@@ -1312,6 +1456,23 @@ export default function App() {
               <button title="Rename current sheet" onClick={focusSheetName}>
                 <FileText />
                 <small>Rename</small>
+              </button>
+              <button
+                aria-label={
+                  selectedSheet.frozen ? "Unfreeze sheet" : "Freeze sheet"
+                }
+                aria-pressed={!!selectedSheet.frozen}
+                title={
+                  selectedSheet.frozen
+                    ? "Unfreeze sheet"
+                    : "Freeze sheet so it will not automatically update"
+                }
+                onClick={() => freezeSheet()}
+              >
+                <span aria-hidden="true" style={{ fontSize: 20 }}>
+                  ❄
+                </span>
+                <small>{selectedSheet.frozen ? "Unfreeze" : "Freeze"}</small>
               </button>
             </div>
           </div>
@@ -1363,6 +1524,7 @@ export default function App() {
             <div>
               <button
                 aria-label="Analyze Data…"
+                disabled={selectedSheet.kind !== "data" && selectedSheet.frozen}
                 title="Choose an analysis and datasets"
                 onClick={() => setAnalyzeDialog(true)}
               >
@@ -1391,8 +1553,8 @@ export default function App() {
               </button>
               <button
                 aria-label="Format Graph…"
-                disabled={active !== "graph"}
-                onClick={() => setFormatDialog(true)}
+                disabled={active !== "graph" || graphSheet?.frozen}
+                onClick={openGraphFormatting}
               >
                 <Settings2 />
                 <small>Format…</small>
@@ -1467,6 +1629,11 @@ export default function App() {
           <button role="menuitem" onClick={() => removeSheet(sheetMenu.id)}>
             Delete sheet
           </button>
+          <button role="menuitem" onClick={() => freezeSheet(sheetMenu.id)}>
+            {workbook.sheets.find((sheet) => sheet.id === sheetMenu.id)?.frozen
+              ? "Unfreeze sheet"
+              : "Freeze sheet"}
+          </button>
         </div>
       )}
       <aside className="sidebar">
@@ -1513,7 +1680,7 @@ export default function App() {
                 .map((s) => (
                   <button
                     key={s.id}
-                    className={`sheet-link ${s.id === selectedSheet.id ? "selected" : ""}`}
+                    className={`sheet-link ${s.id === selectedSheet.id ? "selected" : ""}${s.frozen ? " is-frozen" : ""}`}
                     aria-current={
                       s.id === selectedSheet.id ? "page" : undefined
                     }
@@ -1535,7 +1702,11 @@ export default function App() {
                     ) : (
                       <FlaskConical size={14} />
                     )}
-                    <span>{s.name}</span>
+                    <span
+                      style={s.frozen ? { fontStyle: "italic" } : undefined}
+                    >
+                      {s.name}
+                    </span>
                     {s.kind === "results" && s.status === "stale" && (
                       <span
                         className="stale-dot"
@@ -1576,11 +1747,7 @@ export default function App() {
             Family <small>Linked sheets</small>
           </h2>
           {workbook.sheets
-            .filter(
-              (s) =>
-                s.id === source.id ||
-                (s.kind !== "data" && s.dataId === source.id),
-            )
+            .filter((s) => familyIds.has(s.id))
             .map((s) => (
               <button
                 key={s.id}
@@ -1623,6 +1790,21 @@ export default function App() {
                   : "Tabular results"}
             </span>
           </div>
+          {selectedSheet.frozen && (
+            <div className="alert notice" role="status">
+              {selectedSheet.kind === "data"
+                ? "Frozen data table. Unfreeze to edit values or table structure."
+                : "Frozen sheet. Displayed data and output retain the captured snapshot; unfreeze to resume updates."}
+            </div>
+          )}
+          {selectedSheet.kind === "graph" &&
+            selectedSheet.selectionInvalid &&
+            !selectedSheet.frozen && (
+              <div className="alert notice" role="status">
+                Some original graph inputs changed or were removed. Open Format
+                Graph to review the selected datasets.
+              </div>
+            )}
           <input
             ref={fileRef}
             type="file"
@@ -1764,6 +1946,7 @@ export default function App() {
               <label htmlFor="analysis">ANALYSIS</label>
               <select
                 id="analysis"
+                disabled={selectedSheet.kind !== "data" && selectedSheet.frozen}
                 value={project.analysis}
                 onChange={(e) =>
                   change((p) => ({
@@ -1799,6 +1982,9 @@ export default function App() {
                 Model
                 <select
                   aria-label="Regression model"
+                  disabled={
+                    selectedSheet.kind !== "data" && selectedSheet.frozen
+                  }
                   value={project.regression_model ?? "one_phase_decay"}
                   onChange={(e) =>
                     change((p) => ({ ...p, regression_model: e.target.value }))
@@ -1837,14 +2023,14 @@ export default function App() {
                     : project.analysis === "anova"
                       ? "Independent groups · equal-variance model"
                       : project.analysis === "dose_response"
-                        ? "Four-parameter logistic · positive X values"
+                        ? "Four-parameter logistic · nonnegative concentrations"
                         : project.analysis === "nonlinear_regression"
                           ? project.regression_model ===
                             "normalized_log_dose_inhibition"
                             ? "X is log10(concentration) · fixed 0–100 response"
                             : project.regression_model ===
                                 "normalized_dose_inhibition"
-                              ? "Positive concentrations · fixed 0–100 response"
+                              ? "Nonnegative concentrations · fixed 0–100 response"
                               : project.regression_model?.startsWith("log_dose")
                                 ? "X must be log10(concentration)"
                                 : "Independent unweighted fits"
@@ -1852,7 +2038,9 @@ export default function App() {
             </span>
             <button
               className="button primary"
-              disabled={busy}
+              disabled={
+                busy || (selectedSheet.kind !== "data" && selectedSheet.frozen)
+              }
               onClick={() => void run()}
             >
               <Play size={15} fill="currentColor" />
@@ -1879,6 +2067,7 @@ export default function App() {
                     </div>
                     <select
                       aria-label="Table type"
+                      disabled={source.frozen}
                       className="small-select"
                       value={project.table_type}
                       onChange={(e) => {
@@ -1925,6 +2114,7 @@ export default function App() {
                     key={source.id}
                     sheetId={source.id}
                     columns={project.columns}
+                    readOnly={!!source.frozen}
                     tableType={project.table_type}
                     colors={project.graph.colors}
                     onCellChange={updateCell}
@@ -1937,22 +2127,9 @@ export default function App() {
                         ),
                       }))
                     }
-                    onRemoveColumn={(col) =>
-                      change((p) => ({
-                        ...p,
-                        columns: p.columns.filter((_, i) => i !== col),
-                      }))
-                    }
+                    onRemoveColumn={removeColumn}
                     onAddColumn={() => insertColumn(project.columns.length)}
-                    onRemoveRow={(row) =>
-                      change((p) => ({
-                        ...p,
-                        columns: p.columns.map((c) => ({
-                          ...c,
-                          values: c.values.filter((_, i) => i !== row),
-                        })),
-                      }))
-                    }
+                    onRemoveRow={removeRow}
                     onAddRow={() => insertRow(rows)}
                     onInsertRow={insertRow}
                     onInsertColumn={insertColumn}
@@ -1962,7 +2139,7 @@ export default function App() {
                       focusCell?.dataId === source.id ? focusCell : undefined
                     }
                     onSelectionChange={(range) =>
-                      setSelection({ dataId: source.id, range })
+                      setSelection(selectionFromRange(source, range))
                     }
                   />
                   <div className="table-tip">
@@ -1985,7 +2162,8 @@ export default function App() {
                       <button
                         key={t}
                         disabled={
-                          xy ? t === "bar" || t === "box" : t === "line"
+                          graphSheet?.frozen ||
+                          (xy ? t === "bar" || t === "box" : t === "line")
                         }
                         className={project.graph.type === t ? "selected" : ""}
                         onClick={() => graph({ type: t })}
@@ -2009,22 +2187,13 @@ export default function App() {
                     selectedPointRanges={selectedPointRanges}
                     onSelectPoint={(series, row) => selectPoint(series, row)}
                     onGoToCell={(series, row) => selectPoint(series, row, true)}
-                    selectedPoint={
-                      selection?.dataId === source.id &&
-                      selection.range.startColumn ===
-                        selection.range.endColumn &&
-                      selection.range.startRow === selection.range.endRow
-                        ? {
-                            seriesIndex: (
-                              graphSheet?.columnIndices ??
-                              dataIndices(source.project)
-                            ).indexOf(selection.range.startColumn),
-                            row: selection.range.startRow,
-                          }
-                        : null
-                    }
-                    onFormatAxes={() => setFormatDialog(true)}
-                    onEditText={() => setFormatDialog(true)}
+                    selectedPoint={selectedGraphPoint(
+                      source,
+                      graphSheet?.columnIndices ?? dataIndices(source.project),
+                      selection,
+                    )}
+                    onFormatAxes={openGraphFormatting}
+                    onEditText={openGraphFormatting}
                   />
                   <div className="legend">
                     {plotProject.columns.slice(xy ? 1 : 0).map((c, i) => (
@@ -2274,7 +2443,9 @@ export default function App() {
               {active === "data"
                 ? `${rows} rows · ${project.columns.length} columns · ${count} values`
                 : active === "results"
-                  ? "Tabular results"
+                  ? selectedSheet.frozen
+                    ? "Frozen results"
+                    : "Tabular results"
                   : "Graph sheet"}
             </span>
             <span className="status-save">
@@ -2321,7 +2492,20 @@ export default function App() {
           onApply={(next) =>
             setWorkbook((w) => ({
               ...w,
-              sheets: w.sheets.map((s) => (s.id === next.id ? next : s)),
+              sheets: w.sheets.map((s) =>
+                s.id === next.id
+                  ? s.kind === "graph" && s.frozen
+                    ? s
+                    : {
+                        ...next,
+                        selectionInvalid: false,
+                        ...datasetSelection(
+                          sourceSheet(w, next),
+                          next.columnIndices,
+                        ),
+                      }
+                  : s,
+              ),
             }))
           }
         />

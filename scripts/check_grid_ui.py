@@ -53,13 +53,47 @@ with sync_playwright() as p:
  assert '6 selected' in page.locator('.data-grid-footer').inner_text()
  assert selected_copy()==copied_before
  assert view.evaluate('(e)=>[e.scrollTop,e.scrollLeft]')==scroll_before
- regression_checks=['selected-range Cmd/Ctrl undo and redo','TSV paste workbook undo and redo','caret mode preserves native text undo','range and active cell survive sheet remount','restored anchor supports Shift+arrow and safe clear','offscreen range copy preserves cached scroll']
+ # Publishing a cached range must resynchronize the graph after visiting another table.
+ view.evaluate('(e)=>{e.scrollTop=0;e.scrollLeft=0;e.dispatchEvent(new Event("scroll"))}');page.wait_for_timeout(100)
+ gc(0,0).click();gc(2,1).click(modifiers=['Shift'])
+ page.evaluate('''()=>{window.gridSelectedArcs=[];const arc=CanvasRenderingContext2D.prototype.arc;CanvasRenderingContext2D.prototype.arc=function(x,y,...rest){if(this.canvas.getAttribute('aria-label')==='Selected observations from the data table')window.gridSelectedArcs.push([x,y]);return arc.call(this,x,y,...rest)}}''')
+ def graph_selection():return page.evaluate('()=>Array.from(new Set(window.gridSelectedArcs.map(p=>JSON.stringify(p)))).sort()')
+ def reset_graph_probe():page.evaluate('window.gridSelectedArcs=[]')
+ page.locator('.sheet-navigator').get_by_title('Treatment response study graph',exact=True).click()
+ first_selection=graph_selection();assert len(first_selection)==6
+ page.locator('.sheet-navigator').get_by_title('Treatment response study',exact=True).click()
+ page.get_by_label('Load a sample dataset',exact=True).select_option('xy')
+ gc(0,1).click();gc(1,2).click(modifiers=['Shift'])
+ reset_graph_probe();page.locator('.sheet-navigator').get_by_title('Dose response study graph',exact=True).click();assert len(graph_selection())==4
+ page.wait_for_function("JSON.parse(localStorage.getItem('gp.workbook.v2')).sheets.filter(s=>s.kind==='data').length===2")
+ sheets_before=page.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('gp.workbook.v2')).sheets)")
+ page.locator('.sheet-navigator').get_by_title('Treatment response study',exact=True).click()
+ assert '6 selected' in page.locator('.data-grid-footer').inner_text()
+ # Do not focus or click a grid cell here: restoration itself must publish A's range.
+ reset_graph_probe();page.locator('.sheet-navigator').get_by_title('Treatment response study graph',exact=True).click()
+ assert graph_selection()==first_selection
+ # An explicit graph-point request must override A's restored six-cell rectangle.
+ page.locator('circle').filter(has_text='Treatment B, row 7:').click()
+ page.get_by_role('button',name='Go to cell',exact=True).click()
+ expect(page.locator('.data-grid-cell.is-active input')).to_have_attribute('data-row','6')
+ expect(page.locator('.data-grid-cell.is-active input')).to_have_attribute('data-column','2')
+ assert page.locator('td[aria-selected="true"]').count()==1
+ assert page.evaluate('document.activeElement.dataset.row')=='6'
+ reset_graph_probe();page.locator('.sheet-navigator').get_by_title('Treatment response study graph',exact=True).click();assert len(graph_selection())==1
+ page.locator('.sheet-navigator').get_by_title('Treatment response study',exact=True).click()
+ assert page.locator('td[aria-selected="true"]').count()==1
+ assert page.locator('.data-grid-cell.is-active input').get_attribute('data-row')=='6'
+ assert page.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('gp.workbook.v2')).sheets)")==sheets_before
+ # Navigation/restoration must not create undo entries: one undo removes sample B.
+ page.get_by_role('button',name='Undo',exact=True).click()
+ page.wait_for_function("JSON.parse(localStorage.getItem('gp.workbook.v2')).sheets.filter(s=>s.kind==='data').length===1")
+ regression_checks=['selected-range Cmd/Ctrl undo and redo','TSV paste workbook undo and redo','caret mode preserves native text undo','range and active cell survive sheet remount','restored anchor supports Shift+arrow and safe clear','offscreen range copy preserves cached scroll','cross-table restored range matches graph highlights','point-to-cell navigation overrides restored range','selection restoration leaves data and undo history unchanged']
  if os.environ.get('GP_GRID_FOCUSED'):
   assert not errors,errors
   result={'passed':regression_checks,'errors':errors}
   (out/'browser-grid-review-regressions.json').write_text(json.dumps(result,indent=2));print(json.dumps(result));b.close();sys.exit(0)
  page.wait_for_function("JSON.parse(localStorage.getItem('gp.workbook.v2')).sheets.find(s=>s.kind==='data').project.columns[1].values[3]==='64'")
- page.evaluate('''() => { const w=JSON.parse(localStorage.getItem('gp.workbook.v2')); const d=w.sheets.find(s=>s.kind==='data');d.project.columns=Array.from({length:8},(_,c)=>({name:`Data ${c+1}`,values:Array.from({length:10000},(_,r)=>String(c*10000+r+1))}));localStorage.setItem('gp.workbook.v2',JSON.stringify(w));}''')
+ page.evaluate('''() => { const w=JSON.parse(localStorage.getItem('gp.workbook.v2')); w.version=2; const d=w.sheets.find(s=>s.kind==='data');d.project.columns=Array.from({length:8},(_,c)=>({name:`Data ${c+1}`,values:Array.from({length:10000},(_,r)=>String(c*10000+r+1))}));localStorage.setItem('gp.workbook.v2',JSON.stringify(w));}''')
  page.reload();page.wait_for_selector('.data-grid-viewport')
  def cell(r,c):return page.locator(f'input[data-row="{r}"][data-column="{c}"]')
  def scroll(y,x=0):

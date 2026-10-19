@@ -86,6 +86,10 @@ with sync_playwright() as p:
     mapped=book()
     subset=next(s for s in mapped['sheets'] if s['kind']=='graph' and s['dataId']==source_id)
     subset['columnIndices']=[1]
+    # v3 persists authoritative dataset identities alongside compatibility
+    # indices. A mismatched pair deliberately fails workbook validation.
+    subset_source=next(s for s in mapped['sheets'] if s['id']==source_id)
+    subset['datasetIds']=[subset_source['project']['columns'][1]['id']]
     mapped['activeSheetId']=subset['id']
     page.evaluate('(b)=>localStorage.setItem("gp.workbook.v2",JSON.stringify(b))',mapped)
     page.reload()

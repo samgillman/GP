@@ -150,3 +150,15 @@ test("formatting distinguishes near-perfect R squared and other near-integer res
   assert.equal(fmt(1.000001), "1.000001");
   assert.equal(fmt(-0.99997), "-0.99997");
 });
+
+test("optional standalone dataset IDs roundtrip but never leak into numerical requests", () => {
+  const project = sample("column");
+  project.columns[0].id = "dataset-A";
+  assert.deepEqual(parseProject(JSON.stringify(project)), project);
+  assert.equal("id" in requestData(project).columns[0], false);
+  for (const invalid of [null, 42, {}, ""]) {
+    const raw = JSON.parse(JSON.stringify(project));
+    raw.columns[0].id = invalid;
+    assert.throws(() => parseProject(JSON.stringify(raw)), /Invalid project table/);
+  }
+});

@@ -8,6 +8,8 @@ The interface now uses a compact macOS-style workbook, light navigator, dense sp
 
 The [completion plan](docs/completion-plan.md) and [execution log](docs/completion-progress.md) track the full guide, Prism 11 differences, outstanding features and verification requirements. Planned work is not completed work.
 
+The [1,574-row parity audit plan](docs/prism-parity-plan.csv) retains every submitted finding and fills each plan and notes field. Its option-level requirements supplement the earlier guide and equation inventory.
+
 ![GP workbook](docs/images/data.png)
 
 ## Browser app
@@ -53,6 +55,10 @@ Only Column and XY tables participate in this workbook model currently. Grouped 
 
 GP also imports supported raw data tables from Prism XML (`.pzfx` or `.xml`) and observed ZIP-based Prism project/template containers (`.prism`, `.prismt`, or `.pzt`, identified by content). Choose the desired table when a file contains several. This importer handles raw Column/OneWay and XY tables with one subcolumn per series. It preserves missing-cell positions and reports unsupported layouts. Excluded XML observations become missing cells with a warning; their original values and exclusion state are not retained. Unsupported ZIP cell flags reject the table. The importer does not import Prism graphs, analyses, formatting, or legacy `PCFFGRA4` binary projects. Replicate subcolumns, preaveraged data, and other table families require future work.
 
+Use **Freeze sheet** on a data table to protect its values and structure, or on current results and graphs to keep their captured inputs/output while the source changes. **Unfreeze sheet** resumes eligible updates. Frozen graph details are read-only. Freezing and unfreezing are undoable; snapshots are retained in the workbook file. The current source-table deletion policy still removes its linked family.
+
+Workbook version3 gives datasets and represented rows stable identities. Earlier GP v1/v2 documents migrate on open; unsupported/malformed identity metadata is rejected without replacing the current workbook. Native Prism file formats remain separate from this GP schema.
+
 ## Analyses
 
 - Descriptive statistics, sample SD/SEM, Student-t confidence intervals, geometric summaries, type-6 quartiles/percentiles, coefficient of variation, unbiased skewness/excess kurtosis, and mean ± SD reference lines.
@@ -83,4 +89,4 @@ npm --prefix web run build
 
 Application source is in `gp/` and `web/`. REA is maintained separately at `/workspace/rea` in the prepared cloud environment. The supplied installer, extracted application, and full investigation output live outside this repository in `/workspace/gp-inputs` and `/workspace/gp-evidence`. GP does not bundle Prism binaries or graphical assets.
 
-Prism reconstruction uses the [REA skill and tools](https://github.com/morluto/rea) through the repository launcher and MCP interface. [AGENTS.md](AGENTS.md) requires source hashes, REA Evidence IDs and explicit separation of static findings, runtime observations and GP implementation choices. The latest [compiled UI evidence](docs/prism-ui-rea-evidence.md) covers selected original menus, point inspectors and formatting dialogs; [native-code observations](docs/prism-native-code.md) record bounded decompilation findings. Ordinary development tests verify GP behavior; they do not establish Prism equivalence.
+Prism reconstruction uses the [REA skill and tools](https://github.com/morluto/rea) through the repository launcher and MCP interface. [AGENTS.md](AGENTS.md) requires source hashes, REA Evidence IDs and explicit separation of static findings, runtime observations and GP implementation choices. The latest [compiled UI evidence](docs/prism-ui-rea-evidence.md) covers selected original menus, point inspectors and formatting dialogs; [native-code observations](docs/prism-native-code.md) record bounded decompilation findings. New [freeze](docs/prism-freeze-rea-evidence.md) and [zoom](docs/prism-zoom-rea-evidence.md) reports retain completed REA records and their unresolved scope. Ordinary development tests verify GP behavior; they do not establish Prism equivalence.

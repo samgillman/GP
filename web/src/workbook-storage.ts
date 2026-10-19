@@ -1,6 +1,8 @@
 import { fromProject, parseWorkbook, WORKBOOK_STORAGE } from "./workbook.ts";
 import type { Workbook } from "./workbook.ts";
 import { sample } from "./data.ts";
+import { workbookSnapshot } from "./workbook-snapshot.ts";
+import type { WorkbookSnapshotInput } from "./workbook-snapshot.ts";
 export const MAX_WORKBOOK_SHEETS = 500;
 export const MAX_WORKBOOK_BYTES = 20_000_000;
 export type Recovery = { message: string; original: string | null };
@@ -31,22 +33,22 @@ export function restoreWorkbook(
     };
   }
 }
-export function workbookLimitError(workbook: Workbook): string | null {
-  if (workbook.sheets.length > MAX_WORKBOOK_SHEETS)
+export function workbookLimitError(workbook: WorkbookSnapshotInput): string | null {
+  const snapshot = workbookSnapshot(workbook);
+  if (snapshot.sheetCount > MAX_WORKBOOK_SHEETS)
     return "This workbook has reached the 500-sheet limit. Open or start another workbook before adding sheets.";
   if (
-    new TextEncoder().encode(JSON.stringify(workbook)).length >
-    MAX_WORKBOOK_BYTES
+    snapshot.utf8Bytes > MAX_WORKBOOK_BYTES
   )
     return "This change would exceed the 20 MB workbook limit. Save this workbook and use another workbook for additional data.";
   return null;
 }
 export function persistWorkbook(
   write: (key: string, value: string) => void,
-  workbook: Workbook,
+  workbook: WorkbookSnapshotInput,
   recovery: Recovery | null,
 ): boolean {
   if (recovery) return false;
-  write(WORKBOOK_STORAGE, JSON.stringify(workbook));
+  write(WORKBOOK_STORAGE, workbookSnapshot(workbook).json);
   return true;
 }

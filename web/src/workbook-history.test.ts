@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { sample } from "./data.ts";
 import type { Response } from "./data.ts";
 import { addData, fromProject, recordResult, updateData } from "./workbook.ts";
+import { prepareWorkbookSnapshot } from "./workbook-snapshot.ts";
 import {
   breakHistoryGroup,
   commitHistory,
@@ -157,4 +158,23 @@ test("keyboard shortcuts leave text-input undo, dialogs and handled events alone
     ),
     null,
   );
+});
+
+test("prepared typing groups preserve redo/navigation and exact history byte boundaries", () => {
+  const a = fromProject(sample("column")), b = { ...a, name: "B" }, c = { ...a, name: "BC" };
+  const pa = prepareWorkbookSnapshot(a), pb = prepareWorkbookSnapshot(b), pc = prepareWorkbookSnapshot(c);
+  let h = commitHistory(emptyHistory(), pa, pb, { coalesceKey: "name", now: 1 }, { count: 40, bytes: pa.historyBytes });
+  assert.equal(h.past.length, 1); assert.equal(h.limited, false);
+  h = commitHistory(h, pb, pc, { coalesceKey: "name", now: 2 });
+  assert.equal(h.past.length, 1);
+  const undo = moveHistory(h, pc, "undo")!;
+  assert.equal(undo.workbook.name, a.name);
+  const navigated = prepareWorkbookSnapshot({ ...undo.workbook, activeSheetId: a.sheets[1].id });
+  const navigationHistory = commitHistory(undo.history, prepareWorkbookSnapshot(undo.workbook), navigated);
+  assert.equal(navigationHistory.future.length, 1);
+  const redo = moveHistory(navigationHistory, navigated, "redo")!;
+  assert.equal(redo.workbook.name, "BC");
+  assert.equal(redo.workbook.activeSheetId, a.sheets[1].id);
+  const limited = commitHistory(emptyHistory(), pa, pb, {}, { count: 40, bytes: pa.historyBytes - 1 });
+  assert.equal(limited.past.length, 0); assert.equal(limited.limited, true);
 });

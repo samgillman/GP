@@ -136,9 +136,24 @@
         "Migrate existing GP v1/v2 without losing drafts, links, settings, exclusions or results; reject malformed/cyclic/dangling references.",
         "Rename/reorder/delete never silently retarget dependencies."
       ],
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "web/src/workbook.ts",
+        "web/src/data.ts",
+        "web/src/workbook-actions.ts",
+        "web/src/workbook-selection.ts",
+        "web/src/App.tsx"
+      ],
       "prism_reference_evidence": [],
-      "limitations": []
+      "limitations": [
+        "Implemented stable identities cover current Column/XY sheets, datasets and represented rows; cells use dataset/row composites. Replicate/subject, rich graph-object and layout-placement families remain open.",
+        "Version3 is an independent GP schema. Native dataset GUID references support identity separation; native row-ID serialization and full file equivalence are not claimed.",
+        "Storage key gp.workbook.v2 is retained for compatibility; serialized document version is3. Existing source files remain unmodified."
+      ],
+      "validation_evidence": [
+        "web/src/workbook.test.ts: v1 draft/v2 saved-result migration; strict v3 dataset/row IDs and reference validation; duplicate names, reorder/insert/delete and explicit row mapping",
+        "web/src/workbook-actions.test.ts: fresh data-copy IDs and source-preserving graph copies",
+        "web/src/workbook-selection.test.ts: stable graph selection and source-cell navigation after source mutations"
+      ]
     },
     {
       "id": "W002",
@@ -181,7 +196,7 @@
       "id": "W003",
       "title": "General dependency graph and chained results",
       "phase": 1,
-      "status": "not_started",
+      "status": "partial",
       "guide_sections": [
         "1.1",
         "3.7",
@@ -196,15 +211,27 @@
         "Topologically update transforms, analyses of analyses, linked cells, info constants, graphs and layouts.",
         "Detect cycles, fan-out, deletion, missing inputs and error propagation; unrelated families remain unchanged."
       ],
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "web/src/workbook-dependencies.ts",
+        "web/src/workbook-recalculation.ts",
+        "web/src/workbook.ts",
+        "web/src/App.tsx"
+      ],
       "prism_reference_evidence": [],
-      "limitations": []
+      "limitations": [
+        "Current runtime consumers are direct data/results/graphs. Generic DAG support is not implementation of chained analyses, transforms, formula cells, Info constants, links or layouts.",
+        "Future chained execution must await completed upstream tasks, not merely use topological dispatch order. Those consumers remain tracked individually."
+      ],
+      "validation_evidence": [
+        "web/src/workbook-dependencies.test.ts:16 tests including missing/wrong-kind inputs, source mismatch, SCC cycles, downstream isolation, frozen update barriers,30k chain and130k fan-out",
+        "18 recalculation regressions passed after schema migration, including freezing an undo-restored result while an obsolete request is running; scheduler consumes dependency ordering and isolates blocked families."
+      ]
     },
     {
       "id": "W004",
       "title": "Freeze/unfreeze data, results and graphs",
       "phase": 1,
-      "status": "not_started",
+      "status": "partial",
       "guide_sections": [
         "1.7",
         "2.10",
@@ -219,9 +246,26 @@
         "Unfreeze updates downstream state; persistence, duplication, undo and export honor freeze state.",
         "Determine native handling of changed parameters and frozen dependencies before parity closure."
       ],
-      "implementation_evidence": [],
-      "prism_reference_evidence": [],
-      "limitations": []
+      "implementation_evidence": [
+        "web/src/workbook-freeze.ts",
+        "web/src/workbook.ts",
+        "web/src/workbook-recalculation.ts",
+        "web/src/App.tsx",
+        "web/src/DataGrid.tsx"
+      ],
+      "prism_reference_evidence": [
+        "docs/prism-freeze-rea-evidence.md: six bounded REA native handlers/callback with source ranges and hashes; shipped menu/toolbar and localized guidance retained separately"
+      ],
+      "limitations": [
+        "Current Column/XY families only; unsupported result exclusions, formulas/compatibility flags and native special unfreeze branches remain open.",
+        "Snapshot persistence, undo and direct recalculation on thaw are independently implemented GP behavior; underlying native setFrozen/storage/invalidation bodies and a running Prism comparison remain unresolved.",
+        "Frozen graph creation rejects stale or mismatched linked output. Historical result-to-new-live-graph and changed-source live export require explicit recalculation, avoiding silent recomputation of a captured curve.",
+        "Source-table deletion retains current family cascade, not full Prism orphan semantics. Large snapshots remain subject to workbook/browser-storage limits and recovery warnings."
+      ],
+      "validation_evidence": [
+        "web/src/workbook-freeze.test.ts:15 cases covering snapshots, frozen output, guards, historical graph links, deletion, remapping, save/reopen, duplication and undo/redo",
+        "scripts/check_workbook_foundations.py:9 actual-browser scenario groups passed in development, packaged server and self-contained static builds. Static repeat completed245.93s with no page errors; original diagnostic failures retained outside Git."
+      ]
     },
     {
       "id": "W005",

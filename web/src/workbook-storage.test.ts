@@ -6,7 +6,9 @@ import {
   restoreWorkbook,
   persistWorkbook,
   workbookLimitError,
+  MAX_WORKBOOK_BYTES,
 } from "./workbook-storage.ts";
+import { prepareWorkbookSnapshot } from "./workbook-snapshot.ts";
 test("malformed saved workbook remains byte-for-byte intact while autosave is paused", () => {
   const original = '{"version":2,"unfinished":';
   const storage = new Map([[WORKBOOK_STORAGE, original]]);
@@ -53,7 +55,7 @@ test("explicit recovery resolution permits autosave; valid legacy files migrate"
     persistWorkbook((_, value) => (output = value), restored.workbook, null),
     true,
   );
-  assert.equal(JSON.parse(output).version, 2);
+  assert.equal(JSON.parse(output).version, 3);
 });
 test("sheet limit permits 500 sheets but rejects creation of sheet 501 without throwing", () => {
   let book = fromProject(sample("column"));
@@ -69,4 +71,26 @@ test("size guard prevents producing a workbook larger than the importer limit", 
   const book = fromProject(sample("column"));
   book.name = "x".repeat(20_000_001);
   assert.match(workbookLimitError(book) ?? "", /20 MB workbook limit/);
+});
+
+test("prepared UTF-8 size limit accepts exact boundary and rejects added multibyte content", () => {
+  const book = fromProject(sample("column")); book.name = "";
+  const available = MAX_WORKBOOK_BYTES - prepareWorkbookSnapshot(book).utf8Bytes;
+  book.name = "é".repeat(Math.floor(available / 2)) + "x".repeat(available % 2);
+  const atLimit = prepareWorkbookSnapshot(book);
+  assert.equal(atLimit.utf8Bytes, MAX_WORKBOOK_BYTES);
+  assert.equal(workbookLimitError(atLimit), null);
+  book.name += "💊";
+  const overLimit = prepareWorkbookSnapshot(book);
+  assert.equal(overLimit.utf8Bytes, MAX_WORKBOOK_BYTES + 4);
+  assert.match(workbookLimitError(overLimit) ?? "", /20 MB workbook limit/);
+  assert.equal(workbookLimitError(atLimit), null, "mutation cannot change the captured limit result");
+});
+
+test("prepared autosave honors recovery pauses and propagates write failures", () => {
+  const snapshot = prepareWorkbookSnapshot(fromProject(sample("column")));
+  let calls = 0;
+  assert.equal(persistWorkbook(() => { calls++; }, snapshot, { message: "Paused", original: "original" }), false);
+  assert.equal(calls, 0);
+  assert.throws(() => persistWorkbook(() => { throw Error("Quota exceeded"); }, snapshot, null), /Quota exceeded/);
 });

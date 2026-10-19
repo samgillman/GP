@@ -1,4 +1,6 @@
 import type { Workbook } from "./workbook.ts";
+import { sameWorkbookContent, workbookSnapshot } from "./workbook-snapshot.ts";
+import type { PreparedWorkbookSnapshot, WorkbookSnapshotInput } from "./workbook-snapshot.ts";
 export const HISTORY_LIMITS = { count: 40, bytes: 32 * 1024 * 1024 };
 export type HistoryOptions = {
   label?: string;
@@ -16,12 +18,8 @@ export type WorkbookHistory = {
 export function emptyHistory(): WorkbookHistory {
   return { past: [], future: [], group: null, limited: false };
 }
-function entry(workbook: Workbook, label: string): Entry {
-  const snapshot = JSON.stringify(workbook);
-  return { snapshot, label, bytes: snapshot.length * 2 };
-}
-function content(book: Workbook) {
-  return JSON.stringify({ ...book, activeSheetId: "" });
+function entry(workbook: PreparedWorkbookSnapshot, label: string): Entry {
+  return { snapshot: workbook.json, label, bytes: workbook.historyBytes };
 }
 function bounded(
   history: WorkbookHistory,
@@ -44,14 +42,15 @@ export function breakHistoryGroup(history: WorkbookHistory): WorkbookHistory {
 }
 export function commitHistory(
   history: WorkbookHistory,
-  before: Workbook,
-  after: Workbook,
+  before: WorkbookSnapshotInput,
+  after: WorkbookSnapshotInput,
   options: HistoryOptions = {},
   limits = HISTORY_LIMITS,
 ): WorkbookHistory {
   if (options.reset) return emptyHistory();
-  if (content(before) === content(after))
-    return before.activeSheetId !== after.activeSheetId
+  const beforeSnapshot = workbookSnapshot(before), afterSnapshot = workbookSnapshot(after);
+  if (sameWorkbookContent(beforeSnapshot, afterSnapshot))
+    return beforeSnapshot.activeSheetId !== afterSnapshot.activeSheetId
       ? breakHistoryGroup(history)
       : history;
   const now = options.now ?? Date.now(),
@@ -65,7 +64,7 @@ export function commitHistory(
   const next = {
     past: merge
       ? history.past
-      : [...history.past, entry(before, options.label ?? "Edit workbook")],
+      : [...history.past, entry(beforeSnapshot, options.label ?? "Edit workbook")],
     future: [],
     group: key ? { key, at: now } : null,
     limited: history.limited,
@@ -74,22 +73,23 @@ export function commitHistory(
 }
 export function moveHistory(
   history: WorkbookHistory,
-  current: Workbook,
+  current: WorkbookSnapshotInput,
   direction: "undo" | "redo",
   limits = HISTORY_LIMITS,
 ): { history: WorkbookHistory; workbook: Workbook; label: string } | null {
   const stack = direction === "undo" ? history.past : history.future,
     last = stack.at(-1);
   if (!last) return null;
+  const currentSnapshot = workbookSnapshot(current);
   const saved = JSON.parse(last.snapshot) as Workbook;
   // Sheet selection is not an edit: retain the user's current view when that sheet exists.
   const workbook = {
     ...saved,
-    activeSheetId: saved.sheets.some((s) => s.id === current.activeSheetId)
-      ? current.activeSheetId
+    activeSheetId: saved.sheets.some((s) => s.id === currentSnapshot.activeSheetId)
+      ? currentSnapshot.activeSheetId
       : saved.activeSheetId,
   };
-  const replacement = entry(current, last.label);
+  const replacement = entry(currentSnapshot, last.label);
   const next =
     direction === "undo"
       ? {

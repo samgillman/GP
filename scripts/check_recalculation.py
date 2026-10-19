@@ -13,7 +13,10 @@ with sync_playwright() as p:
     browser = p.chromium.launch(executable_path=os.environ.get('GP_CHROMIUM'), args=['--no-sandbox'])
     page = browser.new_page()
     errors = []
+    engine_events = []
     page.on('pageerror', lambda e: errors.append(str(e)))
+    page.on('console', lambda event: engine_events.append({'type': event.type, 'text': event.text[:1000]}))
+    page.on('requestfailed', lambda request: engine_events.append({'failed_request': request.url, 'reason': request.failure}))
     page.goto(base)
     page.wait_for_function('localStorage.getItem("gp.workbook.v2") !== null')
     def book():
@@ -28,7 +31,8 @@ with sync_playwright() as p:
     other['project']['columns'] = [{'name':'Other Y','values':['10','20','30']}]
     def stale(id, data, columns):
         return {'kind':'results','id':id,'name':id,'dataId':data,'analysis':'descriptive','columnIndices':columns,'sourceRevision':0,'status':'stale','result':None}
-    template.update(activeSheetId='d1', sheets=[source,other,stale('r1','d1',[0]),stale('r2','d1',[1]),stale('r3','d2',[0])])
+    # Deliberately exercise migration of a legacy positional workbook fixture.
+    template.update(version=2, activeSheetId='d1', sheets=[source,other,stale('r1','d1',[0]),stale('r2','d1',[1]),stale('r3','d2',[0])])
     page.evaluate('(b) => localStorage.setItem("gp.workbook.v2",JSON.stringify(b))', template)
     page.reload()
     def current(ids):
@@ -36,6 +40,15 @@ with sync_playwright() as p:
             page.wait_for_function('(ids) => {const b=JSON.parse(localStorage.getItem("gp.workbook.v2"));return ids.every(id=>b.sheets.find(s=>s.id===id)?.status==="current") || document.body.innerText.includes("Recalculation failed:")}', arg=ids, timeout=120000)
             assert all(next(s for s in book()['sheets'] if s['id']==id)['status']=='current' for id in ids), page.locator('.alert').all_text_contents()
         except Exception:
+            # A data sheet need not display the linked result's failure banner.
+            # Keep job/storage and worker diagnostics instead of reporting only
+            # an empty .alert list when a cold browser engine does not finish.
+            saved = book()
+            print('Linked result states:', [
+                {key: item.get(key) for key in ('id', 'status', 'sourceRevision', 'frozen', 'selectionInvalid')}
+                for item in saved['sheets'] if item['id'] in ids
+            ], flush=True)
+            print('Browser engine events:', engine_events[-25:], flush=True)
             print('Calculation diagnostic:', page.locator('.alert').all_text_contents(), flush=True)
             print('Page errors:', errors, flush=True)
             raise

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-10-19T20:05:14.808680+00:00",
+  "generated_at_utc": "2026-10-19T20:39:53.544357+00:00",
   "target": {
     "product": "GraphPad Prism",
     "version": "11.1.0",
@@ -158,7 +158,7 @@
       ],
       "implementation_sources": [],
       "remaining_obligations": [
-        "D\u2019Agostino-Pearson, Shapiro-Wilk, Anderson-Darling, KS variant",
+        "D’Agostino-Pearson, Shapiro-Wilk, Anderson-Darling, KS variant",
         "Minimum sample/tie conventions",
         "Numerical oracles"
       ],
@@ -277,7 +277,7 @@
       "implementation_sources": [],
       "remaining_obligations": [
         "Subject/block alignment",
-        "Sphericity/Geisser\u2013Greenhouse",
+        "Sphericity/Geisser–Greenhouse",
         "Missing values and variance-component estimation",
         "Convergence/boundary handling",
         "Reference results beyond ordinary ANOVA"
@@ -302,7 +302,7 @@
       ],
       "implementation_sources": [],
       "remaining_obligations": [
-        "Tukey/Dunnett/\u0160\u00edd\u00e1k/Holm\u2013\u0160\u00edd\u00e1k/Bonferroni/FDR variants",
+        "Tukey/Dunnett/Šídák/Holm–Šídák/Bonferroni/FDR variants",
         "Family definition and selected comparisons",
         "Adjusted P values and intervals",
         "Tie/order behavior"
@@ -469,7 +469,7 @@
     },
     {
       "id": "survival_km",
-      "scope": "Kaplan\u2013Meier curves, risk/event/censor tables, confidence intervals",
+      "scope": "Kaplan–Meier curves, risk/event/censor tables, confidence intervals",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
       "verification_status": "714_populated_saved_values_medians_and_static_browser_verified",
@@ -514,7 +514,7 @@
     },
     {
       "id": "survival_comparisons",
-      "scope": "Logrank, trend, Gehan\u2013Breslow\u2013Wilcoxon and multiplicity",
+      "scope": "Logrank, trend, Gehan–Breslow–Wilcoxon and multiplicity",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
       "verification_status": "saved_global_logrank_and_static_browser_verified",
@@ -548,7 +548,7 @@
       ],
       "remaining_obligations": [
         "Pairwise comparisons and adjustments",
-        "Trend and Gehan\u2013Breslow\u2013Wilcoxon tests",
+        "Trend and Gehan–Breslow–Wilcoxon tests",
         "Hazard ratios and associated intervals",
         "All native comparison settings"
       ],
@@ -795,7 +795,7 @@
     },
     {
       "id": "workbook_workflow",
-      "scope": "Multi-sheet data\u2192analysis\u2192graph dependency workflow",
+      "scope": "Multi-sheet data→analysis→graph dependency workflow",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
       "verification_status": "multi_sheet_link_invalidation_recalculation_and_persistence_browser_verified",
@@ -851,24 +851,52 @@
         {
           "path": "/workspace/gp-evidence/native-pass3/graph-set-full.json",
           "sha256": "9869e5491c8a30f0cea0669a5d4ac3dfc432b3973a4c60c484f1f5cda0f720ce"
+        },
+        {
+          "path": "docs/prism-freeze-rea-evidence.md",
+          "sha256": "b7982c1ee04a5d2051c511c3d13bcc1338b176a7df7a40072c8b194a64cdb2d4"
+        },
+        {
+          "path": "/workspace/gp-evidence/workbook-foundations-dev/results.json",
+          "sha256": "0d591755c0016437f319b30f3b82da4f8d00afe4ca0c02e10f3fabaae1d20cdd"
+        },
+        {
+          "path": "/workspace/gp-evidence/workbook-foundations-server/results.json",
+          "sha256": "268abe226171e147e6072f044914dee024af3576d469932ea8ea421dfc3936ac"
+        },
+        {
+          "path": "/workspace/gp-evidence/serialization-paired.json",
+          "sha256": "5d033d9f6c5e8c2c242766738ab8e2c79e6b94264065feb83fc2e2d0e85360a4"
+        },
+        {
+          "path": "/workspace/gp-evidence/workbook-foundations-static-diagnostic/results.json",
+          "sha256": "9797545ae9af0e01b931b1f734dbc8ecd9c3e3f2b4c8fc9e9da2ccfa240d3d47"
+        },
+        {
+          "path": "/workspace/gp-evidence/large-v3-capacity.json",
+          "sha256": "5ea85f0d0fdfa846c80c0e07c5118f44b8eb4604b85e02d0979f8e0fa5b3e47e"
+        },
+        {
+          "path": "/workspace/gp-evidence/large-v3-integration.json",
+          "sha256": "6328a94e2e4d829b0f736e436c7c6a3935560ac4fadbf24d569c1596f4632807"
         }
       ],
       "implementation_sources": [
         {
           "path": "web/src/App.tsx",
-          "sha256": "20889aff4ab8698c4a7c693bda12b32c4e0dd201db390eb0830eb0ca9578fbd6"
+          "sha256": "648d15d053ec801d0819965efe5e915e7aa512d14536d13b18af132c8f2c32da"
         },
         {
           "path": "web/src/data.ts",
-          "sha256": "8751bb0eef34eb5b44f344b70df5d22a367e2a4badc089e511792ca4fafe022e"
+          "sha256": "05e36377352bbb6c19814b02896f0f93e1a26dc48cf2ec25d1d92953bf97678d"
         },
         {
           "path": "web/src/workbook.ts",
-          "sha256": "48e3f94786ec86c7651dd06897ae1aede835b51597ea60cbfdeb45bbd850a949"
+          "sha256": "9823cba6c115d21d28dc73edb23c18874ddf5e52bbdb8653eb0bf58ff7699072"
         },
         {
           "path": "web/src/workbook.test.ts",
-          "sha256": "fd3af88fbb31c61528ec335f02b484b58c6a611f27e7621015cfe0ee84e33a65"
+          "sha256": "453d2d181d109ecf18a8cd3d269ca35b84e35138a901676b0a1855753058c7fd"
         },
         {
           "path": "web/src/WorkbookDialogs.tsx",
@@ -876,19 +904,55 @@
         },
         {
           "path": "web/src/workbook-storage.ts",
-          "sha256": "ebcdf8b67a27e0dbfbfcb85eb807dd37b56b78c9ceddfcabe8d3c7fd0434ad2f"
+          "sha256": "9b02bbcdfa6d90a1558954753406cefeb3a29fd88a2ebeea4fba62c8b67a69db"
         },
         {
           "path": "web/src/workbook-storage.test.ts",
-          "sha256": "f4527f170f8532ce31c1e22cbc3908f35cb2860e386cb6e9797ecf5c13621177"
+          "sha256": "2ed7f61fa0aecccc6191ee16cef1879a33f5ea10448adfa78f369b5c1eeb7d26"
         },
         {
           "path": "web/src/workbook-history.ts",
-          "sha256": "535ceb3f73c666edbe1f357fcf88e36ff6bf932830dcf00f5d51a28da87f7ca5"
+          "sha256": "8e38765ab721b1bc221e893d702397cc978bfe5f3aa9770d1e7939385ee76cd8"
         },
         {
           "path": "web/src/workbook-history.test.ts",
-          "sha256": "bf98c76b286343821a5cb0fc9ac26813df4347445cb49c26183ffb0ad22485bb"
+          "sha256": "5170d3ad90490ecda208a9a626b6c704a5113ea950947b9c7a2ba51e183167f4"
+        },
+        {
+          "path": "web/src/workbook-dependencies.ts",
+          "sha256": "506465357065a9beeb086b05f383e08d7461e4e9c87b9865d9788191e1b59351"
+        },
+        {
+          "path": "web/src/workbook-dependencies.test.ts",
+          "sha256": "e838ee5e2457d9b0f878b22c752bd5963ba1d6ae0f87e0610d281b8cc79f51b5"
+        },
+        {
+          "path": "web/src/workbook-freeze.ts",
+          "sha256": "4de0bb6164d91faf213fd1490afe65138b951a729181355f65340d173cfaf4e2"
+        },
+        {
+          "path": "web/src/workbook-freeze.test.ts",
+          "sha256": "d613c496a7d6b83a5b27d8e72a1f52aa83f73376a7807f7157e8ec7f9078e87f"
+        },
+        {
+          "path": "web/src/workbook-selection.ts",
+          "sha256": "86bf1419b06a2da6bd88c6356bf6cf0c2c790a88f270839402e39cf8401b68e6"
+        },
+        {
+          "path": "web/src/workbook-selection.test.ts",
+          "sha256": "f168e4cecf5e569576349f4ff6879fd1f55795431da4450186841e7a454b6bb8"
+        },
+        {
+          "path": "web/src/workbook-snapshot.ts",
+          "sha256": "e76a1bca0426959e8b8d2193d5076cddf22a7b4df81c0223cb3d647434ae2357"
+        },
+        {
+          "path": "web/src/workbook-snapshot.test.ts",
+          "sha256": "67291f59052af88407aa5f1908db7d9ea685f70f48682af05f23b8f8570c004a"
+        },
+        {
+          "path": "scripts/check_workbook_foundations.py",
+          "sha256": "88ce75f559815f25aff9caebd1e1356d22ff6898e9c6bd7dad92b857bf60e577"
         }
       ],
       "remaining_obligations": [
@@ -899,7 +963,7 @@
         "Complete sheet navigation and selection fidelity"
       ],
       "priority": "high",
-      "latest_progress": "Existing direct analyses now recalculate automatically with debounce, input-identity guards, visible errors, navigation and undo preservation. Full typed workbook/dependency DAG/freeze remains open."
+      "latest_progress": "Version3 stable dataset/row identities, legacy migration, prepared immutable snapshots, direct-family dependency ordering and bounded Column/XY freeze.145 frontend unit tests; all nine foundation browser scenarios passed in dev/server/static; direct server/static recalculation,26 grid checks and capacity/recovery checks passed. Typed families, chained execution, native freeze internals and runtime parity remain incomplete."
     },
     {
       "id": "graphing",
@@ -943,6 +1007,10 @@
         {
           "path": "/workspace/gp-evidence/native-pass3/graph-set-full.json",
           "sha256": "9869e5491c8a30f0cea0669a5d4ac3dfc432b3973a4c60c484f1f5cda0f720ce"
+        },
+        {
+          "path": "docs/prism-zoom-rea-evidence.md",
+          "sha256": "0d2c8488cd12acfcd2d0a2121938643f917bad10f642a46bd0a3f904e87ba0d3"
         }
       ],
       "implementation_sources": [
@@ -1098,12 +1166,16 @@
         {
           "path": "docs/prism10-guide-findings.md",
           "sha256": "1b0da4ea545098085609f5b9e21a1b0632eb35bc727855d695d902514d74a524"
+        },
+        {
+          "path": "docs/prism-freeze-rea-evidence.md",
+          "sha256": "b7982c1ee04a5d2051c511c3d13bcc1338b176a7df7a40072c8b194a64cdb2d4"
         }
       ],
       "implementation_sources": [
         {
           "path": "web/src/App.tsx",
-          "sha256": "20889aff4ab8698c4a7c693bda12b32c4e0dd201db390eb0830eb0ca9578fbd6"
+          "sha256": "648d15d053ec801d0819965efe5e915e7aa512d14536d13b18af132c8f2c32da"
         },
         {
           "path": "docs/prism-ui-map.md",
@@ -1111,19 +1183,19 @@
         },
         {
           "path": "web/src/workbook-storage.ts",
-          "sha256": "ebcdf8b67a27e0dbfbfcb85eb807dd37b56b78c9ceddfcabe8d3c7fd0434ad2f"
+          "sha256": "9b02bbcdfa6d90a1558954753406cefeb3a29fd88a2ebeea4fba62c8b67a69db"
         },
         {
           "path": "web/src/workbook-storage.test.ts",
-          "sha256": "f4527f170f8532ce31c1e22cbc3908f35cb2860e386cb6e9797ecf5c13621177"
+          "sha256": "2ed7f61fa0aecccc6191ee16cef1879a33f5ea10448adfa78f369b5c1eeb7d26"
         },
         {
           "path": "web/src/workbook-history.ts",
-          "sha256": "535ceb3f73c666edbe1f357fcf88e36ff6bf932830dcf00f5d51a28da87f7ca5"
+          "sha256": "8e38765ab721b1bc221e893d702397cc978bfe5f3aa9770d1e7939385ee76cd8"
         },
         {
           "path": "web/src/workbook-history.test.ts",
-          "sha256": "bf98c76b286343821a5cb0fc9ac26813df4347445cb49c26183ffb0ad22485bb"
+          "sha256": "5170d3ad90490ecda208a9a626b6c704a5113ea950947b9c7a2ba51e183167f4"
         },
         {
           "path": "web/src/WorkbookDialogs.tsx",
@@ -1148,6 +1220,18 @@
         {
           "path": "web/src/desktop-dark.css",
           "sha256": "2ff04c63dabd696c326f250fd51e04d5bdb9fa7752bff8ebadca8a39abdaece9"
+        },
+        {
+          "path": "web/src/workbook-freeze.ts",
+          "sha256": "4de0bb6164d91faf213fd1490afe65138b951a729181355f65340d173cfaf4e2"
+        },
+        {
+          "path": "web/src/workbook-selection.ts",
+          "sha256": "86bf1419b06a2da6bd88c6356bf6cf0c2c790a88f270839402e39cf8401b68e6"
+        },
+        {
+          "path": "scripts/check_workbook_foundations.py",
+          "sha256": "88ce75f559815f25aff9caebd1e1356d22ff6898e9c6bd7dad92b857bf60e577"
         }
       ],
       "remaining_obligations": [
@@ -3943,7 +4027,7 @@
     },
     {
       "path": "web/src/App.tsx",
-      "sha256": "20889aff4ab8698c4a7c693bda12b32c4e0dd201db390eb0830eb0ca9578fbd6"
+      "sha256": "648d15d053ec801d0819965efe5e915e7aa512d14536d13b18af132c8f2c32da"
     },
     {
       "path": "web/src/Plot.tsx",
@@ -3971,23 +4055,23 @@
     },
     {
       "path": "web/src/workbook.ts",
-      "sha256": "48e3f94786ec86c7651dd06897ae1aede835b51597ea60cbfdeb45bbd850a949"
+      "sha256": "9823cba6c115d21d28dc73edb23c18874ddf5e52bbdb8653eb0bf58ff7699072"
     },
     {
       "path": "web/src/workbook-storage.ts",
-      "sha256": "ebcdf8b67a27e0dbfbfcb85eb807dd37b56b78c9ceddfcabe8d3c7fd0434ad2f"
+      "sha256": "9b02bbcdfa6d90a1558954753406cefeb3a29fd88a2ebeea4fba62c8b67a69db"
     },
     {
       "path": "web/src/workbook-storage.test.ts",
-      "sha256": "f4527f170f8532ce31c1e22cbc3908f35cb2860e386cb6e9797ecf5c13621177"
+      "sha256": "2ed7f61fa0aecccc6191ee16cef1879a33f5ea10448adfa78f369b5c1eeb7d26"
     },
     {
       "path": "web/src/workbook-history.ts",
-      "sha256": "535ceb3f73c666edbe1f357fcf88e36ff6bf932830dcf00f5d51a28da87f7ca5"
+      "sha256": "8e38765ab721b1bc221e893d702397cc978bfe5f3aa9770d1e7939385ee76cd8"
     },
     {
       "path": "web/src/workbook-history.test.ts",
-      "sha256": "bf98c76b286343821a5cb0fc9ac26813df4347445cb49c26183ffb0ad22485bb"
+      "sha256": "5170d3ad90490ecda208a9a626b6c704a5113ea950947b9c7a2ba51e183167f4"
     },
     {
       "path": "web/src/WorkbookDialogs.tsx",
@@ -3995,15 +4079,15 @@
     },
     {
       "path": "web/src/workbook-recalculation.ts",
-      "sha256": "f3a6e28e2cce117ec1ed972494f652a3f7c0563df188e90956d038d330d1e335"
+      "sha256": "8b890ed768bfad5dc1cdc3692f15ae2c85cd01bbf62c1df752adeb562d78204e"
     },
     {
       "path": "web/src/workbook-recalculation.test.ts",
-      "sha256": "2afd8d403af99c1b56bb9b7da0db1ffa63613e080838b0f4375bb67da30270c7"
+      "sha256": "1c2a15fe65fd2ff28c74cf08aec00013bfc1c0d8dc9128087edeeeb76ef28354"
     },
     {
       "path": "scripts/check_recalculation.py",
-      "sha256": "6dec2708a6b474ec99b1341864dd735c693561b316f338d19e76f161c92f5259"
+      "sha256": "7886727063fb095735f23eb2eb62c87d9fc55a5e4abeba6919a873acae79f0b3"
     },
     {
       "path": "scripts/check_import_diagnostics.py",
@@ -4015,7 +4099,7 @@
     },
     {
       "path": "web/src/DataGrid.tsx",
-      "sha256": "37dfa6603f2b1a9a15a3f89fac747c53bd93c348a96ec42a3b313222ef012ec7"
+      "sha256": "c64f5309a6b8330abf547ec2cc9466d80b38999b89e6a02a8380d9ce9698697d"
     },
     {
       "path": "web/src/data-grid.ts",
@@ -4031,7 +4115,7 @@
     },
     {
       "path": "web/src/data.ts",
-      "sha256": "8751bb0eef34eb5b44f344b70df5d22a367e2a4badc089e511792ca4fafe022e"
+      "sha256": "05e36377352bbb6c19814b02896f0f93e1a26dc48cf2ec25d1d92953bf97678d"
     },
     {
       "path": "web/src/WorkbookErrorBoundary.tsx",
@@ -4047,11 +4131,11 @@
     },
     {
       "path": "web/src/workbook-actions.ts",
-      "sha256": "bd7cf36570354470acf97adcb85f77fb1270afee9662e219732ce797907c162b"
+      "sha256": "d94b51db31aca86b0509523d5b580187007cb2f035e21fc9489a2893219ae4f8"
     },
     {
       "path": "scripts/check_large_workbook.py",
-      "sha256": "e3fb41f0a83e3902f0149574da755d3401acab8d69e25d559842b4869b64034e"
+      "sha256": "b95e0867be398020f07357f52473784c2495cf30f16342ff7c91fe74ae569131"
     },
     {
       "path": "scripts/check_graph_zoom.py",
@@ -4059,7 +4143,7 @@
     },
     {
       "path": "scripts/check_grid_ui.py",
-      "sha256": "71736bc4df08c60fc4028ffa7e3953cd2d5450b2dbca940c8304de8cd5964491"
+      "sha256": "fe8385e0d2b10ea76abcd3fbcb1c95280366e557ed9a69f6b7b689af04f218e2"
     },
     {
       "path": "tests/test_analysis_edges.py",
@@ -4068,7 +4152,43 @@
     {
       "path": "tests/test_table_capacity.py",
       "sha256": "b69c1763db6506a542f272dcfcd7cb77bf3c6b7f6e41fba125f52a5eba8a1d94"
+    },
+    {
+      "path": "web/src/workbook-dependencies.ts",
+      "sha256": "506465357065a9beeb086b05f383e08d7461e4e9c87b9865d9788191e1b59351"
+    },
+    {
+      "path": "web/src/workbook-dependencies.test.ts",
+      "sha256": "e838ee5e2457d9b0f878b22c752bd5963ba1d6ae0f87e0610d281b8cc79f51b5"
+    },
+    {
+      "path": "web/src/workbook-freeze.ts",
+      "sha256": "4de0bb6164d91faf213fd1490afe65138b951a729181355f65340d173cfaf4e2"
+    },
+    {
+      "path": "web/src/workbook-freeze.test.ts",
+      "sha256": "d613c496a7d6b83a5b27d8e72a1f52aa83f73376a7807f7157e8ec7f9078e87f"
+    },
+    {
+      "path": "web/src/workbook-selection.ts",
+      "sha256": "86bf1419b06a2da6bd88c6356bf6cf0c2c790a88f270839402e39cf8401b68e6"
+    },
+    {
+      "path": "web/src/workbook-selection.test.ts",
+      "sha256": "f168e4cecf5e569576349f4ff6879fd1f55795431da4450186841e7a454b6bb8"
+    },
+    {
+      "path": "web/src/workbook-snapshot.ts",
+      "sha256": "e76a1bca0426959e8b8d2193d5076cddf22a7b4df81c0223cb3d647434ae2357"
+    },
+    {
+      "path": "web/src/workbook-snapshot.test.ts",
+      "sha256": "67291f59052af88407aa5f1908db7d9ea685f70f48682af05f23b8f8570c004a"
+    },
+    {
+      "path": "scripts/check_workbook_foundations.py",
+      "sha256": "88ce75f559815f25aff9caebd1e1356d22ff6898e9c6bd7dad92b857bf60e577"
     }
   ],
-  "refresh_notes": "Updated implementation hashes for automatic recalculation, zero-dose controls, safe imports and user-reported capacity/interaction/recovery defects. REA compiled-UI findings are recorded in docs/prism-ui-rea-evidence.md; all limitations and open native comparisons remain explicit. Complete option-level plan: docs/completion-plan.md; live source map: docs/requirements/source-map.json. Passing GP checks does not establish full Prism parity."
+  "refresh_notes": "Refreshed v3 identity/snapshot/dependency/freeze sources and final browser evidence. All1574 supplied audit rows are individually planned, original claims retained. Dev/server/static foundation acceptance and direct recalculation passed; performance and full Prism parity remain open. Eleven completed static REA freeze/zoom records are distinguished from runtime equivalence."
 }

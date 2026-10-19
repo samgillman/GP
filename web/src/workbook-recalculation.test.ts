@@ -3,8 +3,15 @@ import type { TestContext } from "node:test";
 import assert from "node:assert/strict";
 import { sample } from "./data.ts";
 import type { Analysis, Response } from "./data.ts";
-import { addData, fromProject, recordResult, updateData } from "./workbook.ts";
+import {
+  addData,
+  datasetSelection,
+  fromProject,
+  recordResult,
+  updateData,
+} from "./workbook.ts";
 import type { DataSheet, ResultSheet, Workbook } from "./workbook.ts";
+import { toggleSheetFrozen } from "./workbook-freeze.ts";
 import {
   commitHistory,
   emptyHistory,
@@ -71,6 +78,28 @@ function fixture(analyses: Analysis[] = ["descriptive"]) {
   }
   return { book, dataId, resultIds };
 }
+
+test("freezing an undo-restored result aborts an older job and preserves its captured output", async (t) => {
+  const f = fixture();
+  const pending = deferred<unknown>();
+  const h = harness(t, edit(f.book, f.dataId, "100"), () => pending.promise);
+  h.queue.sync();
+  await h.tick(400);
+  assert.equal(h.state.calls.length, 1);
+  h.state.book = toggleSheetFrozen(f.book, f.resultIds[0]);
+  const captured = structuredClone(result(h.state.book, f.resultIds[0]));
+  h.queue.sync();
+  assert.equal(h.state.calls[0].signal.aborted, true);
+  pending.resolve(output("descriptive", "obsolete"));
+  await drain();
+  assert.deepEqual(result(h.state.book, f.resultIds[0]), captured);
+  await h.tick(2000);
+  assert.equal(h.state.calls.length, 1);
+  h.state.book = toggleSheetFrozen(h.state.book, f.resultIds[0]);
+  h.queue.sync();
+  await h.tick(400);
+  assert.equal(h.state.calls.length, 2);
+});
 function deferred<T = unknown>() {
   let resolve!: (value: T) => void;
   let reject!: (error: unknown) => void;
@@ -312,7 +341,11 @@ test("invalid or empty dataset selections remain blocked without dispatch until 
     ...h.state.book,
     sheets: h.state.book.sheets.map((s) =>
       s.id === f.resultIds[0]
-        ? { ...s, selectionInvalid: false, columnIndices: [] }
+        ? {
+            ...s,
+            selectionInvalid: false,
+            ...datasetSelection(data(h.state.book, f.dataId), []),
+          }
         : s,
     ),
   };
@@ -323,7 +356,9 @@ test("invalid or empty dataset selections remain blocked without dispatch until 
   h.state.book = {
     ...h.state.book,
     sheets: h.state.book.sheets.map((s) =>
-      s.id === f.resultIds[0] ? { ...s, columnIndices: [0] } : s,
+      s.id === f.resultIds[0]
+        ? { ...s, ...datasetSelection(data(h.state.book, f.dataId), [0]) }
+        : s,
     ),
   };
   h.queue.sync();

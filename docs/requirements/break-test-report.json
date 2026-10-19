@@ -65,7 +65,7 @@
         "Q002"
       ],
       "acceptance": [
-        "Frontend/server/static enforce finite absolute values\u22641e100; reject1e200 with field/row reason; no bare Pydantic URL or module prefix."
+        "Frontend/server/static enforce finite absolute values≤1e100; reject1e200 with field/row reason; no bare Pydantic URL or module prefix."
       ],
       "implementation_evidence": [
         "gp/models.py and gp/server.py: finite absolute observation limit is inclusively 1e100; validation returns concise JSON messages without raw input or Pydantic URL/context echoes.",
@@ -115,14 +115,18 @@
         "Only visible rows/columns plus overscan mounted; editing row10000 in30columns retains data and focus; measure mounted node count and edit latency."
       ],
       "implementation_evidence": [
-        "DataGrid.tsx virtualizes rows and columns, retaining a maximum of 80 data rows including offscreen focus."
+        "DataGrid.tsx virtualizes rows and columns, retaining a maximum of 80 data rows including offscreen focus.",
+        "web/src/workbook-snapshot.ts and App.tsx reuse a prepared serialization for comparison, history, limits and autosave; committed state is incrementally frozen."
       ],
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "19 Chromium grid workflows passed; 42 mounted rows on a 10,000-row table. Last cell AD10000 persisted through reload."
+        "19 Chromium grid workflows passed; 42 mounted rows on a 10,000-row table. Last cell AD10000 persisted through reload.",
+        "26 Chromium grid checks passed on the current packaged server build, including identity-linked selection and AD10000 persistence. Latest end-to-end edit including Playwright:2670ms under concurrent load; no performance closure.",
+        "/workspace/gp-evidence/serialization-paired.json: alternating helper-only benchmark, seven trials of ten edits on200k values; median1265.1ms before versus567.9ms prepared+incremental-freeze. Not browser latency."
       ],
       "limitations": [
-        "Editing still incurs whole-workbook serialization/history costs. Measured production latency under host contention was 429\u2013678ms for typical 8-column edits and 829\u20132543ms for 30 columns; virtualization alone does not resolve end-to-end lag."
+        "Editing still incurs whole-workbook serialization/history costs. Measured production latency under host contention was 429–678ms for typical 8-column edits and 829–2543ms for 30 columns; virtualization alone does not resolve end-to-end lag.",
+        "Prepared serialization reduces duplicated work but still processes the whole workbook once per edit. Controlled browser latency targets, chunked persistence/history and large-workbook interaction remain unresolved."
       ]
     },
     {
@@ -269,7 +273,7 @@
         "A025"
       ],
       "acceptance": [
-        "For n2, g is null with explicit df\u22641 reason; valid paired inference remains unchanged and no false zero effect reported."
+        "For n2, g is null with explicit df≤1 reason; valid paired inference remains unchanged and no false zero effect reported."
       ],
       "implementation_evidence": [
         "gp/statistics.py: paired Hedges g is null for two complete pairs (residual df=1), with an explicit fewer-than-three-pairs bias-correction reason; paired t, Cohen d, direction and valid inference remain available."
@@ -492,7 +496,7 @@
         "Zoom graph without changing scientific coordinates or exports; pan/scroll at high zoom; reset and accessible controls work in small windows."
       ],
       "implementation_evidence": [
-        "Graph-only25\u2013400% zoom controls, shortcuts, Ctrl-wheel, fit width and empty-space hand panning.",
+        "Graph-only25–400% zoom controls, shortcuts, Ctrl-wheel, fit width and empty-space hand panning.",
         "REA menu presets50/75/100/150/200/400/600/800/1000% implemented in plot-view.ts; zoom now reaches1000% without enlarging canvas backing above4x."
       ],
       "prism_reference_evidence": [
@@ -500,7 +504,7 @@
       ],
       "validation_evidence": [
         "Chromium standalone zoom/pan passed with unchanged scientific coordinates.",
-        "scripts/check_graph_zoom.py passed against server and static production builds: all recovered presets50\u20131000%, bounded controls, reset/shortcut and unchanged saved graph settings. Canvas resolution is capped independently of view magnification."
+        "scripts/check_graph_zoom.py passed against server and static production builds: all recovered presets50–1000%, bounded controls, reset/shortcut and unchanged saved graph settings. Canvas resolution is capped independently of view magnification."
       ],
       "limitations": [
         "25% minimum,25-point increments and Fit width remain GP choices pending native zoom code evidence; smart-zoom page/graph/content modes not implemented."
@@ -626,7 +630,7 @@
         "A007"
       ],
       "acceptance": [
-        "Analyze picker\u2192typed parameter dialog\u2192result; Change parameters on result; remove irrelevant persistent analysis bar and offer dataset selection for two-group tests."
+        "Analyze picker→typed parameter dialog→result; Change parameters on result; remove irrelevant persistent analysis bar and offer dataset selection for two-group tests."
       ],
       "implementation_evidence": [],
       "prism_reference_evidence": []
@@ -724,7 +728,7 @@
         "Immediate custom tooltip and larger spatial hit targets identify original row/group; source link maps displayed graph subset to original table column."
       ],
       "validation_evidence": [
-        "Standalone200k point hit test and integrated subsetB\u2192originalB,row2 navigation passed.",
+        "Standalone200k point hit test and integrated subsetB→originalB,row2 navigation passed.",
         "Subset source-column/row navigation passed in both server and static Chromium integration checks."
       ],
       "prism_reference_evidence": [

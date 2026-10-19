@@ -1,5 +1,7 @@
 """Validate the completion ledger's identities, provenance coverage and evidence gates."""
 import json
+import csv
+import hashlib
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
@@ -39,4 +41,31 @@ assert len(manifest['formula_functions']) == 82
 assert len({r['name'] for r in manifest['formula_functions']}) == 82
 for row in manifest['equations'] + manifest['formula_functions']:
     assert row['id'] in ids and len(row['source']['sha256']) == 64
+audit = manifest.get('parity_audit')
+if audit:
+    source_path = root / audit['source_path']
+    with source_path.open(newline='') as source_file:
+        source_reader = csv.DictReader(source_file)
+        original_fields = source_reader.fieldnames
+        original = list(source_reader)
+    with (root / audit['annotated_path']).open(newline='') as planned_file:
+        planned_reader = csv.DictReader(planned_file)
+        assert planned_reader.fieldnames == original_fields, 'Parity CSV columns changed'
+        planned = list(planned_reader)
+    register = json.loads((base / audit['register']).read_text())
+    assert hashlib.sha256(source_path.read_bytes()).hexdigest() == register['source']['sha256'], 'Parity source bytes changed'
+    assert len(original) == len(planned) == len(register['requirements']) == audit['rows'], 'Parity rows dropped'
+    assert len({row['id'] for row in original}) == len(original), 'Duplicate source audit ID'
+    assert [row['id'] for row in register['requirements']] == audit['requirement_ids'], 'Parity requirement order changed'
+    for source_row, plan_row, requirement in zip(original, planned, register['requirements']):
+        assert all(source_row[key] == plan_row[key] for key in original_fields if key not in {'your_plan', 'your_note'}), source_row['id']
+        assert plan_row['your_plan'].strip() and plan_row['your_note'].strip(), source_row['id']
+        assert requirement['id'] == 'AUD-' + source_row['id'] and requirement['audit_id'] == source_row['id'], source_row['id']
+        assert requirement['submitted_gp_status'] == source_row['gp_status'], source_row['id']
+        assert requirement['submitted_gp_finding'] == source_row['gp_finding'], source_row['id']
+        assert requirement['implementation_plan'] == plan_row['your_plan'] and requirement['review_note'] == plan_row['your_note'], source_row['id']
+        assert requirement['source']['url'] == source_row['source'] and requirement['acceptance'][0] == source_row['prism_detail'], source_row['id']
+        assert requirement['dependencies'] and set(requirement['dependencies']) <= ids, source_row['id']
 print(f"PASS: {len(rows)} unique requirements; {len(manifest['guide_sections'])} guide sections; {len(manifest['prism11_headings'])} Prism11 headings; 32 coverage families; 152 equations; 82 functions; evidence gates")
+if audit:
+    print(f"PASS: all {audit['rows']} parity CSV rows, original statuses, findings and sources preserved; individual plans and notes populated")

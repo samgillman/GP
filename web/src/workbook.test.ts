@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { sample } from "./data.ts";
+import { sample, parseProject } from "./data.ts";
 import type { Response } from "./data.ts";
 import {
   addData,
@@ -11,6 +11,8 @@ import {
   sourceSheet,
   selectedProject,
   updateData,
+  datasetSelection,
+  newRowIds,
 } from "./workbook.ts";
 const response: Response = {
   analysis: "descriptive",
@@ -49,7 +51,7 @@ test("multiple analyses persist; only changed source dependencies become stale",
     result: response,
   });
   const otherResult = b.activeSheetId;
-  const updated = sample("column");
+  const updated = structuredClone(sourceSheet(b, first).project);
   updated.columns[0].values[0] = "999";
   b = updateData(b, first.id, updated);
   const stale = b.sheets.find((s) => s.id === resultId);
@@ -71,9 +73,9 @@ test("rename preserves results and late responses cannot overwrite changed input
     sourceRevision: 0,
     result: response,
   });
-  b = updateData(b, data.id, { ...sample("column"), name: "Renamed" });
+  b = updateData(b, data.id, { ...sourceSheet(b, data).project, name: "Renamed" });
   assert.equal(b.sheets[2].kind === "results" && b.sheets[2].status, "current");
-  const p = sample("column");
+  const p = structuredClone(sourceSheet(b, data).project);
   p.columns[0].values[0] = "12";
   b = updateData(b, data.id, p);
   const same = recordResult(b, {
@@ -106,7 +108,7 @@ test("draft numeric edits persist and dataset removal cannot silently retarget a
     sourceRevision: 0,
     result: response,
   });
-  const p = sample("column");
+  const p = structuredClone(sourceSheet(b, source).project);
   p.columns.splice(1, 1);
   p.columns[0].values[0] = "-";
   b = updateData(b, source.id, p);
@@ -134,7 +136,7 @@ test("dataset rename preserves identity through subsequent middle column deletio
     sourceRevision: 0,
     result: response,
   });
-  let p = sample("column");
+  let p = structuredClone(sourceSheet(b, source).project);
   p.columns[2].name = "Renamed B";
   b = updateData(b, source.id, p);
   let r = b.sheets[2];
@@ -189,4 +191,183 @@ test("malformed optional statistical values are rejected on workbook open", () =
     result: output as unknown as Response,
   });
   assert.throws(() => parseWorkbook(JSON.stringify(b)));
+});
+
+test("v3 assigns one identity per dataset and represented row, not virtual cells", () => {
+  const project = sample("column");
+  project.columns = [{ name: "A", values: ["1", "", "-"] }, { name: "B", values: ["2"] }];
+  const book = fromProject(project);
+  const data = sourceSheet(book, book.sheets[0]);
+  assert.equal(book.version, 3);
+  assert.equal(data.rowIds.length, 3);
+  assert.equal(new Set([...data.rowIds, ...data.project.columns.map((column) => column.id)]).size, 5);
+  assert.equal(project.columns[0].id, undefined);
+  assert.deepEqual(book.sheets[1].kind === "graph" && book.sheets[1].datasetIds, data.project.columns.map((column) => column.id));
+  assert.deepEqual(parseWorkbook(JSON.stringify(book)), book);
+});
+
+test("v1 workbook migration preserves draft strings while standalone project import remains strict", () => {
+  const legacy = sample("column");
+  legacy.columns[0].values = ["-", "", "1e", "1e101"];
+  const migrated = parseWorkbook(JSON.stringify(legacy));
+  assert.equal(migrated.version, 3);
+  assert.throws(() => parseProject(JSON.stringify(legacy)), /not a valid number/);
+  assert.deepEqual(sourceSheet(migrated, migrated.sheets[0]).project.columns[0].values, legacy.columns[0].values);
+  assert.deepEqual(parseWorkbook(JSON.stringify(migrated)), migrated);
+});
+
+test("v2 migration preserves sheet links, ordered selections, valid results, drafts and graph settings", () => {
+  let book = fromProject(sample("column"));
+  const dataId = book.activeSheetId;
+  book = recordResult(book, { name: "Saved", dataId, analysis: "descriptive", columnIndices: [2, 0], sourceRevision: 0,
+    result: { ...response, results: [{ label: "Saved value", value: 0.99997 }] } });
+  book = addGraph(book, dataId, book.activeSheetId);
+  const graphId = book.activeSheetId;
+  book = addData(book, sample("xy"));
+  const draft = sourceSheet(book, book.sheets.find((sheet) => sheet.id === book.activeSheetId)!);
+  draft.project.columns[1].values[0] = "-";
+  const legacy = JSON.parse(JSON.stringify(book));
+  legacy.version = 2;
+  for (const sheet of legacy.sheets) {
+    delete sheet.datasetIds;
+    if (sheet.kind === "data") {
+      delete sheet.rowIds;
+      for (const column of sheet.project.columns) delete column.id;
+    }
+  }
+  const migrated = parseWorkbook(JSON.stringify(legacy));
+  assert.equal(migrated.version, 3);
+  assert.deepEqual(migrated.sheets.map((sheet) => sheet.id), book.sheets.map((sheet) => sheet.id));
+  const originalResult = book.sheets.find((sheet) => sheet.kind === "results")!;
+  const saved = migrated.sheets.find((sheet) => sheet.id === originalResult.id)!;
+  assert.equal(saved.kind, "results");
+  if (saved.kind !== "results" || originalResult.kind !== "results") throw new Error("result expected");
+  assert.deepEqual(saved.result, originalResult.result);
+  assert.deepEqual(saved.columnIndices, [2, 0]);
+  assert.deepEqual(saved.datasetIds, datasetSelection(sourceSheet(migrated, saved), [2, 0]).datasetIds);
+  const graph = migrated.sheets.find((sheet) => sheet.id === graphId)!;
+  const originalGraph = book.sheets.find((sheet) => sheet.id === graphId)!;
+  if (graph.kind !== "graph" || originalGraph.kind !== "graph") throw new Error("graph expected");
+  assert.equal(graph.kind === "graph" && graph.resultId, saved.id);
+  assert.deepEqual(graph.graph, originalGraph.graph);
+  assert.equal(sourceSheet(migrated, migrated.sheets.find((sheet) => sheet.id === draft.id)!).project.columns[1].values[0], "-");
+  assert.deepEqual(parseWorkbook(JSON.stringify(migrated)), migrated);
+});
+
+test("dataset reorder and rename retain authoritative references even with duplicate names", () => {
+  let book = fromProject(sample("column"));
+  const source = sourceSheet(book, book.sheets[0]);
+  book = recordResult(book, { name: "Selection", dataId: source.id, analysis: "descriptive", columnIndices: [2, 0], sourceRevision: 0, result: response });
+  const selectedIds = datasetSelection(source, [2, 0]).datasetIds;
+  const columns = [source.project.columns[2], source.project.columns[0], source.project.columns[1]]
+    .map((column) => ({ ...column, name: "Same name" }));
+  book = updateData(book, source.id, { ...source.project, columns });
+  const result = book.sheets.find((sheet) => sheet.kind === "results")!;
+  if (result.kind !== "results") throw new Error("result expected");
+  assert.deepEqual(result.datasetIds, selectedIds);
+  assert.deepEqual(result.columnIndices, [0, 1]);
+  assert.equal(result.selectionInvalid, false);
+  assert.deepEqual(sourceSheet(book, result).rowIds, source.rowIds);
+  assert.deepEqual(parseWorkbook(JSON.stringify(book)), book);
+});
+
+test("new dataset with the same name cannot inherit the removed dataset's selection", () => {
+  let book = fromProject(sample("column"));
+  const source = sourceSheet(book, book.sheets[0]);
+  book = recordResult(book, { name: "Selection", dataId: source.id, analysis: "descriptive", columnIndices: [1], sourceRevision: 0, result: response });
+  const replacement = { name: source.project.columns[1].name, values: [...source.project.columns[1].values] };
+  const columns = [source.project.columns[0], replacement, source.project.columns[2]];
+  book = updateData(book, source.id, { ...source.project, columns });
+  const result = book.sheets.find((sheet) => sheet.kind === "results")!;
+  if (result.kind !== "results") throw new Error("result expected");
+  assert.equal(result.selectionInvalid, true);
+  assert.deepEqual(result.datasetIds, []);
+  assert.deepEqual(result.columnIndices, []);
+  assert.notEqual(sourceSheet(book, result).project.columns[1].id, source.project.columns[1].id);
+  assert.deepEqual(parseWorkbook(JSON.stringify(book)), book);
+});
+
+test("inserting a dataset remaps indices without redirecting graph or result identities", () => {
+  let book = fromProject(sample("column"));
+  const source = sourceSheet(book, book.sheets[0]);
+  book = recordResult(book, { name: "Selection", dataId: source.id, analysis: "descriptive", columnIndices: [1], sourceRevision: 0, result: response });
+  const original = book.sheets.find((sheet) => sheet.kind === "results")!;
+  book = updateData(book, source.id, { ...source.project, columns: [{ name: "Inserted", values: ["9"] }, ...source.project.columns] });
+  const result = book.sheets.find((sheet) => sheet.id === original.id)!;
+  if (result.kind !== "results" || original.kind !== "results") throw new Error("result expected");
+  assert.deepEqual(result.datasetIds, original.datasetIds);
+  assert.deepEqual(result.columnIndices, [2]);
+  assert.equal(result.selectionInvalid, false);
+  assert.deepEqual(book.sheets[1].kind === "graph" && book.sheets[1].columnIndices, [1, 2, 3]);
+});
+
+test("row insert/reorder/delete identities survive roundtrip and shrink needs explicit mapping", () => {
+  const project = sample("column");
+  project.columns = [{ name: "A", values: ["1", "2", "3"] }];
+  let book = fromProject(project);
+  const source = sourceSheet(book, book.sheets[0]);
+  const inserted = newRowIds(1)[0];
+  book = updateData(book, source.id, { ...source.project, columns: source.project.columns.map((column) => ({ ...column, values: ["9", ...column.values] })) },
+    { rowIds: [inserted, ...source.rowIds] });
+  let current = sourceSheet(book, book.sheets[0]);
+  assert.deepEqual(current.rowIds, [inserted, ...source.rowIds]);
+  const reordered = { ...current.project, columns: current.project.columns.map((column) => ({ ...column, values: [column.values[3], ...column.values.slice(0, 3)] })) };
+  book = updateData(book, source.id, reordered, { rowIds: [current.rowIds[3], ...current.rowIds.slice(0, 3)] });
+  current = sourceSheet(book, book.sheets[0]);
+  assert.equal(current.rowIds[0], source.rowIds[2]);
+  const shortened = { ...current.project, columns: current.project.columns.map((column) => ({ ...column, values: column.values.slice(1) })) };
+  assert.throws(() => updateData(book, source.id, shortened), /explicit row ID mapping/);
+  book = updateData(book, source.id, shortened, { rowIds: current.rowIds.slice(1) });
+  assert.deepEqual(sourceSheet(book, book.sheets[0]).rowIds, [inserted, source.rowIds[0], source.rowIds[1]]);
+  assert.deepEqual(parseWorkbook(JSON.stringify(book)), book);
+});
+
+test("ordinary growth appends row identities and row-only permutation invalidates cached output", () => {
+  let book = fromProject(sample("column"));
+  const source = sourceSheet(book, book.sheets[0]);
+  book = recordResult(book, { name: "Result", dataId: source.id, analysis: "descriptive", columnIndices: [0], sourceRevision: 0, result: response });
+  const extended = { ...source.project, columns: source.project.columns.map((column) => ({ ...column, values: [...column.values, ""] })) };
+  book = updateData(book, source.id, extended);
+  const current = sourceSheet(book, book.sheets[0]);
+  assert.deepEqual(current.rowIds.slice(0, -1), source.rowIds);
+  assert.equal(current.rowIds.length, source.rowIds.length + 1);
+  const swapped = [...current.rowIds];
+  [swapped[0], swapped[1]] = [swapped[1], swapped[0]];
+  book = updateData(book, source.id, current.project, { rowIds: swapped });
+  assert.equal(sourceSheet(book, book.sheets[0]).revision, current.revision + 1);
+});
+
+test("v3 rejects missing/duplicate/dangling identities and inconsistent compatibility indices", () => {
+  const fresh = () => JSON.parse(JSON.stringify(fromProject(sample("column"))));
+  const mutations = [
+    (b: any) => { delete b.sheets[0].project.columns[0].id; },
+    (b: any) => { delete b.sheets[0].rowIds; },
+    (b: any) => { b.sheets[0].rowIds[1] = b.sheets[0].rowIds[0]; },
+    (b: any) => { b.sheets[0].project.columns[1].id = b.sheets[0].project.columns[0].id; },
+    (b: any) => { b.sheets[0].rowIds[0] = b.sheets[0].project.columns[0].id; },
+    (b: any) => { b.sheets[0].rowIds.pop(); },
+    (b: any) => { delete b.sheets[1].datasetIds; },
+    (b: any) => { b.sheets[1].datasetIds[0] = "missing"; },
+    (b: any) => { b.sheets[1].columnIndices.reverse(); },
+  ];
+  for (const mutate of mutations) {
+    const book = fresh(); mutate(book);
+    assert.throws(() => parseWorkbook(JSON.stringify(book)));
+  }
+  let duplicated = addData(fromProject(sample("column")), sample("column"));
+  const data = duplicated.sheets.filter((sheet) => sheet.kind === "data");
+  data[1].rowIds[0] = data[0].rowIds[0];
+  assert.throws(() => parseWorkbook(JSON.stringify(duplicated)), /duplicate/);
+});
+
+test("updates reject identity collisions and XY X replacement requires review", () => {
+  let book = fromProject(sample("xy"));
+  const source = sourceSheet(book, book.sheets[0]);
+  book = recordResult(book, { name: "Result", dataId: source.id, analysis: "descriptive", columnIndices: [2], sourceRevision: 0, result: response });
+  assert.throws(() => updateData(book, source.id, { ...source.project, columns: [source.project.columns[0], source.project.columns[0]] }), /dataset IDs/);
+  assert.throws(() => updateData(book, source.id, source.project, { rowIds: source.rowIds.map(() => source.rowIds[0]) }), /row IDs/);
+  const replacement = { ...source.project, columns: [source.project.columns[1], source.project.columns[0], source.project.columns[2]] };
+  book = updateData(book, source.id, replacement);
+  assert.equal(book.sheets[2].kind === "results" && book.sheets[2].selectionInvalid, true);
+  assert.deepEqual(parseWorkbook(JSON.stringify(book)), book);
 });

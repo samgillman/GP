@@ -9,7 +9,7 @@ export type Analysis =
   | "nonlinear_regression";
 export type GraphType = "scatter" | "bar" | "box" | "line";
 export type ErrorType = "sd" | "sem" | "ci" | "none";
-export type Column = { name: string; values: string[] };
+export type Column = { id?: string; name: string; values: string[] };
 export type Graph = {
   type: GraphType;
   error: ErrorType;
@@ -299,6 +299,7 @@ export function parseProject(text: string): Project {
     if (
       !c ||
       typeof c.name !== "string" ||
+      (c.id !== undefined && (typeof c.id !== "string" || !c.id || c.id.length > 200)) ||
       !Array.isArray(c.values) ||
       c.values.length > 10000 ||
       !c.values.every((v: unknown) => typeof v === "string")
