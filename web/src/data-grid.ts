@@ -1,3 +1,4 @@
+import { numeric } from "./data.ts";
 import type { Column } from "./data.ts";
 export const GRID_ROWS = 10000;
 export const GRID_COLUMNS = 30;
@@ -188,4 +189,31 @@ export function selectionTSV(columns: Column[], range: GridRange): string {
     lines.push(cells.join("\t"));
   }
   return lines.join("\r\n");
+}
+
+// Mirrors toggleExcludedValues: a selection is "excluded" only when every
+// numeric value in it is excluded, so the same command then restores them.
+export function allExcluded(
+  columns: Column[],
+  excluded: ReadonlyMap<number, ReadonlySet<number>> | undefined,
+  range: GridRange,
+) {
+  let numericCells = 0;
+  const lastColumn = Math.min(range.endColumn, columns.length - 1);
+  for (let column = range.startColumn; column <= lastColumn; column++) {
+    const values = columns[column].values;
+    const lastRow = Math.min(range.endRow, values.length - 1);
+    for (let row = range.startRow; row <= lastRow; row++) {
+      let value: number | null = null;
+      try {
+        value = numeric(values[row]);
+      } catch {
+        continue;
+      }
+      if (value === null) continue;
+      numericCells++;
+      if (!excluded?.get(column)?.has(row)) return false;
+    }
+  }
+  return numericCells > 0;
 }

@@ -47,9 +47,18 @@ export function duplicateSheet(book: Workbook, id: string): Workbook {
     name,
   };
   if (copy.kind === "data") {
+    const datasets = new Map(copy.project.columns.map((column) => [column.id!, crypto.randomUUID()]));
+    const rows = new Map(copy.rowIds.map((rowId) => [rowId, crypto.randomUUID()]));
     copy.project.name = name;
-    copy.project.columns = copy.project.columns.map((column) => ({ ...column, id: crypto.randomUUID() }));
-    copy.rowIds = copy.rowIds.map(() => crypto.randomUUID());
+    copy.project.columns = copy.project.columns.map((column) => ({ ...column, id: datasets.get(column.id!) }));
+    copy.rowIds = copy.rowIds.map((rowId) => rows.get(rowId)!);
+    if (copy.excluded)
+      copy.excluded = Object.fromEntries(
+        Object.entries(copy.excluded).map(([uid, rowIds]) => [
+          datasets.get(uid)!,
+          rowIds.map((rowId) => rows.get(rowId)!),
+        ]),
+      );
   }
   return { ...book, sheets: [...book.sheets, copy], activeSheetId: copy.id };
 }

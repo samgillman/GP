@@ -118,3 +118,19 @@ The large-workbook integration repeat passed analysis identity/isolation, subset
 REA completed and exported five additional zoom pseudocode records. [Zoom evidence](prism-zoom-rea-evidence.md) records the Core minimum and stepping helpers, including a nonstandard low-end decrement. The applicable graph-control dispatch remains unresolved; no app rule was changed from supplemental evidence. All native sessions are stopped. These records and the six freeze records are static findings, not a running Prism comparison.
 
 The separate static direct-recalculation repeat also passed, including three independent linked jobs, invalid drafts, undo/redo, reopen, actual numerical means and the zero-dose fit/log graph. No timeout threshold was increased. Final validation for this checkpoint is145 frontend tests, TypeScript, requirement preservation2661/1574, server/static builds and applicable browser checks; backend remains at the prior266-test result because this batch changes no Python scientific code. Production deployment has not been verified.
+
+## Reversible value exclusions (D001/E007/B024/B036 partial)
+
+Session context, 2026-10-19: a fresh cloud container at `/home/user/GP` (Node 22.22, Python 3.13). It held no Prism installer, extracted image or `/workspace/gp-evidence` exports. The REA skill was read from the public repository (6.7.0, `b4938ae`); no native target was available, so no new REA analysis ran. This unit reuses committed REA Evidence IDs; see the [exclusion evidence ledger](prism-exclusions-evidence.md), which separates guide statements, decoded UI, native freeze findings, schema evidence, GP choices and open native questions.
+
+GP workbook version 4 stores exclusions by stable dataset and row IDs. Entered values stay visible in blue italics with an asterisk, while analyses, linked recalculation, plotted points and graph export treat them as missing. Exclusions follow row/dataset identity through insert, reorder and delete, and are dropped when their cell is edited, cleared or removed. One command, with one undo entry, is reachable from cell/row/column context menus, the Edit menu, a Data toolbar button and graph point details. Frozen data tables reject exclusion changes; frozen results/graphs keep captured exclusions, and an equal-revision source with different exclusions is now treated as historical data when linking or freezing graphs. Data copies remap exclusions to fresh identities. Prism XML import keeps the original numbers of excluded cells. CSV export/copy offers numbers, asterisks or blanks when exclusions exist; GP CSV import reads asterisked numbers as excluded.
+
+Validation actually run in this container:
+
+- 157 frontend tests (10 new exclusion tests plus CSV/grid helper tests) and TypeScript passed.
+- 268 backend tests passed (two new XML exclusion tests).
+- Requirement checker passed: 2,661 identities and all 1,574 parity rows preserved.
+- Packaged server build: `scripts/check_exclusions.py` passed 10 scenario groups with zero page errors. Recalculation, import diagnostics, desktop UI, grid UI (26 checks), graph zoom, all 9 workbook-foundation groups and the 200k/300k large-workbook checks also passed against this build.
+- **Not run:** the self-contained static build. The container's network policy denied `cdn.jsdelivr.net`, so `scripts/build_browser.py` could not fetch the locked Pyodide wheels. The Vite static bundle compiled; its browser runtime was not assembled. CI now runs the exclusion check against both builds; no hosted CI result has been observed.
+
+Still open: per-point formatting, results-side exclusions, grid range copy/copy preferences for excluded values, TXT/XML export, ZIP exclusion flags, native key equivalent and native handler semantics, typed text/date/censored cells. No Prism equivalence is claimed. Production deployment was not checked.

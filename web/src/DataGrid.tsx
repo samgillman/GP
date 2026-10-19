@@ -32,6 +32,7 @@ import {
   groupLabel,
   nextCell,
   selectionTSV,
+  allExcluded,
 } from "./data-grid";
 import type { GridCell, GridRange } from "./data-grid";
 import "./data-grid.css";
@@ -56,6 +57,9 @@ export type DataGridProps = {
   onInsertRow?(index: number): void;
   onInsertColumn?(index: number): void;
   onClearRange?(range: GridRange): void;
+  // Column index → row indices whose values are excluded from calculations.
+  excluded?: ReadonlyMap<number, ReadonlySet<number>>;
+  onToggleExcluded?(range: GridRange): void;
   onError?(message: string): void;
   // Publishes user selections and restored selections to linked graph views.
   onSelectionChange?(range: GridRange): void;
@@ -89,6 +93,7 @@ const Cell = memo(function Cell({
   selected,
   active,
   editing,
+  excluded,
   readOnly,
   handlers,
 }: {
@@ -99,6 +104,7 @@ const Cell = memo(function Cell({
   selected: boolean;
   active: boolean;
   editing: boolean;
+  excluded: boolean;
   readOnly: boolean;
   handlers: CellHandlers;
 }) {
@@ -114,10 +120,11 @@ const Cell = memo(function Cell({
       role="gridcell"
       aria-colindex={column + 2}
       aria-selected={selected}
-      className={`data-grid-cell${selected ? " is-selected" : ""}${active ? " is-active" : ""}${editing ? " is-editing" : ""}`}
+      className={`data-grid-cell${selected ? " is-selected" : ""}${active ? " is-active" : ""}${editing ? " is-editing" : ""}${excluded ? " is-excluded" : ""}`}
+      title={excluded ? "Excluded from analyses and graphs" : undefined}
     >
       <input
-        aria-label={`${name}, row ${row + 1}`}
+        aria-label={`${name}, row ${row + 1}${excluded ? ", excluded" : ""}`}
         aria-invalid={invalid || undefined}
         className={invalid ? "invalid-cell" : undefined}
         data-row={row}
@@ -897,6 +904,9 @@ export default function DataGrid(props: DataGridProps) {
                           active.row === run.index &&
                           active.column === col.index
                         }
+                        excluded={
+                          !!props.excluded?.get(col.index)?.has(run.index)
+                        }
                         handlers={handlers}
                         readOnly={!!props.readOnly}
                       />
@@ -1056,6 +1066,24 @@ export default function DataGrid(props: DataGridProps) {
               onClick={() => runAction(() => clearSelection(rangeRef.current))}
             >
               Clear selected cells
+            </button>
+          )}
+          {props.onToggleExcluded && (
+            <button
+              role="menuitem"
+              disabled={props.readOnly}
+              title={
+                props.readOnly
+                  ? "Unfreeze this data table to exclude or include values."
+                  : "Keep the values visible but leave them out of analyses and graphs"
+              }
+              onClick={() =>
+                runAction(() => props.onToggleExcluded!(rangeRef.current))
+              }
+            >
+              {allExcluded(props.columns, props.excluded, range)
+                ? "Include Values"
+                : "Exclude Values"}
             </button>
           )}
         </div>

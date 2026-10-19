@@ -16,6 +16,7 @@ import {
   nextCell,
   selectionTSV,
   groupLabel,
+  allExcluded,
 } from "./data-grid.ts";
 
 test("10,000-row viewport mounts bounded rows at top, middle and bottom while retaining offscreen focus", () => {
@@ -145,4 +146,28 @@ test("sheet remount retains the selected rectangle and its direction independent
   assert.deepEqual(cache.read("new").active, { row: 0, column: 0 });
   assert.equal(cache.read("new").scrollTop, 0);
   assert.equal(new GridSessionCache().read("first").widths[0], 112);
+});
+
+test("Exclude/Include state considers only numeric represented cells", () => {
+  const columns = [
+    { name: "A", values: ["1", "", "-", "4"] },
+    { name: "B", values: ["2"] },
+  ];
+  const all = { startRow: 0, endRow: 9999, startColumn: 0, endColumn: 29 };
+  assert.equal(allExcluded(columns, new Map(), all), false);
+  assert.equal(allExcluded(columns, new Map([[0, new Set([0, 3])]]), all), false);
+  assert.equal(
+    allExcluded(columns, new Map([[0, new Set([0, 3])], [1, new Set([0])]]), all),
+    true,
+  );
+  // Blank and draft cells alone are never an excluded selection.
+  assert.equal(
+    allExcluded(columns, new Map([[0, new Set([1, 2])]]), {
+      startRow: 1,
+      endRow: 2,
+      startColumn: 0,
+      endColumn: 0,
+    }),
+    false,
+  );
 });

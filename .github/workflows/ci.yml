@@ -12,7 +12,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -72,6 +72,8 @@ jobs:
           python scripts/check_desktop_ui.py http://127.0.0.1:8001
           python scripts/check_grid_ui.py http://127.0.0.1:8001
           python scripts/check_graph_zoom.py http://127.0.0.1:8001
+          GP_EXCLUSIONS_EVIDENCE=test-results/exclusions-static.json python scripts/check_exclusions.py http://127.0.0.1:8001
+          GP_EXCLUSIONS_EVIDENCE=test-results/exclusions-server.json python scripts/check_exclusions.py http://127.0.0.1:8002
           GP_FOUNDATIONS_EVIDENCE=test-results/foundations-server python scripts/check_workbook_foundations.py http://127.0.0.1:8002
           GP_FOUNDATIONS_EVIDENCE=test-results/foundations-static python scripts/check_workbook_foundations.py http://127.0.0.1:8001
           python scripts/check_large_workbook.py http://127.0.0.1:8002

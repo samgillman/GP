@@ -3,6 +3,7 @@ import {
   Activity,
   ArrowDownToLine,
   ArrowUpFromLine,
+  Asterisk,
   BarChart3,
   Check,
   FileText,
@@ -25,8 +26,8 @@ import {
 import {
   download,
   exportCsv,
+  importCsvWithExclusions,
   fmt,
-  importCsv,
   importedProject,
   numeric,
   palette,
@@ -34,9 +35,17 @@ import {
   requestData,
   sample,
 } from "./data";
-import type { Analysis, Graph, Project, Response, TableType } from "./data";
+import type {
+  Analysis,
+  ExcludedExport,
+  Graph,
+  Project,
+  Response,
+  TableType,
+} from "./data";
 import Plot from "./Plot";
 import DataGrid from "./DataGrid";
+import { allExcluded } from "./data-grid";
 import type { GridRange } from "./data-grid";
 import {
   materializeSelection,
@@ -64,11 +73,15 @@ import {
   blankProject,
   dataIndices,
   datasetSelection,
+  excludedCount,
+  exclusionPositions,
   fromProject,
+  includedProject,
   parseWorkbook,
   recordResult,
   selectedProject,
   sourceSheet,
+  toggleExcludedValues,
   updateData,
 } from "./workbook";
 import type { Workbook, Sheet, GraphSheet, ResultSheet } from "./workbook";
@@ -112,6 +125,8 @@ type Imported = {
   title: string;
   table_type: TableType;
   columns: { name: string; values: (number | null)[] }[];
+  // [column, row] cells whose original values Prism marked excluded.
+  excluded?: [number, number][];
 };
 import {
   restoreWorkbook,
@@ -247,6 +262,8 @@ export default function App() {
     [saved, setSaved] = useState(true),
     [imported, setImported] = useState<Imported[]>([]),
     [importWarnings, setImportWarnings] = useState<string[]>([]),
+    [csvExport, setCsvExport] = useState<"download" | "copy" | null>(null),
+    [excludedExport, setExcludedExport] = useState<ExcludedExport>("asterisk"),
     [selectedImport, setSelectedImport] = useState(0);
   const workbookRef = useRef(workbook);
   const snapshotRef = useRef<{
@@ -488,9 +505,27 @@ export default function App() {
             ...selectedProject(source, graphSheet.columnIndices),
             graph: graphSheet.graph,
           }
-        : source.project,
-    [source.project, graphSheet],
+        : includedProject(source),
+    [source, graphSheet],
   );
+  const excludedPositions = useMemo(() => exclusionPositions(source), [source]);
+  const gridRange = selection?.dataId === source.id ? selection.range : null;
+  const selectionExcluded = useMemo(
+    () =>
+      gridRange
+        ? allExcluded(source.project.columns, excludedPositions, gridRange)
+        : false,
+    [source.project.columns, excludedPositions, gridRange],
+  );
+  const analyzedExcluded =
+    selectedSheet.kind === "results"
+      ? excludedCount(source, [
+          ...(source.project.table_type === "xy" && source.project.columns[0]?.id
+            ? [source.project.columns[0].id]
+            : []),
+          ...selectedSheet.datasetIds,
+        ])
+      : 0;
   const plotResult = useMemo(() => {
     if (!result) return null;
     const names = new Set(
@@ -612,6 +647,7 @@ export default function App() {
           newTable ||
           analyzeDialog ||
           formatDialog ||
+          csvExport !== null ||
           imported.length > 0,
       );
       if (
@@ -628,7 +664,14 @@ export default function App() {
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [advanced, newTable, analyzeDialog, formatDialog, imported.length]);
+  }, [
+    advanced,
+    newTable,
+    analyzeDialog,
+    formatDialog,
+    csvExport,
+    imported.length,
+  ]);
   function change(
     next: Project | ((p: Project) => Project),
     _data = true,
@@ -998,16 +1041,17 @@ export default function App() {
         throw new Error(
           "Choose CSV, Prism XML, or a supported Prism ZIP project. Legacy PCFFGRA4 binary projects are not yet supported.",
         );
-      const columns = importCsv(text);
+      const { columns, excluded } = importCsvWithExclusions(text);
       const accepted = setWorkbook((w) =>
         addData(
           w,
           importedProject(columns, "column", file.name.replace(/\.csv$/i, "")),
+          excluded,
         ),
       );
       if (!accepted) return;
       setNotice(
-        "CSV imported. Use the table type selector if the first column contains X values.",
+        `CSV imported${excluded.length ? `; ${excluded.length} numbers followed by * were imported as excluded values` : ""}. Use the table type selector if the first column contains X values.`,
       );
     } catch (e) {
       setError((e as Error).message);
@@ -1026,12 +1070,13 @@ export default function App() {
           t.table_type,
           t.title,
         ),
+        (t.excluded ?? []).map(([column, row]) => ({ column, row })),
       ),
     );
     setImported([]);
     if (!accepted) return;
     setNotice(
-      "Data table imported. Graphs, analyses, and original project formatting are not imported.",
+      `Data table imported${t.excluded?.length ? ` with ${t.excluded.length} excluded values kept excluded` : ""}. Graphs, analyses, and original project formatting are not imported.`,
     );
   }
   function replaceSample(type: TableType) {
@@ -1189,6 +1234,51 @@ export default function App() {
           : "Sheet frozen with its current data and output.",
       );
   }
+  // Shared by the Edit menu, toolbar, cell context menu and graph point details.
+  // Each command is one undo entry.
+  function excludeValues(range: GridRange | null = gridRange) {
+    setError("");
+    if (selectedSheet.kind !== "data") {
+      setError("Open the data table and select the values to exclude or include.");
+      return;
+    }
+    if (!range) {
+      setError("Select values in the data table to exclude or include.");
+      return;
+    }
+    toggleExclusion(range);
+  }
+  function excludePoint(seriesIndex: number, row: number) {
+    const column = (graphSheet?.columnIndices ?? dataIndices(source.project))[
+      seriesIndex
+    ];
+    if (column === undefined || graphSheet?.frozen) return;
+    setError("");
+    toggleExclusion({
+      startColumn: column,
+      endColumn: column,
+      startRow: row,
+      endRow: row,
+    });
+  }
+  function toggleExclusion(range: GridRange) {
+    try {
+      const outcome = toggleExcludedValues(workbookRef.current, source.id, range);
+      const plural = outcome.count === 1 ? "value" : "values";
+      if (
+        setWorkbook(outcome.book, {
+          label: outcome.excluded ? "Exclude values" : "Include values",
+        })
+      )
+        setNotice(
+          outcome.excluded
+            ? `${outcome.count} ${plural} excluded. They stay in the data table in blue italics but are left out of analyses and graphs.`
+            : `${outcome.count} ${plural} included again in analyses and graphs.`,
+        );
+    } catch (error) {
+      setError(errorMessage(error));
+    }
+  }
   function openGraphFormatting() {
     if (graphSheet?.frozen)
       setError("Unfreeze this graph before changing its appearance.");
@@ -1201,9 +1291,16 @@ export default function App() {
     );
     setNotice("Workbook downloaded with data, linked results, and graphs.");
   }
-  function exportData() {
+  // Tables with exclusions ask how to write them; others export entered text.
+  function exportData(mode?: ExcludedExport) {
+    if (excludedPositions.size && !mode) {
+      setCsvExport("download");
+      return;
+    }
     download(
-      new Blob([exportCsv(project.columns)], { type: "text/csv" }),
+      new Blob([exportCsv(project.columns, excludedPositions, mode)], {
+        type: "text/csv",
+      }),
       "GP-data.csv",
     );
   }
@@ -1221,9 +1318,15 @@ export default function App() {
       .querySelector<HTMLInputElement>('[aria-label="Sheet name"]')
       ?.focus();
   }
-  async function copyData() {
+  async function copyData(mode?: ExcludedExport) {
+    if (excludedPositions.size && !mode) {
+      setCsvExport("copy");
+      return;
+    }
     try {
-      await navigator.clipboard.writeText(exportCsv(project.columns));
+      await navigator.clipboard.writeText(
+        exportCsv(project.columns, excludedPositions, mode),
+      );
       setNotice("Data table copied as CSV.");
     } catch {
       setError(
@@ -1282,7 +1385,7 @@ export default function App() {
             <button role="menuitem" onClick={() => fileRef.current?.click()}>
               Import data…
             </button>
-            <button role="menuitem" onClick={exportData}>
+            <button role="menuitem" onClick={() => exportData()}>
               Export data as CSV…
             </button>
           </DesktopMenu>
@@ -1307,6 +1410,13 @@ export default function App() {
             </button>
             <button role="menuitem" onClick={() => void copyData()}>
               Copy table as CSV
+            </button>
+            <button
+              role="menuitem"
+              disabled={active !== "data" || !!source.frozen || !gridRange}
+              onClick={() => excludeValues()}
+            >
+              {selectionExcluded ? "Include Values" : "Exclude Values"}
             </button>
             <button
               role="menuitem"
@@ -1520,6 +1630,25 @@ export default function App() {
             </div>
           </div>
           <div className="desktop-tool-group">
+            <span>Data</span>
+            <div>
+              <button
+                aria-label={selectionExcluded ? "Include values" : "Exclude values"}
+                aria-pressed={selectionExcluded}
+                disabled={active !== "data" || !!source.frozen || !gridRange}
+                title={
+                  source.frozen
+                    ? "Unfreeze this data table to exclude or include values"
+                    : "Exclude selected values from analyses and graphs, or include them again"
+                }
+                onClick={() => excludeValues()}
+              >
+                <Asterisk />
+                <small>{selectionExcluded ? "Include" : "Exclude"}</small>
+              </button>
+            </div>
+          </div>
+          <div className="desktop-tool-group">
             <span>Analysis</span>
             <div>
               <button
@@ -1580,7 +1709,7 @@ export default function App() {
               <button
                 aria-label="CSV"
                 title="Export data as CSV"
-                onClick={exportData}
+                onClick={() => exportData()}
               >
                 <ArrowDownToLine />
                 <small>CSV</small>
@@ -2063,7 +2192,12 @@ export default function App() {
                         <Table2 size={17} />
                       </span>
                       <h2>Data table</h2>
-                      <span className="subtle-count">{count} values</span>
+                      <span className="subtle-count">
+                        {count} values
+                        {excludedPositions.size
+                          ? ` · ${excludedCount(source)} excluded`
+                          : ""}
+                      </span>
                     </div>
                     <select
                       aria-label="Table type"
@@ -2134,6 +2268,8 @@ export default function App() {
                     onInsertRow={insertRow}
                     onInsertColumn={insertColumn}
                     onClearRange={clearRange}
+                    excluded={excludedPositions}
+                    onToggleExcluded={(range) => excludeValues(range)}
                     onError={setError}
                     focusCell={
                       focusCell?.dataId === source.id ? focusCell : undefined
@@ -2187,6 +2323,7 @@ export default function App() {
                     selectedPointRanges={selectedPointRanges}
                     onSelectPoint={(series, row) => selectPoint(series, row)}
                     onGoToCell={(series, row) => selectPoint(series, row, true)}
+                    onExcludePoint={graphSheet?.frozen ? undefined : excludePoint}
                     selectedPoint={selectedGraphPoint(
                       source,
                       graphSheet?.columnIndices ?? dataIndices(source.project),
@@ -2286,6 +2423,14 @@ export default function App() {
                 </div>
               ) : (
                 <div className="results-content">
+                  {analyzedExcluded > 0 && (
+                    <div className="result-note" role="note">
+                      {analyzedExcluded} excluded{" "}
+                      {analyzedExcluded === 1 ? "value was" : "values were"}{" "}
+                      left out of this analysis. They remain in the data table
+                      in blue italics.
+                    </div>
+                  )}
                   {result.warnings.map((w, i) => (
                     <div className="result-warning" key={i}>
                       {w}
@@ -2441,7 +2586,7 @@ export default function App() {
             </select>
             <span>
               {active === "data"
-                ? `${rows} rows · ${project.columns.length} columns · ${count} values`
+                ? `${rows} rows · ${project.columns.length} columns · ${count} values${excludedPositions.size ? ` · ${excludedCount(source)} excluded` : ""}`
                 : active === "results"
                   ? selectedSheet.frozen
                     ? "Frozen results"
@@ -2509,6 +2654,72 @@ export default function App() {
             }))
           }
         />
+      )}
+      {csvExport && (
+        <div className="modal-backdrop">
+          <section
+            className="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="csv-export-title"
+          >
+            <div className="modal-heading">
+              <h2 id="csv-export-title">
+                {csvExport === "copy" ? "Copy" : "Export"} data with excluded
+                values
+              </h2>
+              <button
+                aria-label="Cancel CSV export"
+                onClick={() => setCsvExport(null)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <p>
+              This table has {excludedCount(source)} excluded values. Choose how
+              to write them:
+            </p>
+            <fieldset className="excluded-export-choice">
+              <legend>Excluded values</legend>
+              {(
+                [
+                  ["asterisk", "Followed by an asterisk (12*)"],
+                  ["value", "As ordinary numbers"],
+                  ["blank", "As blank cells"],
+                ] as const
+              ).map(([mode, label]) => (
+                <label key={mode}>
+                  <input
+                    type="radio"
+                    name="excluded-export"
+                    checked={excludedExport === mode}
+                    onChange={() => setExcludedExport(mode)}
+                  />
+                  {label}
+                </label>
+              ))}
+            </fieldset>
+            <p>
+              GP imports numbers followed by an asterisk as excluded values.
+            </p>
+            <div className="modal-actions">
+              <button className="button" onClick={() => setCsvExport(null)}>
+                Cancel
+              </button>
+              <button
+                className="button primary"
+                onClick={() => {
+                  const target = csvExport;
+                  setCsvExport(null);
+                  if (target === "copy") void copyData(excludedExport);
+                  else exportData(excludedExport);
+                }}
+              >
+                {csvExport === "copy" ? "Copy CSV" : "Export CSV"}
+              </button>
+            </div>
+          </section>
+        </div>
       )}
       {imported.length > 0 && (
         <div className="modal-backdrop">

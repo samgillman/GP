@@ -16,9 +16,28 @@ def column(name, cells, tag="YColumn", attrs=""):
 def test_column_import_preserves_empty_and_excluded_rows():
     xml = document('<Table ID="T1" TableType="OneWay"><Title>My experiment</Title>'+column('A','<d>1</d><d/><d Excluded="1">99</d><d Excluded="0">3</d><d Excluded="false">4</d><d Excluded="true">98</d>')+'</Table>')
     output = import_prism(xml)
-    assert output["tables"][0]["columns"][0]["values"] == [1,None,None,3,4,None]
+    assert output["tables"][0]["columns"][0]["values"] == [1,None,99,3,4,98]
+    assert output["tables"][0]["excluded"] == [[0,2],[0,5]]
     assert output["tables"][0]["title"] == "My experiment"
-    assert any("2 excluded" in w for w in output["warnings"])
+    assert any("2 excluded values imported with their original numbers" in w for w in output["warnings"])
+
+
+def test_excluded_xy_values_and_asterisk_format_keep_original_numbers():
+    table = ('<Table TableType="XY" EVFormat="AsteriskAfterNumber">'
+             + column('X', '<d>1</d><d Excluded="1">2</d><d>3</d>', 'XColumn')
+             + column('Y', '<d>5*</d><d>6</d><d Excluded="1">bad</d>') + '</Table>')
+    output = import_prism(document(table))
+    imported = output["tables"][0]
+    assert [c["values"] for c in imported["columns"]] == [[1,2,3],[5,6,None]]
+    assert imported["excluded"] == [[0,1],[1,0]]
+    assert any("1 excluded cells had no finite number" in w for w in output["warnings"])
+
+
+def test_asterisk_without_excluded_value_format_is_not_reinterpreted():
+    table = '<Table TableType="OneWay">'+column('A','<d>5*</d>')+'</Table>'
+    output = import_prism(document(table))
+    assert not output["tables"]
+    assert any("non-numeric" in w for w in output["warnings"])
 
 
 def test_nested_wrapper_xy_and_mixed_title_ignore_advanced_duplicate():
