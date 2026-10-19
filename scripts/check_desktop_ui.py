@@ -57,7 +57,13 @@ with sync_playwright() as p:
     page.get_by_role('button', name='Format Graph…', exact=True).first.click()
     page.screenshot(path=str(shots / 'format-graph.png'))
     page.keyboard.press('Escape')
-    page.get_by_role('button', name='Run analysis', exact=True).click()
+    # Graph type changes through Change Graph Type, not on-page buttons.
+    page.get_by_role('button', name='Change Graph Type…', exact=True).click()
+    page.get_by_role('dialog', name='Change Graph Type').get_by_role('radio', name='Scatter dot plot').check()
+    page.get_by_role('dialog', name='Change Graph Type').get_by_role('button', name='OK', exact=True).click()
+    assert next(s for s in workbook()['sheets'] if s['kind'] == 'graph')['graph']['type'] == 'scatter'
+    page.get_by_role('button', name='Analyze Data…', exact=True).click()
+    page.get_by_role('dialog', name='Analyze Data').get_by_role('button', name='Create analysis', exact=True).click()
     expect(page.get_by_role('heading', name='Summary statistics', exact=True)).to_be_visible(timeout=120000)
     page.screenshot(path=str(shots / 'results.png'))
     assert page.locator('.analysis-output tbody tr').count() > 0

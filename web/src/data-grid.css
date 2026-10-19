@@ -219,22 +219,12 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  min-height: 31px;
-  padding: 4px 8px;
+  justify-content: flex-end;
+  min-height: 20px;
+  padding: 2px 8px;
   border-top: 1px solid #c8cdd3;
-  font-size: 11px;
-}
-.app > main .data-grid-footer > div {
-  display: flex;
-  gap: 5px;
-}
-.app > main .data-grid-footer button {
-  min-height: 22px;
-  height: 22px;
-  padding: 1px 8px;
-  font-size: 11px;
+  font-size: 10px;
+  color: #666;
 }
 .app > main .data-grid-notice {
   padding: 5px 8px;

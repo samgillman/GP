@@ -253,81 +253,6 @@ export default function Plot({
       }}
     >
       <div
-        role="toolbar"
-        aria-label="Graph view"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 6,
-          padding: "4px 10px",
-          flexWrap: "wrap",
-        }}
-      >
-        <button
-          type="button"
-          aria-label="Zoom out graph"
-          disabled={zoom <= MIN_GRAPH_ZOOM}
-          onClick={() => changeZoom(zoom - 25)}
-        >
-          −
-        </button>
-        <label style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          Zoom
-          <input
-            type="range"
-            aria-label="Graph zoom"
-            min={MIN_GRAPH_ZOOM}
-            max={MAX_GRAPH_ZOOM}
-            step="1"
-            value={zoom}
-            style={{ width: 110 }}
-            onChange={(e) => changeZoom(Number(e.target.value))}
-          />
-          <output style={{ minWidth: 38 }}>{zoom}%</output>
-        </label>
-        <button
-          type="button"
-          aria-label="Zoom in graph"
-          disabled={zoom >= MAX_GRAPH_ZOOM}
-          onClick={() => changeZoom(zoom + 25)}
-        >
-          +
-        </button>
-        <select
-          aria-label="Graph zoom preset"
-          value={GRAPH_ZOOM_PRESETS.some((value) => value === zoom) ? zoom : ""}
-          onChange={(event) => changeZoom(Number(event.target.value))}
-        >
-          {!GRAPH_ZOOM_PRESETS.some((value) => value === zoom) && (
-            <option value="" disabled>
-              {zoom}% (custom)
-            </option>
-          )}
-          {GRAPH_ZOOM_PRESETS.map((value) => (
-            <option key={value} value={value}>
-              {value}%
-            </option>
-          ))}
-        </select>
-        <button
-          type="button"
-          onClick={() => {
-            changeZoom(100);
-            anchor.current = null;
-            viewport.current?.scrollTo(0, 0);
-          }}
-        >
-          Fit width
-        </button>
-        <button
-          type="button"
-          aria-pressed={pan}
-          onClick={() => setPan((v) => !v)}
-        >
-          Hand pan
-        </button>
-      </div>
-      <div
         ref={viewport}
         role="region"
         aria-label="Graph viewport"
@@ -439,15 +364,15 @@ export default function Plot({
               return (
                 <g key={i}>
                   <line
-                    x1={left}
-                    x2={W - right}
+                    x1={left - 6}
+                    x2={left}
                     y1={y(v)}
                     y2={y(v)}
-                    stroke="#e9eded"
-                    strokeDasharray="3 5"
+                    stroke="#000"
+                    strokeWidth="1.5"
                   />
                   <text
-                    x={left - 12}
+                    x={left - 10}
                     y={y(v) + 4}
                     textAnchor="end"
                     className="tick"
@@ -461,21 +386,32 @@ export default function Plot({
             <path
               d={`M${left},${top}V${H - bottom}H${W - right}`}
               fill="none"
-              stroke="#919f9f"
+              stroke="#000"
+              strokeWidth="1.5"
+              strokeLinecap="square"
             />
             {xy
               ? xTicks.map((v, i) => {
                   return (
-                    <text
-                      key={i}
-                      x={x(v)}
-                      y={H - bottom + 25}
-                      textAnchor="middle"
-                      className="tick"
-                      onDoubleClick={() => onFormatAxes?.("x")}
-                    >
-                      {fmt(v)}
-                    </text>
+                    <g key={i}>
+                      <line
+                        x1={x(v)}
+                        x2={x(v)}
+                        y1={H - bottom}
+                        y2={H - bottom + 6}
+                        stroke="#000"
+                        strokeWidth="1.5"
+                      />
+                      <text
+                        x={x(v)}
+                        y={H - bottom + 22}
+                        textAnchor="middle"
+                        className="tick"
+                        onDoubleClick={() => onFormatAxes?.("x")}
+                      >
+                        {fmt(v)}
+                      </text>
+                    </g>
                   );
                 })
               : series.map((s, i) => (
@@ -529,13 +465,13 @@ export default function Plot({
                       y={Math.min(y(s.mean), y(0))}
                       width={bw}
                       height={Math.abs(y(0) - y(s.mean))}
-                      rx="2"
                       fill={s.color}
-                      fillOpacity=".72"
+                      stroke="#000"
+                      strokeWidth="1.5"
                     />
                   )}
                   {!xy && graph.type === "box" && v.length > 0 && (
-                    <g stroke={s.color} strokeWidth="2">
+                    <g stroke="#000" strokeWidth="1.5">
                       <line x1={cx} x2={cx} y1={y(s.min)} y2={y(s.max)} />
                       <line
                         x1={cx - bw / 4}
@@ -558,7 +494,7 @@ export default function Plot({
                           y(s.quartiles![0]) - y(s.quartiles![2]),
                         )}
                         fill={s.color}
-                        fillOpacity=".16"
+                        fillOpacity=".35"
                       />
                       <line
                         x1={cx - bw / 2}
@@ -575,14 +511,14 @@ export default function Plot({
                         .join(" ")}
                       fill="none"
                       stroke={s.color}
-                      strokeWidth="2"
+                      strokeWidth="1.5"
                     />
                   )}
                   {!xy &&
                     graph.error !== "none" &&
                     graph.type !== "box" &&
                     v.length > 0 && (
-                      <g stroke={s.color} strokeWidth="2">
+                      <g stroke="#000" strokeWidth="1.5">
                         <line x1={cx} x2={cx} y1={y(s.lo)} y2={y(s.hi)} />
                         <line
                           x1={cx - 7}
@@ -597,10 +533,11 @@ export default function Plot({
                           y2={y(s.hi)}
                         />
                         <line
-                          x1={cx - 13}
-                          x2={cx + 13}
+                          x1={cx - 20}
+                          x2={cx + 20}
                           y1={y(s.mean)}
                           y2={y(s.mean)}
+                          strokeWidth="2"
                         />
                       </g>
                     )}
@@ -613,8 +550,9 @@ export default function Plot({
                         cy={y(p.y)}
                         r={xy ? 4 : 3.6}
                         fill={s.color}
-                        stroke="white"
-                        strokeWidth="1.1"
+                        stroke="#000"
+                        strokeOpacity=".35"
+                        strokeWidth=".6"
                       >
                         <title>
                           {s.name}, row {p.row + 1}: {fmt(p.y)}
@@ -665,12 +603,78 @@ export default function Plot({
                   series.find((s) => s.name === f.series)?.color ??
                   palette[i % palette.length]
                 }
-                strokeWidth="2.5"
-                strokeDasharray="6 4"
+                strokeWidth="1.5"
               />
             ))}
           </svg>
         </div>
+      </div>
+      <div role="toolbar" aria-label="Graph view" className="graph-zoom-strip">
+        <button
+          type="button"
+          aria-label="Zoom out graph"
+          disabled={zoom <= MIN_GRAPH_ZOOM}
+          onClick={() => changeZoom(zoom - 25)}
+        >
+          −
+        </button>
+        <label style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          Zoom
+          <input
+            type="range"
+            aria-label="Graph zoom"
+            min={MIN_GRAPH_ZOOM}
+            max={MAX_GRAPH_ZOOM}
+            step="1"
+            value={zoom}
+            style={{ width: 80 }}
+            onChange={(e) => changeZoom(Number(e.target.value))}
+          />
+          <output style={{ minWidth: 38 }}>{zoom}%</output>
+        </label>
+        <button
+          type="button"
+          aria-label="Zoom in graph"
+          disabled={zoom >= MAX_GRAPH_ZOOM}
+          onClick={() => changeZoom(zoom + 25)}
+        >
+          +
+        </button>
+        <select
+          aria-label="Graph zoom preset"
+          value={GRAPH_ZOOM_PRESETS.some((value) => value === zoom) ? zoom : ""}
+          onChange={(event) => changeZoom(Number(event.target.value))}
+        >
+          {!GRAPH_ZOOM_PRESETS.some((value) => value === zoom) && (
+            <option value="" disabled>
+              {zoom}% (custom)
+            </option>
+          )}
+          {GRAPH_ZOOM_PRESETS.map((value) => (
+            <option key={value} value={value}>
+              {value}%
+            </option>
+          ))}
+        </select>
+        <button
+          type="button"
+          onClick={() => {
+            changeZoom(100);
+            anchor.current = null;
+            viewport.current?.scrollTo(0, 0);
+          }}
+        >
+          Fit
+        </button>
+        <button
+          type="button"
+          aria-pressed={pan}
+          aria-label="Hand pan"
+          title="Drag to pan the zoomed graph"
+          onClick={() => setPan((v) => !v)}
+        >
+          Pan
+        </button>
       </div>
       {hover && series[hover.hit.seriesIndex] && (
         <div

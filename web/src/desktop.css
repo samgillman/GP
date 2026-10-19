@@ -847,32 +847,6 @@
 .app > main .graph-card > .card-heading {
   display: none;
 }
-.app > main .graph-types {
-  padding: 0;
-  gap: 0;
-  display: flex;
-  width: fit-content;
-  border: 1px solid #aaa;
-  border-radius: 3px;
-  margin-bottom: 18px;
-  overflow: hidden;
-}
-.app > main .graph-types button {
-  font-size: 10px;
-  padding: 3px 12px;
-  border: 0;
-  border-right: 1px solid #bbb;
-  border-radius: 0;
-  background: linear-gradient(#fff, #e8e8e8);
-  color: #444;
-}
-.app > main .graph-types button:last-child {
-  border-right: 0;
-}
-.app > main .graph-types button.selected {
-  background: linear-gradient(#4893dd, #2876bf);
-  color: #fff;
-}
 .app > main .chart-title {
   font:
     600 16px Arial,
@@ -886,11 +860,39 @@
   padding: 0 15px;
 }
 .app > main .plot text {
-  font-family: Arial, sans-serif;
-  fill: #333;
+  font-family: Arial, Helvetica, sans-serif;
+  fill: #000;
+}
+.app > main .plot .tick {
+  font-size: 13px;
 }
 .app > main .plot .axis-label {
-  fill: #222;
+  fill: #000;
+  font-size: 14px;
+  font-weight: 700;
+}
+.app > main .graph-zoom-strip {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 3px 8px;
+  border-top: 1px solid #e3e3e3;
+  font-size: 11px;
+  color: #555;
+}
+.app > main .graph-zoom-strip button,
+.app > main .graph-zoom-strip select {
+  min-height: 20px;
+  height: 20px;
+  padding: 0 6px;
+  font-size: 11px;
+}
+.app > main .graph-zoom-strip label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 .app > main .legend {
   margin: 2px 8px 0;
@@ -950,24 +952,29 @@
 .app > main .results-content {
   padding: 0 0 20px;
 }
-.app > main .result-warning {
-  font-size: 11px;
-  line-height: 1.4;
-  border-radius: 0;
+.app > main .result-notes {
+  max-width: 820px;
+  padding: 4px 0 0;
+}
+.app > main .result-notes ul {
   margin: 0;
-  padding: 7px 10px;
-  border-bottom: 1px solid #e2d6b4;
-  background: #fff8e5;
-  color: #866c36;
+  padding: 0 10px 0 28px;
+}
+.app > main .result-notes li {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #444;
+  padding: 1px 0;
 }
 .app > main .result-note {
   font-size: 11px;
   line-height: 1.4;
   margin: 0;
-  padding: 7px 10px;
-  border-bottom: 1px solid #c9d9f1;
-  background: #eef4fd;
-  color: #1d4f9c;
+  padding: 5px 10px;
+  border-bottom: 1px solid #d8d8d8;
+  background: #fff;
+  color: #1d5fc4;
+  font-style: italic;
 }
 .app > main .results-content h3 {
   font-size: 12px;
@@ -1040,18 +1047,34 @@
   font-weight: 400;
   min-width: 130px;
 }
-.app > main .results-table th:first-child {
+.app > main .results-table .stat-label {
   min-width: 280px;
   font-weight: 400;
   text-align: left;
 }
 .app > main .results-table thead th {
   background: #f0f0f0;
-  color: #333;
-  font-size: 11px;
+  color: #222;
+  font-size: 12px;
+  text-align: center;
   border-top: 1px solid #c3c3c3;
   border-bottom: 1px solid #bcbcbc;
-  font-weight: 500;
+  font-weight: 600;
+}
+.app > main .results-table thead th.dataset-letter {
+  color: #555;
+  font-size: 11px;
+  font-weight: 400;
+  height: 20px;
+}
+.app > main .results-table .output-row-number {
+  background: #eaeaea;
+  color: #7d7d7d;
+  width: 35px;
+  min-width: 35px;
+  text-align: center;
+  font-size: 10px;
+  padding: 2px 3px;
 }
 .app > main .extended-summary {
   margin: 0;
@@ -1074,14 +1097,6 @@
 }
 .app > main .result-footnote {
   color: #666;
-  font-size: 10px;
-  line-height: 1.5;
-  padding: 8px 10px;
-  margin: 0;
-  max-width: 750px;
-}
-.app > main .results-content > .button {
-  margin: 5px 9px;
 }
 .app > main .empty-results {
   padding: 40px 20px;
@@ -1305,4 +1320,17 @@
   margin: 6px 0;
   font-size: 12px;
   color: inherit;
+}
+.app > main .result-notes .result-warning {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  padding: 1px 0;
+  color: #444;
+}
+.app > main .result-notes .result-footnote {
+  margin: 0;
+  padding: 1px 0;
+  font-size: 11px;
 }

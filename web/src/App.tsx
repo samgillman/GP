@@ -5,7 +5,6 @@ import {
   ArrowUpFromLine,
   Asterisk,
   BarChart3,
-  Check,
   FileText,
   FilePlus2,
   Copy,
@@ -20,6 +19,7 @@ import {
   Undo2,
   Redo2,
   Settings2,
+  Shapes,
   Table2,
   X,
 } from "lucide-react";
@@ -45,7 +45,7 @@ import type {
 } from "./data";
 import Plot from "./Plot";
 import DataGrid from "./DataGrid";
-import { allExcluded } from "./data-grid";
+import { allExcluded, groupLabel } from "./data-grid";
 import type { GridRange } from "./data-grid";
 import {
   materializeSelection,
@@ -89,6 +89,8 @@ import {
   NewTableDialog,
   AnalyzeDialog,
   FormatGraphDialog,
+  FormatDataTableDialog,
+  ChangeGraphTypeDialog,
 } from "./WorkbookDialogs";
 const extendedMetrics = [
   ["sum", "Sum"],
@@ -453,6 +455,8 @@ export default function App() {
   const [newTable, setNewTable] = useState(false),
     [analyzeDialog, setAnalyzeDialog] = useState(false),
     [formatDialog, setFormatDialog] = useState(false),
+    [formatTableDialog, setFormatTableDialog] = useState(false),
+    [graphTypeDialog, setGraphTypeDialog] = useState(false),
     [sheetSearch, setSheetSearch] = useState("");
   const selectedSheet = workbook.sheets.find(
     (s) => s.id === workbook.activeSheetId,
@@ -520,7 +524,8 @@ export default function App() {
   const analyzedExcluded =
     selectedSheet.kind === "results"
       ? excludedCount(source, [
-          ...(source.project.table_type === "xy" && source.project.columns[0]?.id
+          ...(source.project.table_type === "xy" &&
+          source.project.columns[0]?.id
             ? [source.project.columns[0].id]
             : []),
           ...selectedSheet.datasetIds,
@@ -647,6 +652,8 @@ export default function App() {
           newTable ||
           analyzeDialog ||
           formatDialog ||
+          formatTableDialog ||
+          graphTypeDialog ||
           csvExport !== null ||
           imported.length > 0,
       );
@@ -669,6 +676,8 @@ export default function App() {
     newTable,
     analyzeDialog,
     formatDialog,
+    formatTableDialog,
+    graphTypeDialog,
     csvExport,
     imported.length,
   ]);
@@ -834,6 +843,7 @@ export default function App() {
       : dataIndices(source.project),
     prefix = "",
     forceNew = false,
+    regressionModel = project.regression_model,
   ) {
     if (selectedSheet.kind !== "data" && selectedSheet.frozen) {
       setError("Unfreeze this sheet before running or changing its analysis.");
@@ -851,7 +861,7 @@ export default function App() {
                 s.dataId === source.id &&
                 s.analysis === analysis &&
                 !s.selectionInvalid &&
-                s.regression_model === project.regression_model &&
+                s.regression_model === regressionModel &&
                 JSON.stringify(s.columnIndices) === JSON.stringify(indices),
             )
           : undefined;
@@ -874,7 +884,7 @@ export default function App() {
       const data = requestData({
         ...selectedProject(source, indices),
         analysis,
-        regression_model: project.regression_model,
+        regression_model: regressionModel,
       });
       const response = await apiFetch("/api/analyze", {
         method: "POST",
@@ -894,7 +904,7 @@ export default function App() {
                 : `${prefix}${analysisLabels[analysis]} — ${source.name}`,
               dataId: source.id,
               analysis,
-              regression_model: project.regression_model,
+              regression_model: regressionModel,
               columnIndices: indices,
               sourceRevision: source.revision,
               result: body,
@@ -1079,10 +1089,6 @@ export default function App() {
       `Data table imported${t.excluded?.length ? ` with ${t.excluded.length} excluded values kept excluded` : ""}. Graphs, analyses, and original project formatting are not imported.`,
     );
   }
-  function replaceSample(type: TableType) {
-    setWorkbook((w) => addData(w, sample(type)));
-    setNotice("Sample added as a new data table.");
-  }
   function retrySave() {
     try {
       setSaved(
@@ -1239,7 +1245,9 @@ export default function App() {
   function excludeValues(range: GridRange | null = gridRange) {
     setError("");
     if (selectedSheet.kind !== "data") {
-      setError("Open the data table and select the values to exclude or include.");
+      setError(
+        "Open the data table and select the values to exclude or include.",
+      );
       return;
     }
     if (!range) {
@@ -1263,7 +1271,11 @@ export default function App() {
   }
   function toggleExclusion(range: GridRange) {
     try {
-      const outcome = toggleExcludedValues(workbookRef.current, source.id, range);
+      const outcome = toggleExcludedValues(
+        workbookRef.current,
+        source.id,
+        range,
+      );
       const plural = outcome.count === 1 ? "value" : "values";
       if (
         setWorkbook(outcome.book, {
@@ -1278,6 +1290,21 @@ export default function App() {
     } catch (error) {
       setError(errorMessage(error));
     }
+  }
+  // Change > Format Data Table…: same values, first column becomes/stops being X.
+  function changeTableKind(type: TableType) {
+    setFormatTableDialog(false);
+    if (type === project.table_type) return;
+    change((p) => ({
+      ...p,
+      table_type: type,
+      analysis: "descriptive",
+      graph: {
+        ...p.graph,
+        type: type === "xy" ? "scatter" : "bar",
+        x_label: type === "xy" ? p.columns[0].name : "Group",
+      },
+    }));
   }
   function openGraphFormatting() {
     if (graphSheet?.frozen)
@@ -1388,6 +1415,16 @@ export default function App() {
             <button role="menuitem" onClick={() => exportData()}>
               Export data as CSV…
             </button>
+            {(["svg", "png", "pdf"] as const).map((format) => (
+              <button
+                role="menuitem"
+                key={format}
+                disabled={active !== "graph" || exporting}
+                onClick={() => void exportGraph(format)}
+              >
+                Export graph as {format.toUpperCase()}…
+              </button>
+            ))}
           </DesktopMenu>
           <DesktopMenu label="Edit">
             <button
@@ -1491,10 +1528,12 @@ export default function App() {
             >
               Analyze Data…
             </button>
-            <button role="menuitem" disabled={busy} onClick={() => void run()}>
-              {selectedSheet.kind === "results"
-                ? "Recalculate analysis"
-                : "Run selected analysis"}
+            <button
+              role="menuitem"
+              disabled={busy || selectedSheet.kind !== "results"}
+              onClick={() => void run()}
+            >
+              Recalculate analysis
             </button>
             <hr />
             <button role="menuitem" onClick={() => setAdvanced(true)}>
@@ -1504,6 +1543,20 @@ export default function App() {
           <DesktopMenu label="Change">
             <button role="menuitem" onClick={focusSheetName}>
               Sheet name…
+            </button>
+            <button
+              role="menuitem"
+              disabled={active !== "data" || !!source.frozen}
+              onClick={() => setFormatTableDialog(true)}
+            >
+              Format Data Table…
+            </button>
+            <button
+              role="menuitem"
+              disabled={active !== "graph" || graphSheet?.frozen}
+              onClick={() => setGraphTypeDialog(true)}
+            >
+              Change Graph Type…
             </button>
             <button
               role="menuitem"
@@ -1633,7 +1686,9 @@ export default function App() {
             <span>Data</span>
             <div>
               <button
-                aria-label={selectionExcluded ? "Include values" : "Exclude values"}
+                aria-label={
+                  selectionExcluded ? "Include values" : "Exclude values"
+                }
                 aria-pressed={selectionExcluded}
                 disabled={active !== "data" || !!source.frozen || !gridRange}
                 title={
@@ -1679,6 +1734,15 @@ export default function App() {
               >
                 <BarChart3 />
                 <small>New graph</small>
+              </button>
+              <button
+                aria-label="Change Graph Type…"
+                title="Change the kind of graph"
+                disabled={active !== "graph" || graphSheet?.frozen}
+                onClick={() => setGraphTypeDialog(true)}
+              >
+                <Shapes />
+                <small>Graph type</small>
               </button>
               <button
                 aria-label="Format Graph…"
@@ -2067,183 +2131,126 @@ export default function App() {
                 {recalculationMessage(selectedSheet.id)}
               </div>
             )}
-          <div className="analysis-bar">
-            <div className="analysis-icon">
-              <FlaskConical size={19} />
-            </div>
-            <div>
-              <label htmlFor="analysis">ANALYSIS</label>
-              <select
-                id="analysis"
-                disabled={selectedSheet.kind !== "data" && selectedSheet.frozen}
-                value={project.analysis}
-                onChange={(e) =>
-                  change((p) => ({
-                    ...p,
-                    analysis: e.target.value as Analysis,
-                  }))
-                }
-              >
-                {Object.entries(analysisLabels)
-                  .filter(([key]) =>
-                    xy
-                      ? [
-                          "descriptive",
-                          "linear_regression",
-                          "dose_response",
-                          "nonlinear_regression",
-                        ].includes(key)
-                      : ![
-                          "linear_regression",
-                          "dose_response",
-                          "nonlinear_regression",
-                        ].includes(key),
-                  )
-                  .map(([key, label]) => (
-                    <option value={key} key={key}>
-                      {label}
-                    </option>
-                  ))}
-              </select>
-            </div>
-            {project.analysis === "nonlinear_regression" && (
-              <label className="model-choice">
-                Model
+          {selectedSheet.kind === "results" && (
+            <div className="analysis-bar">
+              <div className="analysis-icon">
+                <FlaskConical size={19} />
+              </div>
+              <div>
+                <label htmlFor="analysis">ANALYSIS</label>
                 <select
-                  aria-label="Regression model"
-                  disabled={
-                    selectedSheet.kind !== "data" && selectedSheet.frozen
-                  }
-                  value={project.regression_model ?? "one_phase_decay"}
+                  id="analysis"
+                  disabled={!!selectedSheet.frozen}
+                  value={project.analysis}
                   onChange={(e) =>
-                    change((p) => ({ ...p, regression_model: e.target.value }))
+                    change((p) => ({
+                      ...p,
+                      analysis: e.target.value as Analysis,
+                    }))
                   }
                 >
-                  <option value="one_phase_decay">One-phase decay</option>
-                  <option value="one_phase_association">
-                    One-phase association
-                  </option>
-                  <option value="two_phase_decay">Two-phase decay</option>
-                  <option value="michaelis_menten">Michaelis–Menten</option>
-                  <option value="gaussian">Gaussian</option>
-                  <option value="straight_line">Straight line</option>
-                  <option value="log_dose_stimulation">
-                    Log-dose stimulation
-                  </option>
-                  <option value="log_dose_inhibition">
-                    Log-dose inhibition
-                  </option>
-                  <option value="normalized_dose_inhibition">
-                    Normalized inhibition (concentration)
-                  </option>
-                  <option value="normalized_log_dose_inhibition">
-                    Normalized inhibition (log concentration)
-                  </option>
+                  {Object.entries(analysisLabels)
+                    .filter(([key]) =>
+                      xy
+                        ? [
+                            "descriptive",
+                            "linear_regression",
+                            "dose_response",
+                            "nonlinear_regression",
+                          ].includes(key)
+                        : ![
+                            "linear_regression",
+                            "dose_response",
+                            "nonlinear_regression",
+                          ].includes(key),
+                    )
+                    .map(([key, label]) => (
+                      <option value={key} key={key}>
+                        {label}
+                      </option>
+                    ))}
                 </select>
-              </label>
-            )}
-            <span className="analysis-hint">
-              {project.analysis === "descriptive"
-                ? "Summary statistics · 95% confidence intervals"
-                : project.analysis === "welch_t"
-                  ? "Two independent groups · unequal variances"
-                  : project.analysis === "paired_t"
-                    ? "Two groups · paired by row"
-                    : project.analysis === "anova"
-                      ? "Independent groups · equal-variance model"
-                      : project.analysis === "dose_response"
-                        ? "Four-parameter logistic · nonnegative concentrations"
-                        : project.analysis === "nonlinear_regression"
-                          ? project.regression_model ===
-                            "normalized_log_dose_inhibition"
-                            ? "X is log10(concentration) · fixed 0–100 response"
-                            : project.regression_model ===
-                                "normalized_dose_inhibition"
-                              ? "Nonnegative concentrations · fixed 0–100 response"
-                              : project.regression_model?.startsWith("log_dose")
-                                ? "X must be log10(concentration)"
-                                : "Independent unweighted fits"
-                          : "Ordinary least squares · separate Y series"}
-            </span>
-            <button
-              className="button primary"
-              disabled={
-                busy || (selectedSheet.kind !== "data" && selectedSheet.frozen)
-              }
-              onClick={() => void run()}
-            >
-              <Play size={15} fill="currentColor" />
-              {busy
-                ? browserOnly
-                  ? "Loading / analyzing…"
-                  : "Analyzing…"
-                : selectedSheet.kind === "results"
-                  ? "Recalculate analysis"
-                  : "Run analysis"}
-            </button>
-          </div>
+              </div>
+              {project.analysis === "nonlinear_regression" && (
+                <label className="model-choice">
+                  Model
+                  <select
+                    aria-label="Regression model"
+                    disabled={!!selectedSheet.frozen}
+                    value={project.regression_model ?? "one_phase_decay"}
+                    onChange={(e) =>
+                      change((p) => ({
+                        ...p,
+                        regression_model: e.target.value,
+                      }))
+                    }
+                  >
+                    <option value="one_phase_decay">One-phase decay</option>
+                    <option value="one_phase_association">
+                      One-phase association
+                    </option>
+                    <option value="two_phase_decay">Two-phase decay</option>
+                    <option value="michaelis_menten">Michaelis–Menten</option>
+                    <option value="gaussian">Gaussian</option>
+                    <option value="straight_line">Straight line</option>
+                    <option value="log_dose_stimulation">
+                      Log-dose stimulation
+                    </option>
+                    <option value="log_dose_inhibition">
+                      Log-dose inhibition
+                    </option>
+                    <option value="normalized_dose_inhibition">
+                      Normalized inhibition (concentration)
+                    </option>
+                    <option value="normalized_log_dose_inhibition">
+                      Normalized inhibition (log concentration)
+                    </option>
+                  </select>
+                </label>
+              )}
+              <span className="analysis-hint">
+                {project.analysis === "descriptive"
+                  ? "Summary statistics · 95% confidence intervals"
+                  : project.analysis === "welch_t"
+                    ? "Two independent groups · unequal variances"
+                    : project.analysis === "paired_t"
+                      ? "Two groups · paired by row"
+                      : project.analysis === "anova"
+                        ? "Independent groups · equal-variance model"
+                        : project.analysis === "dose_response"
+                          ? "Four-parameter logistic · nonnegative concentrations"
+                          : project.analysis === "nonlinear_regression"
+                            ? project.regression_model ===
+                              "normalized_log_dose_inhibition"
+                              ? "X is log10(concentration) · fixed 0–100 response"
+                              : project.regression_model ===
+                                  "normalized_dose_inhibition"
+                                ? "Nonnegative concentrations · fixed 0–100 response"
+                                : project.regression_model?.startsWith(
+                                      "log_dose",
+                                    )
+                                  ? "X must be log10(concentration)"
+                                  : "Independent unweighted fits"
+                            : "Ordinary least squares · separate Y series"}
+              </span>
+              <button
+                className="button primary"
+                disabled={busy || !!selectedSheet.frozen}
+                onClick={() => void run()}
+              >
+                <Play size={15} fill="currentColor" />
+                {busy
+                  ? browserOnly
+                    ? "Loading / analyzing…"
+                    : "Analyzing…"
+                  : "Recalculate analysis"}
+              </button>
+            </div>
+          )}
           {active !== "results" ? (
             <div className={`workspace-grid sheet-${active}-view`}>
               {active === "data" && (
                 <section className="card data-card">
-                  <div className="card-heading">
-                    <div>
-                      <span className="card-icon">
-                        <Table2 size={17} />
-                      </span>
-                      <h2>Data table</h2>
-                      <span className="subtle-count">
-                        {count} values
-                        {excludedPositions.size
-                          ? ` · ${excludedCount(source)} excluded`
-                          : ""}
-                      </span>
-                    </div>
-                    <select
-                      aria-label="Table type"
-                      disabled={source.frozen}
-                      className="small-select"
-                      value={project.table_type}
-                      onChange={(e) => {
-                        const type = e.target.value as TableType;
-                        change((p) => ({
-                          ...p,
-                          table_type: type,
-                          analysis: "descriptive",
-                          graph: {
-                            ...p.graph,
-                            type: type === "xy" ? "scatter" : "bar",
-                            x_label:
-                              type === "xy" ? p.columns[0].name : "Group",
-                          },
-                        }));
-                      }}
-                    >
-                      <option value="column">Column</option>
-                      <option value="xy">XY</option>
-                    </select>
-                  </div>
-                  <div className="data-tools">
-                    <span className="table-indicator" />
-                    <span>
-                      {xy ? "X values + Y series" : "Replicates in columns"}
-                    </span>
-                    <div className="sample-select">
-                      <select
-                        aria-label="Load a sample dataset"
-                        value=""
-                        onChange={(e) => {
-                          replaceSample(e.target.value as TableType);
-                        }}
-                      >
-                        <option value="" disabled>
-                          Sample datasets
-                        </option>
-                        <option value="column">Treatment response</option>
-                        <option value="xy">Dose response</option>
-                      </select>
-                    </div>
-                  </div>
                   <DataGrid
                     key={source.id}
                     sheetId={source.id}
@@ -2262,9 +2269,7 @@ export default function App() {
                       }))
                     }
                     onRemoveColumn={removeColumn}
-                    onAddColumn={() => insertColumn(project.columns.length)}
                     onRemoveRow={removeRow}
-                    onAddRow={() => insertRow(rows)}
                     onInsertRow={insertRow}
                     onInsertColumn={insertColumn}
                     onClearRange={clearRange}
@@ -2293,27 +2298,6 @@ export default function App() {
                       <h2>{graphSheet?.name ?? "Graph"}</h2>
                     </div>
                   </div>
-                  <div className="graph-types">
-                    {(["scatter", "bar", "box", "line"] as const).map((t) => (
-                      <button
-                        key={t}
-                        disabled={
-                          graphSheet?.frozen ||
-                          (xy ? t === "bar" || t === "box" : t === "line")
-                        }
-                        className={project.graph.type === t ? "selected" : ""}
-                        onClick={() => graph({ type: t })}
-                      >
-                        {t === "scatter"
-                          ? "Scatter"
-                          : t === "bar"
-                            ? "Bar"
-                            : t === "box"
-                              ? "Box plot"
-                              : "Line"}
-                      </button>
-                    ))}
-                  </div>
                   <div className="chart-title">{project.graph.title}</div>
                   <Plot
                     key={graphSheet?.id}
@@ -2323,7 +2307,9 @@ export default function App() {
                     selectedPointRanges={selectedPointRanges}
                     onSelectPoint={(series, row) => selectPoint(series, row)}
                     onGoToCell={(series, row) => selectPoint(series, row, true)}
-                    onExcludePoint={graphSheet?.frozen ? undefined : excludePoint}
+                    onExcludePoint={
+                      graphSheet?.frozen ? undefined : excludePoint
+                    }
                     selectedPoint={selectedGraphPoint(
                       source,
                       graphSheet?.columnIndices ?? dataIndices(source.project),
@@ -2332,48 +2318,28 @@ export default function App() {
                     onFormatAxes={openGraphFormatting}
                     onEditText={openGraphFormatting}
                   />
-                  <div className="legend">
-                    {plotProject.columns.slice(xy ? 1 : 0).map((c, i) => (
-                      <span key={i}>
-                        <i
-                          style={{
-                            background:
-                              project.graph.colors[
-                                i % project.graph.colors.length
-                              ] || palette[i % palette.length],
-                          }}
-                        />
-                        {c.name}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="graph-caption">
-                    {xy
-                      ? "X and Y observations"
-                      : project.graph.type === "box"
-                        ? "Median, interquartile range; whiskers show min–max"
-                        : `Mean${project.graph.error === "none" ? "" : ` ± ${project.graph.error === "ci" ? "95% CI" : project.graph.error.toUpperCase()}`}`}
-                    {project.graph.error === "ci" && !result && !xy
-                      ? " · Run analysis to show confidence intervals"
-                      : ""}
-                  </div>
-                  <div className="export-row">
-                    <span>
-                      <ArrowDownToLine size={14} />
-                      Export figure
-                    </span>
-                    <div>
-                      {(["svg", "png", "pdf"] as const).map((f) => (
-                        <button
-                          key={f}
-                          disabled={exporting}
-                          onClick={() => void exportGraph(f)}
-                        >
-                          {f.toUpperCase()}
-                        </button>
+                  {xy && (
+                    <div className="legend">
+                      {plotProject.columns.slice(1).map((c, i) => (
+                        <span key={i}>
+                          <i
+                            style={{
+                              background:
+                                project.graph.colors[
+                                  i % project.graph.colors.length
+                                ] || palette[i % palette.length],
+                            }}
+                          />
+                          {c.name}
+                        </span>
                       ))}
                     </div>
-                  </div>
+                  )}
+                  {project.graph.error === "ci" && !result && !xy && (
+                    <div className="graph-caption">
+                      Run an analysis to show 95% confidence intervals.
+                    </div>
+                  )}
                 </section>
               )}
             </div>
@@ -2388,12 +2354,6 @@ export default function App() {
                       : "Analysis results"}
                   </h2>
                 </div>
-                {result && (
-                  <span className="complete-badge">
-                    <Check size={13} />
-                    Complete
-                  </span>
-                )}
               </div>
               {!result ? (
                 <div className="empty-results">
@@ -2431,11 +2391,6 @@ export default function App() {
                       in blue italics.
                     </div>
                   )}
-                  {result.warnings.map((w, i) => (
-                    <div className="result-warning" key={i}>
-                      {w}
-                    </div>
-                  ))}
                   <table className="analysis-output">
                     <thead>
                       <tr>
@@ -2467,7 +2422,17 @@ export default function App() {
                     <table className="results-table">
                       <thead>
                         <tr>
-                          <th>Statistic</th>
+                          <th className="output-row-number" />
+                          <th className="stat-label" />
+                          {result.summary.map((c, i) => (
+                            <th key={c.name} className="dataset-letter">
+                              {groupLabel(i)}
+                            </th>
+                          ))}
+                        </tr>
+                        <tr>
+                          <th className="output-row-number" />
+                          <th className="stat-label" />
                           {result.summary.map((c) => (
                             <th key={c.name}>{c.name}</th>
                           ))}
@@ -2486,9 +2451,10 @@ export default function App() {
                             ["ci_low", "Lower 95% CI"],
                             ["ci_high", "Upper 95% CI"],
                           ] as const
-                        ).map(([key, label]) => (
+                        ).map(([key, label], row) => (
                           <tr key={key}>
-                            <th>{label}</th>
+                            <th className="output-row-number">{row + 1}</th>
+                            <th className="stat-label">{label}</th>
                             {result.summary.map((c) => (
                               <td key={c.name}>{fmt(c[key])}</td>
                             ))}
@@ -2504,16 +2470,18 @@ export default function App() {
                         <table className="results-table">
                           <thead>
                             <tr>
-                              <th>Statistic</th>
+                              <th className="output-row-number" />
+                              <th className="stat-label" />
                               {result.summary.map((s) => (
                                 <th key={s.name}>{s.name}</th>
                               ))}
                             </tr>
                           </thead>
                           <tbody>
-                            {extendedMetrics.map(([key, label]) => (
+                            {extendedMetrics.map(([key, label], row) => (
                               <tr key={key}>
-                                <th>{label}</th>
+                                <th className="output-row-number">{row + 1}</th>
+                                <th className="stat-label">{label}</th>
                                 {result.summary.map((s) => (
                                   <td
                                     key={s.name}
@@ -2534,14 +2502,21 @@ export default function App() {
                       </div>
                     </details>
                   )}
-                  <p className="result-footnote">
-                    Missing values are excluded where appropriate. Review
-                    warnings and model assumptions before interpreting results.
-                  </p>
-                  <button className="button" onClick={() => setActive("data")}>
-                    <BarChart3 size={16} />
-                    Back to data & graph
-                  </button>
+                  <div className="result-notes">
+                    <h3>Notes</h3>
+                    <ul>
+                      {result.warnings.map((w, i) => (
+                        <li className="result-warning" key={i}>
+                          {w}
+                        </li>
+                      ))}
+                      <li className="result-footnote">
+                        Missing values are excluded where appropriate. Review
+                        warnings and model assumptions before interpreting
+                        results.
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               )}
             </section>
@@ -2609,19 +2584,45 @@ export default function App() {
       {newTable && (
         <NewTableDialog
           onClose={() => setNewTable(false)}
-          onCreate={(type, name) => {
-            setWorkbook((w) => addData(w, blankProject(type, name)));
+          onCreate={(type, name, sampleData) => {
+            setWorkbook((w) =>
+              addData(w, sampleData ? sample(type) : blankProject(type, name)),
+            );
             setNewTable(false);
           }}
+        />
+      )}
+      {graphTypeDialog && graphSheet && (
+        <ChangeGraphTypeDialog
+          tableType={project.table_type}
+          graph={graphSheet.graph}
+          onClose={() => setGraphTypeDialog(false)}
+          onApply={(type, showPoints) => {
+            setGraphTypeDialog(false);
+            graph({ type, show_points: showPoints });
+          }}
+        />
+      )}
+      {formatTableDialog && (
+        <FormatDataTableDialog
+          tableType={project.table_type}
+          onClose={() => setFormatTableDialog(false)}
+          onApply={changeTableKind}
         />
       )}
       {analyzeDialog && (
         <AnalyzeDialog
           project={project}
           onClose={() => setAnalyzeDialog(false)}
-          onRun={(analysis, indices, prefix) => {
+          onRun={(analysis, indices, prefix, model) => {
             setAnalyzeDialog(false);
-            void run(analysis, indices, prefix, true);
+            void run(
+              analysis,
+              indices,
+              prefix,
+              true,
+              analysis === "nonlinear_regression" ? model : undefined,
+            );
           }}
         />
       )}

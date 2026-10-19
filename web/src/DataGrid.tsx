@@ -51,9 +51,7 @@ export type DataGridProps = {
   ): void;
   onRenameColumn(column: number, name: string): void;
   onRemoveColumn(column: number): void;
-  onAddColumn(): void;
   onRemoveRow(row: number): void;
-  onAddRow(): void;
   onInsertRow?(index: number): void;
   onInsertColumn?(index: number): void;
   onClearRange?(range: GridRange): void;
@@ -789,7 +787,6 @@ export default function DataGrid(props: DataGridProps) {
                       aria-label={`Column ${run.index + 1} name`}
                       value={props.columns[run.index]?.name ?? ""}
                       readOnly={props.readOnly}
-                      placeholder={`Series ${run.index + 1}`}
                       onChange={(e) =>
                         props.onRenameColumn(run.index, e.target.value)
                       }
@@ -919,20 +916,6 @@ export default function DataGrid(props: DataGridProps) {
         </table>
       </div>
       <div className="sheet-footer data-grid-footer">
-        <div>
-          <button
-            onClick={props.onAddRow}
-            disabled={props.readOnly || actualRows >= GRID_ROWS}
-          >
-            Add row
-          </button>
-          <button
-            onClick={props.onAddColumn}
-            disabled={props.readOnly || props.columns.length >= GRID_COLUMNS}
-          >
-            Add column
-          </button>
-        </div>
         <span>
           {actualRows.toLocaleString()} rows · {props.columns.length} columns
           <span className="data-grid-selection-count">

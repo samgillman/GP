@@ -142,7 +142,7 @@ with sync_playwright() as p:
     a_points = sorted(t for t in titles if t.startswith("A, row"))
     assert a_points == ["A, row 3: 3", "A, row 4: 100"], titles
     with page.expect_download(timeout=300000):
-        page.get_by_role("button", name="SVG", exact=True).click()
+        menu("File", "Export graph as SVG…")
     exported = payloads("/api/export")[-1]
     assert exported["data"]["columns"][0]["values"] == [None, None, 3, 100], exported
     check("results note, drawn graph points and graph export input omit excluded values", graph_points=a_points,
