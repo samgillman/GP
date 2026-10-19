@@ -144,7 +144,7 @@ def main():
 
         def export_svg(filename):
             with page.expect_download(timeout=120000) as pending:
-                page.get_by_role("button", name="SVG", exact=True).click()
+                menu_action("File", "Export graph as SVG…")
             destination = OUT / filename
             pending.value.save_as(destination)
             return svg_geometry(destination)
@@ -171,11 +171,17 @@ def main():
             draft_id = initial["activeSheetId"]
             cell(0, 0).fill("-")
             wait_book(lambda w: sheet(draft_id, w)["project"]["columns"][0]["values"][0] == "-", "numeric draft saved")
-            page.get_by_label("Load a sample dataset", exact=True).select_option("xy")
+            page.get_by_role("button", name="New Data Table and Graph", exact=True).click()
+            new_table = page.get_by_role("dialog", name="New Data Table and Graph", exact=True)
+            new_table.get_by_role("button", name="XY", exact=True).click()
+            new_table.get_by_role("radio", name="Start with sample data", exact=True).check()
+            new_table.get_by_role("button", name="Create table and graph", exact=True).click()
             ready = wait_book(lambda w: len([s for s in w["sheets"] if s["kind"] == "data"]) == 2, "XY sample created")
             data_id = ready["activeSheetId"]
-            page.locator("#analysis").select_option("linear_regression")
-            page.get_by_role("button", name="Run analysis", exact=True).click()
+            page.get_by_role("button", name="Analyze Data…", exact=True).click()
+            analyze_dialog = page.get_by_role("dialog", name="Analyze Data", exact=True)
+            analyze_dialog.get_by_role("radio", name="Linear regression", exact=True).check()
+            analyze_dialog.get_by_role("button", name="Create analysis", exact=True).click()
             ready = wait_book(lambda w: any(s["kind"] == "results" and s["status"] == "current" for s in w["sheets"]), "UI analysis computed")
             result_id = next(s["id"] for s in ready["sheets"] if s["kind"] == "results")
             assert sheet(result_id)["result"]["fit"], "Actual linear fit must produce curves"
@@ -221,8 +227,7 @@ def main():
             assert copy_cells() == "3"
             page.keyboard.press("ArrowDown")
             expect(page.locator(".data-grid-cell.is-active input")).to_have_attribute("data-row", "1")
-            expect(page.get_by_role("button", name="Add row", exact=True)).to_be_disabled()
-            expect(page.get_by_role("button", name="Add column", exact=True)).to_be_disabled()
+            expect(page.get_by_role("button", name="Exclude values", exact=True)).to_be_disabled()
             page.get_by_role("button", name="Select row 1", exact=True).click(button="right")
             for action in ["Insert row above", "Delete row", "Clear row"]:
                 expect(page.get_by_role("menuitem", name=action, exact=True)).to_be_disabled()
@@ -258,8 +263,7 @@ def main():
             assert frozen_graph["frozenResult"]["result"] == frozen_result["result"]
             assert frozen_graph["frozenResult"]["result"]["fit"]
             expect(page.get_by_role("button", name="Format Graph…", exact=True).first).to_be_disabled()
-            for control in page.locator(".graph-types button").all():
-                expect(control).to_be_disabled()
+            expect(page.get_by_role("button", name="Change Graph Type…", exact=True)).to_be_disabled()
             before_geometry = export_svg("frozen-before.svg")
             graph_copy = duplicate(graph_id)
             for key in ["graph", "frozenSource", "frozenResult", "datasetIds"]:

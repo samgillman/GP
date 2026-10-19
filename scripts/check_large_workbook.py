@@ -65,15 +65,20 @@ with sync_playwright() as p:
     upload('A,B\n1,4\n2,6\n3,5','links.csv')
     page.wait_for_function('JSON.parse(localStorage.getItem("gp.workbook.v2")).sheets.some(s=>s.name==="links")')
     source_id=source()['id']
-    page.get_by_role('button',name='Run analysis',exact=True).click()
-    page.wait_for_function('(id)=>{const b=JSON.parse(localStorage.getItem("gp.workbook.v2"));return b.sheets.some(s=>s.kind==="results"&&s.dataId===id&&s.id===b.activeSheetId)}',arg=source_id, timeout=120000)
+    def analyze(choice=None):
+        page.get_by_role('button',name='Analyze Data…',exact=True).click()
+        dialog=page.get_by_role('dialog',name='Analyze Data',exact=True)
+        if choice: dialog.get_by_role('radio',name=choice,exact=True).check()
+        dialog.get_by_role('button',name='Create analysis',exact=True).click()
+    analyze()
+    page.wait_for_function('(id)=>{const b=JSON.parse(localStorage.getItem("gp.workbook.v2"));return b.sheets.some(s=>s.kind==="results"&&s.status==="current"&&s.dataId===id&&s.id===b.activeSheetId)}',arg=source_id, timeout=120000)
     first_result=source()
-    page.get_by_label('Current sheet',exact=True).select_option(source_id)
-    page.get_by_role('button',name='Run analysis',exact=True).click()
+    # Recalculating an existing result keeps its identity instead of creating another.
+    page.get_by_role('button',name='Recalculate analysis',exact=True).click()
     page.wait_for_function('(id)=>JSON.parse(localStorage.getItem("gp.workbook.v2")).activeSheetId===id',arg=first_result['id'])
     assert len([s for s in book()['sheets'] if s['kind']=='results' and s['dataId']==source_id])==1
-    page.get_by_role('button',name='Analyze Data…',exact=True).click()
-    page.get_by_role('dialog',name='Analyze Data',exact=True).get_by_role('button',name='Create analysis',exact=True).click()
+    page.get_by_label('Current sheet',exact=True).select_option(source_id)
+    analyze()
     page.wait_for_function('(id)=>JSON.parse(localStorage.getItem("gp.workbook.v2")).sheets.filter(s=>s.kind==="results"&&s.dataId===id).length===2',arg=source_id, timeout=120000)
     second_result=source()
     assert second_result['id']!=first_result['id']
@@ -81,7 +86,7 @@ with sync_playwright() as p:
     page.wait_for_function('(id)=>{const b=JSON.parse(localStorage.getItem("gp.workbook.v2"));return b.sheets.some(s=>s.id===id&&s.analysis==="welch_t"&&s.status==="current")}',arg=second_result['id'])
     assert next(s for s in book()['sheets'] if s['id']==first_result['id'])==first_result
     assert next(s for s in book()['sheets'] if s['id']==source_id)['project']['analysis']=='descriptive'
-    print('Analysis rerun reuses identity; explicit Create analysis is independent',flush=True)
+    print('Recalculation reuses identity; explicit Create analysis is independent',flush=True)
     report['checks'].append('analysis rerun identity, explicit creation, and settings isolation')
     mapped=book()
     subset=next(s for s in mapped['sheets'] if s['kind']=='graph' and s['dataId']==source_id)
@@ -108,15 +113,14 @@ with sync_playwright() as p:
     page.wait_for_function('JSON.parse(localStorage.getItem("gp.workbook.v2")).sheets.some(s=>s.name==="hostile")')
     assert len(source()['project']['columns'])==2
     assert page.evaluate('window.hostile') is None
-    page.get_by_label('ANALYSIS',exact=True).select_option('welch_t')
     grid_top=page.locator('.data-grid-viewport').bounding_box()['y']
-    page.get_by_role('button',name='Run analysis',exact=True).click()
+    analyze('Unpaired t test (Welch)')
     expect(page.locator('.workbook-notifications .error')).to_be_visible(timeout=120000)
     error=page.locator('.workbook-notifications .error').inner_text()
     assert 'gp.statistics' not in error and 'errors.pydantic' not in error,error
     assert page.locator('.data-grid-viewport').bounding_box()['y']==grid_top
     page.get_by_label('<img src=x onerror=window.hostile=true>, row 1',exact=True).fill('1e200')
-    page.get_by_role('button',name='Run analysis',exact=True).click()
+    analyze('Unpaired t test (Welch)')
     expect(page.locator('.workbook-notifications .error')).to_contain_text('1e100')
     assert 'errors.pydantic' not in page.locator('.workbook-notifications .error').inner_text()
     print('Plaintext names and stable constant/overflow error notifications confirmed',flush=True)

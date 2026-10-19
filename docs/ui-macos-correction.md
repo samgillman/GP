@@ -44,3 +44,23 @@ python scripts/check_desktop_ui.py http://127.0.0.1:8001
 ```
 
 For an existing Chromium installation, set `GP_CHROMIUM` to its executable path. Set `GP_SCREENSHOTS` to change the output directory (default `/tmp/gp-desktop-ui`). These checks demonstrate GP behavior; they do not compare against an executing Prism application.
+
+## Second correction: Prism-style sheets (2026-10-19)
+
+User feedback: the app still did not feel or work like Prism. A review of GP's own screenshots found GP-specific chrome on every sheet and a dashboard-style graph. This pass removes that chrome and moves each function to the place recorded Prism resources put it. No Prism screenshot could be compared in this session: the cloud container had no copy of the user's Prism 10 guide images, and its network policy blocked graphpad.com.
+
+| Change | Basis |
+|---|---|
+| Graph type moves from on-page buttons to **Change → Change Graph Type…** and a toolbar button | `ChangeGraphType.nib` is a separate dialog ([UI map](prism-ui-map.md)) |
+| Table kind moves from an on-sheet select to **Change → Format Data Table…** (Kind of table) | `FormatDataTable.nib` `Kind of table:` |
+| Nonlinear model choice moves into the Analyze dialog | Guide §3.3–3.4: analysis selection is followed by its parameters ([findings](prism10-guide-findings.md)) |
+| Zoom controls move to a compact strip below the graph; the View menu presets remain | `MainMenu.nib` zoom items ([UI evidence](prism-ui-rea-evidence.md)) |
+| Graph export moves to **File → Export graph as SVG/PNG/PDF…** | GP placement modeled on a File-menu export command, not observed natively |
+| The ANALYSIS strip appears only on results sheets; the data sheet keeps just the grid | `Document.nib` outlets: navigator, sheet, inspector, toolbar and status bar only |
+| Sample data comes from **New Data Table and Graph → Start with sample data** | GP adaptation; the exact native wording is unverified |
+| Add row/Add column buttons and empty-column "Series N" placeholders removed; the grid grows as values are typed | GP choice for a spreadsheet-like sheet |
+| Journal-style graphs: black 1.5-pt axes with outward ticks, no gridlines, Arial, bold titles, black error bars and mean lines, solid fitted curves, outlined bars; column graphs have no legend or caption | GP styling informed by Prism's typical defaults; **not** a pixel or default-setting comparison |
+| The Matplotlib export uses the same axis, tick, font, bar, error-bar and point styling as the screen | Keeps exported figures consistent with the preview |
+| Results are a numbered grid with lettered data-set columns; method notes appear as a list below | Spreadsheet-style results sheet; exact native row labels and order are not recovered |
+
+Open: a row-title column, subcolumn/replicate headers, a full Format Axes dialog, the inspector, native default fonts/sizes and graph defaults, results tabs, parameter dialogs for every analysis, and side-by-side visual verification against Prism.

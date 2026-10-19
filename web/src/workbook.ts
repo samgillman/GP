@@ -91,25 +91,34 @@ export function canonicalExclusions(
 ): Exclusions | undefined {
   if (!excluded) return undefined;
   const rows = new Map(rowIds.map((rowId, index) => [rowId, index]));
-  const before = previous && new Map(previous.rowIds.map((rowId, index) => [rowId, index]));
+  const before =
+    previous && new Map(previous.rowIds.map((rowId, index) => [rowId, index]));
   const result: Exclusions = {};
   for (const column of project.columns) {
     const wanted = column.id === undefined ? undefined : excluded[column.id];
     if (!Array.isArray(wanted) || !wanted.length) continue;
-    const old = previous?.project.columns.find((candidate) => candidate.id === column.id);
+    const old = previous?.project.columns.find(
+      (candidate) => candidate.id === column.id,
+    );
     const kept = new Set<number>();
     for (const rowId of wanted) {
       const row = rows.get(rowId);
       if (row === undefined || !excludable(column.values[row])) continue;
       if (before) {
         const oldRow = before.get(rowId);
-        if (!old || oldRow === undefined || old.values[oldRow] !== column.values[row])
+        if (
+          !old ||
+          oldRow === undefined ||
+          old.values[oldRow] !== column.values[row]
+        )
           continue;
       }
       kept.add(row);
     }
     if (kept.size)
-      result[column.id!] = [...kept].sort((a, b) => a - b).map((row) => rowIds[row]);
+      result[column.id!] = [...kept]
+        .sort((a, b) => a - b)
+        .map((row) => rowIds[row]);
   }
   return Object.keys(result).length ? result : undefined;
 }
@@ -124,7 +133,11 @@ export function exclusionPositions(data: DataSheet): Map<number, Set<number>> {
     if (!excluded?.length) return;
     positions.set(
       index,
-      new Set(excluded.map((rowId) => rows.get(rowId)!).filter((row) => row !== undefined)),
+      new Set(
+        excluded
+          .map((rowId) => rows.get(rowId)!)
+          .filter((row) => row !== undefined),
+      ),
     );
   });
   return positions;
@@ -147,7 +160,12 @@ export function includedProject(data: DataSheet): Project {
     columns: data.project.columns.map((column, index) => {
       const rows = positions.get(index);
       return rows
-        ? { ...column, values: column.values.map((value, row) => (rows.has(row) ? "" : value)) }
+        ? {
+            ...column,
+            values: column.values.map((value, row) =>
+              rows.has(row) ? "" : value,
+            ),
+          }
         : column;
     }),
   };
@@ -160,13 +178,18 @@ export function sameSourceData(captured: DataSheet, live: DataSheet): boolean {
   return (
     captured.revision === live.revision &&
     captured.project.table_type === live.project.table_type &&
-    JSON.stringify(captured.project.columns) === JSON.stringify(live.project.columns) &&
+    JSON.stringify(captured.project.columns) ===
+      JSON.stringify(live.project.columns) &&
     JSON.stringify(captured.rowIds) === JSON.stringify(live.rowIds) &&
-    JSON.stringify(captured.excluded ?? null) === JSON.stringify(live.excluded ?? null)
+    JSON.stringify(captured.excluded ?? null) ===
+      JSON.stringify(live.excluded ?? null)
   );
 }
 
-function withExclusions(sheet: DataSheet, excluded: Exclusions | undefined): DataSheet {
+function withExclusions(
+  sheet: DataSheet,
+  excluded: Exclusions | undefined,
+): DataSheet {
   const next = { ...sheet };
   delete next.excluded;
   return excluded ? { ...next, excluded } : next;
@@ -249,7 +272,11 @@ export function fromProject(
   const requested: Exclusions = {};
   for (const { column, row } of excludedCells) {
     const dataset = identified.columns[column];
-    if (!dataset || rowIds[row] === undefined || !excludable(dataset.values[row]))
+    if (
+      !dataset ||
+      rowIds[row] === undefined ||
+      !excludable(dataset.values[row])
+    )
       throw new Error("Excluded cells must contain numeric values.");
     (requested[dataset.id] ??= []).push(rowIds[row]);
   }
@@ -374,7 +401,8 @@ export function updateData(
     source,
   );
   const exclusionsChanged =
-    JSON.stringify(source.excluded ?? null) !== JSON.stringify(excluded ?? null);
+    JSON.stringify(source.excluded ?? null) !==
+    JSON.stringify(excluded ?? null);
   const changed =
     source.project.table_type !== next.table_type ||
     JSON.stringify(source.project.columns) !== JSON.stringify(next.columns) ||
@@ -482,18 +510,29 @@ export function toggleExcludedValues(
   if (!source || source.kind !== "data")
     throw new Error("Select values in a data table to exclude them.");
   if (source.frozen)
-    throw new Error("Unfreeze this data table before excluding or including values.");
+    throw new Error(
+      "Unfreeze this data table before excluding or including values.",
+    );
   const current = exclusionPositions(source);
   const cells: CellPosition[] = [];
-  const lastColumn = Math.min(range.endColumn, source.project.columns.length - 1);
+  const lastColumn = Math.min(
+    range.endColumn,
+    source.project.columns.length - 1,
+  );
   const lastRow = Math.min(range.endRow, source.rowIds.length - 1);
-  for (let column = Math.max(0, range.startColumn); column <= lastColumn; column++)
+  for (
+    let column = Math.max(0, range.startColumn);
+    column <= lastColumn;
+    column++
+  )
     for (let row = Math.max(0, range.startRow); row <= lastRow; row++)
       if (excludable(source.project.columns[column].values[row]))
         cells.push({ column, row });
   if (!cells.length)
     throw new Error("Select one or more numeric values to exclude or include.");
-  const exclude = cells.some(({ column, row }) => !current.get(column)?.has(row));
+  const exclude = cells.some(
+    ({ column, row }) => !current.get(column)?.has(row),
+  );
   const next: Exclusions = structuredClone(source.excluded ?? {});
   const changed = new Map<string, Set<string>>();
   for (const { column, row } of cells) {
@@ -723,7 +762,11 @@ function validateExclusions(sheet: DataSheet) {
       );
     count += rowIds.length;
   }
-  const canonical = canonicalExclusions(sheet.project, sheet.rowIds, sheet.excluded);
+  const canonical = canonicalExclusions(
+    sheet.project,
+    sheet.rowIds,
+    sheet.excluded,
+  );
   if (excludedCount({ ...sheet, excluded: canonical }) !== count)
     throw new Error("Only numeric values can be excluded.");
   if (canonical) sheet.excluded = canonical;

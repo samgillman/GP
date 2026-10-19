@@ -123,15 +123,163 @@ export const analysisLabels: Record<Analysis, string> = {
   dose_response: "Dose–response (4PL)",
   nonlinear_regression: "Nonlinear regression",
 };
+export const regressionModels = [
+  ["one_phase_decay", "One-phase decay"],
+  ["one_phase_association", "One-phase association"],
+  ["two_phase_decay", "Two-phase decay"],
+  ["michaelis_menten", "Michaelis–Menten"],
+  ["gaussian", "Gaussian"],
+  ["straight_line", "Straight line"],
+  ["log_dose_stimulation", "Log-dose stimulation"],
+  ["log_dose_inhibition", "Log-dose inhibition"],
+  ["normalized_dose_inhibition", "Normalized inhibition (concentration)"],
+  ["normalized_log_dose_inhibition", "Normalized inhibition (log concentration)"],
+] as const;
+/** Change > Format Data Table…: only the table kind GP currently supports. */
+export function FormatDataTableDialog({
+  tableType,
+  onClose,
+  onApply,
+}: {
+  tableType: TableType;
+  onClose: () => void;
+  onApply: (type: TableType) => void;
+}) {
+  const [type, setType] = useState(tableType);
+  return (
+    <DesktopDialog
+      title="Format Data Table"
+      titleId="format-table-title"
+      className="desktop-format-table"
+      onClose={onClose}
+    >
+      <div className="desktop-dialog-body">
+        <fieldset>
+          <legend>Kind of table</legend>
+          {(
+            [
+              ["xy", "XY"],
+              ["column", "Column"],
+            ] as const
+          ).map(([value, label]) => (
+            <label className="desktop-choice" key={value}>
+              <input
+                type="radio"
+                name="format-table-kind"
+                data-autofocus={type === value || undefined}
+                checked={type === value}
+                onChange={() => setType(value)}
+              />
+              {label}
+            </label>
+          ))}
+        </fieldset>
+        <p className="desktop-help-text">
+          Switching between Column and XY keeps every entered value; the first
+          column becomes or stops being X. Other table kinds are not yet
+          available.
+        </p>
+      </div>
+      <footer className="desktop-dialog-actions">
+        <button className="button" onClick={onClose}>
+          Cancel
+        </button>
+        <button className="button primary" onClick={() => onApply(type)}>
+          OK
+        </button>
+      </footer>
+    </DesktopDialog>
+  );
+}
+const graphTypeChoices = {
+  column: [
+    ["scatter", true, "Scatter dot plot"],
+    ["bar", true, "Bars with individual points"],
+    ["bar", false, "Bars"],
+    ["box", false, "Box and whiskers"],
+  ],
+  xy: [
+    ["scatter", true, "Points only"],
+    ["line", true, "Points and connecting line"],
+  ],
+} as const satisfies Record<TableType, readonly (readonly [Graph["type"], boolean, string])[]>;
+/** Change > Change Graph Type…: GP's subset of the graph families. */
+export function ChangeGraphTypeDialog({
+  tableType,
+  graph,
+  onClose,
+  onApply,
+}: {
+  tableType: TableType;
+  graph: Graph;
+  onClose: () => void;
+  onApply: (type: Graph["type"], showPoints: boolean) => void;
+}) {
+  const choices = graphTypeChoices[tableType];
+  const current = Math.max(
+    0,
+    choices.findIndex(
+      ([type, points]) =>
+        type === graph.type &&
+        (type === "scatter" || type === "box" || points === graph.show_points),
+    ),
+  );
+  const [choice, setChoice] = useState(current);
+  return (
+    <DesktopDialog
+      title="Change Graph Type"
+      titleId="graph-type-title"
+      className="desktop-format-table"
+      onClose={onClose}
+    >
+      <div className="desktop-dialog-body">
+        <fieldset>
+          <legend>{tableType === "xy" ? "XY" : "Column"}</legend>
+          {choices.map(([type, points, label], index) => (
+            <label className="desktop-choice" key={label}>
+              <input
+                type="radio"
+                name="graph-type-choice"
+                data-autofocus={index === choice || undefined}
+                checked={index === choice}
+                onChange={() => setChoice(index)}
+              />
+              <span
+                aria-hidden="true"
+                className={`desktop-graph-icon ${type}${points ? " points" : ""}`}
+              />
+              {label}
+            </label>
+          ))}
+        </fieldset>
+        <p className="desktop-help-text">
+          Data sets, colors and titles are kept when the graph type changes.
+        </p>
+      </div>
+      <footer className="desktop-dialog-actions">
+        <button className="button" onClick={onClose}>
+          Cancel
+        </button>
+        <button
+          className="button primary"
+          onClick={() => onApply(choices[choice][0], choices[choice][1])}
+        >
+          OK
+        </button>
+      </footer>
+    </DesktopDialog>
+  );
+}
 export function NewTableDialog({
   onClose,
   onCreate,
 }: {
   onClose: () => void;
-  onCreate: (type: TableType, name: string) => void;
+  onCreate: (type: TableType, name: string, sampleData: boolean) => void;
 }) {
   const [type, setType] = useState<TableType>("column"),
-    [name, setName] = useState("New data table");
+    [name, setName] = useState("New data table"),
+    [sampleData, setSampleData] = useState(false);
   return (
     <DesktopDialog
       title="New Data Table and Graph"
@@ -189,6 +337,24 @@ export function NewTableDialog({
           </p>
           <fieldset>
             <legend>Data table</legend>
+            <label className="desktop-choice">
+              <input
+                type="radio"
+                name="new-table-data"
+                checked={!sampleData}
+                onChange={() => setSampleData(false)}
+              />
+              Enter or import data into a new table
+            </label>
+            <label className="desktop-choice">
+              <input
+                type="radio"
+                name="new-table-data"
+                checked={sampleData}
+                onChange={() => setSampleData(true)}
+              />
+              Start with sample data
+            </label>
             <label className="desktop-form-row">
               <span>Kind of table:</span>
               <select
@@ -200,15 +366,17 @@ export function NewTableDialog({
                 <option value="xy">XY</option>
               </select>
             </label>
-            <label className="desktop-form-row">
-              <span>Table name</span>
-              <input
-                data-autofocus
-                maxLength={200}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </label>
+            {!sampleData && (
+              <label className="desktop-form-row">
+                <span>Table name</span>
+                <input
+                  data-autofocus
+                  maxLength={200}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </label>
+            )}
           </fieldset>
           <fieldset>
             <legend>Data entry</legend>
@@ -264,8 +432,8 @@ export function NewTableDialog({
         </button>
         <button
           className="button primary"
-          disabled={!name.trim()}
-          onClick={() => onCreate(type, name.trim())}
+          disabled={!sampleData && !name.trim()}
+          onClick={() => onCreate(type, name.trim(), sampleData)}
         >
           Create table and graph
         </button>
@@ -280,10 +448,18 @@ export function AnalyzeDialog({
 }: {
   project: Project;
   onClose: () => void;
-  onRun: (analysis: Analysis, indices: number[], prefix: string) => void;
+  onRun: (
+    analysis: Analysis,
+    indices: number[],
+    prefix: string,
+    regressionModel: string,
+  ) => void;
 }) {
   const [search, setSearch] = useState(""),
     [analysis, setAnalysis] = useState(project.analysis),
+    [model, setModel] = useState(
+      project.regression_model ?? "one_phase_decay",
+    ),
     [selected, setSelected] = useState(dataIndices(project)),
     [prefix, setPrefix] = useState("");
   const eligible = Object.entries(analysisLabels).filter(([key]) =>
@@ -425,10 +601,20 @@ export function AnalyzeDialog({
           </p>
         </div>
         {analysis === "nonlinear_regression" && (
-          <p>
-            Model: {project.regression_model ?? "one_phase_decay"}. Choose
-            another model in the analysis toolbar before opening this dialog.
-          </p>
+          <label className="desktop-form-row">
+            <span>Model</span>
+            <select
+              aria-label="Regression model"
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+            >
+              {regressionModels.map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
         )}
         <label className="desktop-form-row desktop-prefix">
           <span>Prefix sheet names with</span>
@@ -442,7 +628,7 @@ export function AnalyzeDialog({
         <button
           className="button primary"
           disabled={!selected.length}
-          onClick={() => onRun(analysis, selected, prefix)}
+          onClick={() => onRun(analysis, selected, prefix, model)}
         >
           Create analysis
         </button>

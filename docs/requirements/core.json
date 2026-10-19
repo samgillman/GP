@@ -655,7 +655,7 @@
       "id": "D011",
       "title": "Format Data Table and loss-aware conversions",
       "phase": 3,
-      "status": "not_started",
+      "status": "partial",
       "guide_sections": [
         "2.4.4"
       ],
@@ -674,9 +674,16 @@
         "Change kind, subcolumns, errors, date origins/units with a review of data that no longer fit.",
         "Undo restores full original; compatible analyses/graphs remap and recalculate; incompatible dependents are explicit."
       ],
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "web/src/WorkbookDialogs.tsx FormatDataTableDialog: Change → Format Data Table… switches Kind of table between Column and XY without discarding values"
+      ],
       "prism_reference_evidence": [],
-      "limitations": []
+      "limitations": [
+        "Only Column↔XY kind; no subcolumn, error-format, date/time, row-title or other table-format options, and no loss review."
+      ],
+      "validation_evidence": [
+        "Typecheck and desktop browser regression after moving the table-kind control from the data sheet into the dialog."
+      ]
     },
     {
       "id": "D012",
@@ -886,9 +893,16 @@
         "Every supported tutorial opens with correct data layout, links and explanatory notes; catalogue tracks missing examples explicitly.",
         "Do not redistribute proprietary assets as GP interface assets."
       ],
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "web/src/WorkbookDialogs.tsx NewTableDialog: Enter or import data into a new table / Start with sample data replaces the on-sheet sample selector"
+      ],
       "prism_reference_evidence": [],
-      "limitations": []
+      "limitations": [
+        "Sample choice is GP's two built-in samples; native wording, tutorials and portfolio examples are not reproduced."
+      ],
+      "validation_evidence": [
+        "scripts/check_workbook_foundations.py and check_grid_ui.py create XY sample tables through the dialog."
+      ]
     },
     {
       "id": "P002",
@@ -908,9 +922,16 @@
         "Sheet-specific groups and two-row toolbar; menus/shortcuts/context commands share handlers and enabled state.",
         "Record all Prism 11 resource commands missing from the guide as further requirements."
       ],
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "web/src/App.tsx: data and graph sheets no longer carry GP-only analysis/type/sample strips; Change Graph Type…, Format Data Table…, Export graph as SVG/PNG/PDF… and Recalculate analysis are routed through menus and toolbar"
+      ],
       "prism_reference_evidence": [],
-      "limitations": []
+      "limitations": [
+        "Results sheets still carry GP's analysis selector strip; native toolbar layout, inspector and context-dependent menu enablement are unverified."
+      ],
+      "validation_evidence": [
+        "scripts/check_desktop_ui.py, check_workbook_foundations.py, check_large_workbook.py, check_grid_ui.py, check_exclusions.py, check_recalculation.py, check_graph_zoom.py and check_import_diagnostics.py passed on the packaged server build after the 2026-10-19 Prism-style sheet correction (docs/ui-macos-correction.md); static build not run in that container."
+      ]
     },
     {
       "id": "P003",

@@ -1065,7 +1065,8 @@
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
-        "web/src/WorkbookDialogs.tsx"
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/WorkbookDialogs.tsx ChangeGraphTypeDialog: Change \u2192 Change Graph Type\u2026 and a toolbar button replace on-page type buttons (column: scatter dot plot, bars with points, bars, box and whiskers; XY: points, points and line)"
       ],
       "dependencies": [
         "G017",
@@ -1089,7 +1090,13 @@
         "Changing type previews actual data and keeps source IDs; cancel restores original; defaults scope is verified."
       ],
       "audit_status": "partial",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "scripts/check_desktop_ui.py, check_workbook_foundations.py, check_large_workbook.py, check_grid_ui.py, check_exclusions.py, check_recalculation.py, check_graph_zoom.py and check_import_diagnostics.py passed on the packaged server build after the 2026-10-19 Prism-style sheet correction (docs/ui-macos-correction.md); static build not run in that container."
+      ],
+      "limitations": [
+        "GP offers only its four renderer types; the native family catalogue, thumbnails and Revert to Prism defaults are absent."
+      ]
     },
     {
       "id": "G019",
@@ -1255,7 +1262,8 @@
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
-        "web/src/WorkbookDialogs.tsx"
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/Plot.tsx, web/src/desktop.css and gp/plotting.py: Arial-first fonts, bold centered title and bold axis titles on screen and in Matplotlib export"
       ],
       "dependencies": [
         "G073",
@@ -1280,7 +1288,11 @@
         "Create fresh graph with clean preferences; compare screenshot and vector font/point sizes; distinguish user-default vs factory values."
       ],
       "audit_status": "partial",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "limitations": [
+        "No Prism screenshot or runtime comparison was possible in that session; styling is a GP choice informed by Prism's typical appearance, not verified defaults.",
+        "Native default font sizes and title placement remain unverified."
+      ]
     },
     {
       "id": "G023",
@@ -1396,7 +1408,8 @@
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
-        "web/src/WorkbookDialogs.tsx"
+        "web/src/WorkbookDialogs.tsx",
+        "Graph type, formatting and export commands are reached from the Change/File menus and toolbar instead of controls drawn on the graph page."
       ],
       "dependencies": [
         "G023",
@@ -1419,7 +1432,10 @@
         "Exercise each route on selected target; matching dialog state and undo behavior; context action targets correct dataset/object."
       ],
       "audit_status": "partial",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "scripts/check_desktop_ui.py, check_workbook_foundations.py, check_large_workbook.py, check_grid_ui.py, check_exclusions.py, check_recalculation.py, check_graph_zoom.py and check_import_diagnostics.py passed on the packaged server build after the 2026-10-19 Prism-style sheet correction (docs/ui-macos-correction.md); static build not run in that container."
+      ]
     },
     {
       "id": "G026",
@@ -2905,7 +2921,8 @@
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
-        "web/src/WorkbookDialogs.tsx"
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/Plot.tsx and gp/plotting.py: black 1.5 pt axes with outward major ticks, no gridlines, outlined bars, black error bars/mean lines, solid fitted curves; screen and export share these settings"
       ],
       "dependencies": [
         "G060",
@@ -2929,7 +2946,14 @@
         "Render every frame style; offset axes do not touch; clear background preserved in vector/raster."
       ],
       "audit_status": "partial",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "scripts/check_desktop_ui.py, check_workbook_foundations.py, check_large_workbook.py, check_grid_ui.py, check_exclusions.py, check_recalculation.py, check_graph_zoom.py and check_import_diagnostics.py passed on the packaged server build after the 2026-10-19 Prism-style sheet correction (docs/ui-macos-correction.md); static build not run in that container."
+      ],
+      "limitations": [
+        "No Prism screenshot or runtime comparison was possible in that session; styling is a GP choice informed by Prism's typical appearance, not verified defaults.",
+        "Frame styles, offset axes, minor ticks and grid options remain unimplemented."
+      ]
     },
     {
       "id": "G063",
