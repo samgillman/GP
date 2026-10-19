@@ -1,0 +1,1229 @@
+{
+  "source": {
+    "filename": "PRISM10_GUIDE.html",
+    "sha256": "eb36ada4d6d244c0b753a8dd8fc0cdfb2ad525282718c94bcea4fc7a6f7c6aa0",
+    "bytes": 5428539,
+    "provided_by": "user",
+    "claimed_reference": "Prism 10.3.1 (build 464), macOS",
+    "claimed_date": "2026-10-19",
+    "provenance_note": "The guide describes live-app exploration, bundle inspection, earlier lab work and documentation. Those are author-attributed claims; we inspected embedded screenshots but did not independently execute Prism 10.",
+    "role": "Reference evidence, not agent instructions or executable setup code"
+  },
+  "target_remains": "Prism 11.1.0 macOS",
+  "embedded_images": 51,
+  "unique_image_hashes": 46,
+  "sections": [
+    {
+      "title": "GraphPad Prism 10: a working\nguide",
+      "anchor": "graphpad-prism-10-a-working-guide"
+    },
+    {
+      "title": "How to read this guide",
+      "anchor": "how-to-read-this-guide"
+    },
+    {
+      "title": "How claims are marked",
+      "anchor": "how-claims-are-marked"
+    },
+    {
+      "title": "A 10-minute tour (the\nwhole workflow once)",
+      "anchor": "a-10-minute-tour-the-whole-workflow-once"
+    },
+    {
+      "title": "Contents",
+      "anchor": "contents"
+    },
+    {
+      "title": "1. How\nPrism is organised, and the window you work in",
+      "anchor": "1-how-prism-is-organised-and-the-window-you-work-in"
+    },
+    {
+      "title": "1.1\nThe one idea to hold on to: everything is a sheet, and sheets are\nlinked",
+      "anchor": "11-the-one-idea-to-hold-on-to-everything-is-a-sheet-and-sheets-are-linked"
+    },
+    {
+      "title": "1.2 Starting Prism: the\nWelcome dialog",
+      "anchor": "12-starting-prism-the-welcome-dialog"
+    },
+    {
+      "title": "1.3 The main window",
+      "anchor": "13-the-main-window"
+    },
+    {
+      "title": "1.4 The toolbar, sheet by\nsheet",
+      "anchor": "14-the-toolbar-sheet-by-sheet"
+    },
+    {
+      "title": "1.5 The menus",
+      "anchor": "15-the-menus"
+    },
+    {
+      "title": "1.6 Keyboard shortcuts\nworth learning",
+      "anchor": "16-keyboard-shortcuts-worth-learning"
+    },
+    {
+      "title": "1.7 Things that\ntrip people up in the interface",
+      "anchor": "17-things-that-trip-people-up-in-the-interface"
+    },
+    {
+      "title": "2. Data tables",
+      "anchor": "2-data-tables"
+    },
+    {
+      "title": "2.1 Anatomy of a data table",
+      "anchor": "21-anatomy-of-a-data-table"
+    },
+    {
+      "title": "2.2 Choosing a table type",
+      "anchor": "22-choosing-a-table-type"
+    },
+    {
+      "title": "2.2.1 The eight types at a\nglance",
+      "anchor": "221-the-eight-types-at-a-glance"
+    },
+    {
+      "title": "2.2.2 Decision guide",
+      "anchor": "222-decision-guide"
+    },
+    {
+      "title": "2.2.3 Column vs Grouped vs XY",
+      "anchor": "223-column-vs-grouped-vs-xy"
+    },
+    {
+      "title": "2.2.4 Why columns, not\na grouping variable",
+      "anchor": "224-why-columns-not-a-grouping-variable"
+    },
+    {
+      "title": "2.2.5 Stacked vs\npaired entry (Column tables)",
+      "anchor": "225-stacked-vs-paired-entry-column-tables"
+    },
+    {
+      "title": "2.2.6 Replicate\nsubcolumns vs Mean/SD/N entry",
+      "anchor": "226-replicate-subcolumns-vs-meansdn-entry"
+    },
+    {
+      "title": "2.2.7 Technical vs\nbiological replicates",
+      "anchor": "227-technical-vs-biological-replicates"
+    },
+    {
+      "title": "2.3 The eight table types in\ndetail",
+      "anchor": "23-the-eight-table-types-in-detail"
+    },
+    {
+      "title": "2.3.1 XY",
+      "anchor": "231-xy"
+    },
+    {
+      "title": "2.3.2 Column",
+      "anchor": "232-column"
+    },
+    {
+      "title": "2.3.3 Grouped",
+      "anchor": "233-grouped"
+    },
+    {
+      "title": "2.3.4 Contingency",
+      "anchor": "234-contingency"
+    },
+    {
+      "title": "2.3.5 Survival",
+      "anchor": "235-survival"
+    },
+    {
+      "title": "2.3.6 Parts of whole",
+      "anchor": "236-parts-of-whole"
+    },
+    {
+      "title": "2.3.7 Multiple variables",
+      "anchor": "237-multiple-variables"
+    },
+    {
+      "title": "2.3.8 Nested",
+      "anchor": "238-nested"
+    },
+    {
+      "title": "2.4 Creating tables: step by\nstep",
+      "anchor": "24-creating-tables-step-by-step"
+    },
+    {
+      "title": "2.4.1 Create a table\nfrom the Welcome dialog",
+      "anchor": "241-create-a-table-from-the-welcome-dialog"
+    },
+    {
+      "title": "2.4.2 Start from sample data",
+      "anchor": "242-start-from-sample-data"
+    },
+    {
+      "title": "2.4.3 Add a new\ntable to an existing project",
+      "anchor": "243-add-a-new-table-to-an-existing-project"
+    },
+    {
+      "title": "2.4.4\nChange the format of an existing table (Format Data Table)",
+      "anchor": "244-change-the-format-of-an-existing-table-format-data-table"
+    },
+    {
+      "title": "2.5 Entering, pasting\nand importing data",
+      "anchor": "25-entering-pasting-and-importing-data"
+    },
+    {
+      "title": "2.5.1 Typing",
+      "anchor": "251-typing"
+    },
+    {
+      "title": "2.5.2 Clipboard commands",
+      "anchor": "252-clipboard-commands"
+    },
+    {
+      "title": "2.5.3 Importing files",
+      "anchor": "253-importing-files"
+    },
+    {
+      "title": "2.6 Excluding values",
+      "anchor": "26-excluding-values"
+    },
+    {
+      "title": "2.7 Row titles and column\ntitles",
+      "anchor": "27-row-titles-and-column-titles"
+    },
+    {
+      "title": "2.8 Info sheets",
+      "anchor": "28-info-sheets"
+    },
+    {
+      "title": "2.9 Floating notes",
+      "anchor": "29-floating-notes"
+    },
+    {
+      "title": "2.10 Highlighting and\nfreezing sheets",
+      "anchor": "210-highlighting-and-freezing-sheets"
+    },
+    {
+      "title": "2.11 Data-table gotchas",
+      "anchor": "211-data-table-gotchas"
+    },
+    {
+      "title": "3. Analyses",
+      "anchor": "3-analyses"
+    },
+    {
+      "title": "3.1 How analyses fit into a\nproject",
+      "anchor": "31-how-analyses-fit-into-a-project"
+    },
+    {
+      "title": "3.2 Ways to start an analysis",
+      "anchor": "32-ways-to-start-an-analysis"
+    },
+    {
+      "title": "3.3 The Analyze Data dialog",
+      "anchor": "33-the-analyze-data-dialog"
+    },
+    {
+      "title": "3.4 Parameter dialogs",
+      "anchor": "34-parameter-dialogs"
+    },
+    {
+      "title": "3.4.1 t tests (and\nnonparametric tests)",
+      "anchor": "341-t-tests-and-nonparametric-tests"
+    },
+    {
+      "title": "3.4.2 Nonlinear regression\n(curve fit)",
+      "anchor": "342-nonlinear-regression-curve-fit"
+    },
+    {
+      "title": "3.4.3\nOne-way and two-way ANOVA dialogs (per GraphPad docs; not opened this\nsession)",
+      "anchor": "343-one-way-and-two-way-anova-dialogs-per-graphpad-docs-not-opened-this-session"
+    },
+    {
+      "title": "3.5 Analysis catalogue",
+      "anchor": "35-analysis-catalogue"
+    },
+    {
+      "title": "3.5.1 By\ntable type (the Analyze Data tree, fully expanded)",
+      "anchor": "351-by-table-type-the-analyze-data-tree-fully-expanded"
+    },
+    {
+      "title": "3.5.2 By purpose (the Analyze\nmenu)",
+      "anchor": "352-by-purpose-the-analyze-menu"
+    },
+    {
+      "title": "3.6 Results sheets",
+      "anchor": "36-results-sheets"
+    },
+    {
+      "title": "P value styles",
+      "anchor": "p-value-styles"
+    },
+    {
+      "title": "3.7 How analyses stay\nlinked to data",
+      "anchor": "37-how-analyses-stay-linked-to-data"
+    },
+    {
+      "title": "3.8 Chaining analyses",
+      "anchor": "38-chaining-analyses"
+    },
+    {
+      "title": "3.9\nMultiple comparisons after ANOVA (per GraphPad docs)",
+      "anchor": "39-multiple-comparisons-after-anova-per-graphpad-docs"
+    },
+    {
+      "title": "3.10\nReusing analyses: duplicate family, Wand, methods, examples,\ntemplates",
+      "anchor": "310-reusing-analyses-duplicate-family-wand-methods-examples-templates"
+    },
+    {
+      "title": "3.11 How-tos",
+      "anchor": "311-how-tos"
+    },
+    {
+      "title": "3.11.1 Unpaired t test\n(verified)",
+      "anchor": "3111-unpaired-t-test-verified"
+    },
+    {
+      "title": "3.11.2\nOne-way ANOVA with Tukey or Dunnett (steps per GraphPad docs; dialog not\nopened this session)",
+      "anchor": "3112-one-way-anova-with-tukey-or-dunnett-steps-per-graphpad-docs-dialog-not-opened-this-session"
+    },
+    {
+      "title": "3.11.3\nTwo-way ANOVA with Šídák multiple comparisons (steps per GraphPad docs;\ndialog not opened this session)",
+      "anchor": "3113-two-way-anova-with-šídák-multiple-comparisons-steps-per-graphpad-docs-dialog-not-opened-this-session"
+    },
+    {
+      "title": "3.11.4 Dose-response EC50\nfit (verified)",
+      "anchor": "3114-dose-response-ec50-fit-verified"
+    },
+    {
+      "title": "3.11.5\nNormalizing data (per GraphPad docs; dialog not opened this\nsession)",
+      "anchor": "3115-normalizing-data-per-graphpad-docs-dialog-not-opened-this-session"
+    },
+    {
+      "title": "3.11.6 Reading any\nresults sheet: a checklist",
+      "anchor": "3116-reading-any-results-sheet-a-checklist"
+    },
+    {
+      "title": "3.12 Gotchas",
+      "anchor": "312-gotchas"
+    },
+    {
+      "title": "4. Graphs",
+      "anchor": "4-graphs"
+    },
+    {
+      "title": "4.1 Graph types and\nhow graphs are created",
+      "anchor": "41-graph-types-and-how-graphs-are-created"
+    },
+    {
+      "title": "4.1.1 What you can\nplot from each table type",
+      "anchor": "411-what-you-can-plot-from-each-table-type"
+    },
+    {
+      "title": "4.1.2 Four ways a graph gets\nmade",
+      "anchor": "412-four-ways-a-graph-gets-made"
+    },
+    {
+      "title": "4.1.3 The Create New Graph\ndialog",
+      "anchor": "413-the-create-new-graph-dialog"
+    },
+    {
+      "title": "4.1.4 Change Graph Type",
+      "anchor": "414-change-graph-type"
+    },
+    {
+      "title": "4.1.5 Adding,\nremoving and replacing data sets",
+      "anchor": "415-adding-removing-and-replacing-data-sets"
+    },
+    {
+      "title": "4.2 The graph sheet",
+      "anchor": "42-the-graph-sheet"
+    },
+    {
+      "title": "4.2.1 What is on the sheet",
+      "anchor": "421-what-is-on-the-sheet"
+    },
+    {
+      "title": "4.2.2 Selecting and\nopening formatting",
+      "anchor": "422-selecting-and-opening-formatting"
+    },
+    {
+      "title": "4.2.3 Zoom and view aids",
+      "anchor": "423-zoom-and-view-aids"
+    },
+    {
+      "title": "4.2.4 The Inspector (right\npanel)",
+      "anchor": "424-the-inspector-right-panel"
+    },
+    {
+      "title": "4.3 The Format Graph dialog",
+      "anchor": "43-the-format-graph-dialog"
+    },
+    {
+      "title": "4.3.1 Appearance tab",
+      "anchor": "431-appearance-tab"
+    },
+    {
+      "title": "4.3.2 Global changes vs one\ndata set",
+      "anchor": "432-global-changes-vs-one-data-set"
+    },
+    {
+      "title": "4.3.3 What the\nbar or line shows (SD vs SEM vs CI)",
+      "anchor": "433-what-the-bar-or-line-shows-sd-vs-sem-vs-ci"
+    },
+    {
+      "title": "4.3.4 XY graphs:\nsymbols, lines, spikes and fills",
+      "anchor": "434-xy-graphs-symbols-lines-spikes-and-fills"
+    },
+    {
+      "title": "4.3.5 Formatting a single\npoint or bar",
+      "anchor": "435-formatting-a-single-point-or-bar"
+    },
+    {
+      "title": "4.3.6 A second (right) Y axis",
+      "anchor": "436-a-second-right-y-axis"
+    },
+    {
+      "title": "4.3.7 Legends",
+      "anchor": "437-legends"
+    },
+    {
+      "title": "4.3.8 Data Sets on Graph tab",
+      "anchor": "438-data-sets-on-graph-tab"
+    },
+    {
+      "title": "4.3.9 Graph Settings tab",
+      "anchor": "439-graph-settings-tab"
+    },
+    {
+      "title": "4.3.10 Annotations tab\n(Column and Grouped)",
+      "anchor": "4310-annotations-tab-column-and-grouped"
+    },
+    {
+      "title": "4.4 The Format Axes dialog",
+      "anchor": "44-the-format-axes-dialog"
+    },
+    {
+      "title": "4.4.1 Frame and Origin",
+      "anchor": "441-frame-and-origin"
+    },
+    {
+      "title": "4.4.2\nOrigin: why the X axis can float at Y = 0 (verified)",
+      "anchor": "442-origin-why-the-x-axis-can-float-at-y--0-verified"
+    },
+    {
+      "title": "4.4.3 X, Left Y and Right Y\naxis tabs",
+      "anchor": "443-x-left-y-and-right-y-axis-tabs"
+    },
+    {
+      "title": "4.4.4\nAdditional ticks, reference lines and shaded bands",
+      "anchor": "444-additional-ticks-reference-lines-and-shaded-bands"
+    },
+    {
+      "title": "4.4.5 Titles & Fonts",
+      "anchor": "445-titles--fonts"
+    },
+    {
+      "title": "4.4.6 Plot size in inches",
+      "anchor": "446-plot-size-in-inches"
+    },
+    {
+      "title": "4.5 Text on graphs",
+      "anchor": "45-text-on-graphs"
+    },
+    {
+      "title": "4.5.1 Titles and axis titles",
+      "anchor": "451-titles-and-axis-titles"
+    },
+    {
+      "title": "4.5.2 Free text",
+      "anchor": "452-free-text"
+    },
+    {
+      "title": "4.5.3\nRich text: bold, italic, sub- and superscript, mixed fonts, Greek",
+      "anchor": "453-rich-text-bold-italic-sub--and-superscript-mixed-fonts-greek"
+    },
+    {
+      "title": "4.5.4 Linking\ntext and axis values to results (hooks)",
+      "anchor": "454-linking-text-and-axis-values-to-results-hooks"
+    },
+    {
+      "title": "4.5.5 Pictures",
+      "anchor": "455-pictures"
+    },
+    {
+      "title": "4.6 Statistics annotations",
+      "anchor": "46-statistics-annotations"
+    },
+    {
+      "title": "4.6.1\nPairwise comparisons (automatic asterisks or P values)",
+      "anchor": "461-pairwise-comparisons-automatic-asterisks-or-p-values"
+    },
+    {
+      "title": "4.6.2 P value styles",
+      "anchor": "462-p-value-styles"
+    },
+    {
+      "title": "4.6.3 Compact Letter Display\n(CLD)",
+      "anchor": "463-compact-letter-display-cld"
+    },
+    {
+      "title": "4.6.4 Values and n on bars",
+      "anchor": "464-values-and-n-on-bars"
+    },
+    {
+      "title": "4.7 Colours,\nconsistency, families and reuse",
+      "anchor": "47-colours-consistency-families-and-reuse"
+    },
+    {
+      "title": "4.7.1 Colour schemes",
+      "anchor": "471-colour-schemes"
+    },
+    {
+      "title": "4.7.2 Magic: Make Graphs\nConsistent",
+      "anchor": "472-magic-make-graphs-consistent"
+    },
+    {
+      "title": "4.7.3 Graph families",
+      "anchor": "473-graph-families"
+    },
+    {
+      "title": "4.7.4 Reusing a finished\ngraph's design",
+      "anchor": "474-reusing-a-finished-graphs-design"
+    },
+    {
+      "title": "4.8 Heat maps and\nother special graphs (brief)",
+      "anchor": "48-heat-maps-and-other-special-graphs-brief"
+    },
+    {
+      "title": "Grouped heat map",
+      "anchor": "grouped-heat-map"
+    },
+    {
+      "title": "Multiple variables graphs",
+      "anchor": "multiple-variables-graphs"
+    },
+    {
+      "title": "Survival curves",
+      "anchor": "survival-curves"
+    },
+    {
+      "title": "Pie and donut",
+      "anchor": "pie-and-donut"
+    },
+    {
+      "title": "Volcano plot",
+      "anchor": "volcano-plot"
+    },
+    {
+      "title": "Others in the Portfolio",
+      "anchor": "others-in-the-portfolio"
+    },
+    {
+      "title": "4.9 Practical recipes",
+      "anchor": "49-practical-recipes"
+    },
+    {
+      "title": "R1. Per-animal\nscatter dot plot with mean ± SEM",
+      "anchor": "r1-per-animal-scatter-dot-plot-with-mean--sem"
+    },
+    {
+      "title": "R2. Fixed Y axis across\npanels",
+      "anchor": "r2-fixed-y-axis-across-panels"
+    },
+    {
+      "title": "R3. Dashed threshold\n(reference) line",
+      "anchor": "r3-dashed-threshold-reference-line"
+    },
+    {
+      "title": "R4. Log X dose-response",
+      "anchor": "r4-log-x-dose-response"
+    },
+    {
+      "title": "R5.\nAxis title with mixed fonts: \"log₂ fold change\" or \"−log₁₀ P\"",
+      "anchor": "r5-axis-title-with-mixed-fonts-log₂-fold-change-or-log₁₀-p"
+    },
+    {
+      "title": "R6. Consistent\nfonts and sizes for publication",
+      "anchor": "r6-consistent-fonts-and-sizes-for-publication"
+    },
+    {
+      "title": "4.10 Gotchas at a glance",
+      "anchor": "410-gotchas-at-a-glance"
+    },
+    {
+      "title": "5. Layouts, exporting,\nsaving and sharing",
+      "anchor": "5-layouts-exporting-saving-and-sharing"
+    },
+    {
+      "title": "5.1 Layouts: pages\nthat hold several graphs",
+      "anchor": "51-layouts-pages-that-hold-several-graphs"
+    },
+    {
+      "title": "Creating a layout",
+      "anchor": "creating-a-layout"
+    },
+    {
+      "title": "How\nPrism sizes graphs on a layout (and why panels end up with different\nfont sizes)",
+      "anchor": "how-prism-sizes-graphs-on-a-layout-and-why-panels-end-up-with-different-font-sizes"
+    },
+    {
+      "title": "Other layout commands",
+      "anchor": "other-layout-commands"
+    },
+    {
+      "title": "How layouts\nare stored (from the .prism format work)",
+      "anchor": "how-layouts-are-stored-from-the-prism-format-work"
+    },
+    {
+      "title": "5.2 Exporting graphs and\nlayouts",
+      "anchor": "52-exporting-graphs-and-layouts"
+    },
+    {
+      "title": "5.3 Saving, file formats\nand versions",
+      "anchor": "53-saving-file-formats-and-versions"
+    },
+    {
+      "title": "5.4 Printing and sharing",
+      "anchor": "54-printing-and-sharing"
+    },
+    {
+      "title": "6. Scripting and automation",
+      "anchor": "6-scripting-and-automation"
+    },
+    {
+      "title": "6.1 What scripting is,\nand what it is not",
+      "anchor": "61-what-scripting-is-and-what-it-is-not"
+    },
+    {
+      "title": "6.2 Running scripts on macOS",
+      "anchor": "62-running-scripts-on-macos"
+    },
+    {
+      "title": "1. From inside Prism: the\nscript window",
+      "anchor": "1-from-inside-prism-the-script-window"
+    },
+    {
+      "title": "2. Double-click, or\nopen from Terminal",
+      "anchor": "2-double-click-or-open-from-terminal"
+    },
+    {
+      "title": "3. A\nPython driver that waits for the log (recommended)",
+      "anchor": "3-a-python-driver-that-waits-for-the-log-recommended"
+    },
+    {
+      "title": "4. Automator",
+      "anchor": "4-automator"
+    },
+    {
+      "title": "5. AppleScript and shell\none-liners",
+      "anchor": "5-applescript-and-shell-one-liners"
+    },
+    {
+      "title": "The log file",
+      "anchor": "the-log-file"
+    },
+    {
+      "title": "6.3 Script syntax",
+      "anchor": "63-script-syntax"
+    },
+    {
+      "title": "Lines, arguments, quoting",
+      "anchor": "lines-arguments-quoting"
+    },
+    {
+      "title": "Comments",
+      "anchor": "comments"
+    },
+    {
+      "title": "Sections, sheet numbers and\nGoTo",
+      "anchor": "sections-sheet-numbers-and-goto"
+    },
+    {
+      "title": "Rows, columns and subcolumns",
+      "anchor": "rows-columns-and-subcolumns"
+    },
+    {
+      "title": "Embedded data:\n<DATA> blocks",
+      "anchor": "embedded-data-data-blocks"
+    },
+    {
+      "title": "Paths and SetPath",
+      "anchor": "paths-and-setpath"
+    },
+    {
+      "title": "Variables (text substitution\nonly)",
+      "anchor": "variables-text-substitution-only"
+    },
+    {
+      "title": "Loops",
+      "anchor": "loops"
+    },
+    {
+      "title": "6.4 Command reference",
+      "anchor": "64-command-reference"
+    },
+    {
+      "title": "Navigation, flow and script\ncontrol",
+      "anchor": "navigation-flow-and-script-control"
+    },
+    {
+      "title": "Files and projects",
+      "anchor": "files-and-projects"
+    },
+    {
+      "title": "Data tables and info sheets",
+      "anchor": "data-tables-and-info-sheets"
+    },
+    {
+      "title": "Graphs",
+      "anchor": "graphs"
+    },
+    {
+      "title": "Layouts",
+      "anchor": "layouts"
+    },
+    {
+      "title": "Exporting graphs and layouts",
+      "anchor": "exporting-graphs-and-layouts"
+    },
+    {
+      "title": "Writing text files",
+      "anchor": "writing-text-files"
+    },
+    {
+      "title": "Building a results table",
+      "anchor": "building-a-results-table"
+    },
+    {
+      "title": "6.5 Recipes",
+      "anchor": "65-recipes"
+    },
+    {
+      "title": "Export every graph\nand layout to PNG and PDF",
+      "anchor": "export-every-graph-and-layout-to-png-and-pdf"
+    },
+    {
+      "title": "Set Y-axis limits on\nseveral graphs",
+      "anchor": "set-y-axis-limits-on-several-graphs"
+    },
+    {
+      "title": "Batch-import\nCSV files into a template, one saved project per file",
+      "anchor": "batch-import-csv-files-into-a-template-one-saved-project-per-file"
+    },
+    {
+      "title": "Duplicate a family and refill\nit",
+      "anchor": "duplicate-a-family-and-refill-it"
+    },
+    {
+      "title": "Monte Carlo loop",
+      "anchor": "monte-carlo-loop"
+    },
+    {
+      "title": "Write results values to a\ntext file",
+      "anchor": "write-results-values-to-a-text-file"
+    },
+    {
+      "title": "6.6 Gotchas",
+      "anchor": "66-gotchas"
+    },
+    {
+      "title": "6.7 When scripting can't do\nit",
+      "anchor": "67-when-scripting-cant-do-it"
+    },
+    {
+      "title": "6.8 Example files",
+      "anchor": "68-example-files"
+    },
+    {
+      "title": "7. The .prism file\nformat and offline editing",
+      "anchor": "7-the-prism-file-format-and-offline-editing"
+    },
+    {
+      "title": "7.1 File types",
+      "anchor": "71-file-types"
+    },
+    {
+      "title": "7.2 Inside a .prism: the\nzip",
+      "anchor": "72-inside-a-prism-the-zip"
+    },
+    {
+      "title": "7.2.1 document.json",
+      "anchor": "721-documentjson"
+    },
+    {
+      "title": "7.2.2 Data sheets:\ndata/sheets/<uid>/sheet.json",
+      "anchor": "722-data-sheets-datasheetsuidsheetjson"
+    },
+    {
+      "title": "7.2.3 Data sets:\ndata/sets/<uid>.json",
+      "anchor": "723-data-sets-datasetsuidjson"
+    },
+    {
+      "title": "7.2.4 Table contents:\ndata/tables/<uid>/",
+      "anchor": "724-table-contents-datatablesuid"
+    },
+    {
+      "title": "7.2.5 Floating notes:\n.../floating_notes/<uid>.json",
+      "anchor": "725-floating-notes-floating_notesuidjson"
+    },
+    {
+      "title": "7.2.6 Analyses:\nanalyses/<uid>/",
+      "anchor": "726-analyses-analysesuid"
+    },
+    {
+      "title": "7.2.7 Graphs:\ngraphs/<uid>/",
+      "anchor": "727-graphs-graphsuid"
+    },
+    {
+      "title": "7.2.8 Layouts:\nlayouts/<uid>/",
+      "anchor": "728-layouts-layoutsuid"
+    },
+    {
+      "title": "7.2.9 misc/",
+      "anchor": "729-misc"
+    },
+    {
+      "title": "7.3 How the pieces\nreference each other",
+      "anchor": "73-how-the-pieces-reference-each-other"
+    },
+    {
+      "title": "7.4 Graph and layout blobs\n(data.bin)",
+      "anchor": "74-graph-and-layout-blobs-databin"
+    },
+    {
+      "title": "7.4.1 Chunk stream",
+      "anchor": "741-chunk-stream"
+    },
+    {
+      "title": "7.4.2\nOverall structure of a graph blob [observed, snap1]",
+      "anchor": "742-overall-structure-of-a-graph-blob-observed-snap1"
+    },
+    {
+      "title": "7.4.3 Known tags",
+      "anchor": "743-known-tags"
+    },
+    {
+      "title": "7.4.4 Drawn objects",
+      "anchor": "744-drawn-objects"
+    },
+    {
+      "title": "7.4.5 The\nZval color table (0x0852 /\n0x0853)",
+      "anchor": "745-the-zval-color-table-0x0852--0x0853"
+    },
+    {
+      "title": "7.4.6 Axes:\ngroups, segments and the snap1 → snap2 diff",
+      "anchor": "746-axes-groups-segments-and-the-snap1--snap2-diff"
+    },
+    {
+      "title": "7.4.7 XY axis origin",
+      "anchor": "747-xy-axis-origin"
+    },
+    {
+      "title": "7.4.8 Layout\nplacements [DRG, checked against snap3]",
+      "anchor": "748-layout-placements-drg-checked-against-snap3"
+    },
+    {
+      "title": "7.5 The .pzfx XML\nformat",
+      "anchor": "75-the-pzfx-xml-format"
+    },
+    {
+      "title": "7.5.1 Structure",
+      "anchor": "751-structure"
+    },
+    {
+      "title": "7.5.2 Using\n.pzfx for scripted data exchange",
+      "anchor": "752-using-pzfx-for-scripted-data-exchange"
+    },
+    {
+      "title": "7.5.3\nRead and write .pzfx with Python [tested on the bundled\nsamples]",
+      "anchor": "753-read-and-write-pzfx-with-python-tested-on-the-bundled-samples"
+    },
+    {
+      "title": "7.6 Recipes for .prism\nfiles",
+      "anchor": "76-recipes-for-prism-files"
+    },
+    {
+      "title": "7.6.1 List what is in a file",
+      "anchor": "761-list-what-is-in-a-file"
+    },
+    {
+      "title": "7.6.2 Read a data table into\npandas",
+      "anchor": "762-read-a-data-table-into-pandas"
+    },
+    {
+      "title": "7.6.3 Change values or\ntitles and re-zip",
+      "anchor": "763-change-values-or-titles-and-re-zip"
+    },
+    {
+      "title": "7.6.4 Read a graph's axes",
+      "anchor": "764-read-a-graphs-axes"
+    },
+    {
+      "title": "7.6.5 Re-open in Prism to\nre-render",
+      "anchor": "765-re-open-in-prism-to-re-render"
+    },
+    {
+      "title": "7.6.6 Why to work on copies",
+      "anchor": "766-why-to-work-on-copies"
+    },
+    {
+      "title": "7.7 Gotchas",
+      "anchor": "77-gotchas"
+    },
+    {
+      "title": "7.8 Open questions\n(to verify in the live app)",
+      "anchor": "78-open-questions-to-verify-in-the-live-app"
+    },
+    {
+      "title": "8. Settings\n(preferences) and other notable features",
+      "anchor": "8-settings-preferences-and-other-notable-features"
+    },
+    {
+      "title": "8.1 Settings",
+      "anchor": "81-settings"
+    },
+    {
+      "title": "8.2 Features worth knowing\nabout",
+      "anchor": "82-features-worth-knowing-about"
+    },
+    {
+      "title": "8.3 Version used for this\nguide",
+      "anchor": "83-version-used-for-this-guide"
+    },
+    {
+      "title": "9. The gotchas that matter\nmost",
+      "anchor": "9-the-gotchas-that-matter-most"
+    },
+    {
+      "title": "9.1 Data and analyses",
+      "anchor": "91-data-and-analyses"
+    },
+    {
+      "title": "9.2 Graphs",
+      "anchor": "92-graphs"
+    },
+    {
+      "title": "9.3 Files and scripting",
+      "anchor": "93-files-and-scripting"
+    },
+    {
+      "title": "9.4 Interface",
+      "anchor": "94-interface"
+    },
+    {
+      "title": "Appendix A. What is in this\nfolder",
+      "anchor": "appendix-a-what-is-in-this-folder"
+    },
+    {
+      "title": "Appendix\nB. What was not verified, and how to check it",
+      "anchor": "appendix-b-what-was-not-verified-and-how-to-check-it"
+    },
+    {
+      "title": "Appendix C. Sources",
+      "anchor": "appendix-c-sources"
+    }
+  ],
+  "images": [
+    {
+      "index": 1,
+      "section": "A 10-minute tour (the\nwhole workflow once)",
+      "alt": "The scratch project's layout after this tour",
+      "sha256": "4e27391a3ce19e3b7fe6fdcf450c22b925e1bae3abd6baad62c930a2947dea2f"
+    },
+    {
+      "index": 2,
+      "section": "1.2 Starting Prism: the\nWelcome dialog",
+      "alt": "Welcome dialog, Column selected",
+      "sha256": "f8548bebd026d04767425c18a1a71b5314e3996e1b5d744c3d94dd72cdf0b63f"
+    },
+    {
+      "index": 3,
+      "section": "1.2 Starting Prism: the\nWelcome dialog",
+      "alt": "sample data chooser",
+      "sha256": "025f9ba8cc07cebf7fb521324bc82db229f994c7215d7086c23f74d358f7b999"
+    },
+    {
+      "index": 4,
+      "section": "1.3 The main window",
+      "alt": "Main window on a data table",
+      "sha256": "dc59818478d5b981c5ddc8e3e542efe147fcac15964cd7784e57570cfc3e575f"
+    },
+    {
+      "index": 5,
+      "section": "1.3 The main window",
+      "alt": "Status bar",
+      "sha256": "5e8957e32cb97d1021aabb1c27660756bfad43d4379d25747bfd2aaaf4354aa6"
+    },
+    {
+      "index": 6,
+      "section": "1.3 The main window",
+      "alt": "Navigator and family panel",
+      "sha256": "eb845d8df8b71596d1afc98a279d1d07e0066c4afe566f2e00c353032cd1cd17"
+    },
+    {
+      "index": 7,
+      "section": "1.4 The toolbar, sheet by\nsheet",
+      "alt": null,
+      "sha256": "31f914a76f0dcd009788815dc68ade4dcc83c81b4ce47c3e8dd6e63e0c25ac37"
+    },
+    {
+      "index": 8,
+      "section": "1.4 The toolbar, sheet by\nsheet",
+      "alt": null,
+      "sha256": "c5036e08966bf6bda1cc98f392c7b066b2e8ce578e7fddd02587118367b11b1b"
+    },
+    {
+      "index": 9,
+      "section": "1.4 The toolbar, sheet by\nsheet",
+      "alt": null,
+      "sha256": "256ee62196b3f3bea1223a9a854d45750fea35d9257682db9b80ee19501fbf2b"
+    },
+    {
+      "index": 10,
+      "section": "1.4 The toolbar, sheet by\nsheet",
+      "alt": null,
+      "sha256": "2bb885e3d6dec0c351a3752e9411ebe5b61c727ce08c44b7e7552758cd69a58a"
+    },
+    {
+      "index": 11,
+      "section": "2.1 Anatomy of a data table",
+      "alt": "Column data table in the main window",
+      "sha256": "dc59818478d5b981c5ddc8e3e542efe147fcac15964cd7784e57570cfc3e575f"
+    },
+    {
+      "index": 12,
+      "section": "2.1 Anatomy of a data table",
+      "alt": "XY data table with replicate subcolumns",
+      "sha256": "7d5660fc033ec69e9f39d71ee59d634dd430e47e2fa34dedd2eada7fdb85d6b5"
+    },
+    {
+      "index": 13,
+      "section": "2.3.1 XY",
+      "alt": "Welcome dialog, XY options",
+      "sha256": "2be34454f0f52161deacfbe23913d24de2c9a83a425b2f5f6169e6ea9ab495fb"
+    },
+    {
+      "index": 14,
+      "section": "2.3.2 Column",
+      "alt": "Welcome dialog, Column options",
+      "sha256": "f8548bebd026d04767425c18a1a71b5314e3996e1b5d744c3d94dd72cdf0b63f"
+    },
+    {
+      "index": 15,
+      "section": "2.3.3 Grouped",
+      "alt": "Welcome dialog, Grouped options",
+      "sha256": "9c306394c9af4a50620f9fee9fd7c91d2df1090c636277568a3992bb399e47e8"
+    },
+    {
+      "index": 16,
+      "section": "2.3.4 Contingency",
+      "alt": "Welcome dialog, Contingency",
+      "sha256": "8ae20d72369eb77c9b7cbde593284fcc60251c385c45f148b221e6f5e22bffab"
+    },
+    {
+      "index": 17,
+      "section": "2.3.5 Survival",
+      "alt": "Welcome dialog, Survival options",
+      "sha256": "84c2397be9cde55ea972a867d7f7d121d6b91ca8b6bf7893869346beab6aa7ee"
+    },
+    {
+      "index": 18,
+      "section": "2.3.6 Parts of whole",
+      "alt": "Welcome dialog, Parts of whole",
+      "sha256": "15d09b5de73224a0a701edbf71d2cdfc828dc227cec5216ab89ac2979abf49b6"
+    },
+    {
+      "index": 19,
+      "section": "2.3.7 Multiple variables",
+      "alt": "Welcome dialog, Multiple variables",
+      "sha256": "49aff1ee9a6bcba23628d57ffa6ed5f9d693aceae2a6c6275dc5c1f10969cee1"
+    },
+    {
+      "index": 20,
+      "section": "2.3.8 Nested",
+      "alt": "Welcome dialog, Nested options",
+      "sha256": "82ee2d17c4347bb34722f2a1c665b56b977f6c4a63d2ce04fabbb959063461d6"
+    },
+    {
+      "index": 21,
+      "section": "2.4.2 Start from sample data",
+      "alt": "Sample data chooser for Column tables",
+      "sha256": "025f9ba8cc07cebf7fb521324bc82db229f994c7215d7086c23f74d358f7b999"
+    },
+    {
+      "index": 22,
+      "section": "2.4.2 Start from sample data",
+      "alt": "Sample data with its tutorial floating note",
+      "sha256": "1c103095ebe7686177df605cd8ff5e58d1cf8f07b8072177e220ee60263cd6c5"
+    },
+    {
+      "index": 23,
+      "section": "2.9 Floating notes",
+      "alt": "Floating note on an XY table",
+      "sha256": "d282b21ecd8167c9b88ca3b5b78cb17a13392cc33e6e3a338fe9c74a734c6928"
+    },
+    {
+      "index": 24,
+      "section": "3.3 The Analyze Data dialog",
+      "alt": "Analyze Data dialog",
+      "sha256": "f149f0d29ad10c0f3541a1a6c878d404c585b88284a87df1739dad0582f2b562"
+    },
+    {
+      "index": 25,
+      "section": "3.4.1 t tests (and\nnonparametric tests)",
+      "alt": "t test parameters, Experimental Design tab",
+      "sha256": "3c91becbffb599fc47dfa505b98aa5662d006b0e45fdc5c28b6d311b4a8e9955"
+    },
+    {
+      "index": 26,
+      "section": "3.4.1 t tests (and\nnonparametric tests)",
+      "alt": "t test parameters, Options tab",
+      "sha256": "16413fd0471487e3d0e948623c252f9dd40f0d937855e796782b2a41ec176462"
+    },
+    {
+      "index": 27,
+      "section": "3.4.2 Nonlinear regression\n(curve fit)",
+      "alt": "Nonlinear regression, Model tab",
+      "sha256": "2b019993c9b44817d48b1157c48deb7104ceab20f78f34b2ae66c58b5c50a832"
+    },
+    {
+      "index": 28,
+      "section": "3.4.2 Nonlinear regression\n(curve fit)",
+      "alt": "Nonlinear regression, Compare tab",
+      "sha256": "1c5b58c49801509ce048a8ba4666e7649b10baa7ce3aef8bac8391b1fc0b80ec"
+    },
+    {
+      "index": 29,
+      "section": "3.4.2 Nonlinear regression\n(curve fit)",
+      "alt": "Nonlinear regression, Constrain tab",
+      "sha256": "bd7a16957e4e23ffabc027942310446fbe4b47ff456efcd8a86715f54b3a1fe1"
+    },
+    {
+      "index": 30,
+      "section": "3.6 Results sheets",
+      "alt": "t test results sheet",
+      "sha256": "50c8f118573dffcc82c5460ac6a53fdf596a5e2591e67c787a07172997bc43a8"
+    },
+    {
+      "index": 31,
+      "section": "3.6 Results sheets",
+      "alt": "Nonlinear regression results",
+      "sha256": "2e395c47f065010e510fb238b7a1fab8f848de19cb7a235966dbfa9e4adde24e"
+    },
+    {
+      "index": 32,
+      "section": "3.6 Results sheets",
+      "alt": "Unstable-parameter warning note",
+      "sha256": "145d85e99dbab0757e2faf29fdb77829e0269d73ddaebf95ffcf76caea9c5c66"
+    },
+    {
+      "index": 33,
+      "section": "3.11.4 Dose-response EC50\nfit (verified)",
+      "alt": "Default XY graph with fitted curves on a linear X axis",
+      "sha256": "143aff44ca4fff08a73b88c931515ec99246479ff8afb5551a06addca913b4b3"
+    },
+    {
+      "index": 34,
+      "section": "4.1.3 The Create New Graph\ndialog",
+      "alt": "Create New Graph – Column",
+      "sha256": "00a428d6f5e5b92198d9512267ffbbec84fec31b58e56963e511afe5943bfff2"
+    },
+    {
+      "index": 35,
+      "section": "4.1.4 Change Graph Type",
+      "alt": "Change Graph Type – XY",
+      "sha256": "b07a94c909eb8dd5068f077d902be3196cac5205a1c5650413458da6d470ae76"
+    },
+    {
+      "index": 36,
+      "section": "4.2 The graph sheet",
+      "alt": "Graph sheet – page view",
+      "sha256": "038810fd3547f10d359272083910baf7589ef7af269e4061946bb44c92fa32d1"
+    },
+    {
+      "index": 37,
+      "section": "4.2 The graph sheet",
+      "alt": "Graph zoomed",
+      "sha256": "00919f203bf798d079abfae5cd07149eef26599138a14c9ff810d57c475b52b9"
+    },
+    {
+      "index": 38,
+      "section": "4.3.1 Appearance tab",
+      "alt": "Format Graph – Appearance",
+      "sha256": "f4a6ce967de4d6dc448f915c6265aab805903ea76ad54ecb4e24b2f44f489a14"
+    },
+    {
+      "index": 39,
+      "section": "4.3.8 Data Sets on Graph tab",
+      "alt": "Format Graph – Data Sets on Graph",
+      "sha256": "b6e2d7097b714ef8264b0603cd60cfc3b4da458ac0cd511b8bcdbcfd3fe21b48"
+    },
+    {
+      "index": 40,
+      "section": "4.3.9 Graph Settings tab",
+      "alt": "Format Graph – Graph Settings",
+      "sha256": "5e6cc8d455b2d3810b8b3111782f69b87edb015ece9765b94e0ef6019df3fd0b"
+    },
+    {
+      "index": 41,
+      "section": "4.3.10 Annotations tab\n(Column and Grouped)",
+      "alt": "Format Graph – Annotations",
+      "sha256": "2ff68d4b4b0d8c6f9f65539ac208c46d458933b282f7b08349c034caa4d3d00a"
+    },
+    {
+      "index": 42,
+      "section": "4.4.1 Frame and Origin",
+      "alt": "Format Axes – Frame and Origin",
+      "sha256": "b0dda7dfd441ea24e152622edfe0add65479c9569beef88b2c7eb21ba5895ca7"
+    },
+    {
+      "index": 43,
+      "section": "4.4.2\nOrigin: why the X axis can float at Y = 0 (verified)",
+      "alt": "XY graph with X axis at Y=0",
+      "sha256": "143aff44ca4fff08a73b88c931515ec99246479ff8afb5551a06addca913b4b3"
+    },
+    {
+      "index": 44,
+      "section": "4.4.3 X, Left Y and Right Y\naxis tabs",
+      "alt": "Format Axes – Left Y axis",
+      "sha256": "11d73ce60f5b78be0518d56427e3de88a5353dad68c8024bdfe473b5a64279b1"
+    },
+    {
+      "index": 45,
+      "section": "4.4.3 X, Left Y and Right Y\naxis tabs",
+      "alt": "Format Axes – X axis of a Column graph",
+      "sha256": "61f1a18ff5efd81c323174888fb70ccd830e126fa72abc6b79bc28df4207bfaa"
+    },
+    {
+      "index": 46,
+      "section": "4.4.4\nAdditional ticks, reference lines and shaded bands",
+      "alt": "Format Additional Ticks and Grids",
+      "sha256": "bb92022e4b05ebb4757b352d82d465649b474eae1cebab554dcb396a8d183b3b"
+    },
+    {
+      "index": 47,
+      "section": "4.4.4\nAdditional ticks, reference lines and shaded bands",
+      "alt": "Manual range and additional tick label",
+      "sha256": "df4ccf58d0db0246d1607eec98dbea5313a69451029e0c6d03543e5e81fd09d8"
+    },
+    {
+      "index": 48,
+      "section": "4.4.5 Titles & Fonts",
+      "alt": "Format Axes – Titles & Fonts",
+      "sha256": "f9e02234e19e35c579fe2be696f71f41e95868aaf21ece51d2f698d1f91cb5af"
+    },
+    {
+      "index": 49,
+      "section": "Creating a layout",
+      "alt": "Create New Layout dialog",
+      "sha256": "36d0403c08a66ff8af8b511118bac0e654c5c2579157667724c2a7f46a133382"
+    },
+    {
+      "index": 50,
+      "section": "Creating a layout",
+      "alt": "A two-graph layout",
+      "sha256": "4e27391a3ce19e3b7fe6fdcf450c22b925e1bae3abd6baad62c930a2947dea2f"
+    },
+    {
+      "index": 51,
+      "section": "5.2 Exporting graphs and\nlayouts",
+      "alt": "Export dialog",
+      "sha256": "97fbb9ba7b55b23978ddb3302bc61249a4a238718319d01363807287946959cf"
+    }
+  ]
+}

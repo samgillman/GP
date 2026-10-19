@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import "./style.css";
 import App from "./App";
 import "./desktop.css";
+import "./desktop-dark.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />

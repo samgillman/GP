@@ -67,7 +67,35 @@ with sync_playwright() as p:
     assert bounds and bounds['x'] >= 0 and bounds['x'] + bounds['width'] <= 390
     assert bounds['y'] >= 0 and bounds['y'] + bounds['height'] <= 844
     page.screenshot(path=str(shots / 'mobile-dialog.png'))
+    page.keyboard.press('Escape')
+    page.set_viewport_size({'width': 1440, 'height': 900})
+    # Appearance follows the OS unless explicitly selected, persists separately,
+    # and never changes the scientific workbook or its saved graph colors.
+    snapshot = workbook()
+    page.emulate_media(color_scheme='dark')
+    expect(page.locator('.app')).to_have_attribute('data-theme', 'dark')
+    page.locator('.desktop-menu > summary').get_by_text('View', exact=True).click()
+    page.get_by_role('menuitemradio', name='Light appearance', exact=True).click()
+    expect(page.locator('.app')).to_have_attribute('data-theme', 'light')
+    assert workbook() == snapshot
+    page.reload()
+    expect(page.locator('.app')).to_have_attribute('data-theme', 'light')
+    page.locator('.desktop-menu > summary').get_by_text('View', exact=True).click()
+    page.get_by_role('menuitemradio', name='Dark appearance', exact=True).click()
+    page.emulate_media(color_scheme='light')
+    expect(page.locator('.app')).to_have_attribute('data-theme', 'dark')
+    assert workbook() == snapshot
+    page.get_by_role('button', name='Show data table', exact=True).click()
+    page.screenshot(path=str(shots / 'dark-data.png'))
+    assert page.locator('.sheet td').first.evaluate('(cell) => getComputedStyle(cell).backgroundColor') == 'rgb(255, 255, 255)'
+    page.get_by_role('button', name='Analyze Data…', exact=True).click()
+    page.screenshot(path=str(shots / 'dark-analyze.png'))
+    expect(page.get_by_role('dialog', name='Analyze Data', exact=True)).to_be_visible()
+    page.keyboard.press('Escape')
+    page.locator('.desktop-menu > summary').get_by_text('View', exact=True).click()
+    page.get_by_role('menuitemradio', name='Use system appearance', exact=True).click()
+    expect(page.locator('.app')).to_have_attribute('data-theme', 'light')
     assert not errors, errors
-    (shots / 'checks.json').write_text(json.dumps({'passed': ['empty-cell editing and undo', 'menu dismissal', 'modal focus trap and restoration', 'graph sheet visibility', 'analysis result display', 'mobile viewport containment'], 'page_errors': errors}, indent=2))
+    (shots / 'checks.json').write_text(json.dumps({'passed': ['empty-cell editing and undo', 'menu dismissal', 'modal focus trap and restoration', 'graph sheet visibility', 'analysis result display', 'mobile viewport containment', 'system appearance changes', 'explicit appearance persists and overrides OS', 'theme leaves workbook unchanged', 'dark chrome keeps data cells white'], 'page_errors': errors}, indent=2))
     browser.close()
     print('PASS: desktop shell, editable grid expansion, menus, modal focus, graph/results views, and mobile dialog bounds')

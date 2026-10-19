@@ -1,0 +1,324 @@
+/* User-supplied Prism 10.3.1 macOS screenshots: dark chrome with white sheets.
+   This is an independent theme; it does not establish Prism 11 pixel parity. */
+.app[data-theme="dark"] {
+  color-scheme: dark;
+  color: #e6e6e6;
+  background: #303030;
+  --chrome: #333332;
+  --panel: #2d2c2e;
+  --field: #454545;
+  --border: #565656;
+  --muted: #bcbcbc;
+}
+.app[data-theme="dark"]
+  :is(
+    .desktop-chrome,
+    .desktop-titlebar,
+    .desktop-menubar,
+    .desktop-toolbar,
+    .desktop-statusbar
+  ) {
+  background: var(--chrome);
+  color: #ededed;
+  border-color: var(--border);
+}
+.app[data-theme="dark"]
+  :is(
+    .desktop-app-name,
+    .document-state,
+    .desktop-tool-group > span,
+    .status-save
+  ) {
+  color: var(--muted);
+}
+.app[data-theme="dark"] .desktop-titlebar .workbook-name {
+  color: #ededed;
+}
+.app[data-theme="dark"] .desktop-titlebar .workbook-name:focus {
+  background: var(--field);
+}
+.app[data-theme="dark"] .desktop-tool-group {
+  border-color: var(--border);
+}
+.app[data-theme="dark"] .desktop-tool-group button {
+  color: #e6e6e6;
+}
+.app[data-theme="dark"] .desktop-tool-group button svg {
+  color: #a5c9ec;
+  filter: none;
+}
+.app[data-theme="dark"] .desktop-tool-group:nth-child(2) button svg {
+  color: #dec47e;
+}
+.app[data-theme="dark"] .desktop-tool-group:nth-child(7) button svg {
+  color: #e6b17f;
+}
+.app[data-theme="dark"] .desktop-tool-group button:hover:not(:disabled) {
+  background: #505050;
+  border-color: #777;
+}
+.app[data-theme="dark"] .desktop-menu > div {
+  background: #333333f5;
+  border-color: #666;
+}
+.app[data-theme="dark"] .desktop-menu button {
+  color: #ededed;
+  background: transparent;
+}
+.app[data-theme="dark"] .desktop-menu button:hover:not(:disabled) {
+  background: #2766b4;
+}
+.app[data-theme="dark"] .desktop-menu button:disabled {
+  color: #888;
+}
+.app[data-theme="dark"] .desktop-menu hr {
+  border-color: #555;
+}
+.app[data-theme="dark"] > .sidebar {
+  background: var(--chrome);
+  color: #eee;
+  border-color: #555;
+  box-shadow: inset -3px 0 #393939;
+}
+.app[data-theme="dark"] .sidebar :is(.sheet-navigator, .family-navigator) {
+  background: var(--chrome);
+  border-color: #555;
+}
+.app[data-theme="dark"] .sidebar .navigator-search {
+  background: #414141;
+  border-color: #666;
+  color: white;
+}
+.app[data-theme="dark"] .sidebar .navigator-search::placeholder {
+  color: #ccc;
+}
+.app[data-theme="dark"]
+  .sidebar
+  :is(.navigator-section h2, .family-navigator h2) {
+  background: #3d3d3d;
+  color: #eee;
+  border-color: #555;
+}
+.app[data-theme="dark"]
+  .sidebar
+  :is(.navigator-section h2 > button, .sheet-link, .family-navigator button) {
+  color: #eee;
+}
+.app[data-theme="dark"]
+  .sidebar
+  :is(
+    .navigator-section h2 > span,
+    .navigator-new,
+    .family-navigator h2 small
+  ) {
+  color: #bbb;
+}
+.app[data-theme="dark"]
+  .sidebar
+  :is(.sheet-link.selected, .family-navigator button.selected) {
+  background: #535353;
+  color: white;
+  box-shadow: none;
+}
+.app[data-theme="dark"]
+  .sidebar
+  :is(
+    .sheet-link:hover:not(.selected),
+    .family-navigator button:hover:not(.selected),
+    .navigator-new:hover
+  ) {
+  background: #454545;
+  color: white;
+}
+.app[data-theme="dark"] .sidebar .sheet-link svg {
+  color: #b2c4d6;
+}
+.app[data-theme="dark"] .desktop-sheet-strip {
+  background: #3c3c3c;
+  border-color: #555;
+}
+.app[data-theme="dark"] > main .desktop-sheet-strip .project-title {
+  color: #eee;
+}
+.app[data-theme="dark"] > main .desktop-sheet-strip .project-title:focus {
+  background: #454545;
+}
+.app[data-theme="dark"] .desktop-sheet-type {
+  color: #bbb;
+}
+.app[data-theme="dark"] > main .analysis-bar {
+  background: #333;
+  border-color: #555;
+}
+.app[data-theme="dark"] > main .analysis-bar :is(label, .analysis-hint) {
+  color: #c3c3c3;
+}
+.app[data-theme="dark"] > main select,
+.app[data-theme="dark"] > main .analysis-bar select {
+  background: #505050;
+  color: #eee;
+  border-color: #666;
+}
+.app[data-theme="dark"] > main .button {
+  background: #535353;
+  color: white;
+  border-color: #686868;
+}
+.app[data-theme="dark"] > main .button:hover {
+  background: #646464;
+}
+.app[data-theme="dark"] > main .button.primary {
+  background: #246bc0;
+  border-color: #347bd0;
+}
+.app[data-theme="dark"]
+  > main
+  :is(.data-tools, .data-card .card-heading, .sheet-footer) {
+  background: #393939;
+  border-color: #555;
+  color: #ccc;
+}
+.app[data-theme="dark"] > main .sheet-footer .text-button {
+  color: #ddd;
+}
+/* Keep scientific data and graph pages white, as in the supplied screenshots. */
+.app[data-theme="dark"] > main :is(.sheet-wrap, .results-card, .graph-card) {
+  color-scheme: light;
+  color: #171717;
+}
+.app[data-theme="dark"]
+  > main
+  :is(.sheet thead th, .sheet .row-number, .column-letter, .column-entry-kind) {
+  background: #454545;
+  color: #ddd;
+  border-color: #797979;
+}
+.app[data-theme="dark"] > main .sheet th input {
+  background: #3b3b3b;
+  color: white;
+}
+.app[data-theme="dark"] > main .sheet td input {
+  color: #171717;
+}
+.app[data-theme="dark"] > main .sheet tbody tr:focus-within > .row-number {
+  background: #4b5e9b;
+  color: white;
+}
+.app[data-theme="dark"] > main .workspace-grid.sheet-graph-view {
+  background: #484848;
+}
+.app[data-theme="dark"] .status-view-buttons button {
+  color: #ccc;
+}
+.app[data-theme="dark"] .status-view-buttons button.selected {
+  background: #626262;
+  border-color: #777;
+}
+.app[data-theme="dark"] .desktop-dialog {
+  background: var(--panel);
+  color: #eee;
+  border-color: #606060;
+  box-shadow: 0 18px 65px #0008;
+}
+.app[data-theme="dark"] .desktop-dialog-titlebar {
+  background: #303032;
+  border-color: #171717;
+}
+.app[data-theme="dark"] .desktop-dialog :is(h2, h3, legend) {
+  color: #ededed;
+}
+.app[data-theme="dark"] .desktop-dialog fieldset {
+  border-color: #555;
+}
+.app[data-theme="dark"] .desktop-dialog :is(input, select) {
+  background: #494949;
+  border-color: #676767;
+  color: #eee;
+}
+.app[data-theme="dark"]
+  .desktop-dialog
+  :is(input[type="checkbox"], input[type="radio"]) {
+  accent-color: #8cb8f5;
+}
+.app[data-theme="dark"] .desktop-dialog input[readonly] {
+  background: #373737;
+}
+.app[data-theme="dark"] .desktop-dialog input::placeholder {
+  color: #bdbdbd;
+  opacity: 1;
+}
+.app[data-theme="dark"] .desktop-dialog button {
+  background: #525252;
+  color: #eee;
+  border-color: #666;
+}
+.app[data-theme="dark"] .desktop-dialog button:hover:not(:disabled) {
+  background: #656565;
+}
+.app[data-theme="dark"] .desktop-dialog .desktop-dialog-close {
+  background: #ff6058;
+  border-color: #dc4b44;
+  color: #65231d;
+}
+.app[data-theme="dark"] .desktop-dialog-actions {
+  background: #303030;
+  border-color: #555;
+}
+.app[data-theme="dark"] .desktop-dialog-actions .primary {
+  background: #246bc0;
+  border-color: #347bd0;
+  color: white;
+}
+.app[data-theme="dark"] .desktop-dialog-actions .primary:hover:not(:disabled) {
+  background: #307bd3;
+}
+.app[data-theme="dark"] .desktop-family-list {
+  background: #303030;
+  border-color: #555;
+}
+.app[data-theme="dark"] .desktop-family-list button {
+  background: transparent;
+  border-color: transparent;
+}
+.app[data-theme="dark"] .desktop-family-list button.selected {
+  background: #535353;
+}
+.app[data-theme="dark"]
+  :is(
+    .desktop-method-list,
+    .desktop-dataset-list,
+    .desktop-graph-dataset-order
+  ) {
+  background: #252525;
+  border-color: #4a4a4a;
+}
+.app[data-theme="dark"] .desktop-method-list label:hover {
+  background: #414141;
+}
+.app[data-theme="dark"] .desktop-method-list label.selected {
+  background: #535353;
+}
+.app[data-theme="dark"] .desktop-dataset-option:focus-within {
+  background: #414141;
+}
+.app[data-theme="dark"]
+  :is(
+    .desktop-dialog .desktop-help-text,
+    .desktop-dataset-letter,
+    .desktop-apply-help
+  ) {
+  color: #bdbdbd;
+}
+.app[data-theme="dark"] .desktop-analysis-description {
+  background: #363636;
+  border-color: #555;
+}
+.app[data-theme="dark"] .desktop-dialog-tabs button.active {
+  background: #696969;
+  border-color: #777;
+}
+.app[data-theme="dark"] .desktop-table-preview {
+  color-scheme: light;
+  background: white;
+  color: #222;
+}

@@ -5,7 +5,11 @@
     "modal focus trap and restoration",
     "graph sheet visibility",
     "analysis result display",
-    "mobile viewport containment"
+    "mobile viewport containment",
+    "system appearance changes",
+    "explicit appearance persists and overrides OS",
+    "theme leaves workbook unchanged",
+    "dark chrome keeps data cells white"
   ],
   "page_errors": []
 }

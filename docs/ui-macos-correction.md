@@ -27,6 +27,8 @@ These are screenshots of the implemented browser app, captured by `scripts/check
 
 ## Reference evidence and limits
 
+The subsequent [user-supplied Prism 10.3.1 guide](prism10-guide-findings.md) adds 51 embedded image occurrences and reported runtime workflows. It informs the new dark appearance; its evidence is versioned separately from the Prism 11 target.
+
 The [reference manifest](ui-visual-references.json) records official GraphPad image URLs, source hashes, observed platform, and the purpose of each reference. The macOS window image in the current guide illustrates an older Sierra-era window; its presence in the Prism 11 guide does not establish that it depicts Prism 11.1. The current product illustrations supplement the recovered installer controls documented in [the UI structure map](prism-ui-map.md).
 
 This is a substantial visual correction, not verified pixel or interaction equivalence with Prism 11.1.0. Icons are independently supplied by Lucide. Exact native spacing, fonts, menus, full inspector behavior, spreadsheet selection/navigation, graph rendering defaults, and unsupported table/analysis families remain incomplete. No running Prism reference was available. Proprietary screenshots and application assets are not embedded in GP.

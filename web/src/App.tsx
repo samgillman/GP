@@ -115,7 +115,10 @@ function DesktopMenu({
   const menu = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     function dismiss(event: PointerEvent) {
-      if (event.target instanceof Node && !menu.current?.contains(event.target)) {
+      if (
+        event.target instanceof Node &&
+        !menu.current?.contains(event.target)
+      ) {
         if (menu.current) menu.current.open = false;
       }
     }
@@ -143,6 +146,33 @@ function DesktopMenu({
   );
 }
 export default function App() {
+  const [appearance, setAppearance] = useState<"system" | "light" | "dark">(
+    () => {
+      try {
+        const saved = localStorage.getItem("gp.appearance");
+        return saved === "light" || saved === "dark" ? saved : "system";
+      } catch {
+        return "system";
+      }
+    },
+  );
+  const [systemDark, setSystemDark] = useState(
+    () => window.matchMedia("(prefers-color-scheme: dark)").matches,
+  );
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const update = () => setSystemDark(media.matches);
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  function chooseAppearance(value: "system" | "light" | "dark") {
+    setAppearance(value);
+    try {
+      localStorage.setItem("gp.appearance", value);
+    } catch {
+      // Appearance still works for this session when storage is unavailable.
+    }
+  }
   const [advanced, setAdvanced] = useState(false);
   const [collapsedSections, setCollapsedSections] = useState<
     Record<string, boolean>
@@ -836,6 +866,9 @@ export default function App() {
   return (
     <div
       className="app"
+      data-theme={
+        appearance === "system" ? (systemDark ? "dark" : "light") : appearance
+      }
       onBlurCapture={() => {
         historyRef.current = breakHistoryGroup(historyRef.current);
       }}
@@ -930,6 +963,22 @@ export default function App() {
             >
               Search navigator
             </button>
+            <hr />
+            {(["system", "light", "dark"] as const).map((value) => (
+              <button
+                key={value}
+                role="menuitemradio"
+                aria-checked={appearance === value}
+                onClick={() => chooseAppearance(value)}
+              >
+                {value === "system"
+                  ? "Use system appearance"
+                  : `${value === "dark" ? "Dark" : "Light"} appearance`}
+                <span aria-hidden="true">
+                  {appearance === value ? "✓" : ""}
+                </span>
+              </button>
+            ))}
           </DesktopMenu>
           <DesktopMenu label="Insert">
             <button role="menuitem" onClick={() => setNewTable(true)}>

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-10-19T17:35:03.689937+00:00",
+  "generated_at_utc": "2026-10-19T18:33:34.672227+00:00",
   "target": {
     "product": "GraphPad Prism",
     "version": "11.1.0",
@@ -853,7 +853,7 @@
       "implementation_sources": [
         {
           "path": "web/src/App.tsx",
-          "sha256": "85684247aff9f690eec7e9d4b4e42f48dc93c0203837949a2598dfc1deb0a70d"
+          "sha256": "2c9b9e7998afc97155c1ac3d08bcd44406c40ef08d811efd173e80e5ffd1470c"
         },
         {
           "path": "web/src/data.ts",
@@ -1081,21 +1081,29 @@
         },
         {
           "path": "docs/ui-macos-correction.md",
-          "sha256": "e916b4dac96943202729c641d5a63504dda33c3426f8d7443758c086fd16a728"
+          "sha256": "4030ea0766a3cf4116604f1ac1a3e208020cdfe2f169c800e11fc202d0886677"
         },
         {
           "path": "docs/images/checks.json",
-          "sha256": "151169f6caf3395753ec16d2bddf5c214196b3ee89760e58f3d0de64fc7ef577"
+          "sha256": "4b06116f7688c39d1692c70e4fc93ce5fa3c4e01cf67d602f087374a96a3ea91"
+        },
+        {
+          "path": "docs/prism10-guide-index.json",
+          "sha256": "d8902c7f52a965b5b8466216ed2f7c945e049c1c777a581b2652baf621261867"
+        },
+        {
+          "path": "docs/prism10-guide-findings.md",
+          "sha256": "1b0da4ea545098085609f5b9e21a1b0632eb35bc727855d695d902514d74a524"
         }
       ],
       "implementation_sources": [
         {
           "path": "web/src/App.tsx",
-          "sha256": "85684247aff9f690eec7e9d4b4e42f48dc93c0203837949a2598dfc1deb0a70d"
+          "sha256": "2c9b9e7998afc97155c1ac3d08bcd44406c40ef08d811efd173e80e5ffd1470c"
         },
         {
           "path": "docs/prism-ui-map.md",
-          "sha256": "b2905bb7bb70d1cdf88784fdff19f9dbfe91ecc16cc699405916b0ab0f8340d1"
+          "sha256": "f388970ebd4a49190cc5e0ca9ff950e2c229ef8ae3cfe6779b719e97b31abe67"
         },
         {
           "path": "web/src/workbook-storage.ts",
@@ -1131,7 +1139,11 @@
         },
         {
           "path": "scripts/check_desktop_ui.py",
-          "sha256": "599223b6fe83394e35b953d754a798a8a1c65e22bee3711964737e07b9a86c0b"
+          "sha256": "7b3b874be9f9eb4ca42e6d8dfb7b875f028bdea2b8d7579530c2c3e9593921c6"
+        },
+        {
+          "path": "web/src/desktop-dark.css",
+          "sha256": "2ff04c63dabd696c326f250fd51e04d5bdb9fa7752bff8ebadca8a39abdaece9"
         }
       ],
       "remaining_obligations": [
@@ -3927,7 +3939,7 @@
     },
     {
       "path": "web/src/App.tsx",
-      "sha256": "85684247aff9f690eec7e9d4b4e42f48dc93c0203837949a2598dfc1deb0a70d"
+      "sha256": "2c9b9e7998afc97155c1ac3d08bcd44406c40ef08d811efd173e80e5ffd1470c"
     },
     {
       "path": "web/src/Plot.tsx",

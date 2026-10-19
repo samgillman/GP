@@ -4,6 +4,8 @@ A scientific workbook with linked data, analysis, and graph sheets, being recons
 
 The interface now uses a compact macOS-style workbook, light navigator, dense spreadsheet, grouped toolbar, and desktop dialogs. See [current screenshots and the visual correction](docs/ui-macos-correction.md) for the implemented appearance and remaining differences.
 
+**View → Use system appearance / Light appearance / Dark appearance** controls the workbook theme. The [supplied Prism 10 macOS guide](docs/prism10-guide-findings.md) provides newer screenshots and a concrete list of remaining workflow differences.
+
 ![GP workbook](docs/images/data.png)
 
 ## Browser app
