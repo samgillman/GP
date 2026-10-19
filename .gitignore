@@ -1,0 +1,15 @@
+.venv/
+.cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+web/node_modules/
+web/dist/
+web/dist-static/
+.build-venv/
+gp-browser.zip
+*.tsbuildinfo
+*.log
+.DS_Store
+.env
+test-results/

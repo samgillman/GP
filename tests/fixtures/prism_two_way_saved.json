@@ -1,0 +1,315 @@
+{
+  "source": {
+    "archive": {
+      "path": "/workspace/gp-inputs/prism11-image/GraphPad Prism 11/Prism 11.app/Contents/SharedSupport/SampleData/MultipleVariables/MV- Extract and Rearrange.prismt",
+      "sha256": "e4f469a36577507fdaa9ec37f6a1a036899735010bac5fd453392f2a8649439f"
+    },
+    "parameters": {
+      "member": "analyses/6A1BE4E7-C5EF-4C72-8E82-281ED506CF46/parameters.json",
+      "bytes": 1870,
+      "sha256": "79ede7109d5a3c598fffcab0dcb36d2a3da9038433600dbc6a9788020de22c72"
+    },
+    "results": {
+      "member": "analyses/6A1BE4E7-C5EF-4C72-8E82-281ED506CF46/results.json",
+      "bytes": 5589,
+      "sha256": "87016e9da87b4905e9d322b6db1c07558c835178f52ee5e21590f6b567043aab"
+    },
+    "input_csv": {
+      "member": "data/tables/A4C70013-9915-4D66-A64B-90B2037C0D68/data.csv",
+      "bytes": 580,
+      "sha256": "0de0672f9e798c40d2bd32200ae2d8fd0d7e0a9fe336f182face61409aa8100d"
+    },
+    "input_sheet": {
+      "member": "data/sheets/D2D7B407-634F-4B75-B740-3198B3DD87A0/sheet.json",
+      "bytes": 1448,
+      "sha256": "db02aa0c9e2673a4d662396815c4427608e98583a44661f832f1b6bdb8add72d"
+    }
+  },
+  "evidence_type": "saved_bundled_results",
+  "fresh_Prism_execution": false,
+  "limitations": [
+    "Original Prism engine not executed",
+    "Defaults apply only to this saved example",
+    "Full numerical algorithm and all edge cases not recovered"
+  ],
+  "input": {
+    "analysis": "two_way_anova",
+    "design": "ordinary",
+    "row_factor_name": "Row Factor",
+    "column_factor_name": "Column Factor",
+    "row_levels": [
+      "Young",
+      "Middle",
+      "Senior"
+    ],
+    "column_levels": [
+      "None",
+      "Moderate",
+      "Intense"
+    ],
+    "cells": [
+      {
+        "row_level": "Young",
+        "column_level": "None",
+        "values": [
+          42.1,
+          44.5,
+          45.7,
+          41.8
+        ]
+      },
+      {
+        "row_level": "Young",
+        "column_level": "Moderate",
+        "values": [
+          48.9,
+          46.0,
+          43.4,
+          52.9
+        ]
+      },
+      {
+        "row_level": "Young",
+        "column_level": "Intense",
+        "values": [
+          57.5,
+          56.0,
+          64.2,
+          55.5
+        ]
+      },
+      {
+        "row_level": "Middle",
+        "column_level": "None",
+        "values": [
+          38.8,
+          31.2,
+          29.5,
+          26.5
+        ]
+      },
+      {
+        "row_level": "Middle",
+        "column_level": "Moderate",
+        "values": [
+          34.6,
+          40.3,
+          33.0,
+          42.0
+        ]
+      },
+      {
+        "row_level": "Middle",
+        "column_level": "Intense",
+        "values": [
+          50.1,
+          47.6,
+          44.0,
+          50.4
+        ]
+      },
+      {
+        "row_level": "Senior",
+        "column_level": "None",
+        "values": [
+          24.8,
+          25.2,
+          20.8,
+          25.3
+        ]
+      },
+      {
+        "row_level": "Senior",
+        "column_level": "Moderate",
+        "values": [
+          28.9,
+          24.1,
+          34.7,
+          26.7
+        ]
+      },
+      {
+        "row_level": "Senior",
+        "column_level": "Intense",
+        "values": [
+          31.3,
+          35.4,
+          36.2,
+          30.2
+        ]
+      }
+    ]
+  },
+  "original_csv_rows": [
+    [
+      "Young",
+      "42.1000000000000014",
+      "44.5",
+      "45.7000000000000028",
+      "41.7999999999999972",
+      "48.8999999999999986",
+      "46",
+      "43.3999999999999986",
+      "52.8999999999999986",
+      "57.5",
+      "56",
+      "64.2000000000000028",
+      "55.5"
+    ],
+    [
+      "Middle",
+      "38.7999999999999972",
+      "31.1999999999999993",
+      "29.5",
+      "26.5",
+      "34.6000000000000014",
+      "40.2999999999999972",
+      "33",
+      "42",
+      "50.1000000000000014",
+      "47.6000000000000014",
+      "44",
+      "50.3999999999999986"
+    ],
+    [
+      "Senior",
+      "24.8000000000000007",
+      "25.1999999999999993",
+      "20.8000000000000007",
+      "25.3000000000000007",
+      "28.8999999999999986",
+      "24.1000000000000014",
+      "34.7000000000000028",
+      "26.6999999999999993",
+      "31.3000000000000007",
+      "35.3999999999999986",
+      "36.2000000000000028",
+      "30.1999999999999993"
+    ]
+  ],
+  "expected": {
+    "anova_table": {
+      "rowFactor": {
+        "ss": 2707.7672222222213,
+        "df": 2.0,
+        "ms": 1353.8836111111107,
+        "variation": 63.301434645462216,
+        "fTest": {
+          "status": "VALID",
+          "f": 97.1848260277159,
+          "dfNumerator": 2.0,
+          "dfDenominator": 27.0,
+          "pValue": {
+            "value": 4.61654106536453e-13,
+            "level": 0.05,
+            "isSignificant": true,
+            "state": "P_VALUE_EQUAL"
+          }
+        }
+      },
+      "colFactor": {
+        "ss": 1122.6038888888875,
+        "df": 2.0,
+        "ms": 561.3019444444437,
+        "variation": 26.24392382108896,
+        "fTest": {
+          "status": "VALID",
+          "f": 40.29152238210756,
+          "dfNumerator": 2.0,
+          "dfDenominator": 27.0,
+          "pValue": {
+            "value": 7.849989817061382e-09,
+            "level": 0.05,
+            "isSignificant": true,
+            "state": "P_VALUE_EQUAL"
+          }
+        }
+      },
+      "rowFactorVsColFactor": {
+        "ss": 71.06777777777778,
+        "df": 4.0,
+        "ms": 17.766944444444444,
+        "variation": 1.6614028907205054,
+        "fTest": {
+          "status": "VALID",
+          "f": 1.2753514339835832,
+          "dfNumerator": 4.0,
+          "dfDenominator": 27.0,
+          "pValue": {
+            "value": 0.30409276264172247,
+            "level": 0.05,
+            "isSignificant": false,
+            "state": "P_VALUE_EQUAL"
+          }
+        }
+      },
+      "residual": {
+        "ss": 376.1375,
+        "df": 27.0,
+        "ms": 13.931018518518519
+      },
+      "total": {
+        "ss": 4277.576388888887,
+        "df": 35.0
+      }
+    },
+    "grand_mean": 39.169444444444444,
+    "row_means": {
+      "Young": 49.875,
+      "Middle": 39.0,
+      "Senior": 28.633333333333333
+    },
+    "column_means": {
+      "None": 33.01666666666667,
+      "Moderate": 37.958333333333336,
+      "Intense": 46.533333333333324
+    },
+    "cell_means": [
+      {
+        "row_level": "Young",
+        "column_level": "None",
+        "mean": 43.525
+      },
+      {
+        "row_level": "Middle",
+        "column_level": "None",
+        "mean": 31.5
+      },
+      {
+        "row_level": "Senior",
+        "column_level": "None",
+        "mean": 24.025
+      },
+      {
+        "row_level": "Young",
+        "column_level": "Moderate",
+        "mean": 47.8
+      },
+      {
+        "row_level": "Middle",
+        "column_level": "Moderate",
+        "mean": 37.475
+      },
+      {
+        "row_level": "Senior",
+        "column_level": "Moderate",
+        "mean": 28.6
+      },
+      {
+        "row_level": "Young",
+        "column_level": "Intense",
+        "mean": 58.3
+      },
+      {
+        "row_level": "Middle",
+        "column_level": "Intense",
+        "mean": 48.025
+      },
+      {
+        "row_level": "Senior",
+        "column_level": "Intense",
+        "mean": 33.275
+      }
+    ]
+  }
+}

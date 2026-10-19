@@ -1,0 +1,3950 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-10-19T17:12:28.813981+00:00",
+  "target": {
+    "product": "GraphPad Prism",
+    "version": "11.1.0",
+    "build": "110218",
+    "platform": "macOS",
+    "goal": "Complete functional equivalence of the scientific data, analysis, graphing, document and export workflows",
+    "full_functional_equivalence_achieved": false
+  },
+  "scope_limit": "This is a bounded ledger of currently observed feature families, not a claim that all Prism features have been enumerated. Artifact recovery is not implementation; a passing reference case is not full parity.",
+  "status_semantics": {
+    "partial": "A subset is implemented, with explicit missing obligations",
+    "partial_independent_model": "A formula and independent fitter exist; Prism full semantics unresolved",
+    "unimplemented": "No implementation identified for this scope at this source snapshot",
+    "in_progress": "Assigned implementation work; verification not yet established",
+    "unresolved": "Evidence required to decide or implement behavior is missing"
+  },
+  "completion_rule": "Do not close the full-equivalence goal until every material observed obligation has implementation and applicable numerical, format, UI and rendering evidence, and runtime-only unknowns have been resolved. No percentage inferred from counts.",
+  "parent_evidence_ids": [
+    "ev_4603ba47f833cde812c91edb0411496c352b2efbafa386d2b035143064b46289",
+    "ev_aabbaa1a43fb026eec06a396027e90ab2c45cab2b190e184bc36aca00ec664fc"
+  ],
+  "obligations": [
+    {
+      "id": "column_descriptive",
+      "scope": "Descriptive statistics and intervals",
+      "implementation_status": "partial",
+      "functional_equivalence": "not_established",
+      "verification_status": "18_core_and_38_extended_saved_values_verified",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/oracle-c34b7b8cd50d881a.json",
+          "sha256": "d55fd98e8caf73d7bb8e324f51bf560c78d3a020748b95c6c1075ab353736a8a"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/gp-descriptive-implementation-comparison.json",
+          "sha256": "36a0db560c01e66a3b4b58bf0bc0a2cb3fd02383d1f22ce058475a3f06f31c5e"
+        }
+      ],
+      "implementation_sources": [
+        {
+          "path": "gp/statistics.py",
+          "sha256": "b5479fcaf0fdc8d552f96985b3974586be79806821257c5ed253f1669255366b"
+        },
+        {
+          "path": "gp/descriptive.py",
+          "sha256": "0f7f7cf7a56bd8a750313d0f6ba8c29b7000a7284598acac38b22679aa3c61cf"
+        },
+        {
+          "path": "tests/test_descriptive.py",
+          "sha256": "10d5f9dffb1580c0c1cf68ed2574988f25fd015a9d6e517e531d62a9d847c667"
+        },
+        {
+          "path": "tests/fixtures/prism_descriptive_saved.json",
+          "sha256": "ea8a7a8abfc670f5f11b12cbf34e63416a6fae8095994f4b5ec8c41c286f9aca"
+        }
+      ],
+      "remaining_obligations": [
+        "Configurable percentile/QC/output options",
+        "Prism quantiles/interval conventions across edge cases",
+        "All table layouts, exclusions and transforms"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "paired_t",
+      "scope": "Paired t test, difference direction, effect sizes",
+      "implementation_status": "partial",
+      "functional_equivalence": "not_established",
+      "verification_status": "one_saved_reference_case_and_reversal_tests_passed",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/oracle-f646c6534e62e874.json",
+          "sha256": "ee4720e9db0f2003e429aa266f18ed6891d1b4b7098e7870893f06ef285adc45"
+        }
+      ],
+      "implementation_sources": [
+        {
+          "path": "gp/statistics.py",
+          "sha256": "b5479fcaf0fdc8d552f96985b3974586be79806821257c5ed253f1669255366b"
+        },
+        {
+          "path": "tests/test_prism_reference.py",
+          "sha256": "709e11a8921ab0d0f54a8f9611c1cd572fc374b08f9e7875e351729ed7ebafed"
+        }
+      ],
+      "remaining_obligations": [
+        "Full original experimental-design/output options",
+        "All missing-pair, zero-variance and extreme-input behavior",
+        "Graph options and linked result sheets"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "unpaired_t",
+      "scope": "Unpaired t tests",
+      "implementation_status": "partial",
+      "functional_equivalence": "not_established",
+      "verification_status": "independent_math_tests",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        }
+      ],
+      "implementation_sources": [
+        {
+          "path": "gp/statistics.py",
+          "sha256": "b5479fcaf0fdc8d552f96985b3974586be79806821257c5ed253f1669255366b"
+        }
+      ],
+      "remaining_obligations": [
+        "Equal-variance Student test choice",
+        "Lognormal choices",
+        "Full tail/CI/effect-size settings",
+        "Saved Prism numerical oracles for these choices"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "nonparametric_tests",
+      "scope": "Mann-Whitney, Wilcoxon, Kruskal-Wallis, Friedman and related choices",
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "verification_status": "not_established",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        }
+      ],
+      "implementation_sources": [],
+      "remaining_obligations": [
+        "Exact/asymptotic and tie/zero policy",
+        "Pratt choice",
+        "Confidence intervals",
+        "Native/saved reference cases"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "normality_tests",
+      "scope": "Normality diagnostics",
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "verification_status": "not_established",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        }
+      ],
+      "implementation_sources": [],
+      "remaining_obligations": [
+        "D’Agostino-Pearson, Shapiro-Wilk, Anderson-Darling, KS variant",
+        "Minimum sample/tie conventions",
+        "Numerical oracles"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "one_way_anova",
+      "scope": "Ordinary one-way ANOVA",
+      "implementation_status": "partial",
+      "functional_equivalence": "not_established",
+      "verification_status": "independent_math_tests",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        }
+      ],
+      "implementation_sources": [
+        {
+          "path": "gp/statistics.py",
+          "sha256": "b5479fcaf0fdc8d552f96985b3974586be79806821257c5ed253f1669255366b"
+        }
+      ],
+      "remaining_obligations": [
+        "Unequal-variance and nonparametric models",
+        "All diagnostics/effect sizes",
+        "Multiplicity and plotting workflows"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "two_way_anova",
+      "scope": "Ordinary grouped two-way ANOVA with interaction",
+      "implementation_status": "partial",
+      "functional_equivalence": "not_established",
+      "verification_status": "saved_balanced_case_and_static_browser_verified",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/design-oracle-two_way_anova.json",
+          "sha256": "fbd688fd2d8678b1f079b43ef0f1bc7585a286c75caff35cfa7931666bb20a38"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass2/browser-advanced.json",
+          "sha256": "06089de379f3690c69fa83d35889afd8b31a7508e09aa485ff2cc219e00fe95e"
+        }
+      ],
+      "implementation_sources": [
+        {
+          "path": "gp/factorial_anova.py",
+          "sha256": "4a31dde970f8d4f747240215a7476e6c61e309776a219ff7d4c70ce621c0ab52"
+        },
+        {
+          "path": "tests/test_factorial_anova.py",
+          "sha256": "23e139177638fbd70b97977a6e5bf6ff03b7a83ed9c4afb6e15ad5669a36d44e"
+        },
+        {
+          "path": "tests/fixtures/prism_two_way_saved.json",
+          "sha256": "9b95a79b9dcb39c83540e9c30146082b8bf8b31671b6a5fef2ee64d59a589b11"
+        },
+        {
+          "path": "web/src/AdvancedAnalyses.tsx",
+          "sha256": "b5c245abc0b9338bd28ec402d0871a9598bd1af0471d7d8559d34bae24744fb8"
+        }
+      ],
+      "remaining_obligations": [
+        "Unbalanced/missing cells and sums-of-squares convention",
+        "Optional no-interaction model",
+        "Posttests and full native UI options"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "multifactor_anova",
+      "scope": "General fixed-factor model terms, effects and diagnostics",
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "verification_status": "not_established",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/design-oracle-multifactor_anova.json",
+          "sha256": "38daf5f7bc78937729fe8276cb5227928c69c3ecfc640f62b24125b1e9b6ec82"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/design-oracle-anova_effect_sizes.json",
+          "sha256": "8b9ea6a46c82eb306a1306021ef311b45caad8df4f86420e71663f601000d671"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        }
+      ],
+      "implementation_sources": [],
+      "remaining_obligations": [
+        "Model-matrix coding, rank-deficiency and SS conventions",
+        "Effect-size definitions",
+        "Main/simple/cell comparisons and family construction"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "repeated_and_mixed",
+      "scope": "Repeated-measures ANOVA and mixed-effects models",
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "verification_status": "not_established",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        }
+      ],
+      "implementation_sources": [],
+      "remaining_obligations": [
+        "Subject/block alignment",
+        "Sphericity/Geisser–Greenhouse",
+        "Missing values and variance-component estimation",
+        "Convergence/boundary handling",
+        "Reference results beyond ordinary ANOVA"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "multiple_comparisons",
+      "scope": "Multiplicity-adjusted comparisons and FDR",
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "verification_status": "not_established",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/project-oracles.json",
+          "sha256": "a7fbc69fab9265217e51b3ae0b4227e35fef743e28afb6ad4c7c40db3ef0b17f"
+        }
+      ],
+      "implementation_sources": [],
+      "remaining_obligations": [
+        "Tukey/Dunnett/Šídák/Holm–Šídák/Bonferroni/FDR variants",
+        "Family definition and selected comparisons",
+        "Adjusted P values and intervals",
+        "Tie/order behavior"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "linear_regression",
+      "scope": "Simple linear regression",
+      "implementation_status": "partial",
+      "functional_equivalence": "not_established",
+      "verification_status": "independent_math_tests",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/equations.json",
+          "sha256": "158d30163d6082012db4741b18fd8911bb999c30dddcd6cfddb6a69f046e7d5f"
+        }
+      ],
+      "implementation_sources": [
+        {
+          "path": "gp/statistics.py",
+          "sha256": "b5479fcaf0fdc8d552f96985b3974586be79806821257c5ed253f1669255366b"
+        }
+      ],
+      "remaining_obligations": [
+        "Replicate handling and X/Y interpolation intervals",
+        "Constrained lines, slope comparison, runs diagnostics",
+        "Confidence/prediction bands",
+        "Saved Prism reference cases"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "deming_regression",
+      "scope": "Deming/model-II regression",
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "verification_status": "not_established",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        }
+      ],
+      "implementation_sources": [],
+      "remaining_obligations": [
+        "Error-ratio specification",
+        "Fit/uncertainty/interpolation algorithms",
+        "Saved/live references"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "nonlinear_catalog",
+      "scope": "Recovered equation definitions and variables",
+      "implementation_status": "partial",
+      "functional_equivalence": "not_established",
+      "verification_status": "eight_exponential_records_cross_checked_with_REA",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/equations.json",
+          "sha256": "158d30163d6082012db4741b18fd8911bb999c30dddcd6cfddb6a69f046e7d5f"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/validation.json",
+          "sha256": "d4ceaa0447d24d3175eb76a98b66165a3a98c9dadce9ae77ebb448d4f2c49b3b"
+        }
+      ],
+      "implementation_sources": [
+        {
+          "path": "gp/regression_models.py",
+          "sha256": "e66df955d817a7d860df9471570cc230bd8ecbf750bae321bf589966c3de12a3"
+        }
+      ],
+      "remaining_obligations": [
+        "Implement remaining named equations",
+        "Expression-language semantics",
+        "All model-specific domains/constraints/derived outputs"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "nonlinear_optimizer",
+      "scope": "Fitting engine and nonlinear option semantics",
+      "implementation_status": "partial",
+      "functional_equivalence": "not_established",
+      "verification_status": "two_4pl_and_three_normalized_saved_fits_compared_browser_models_verified",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/oracle-fcfaf2f38f55b212.json",
+          "sha256": "4474a2f4de2f29cdff732d2df03cea04cc728b46a609aa7de82e93f689cacd88"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/oracle-7542324edcdb7eb2.json",
+          "sha256": "3741b7ae0aab9c3f146c8e9193fad276c9e270132c84869a7f8c8e5b34d32d2f"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/gp-model-oracle-comparison.json",
+          "sha256": "ee3077019dfae785cb8e30baebf433db6add517f3bd3c7bd2a32d2306be4d497"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/gp-normalized-inhibition-oracle-comparison.json",
+          "sha256": "0e58b4f87c83adbb118e171041133cd908495535ab47a8081fbffcd3c0eeb4f8"
+        }
+      ],
+      "implementation_sources": [
+        {
+          "path": "gp/regression_models.py",
+          "sha256": "e66df955d817a7d860df9471570cc230bd8ecbf750bae321bf589966c3de12a3"
+        },
+        {
+          "path": "gp/statistics.py",
+          "sha256": "b5479fcaf0fdc8d552f96985b3974586be79806821257c5ed253f1669255366b"
+        },
+        {
+          "path": "tests/test_regression_models.py",
+          "sha256": "15558aa9998bf53a64c8d0e17555c0fd8545e07fb1aa3addcf67ae2e0385ac46"
+        },
+        {
+          "path": "tests/fixtures/prism_normalized_inhibition_saved.json",
+          "sha256": "25bbf77026825b83c573873bd745e129bde982b747b368666249aeb628d0762e"
+        }
+      ],
+      "remaining_obligations": [
+        "Prism optimizer/stopping/failure behavior",
+        "Initial guesses and default constraints across models",
+        "Weights/replicates/preaveraged data",
+        "Robust/Poisson loss and outliers",
+        "Global/shared parameters",
+        "Profile-likelihood intervals",
+        "Model comparison and prediction/confidence bands"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "correlation",
+      "scope": "Pearson/Spearman and correlation matrix",
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "verification_status": "not_established",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        }
+      ],
+      "implementation_sources": [],
+      "remaining_obligations": [
+        "Pairwise versus whole-row missing policy",
+        "Tail/CI variants",
+        "Heatmap and matrix workflow",
+        "Saved reference cases"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "survival_km",
+      "scope": "Kaplan–Meier curves, risk/event/censor tables, confidence intervals",
+      "implementation_status": "partial",
+      "functional_equivalence": "not_established",
+      "verification_status": "714_populated_saved_values_medians_and_static_browser_verified",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/design-oracle-survival_kaplan_meier.json",
+          "sha256": "06193fb2fed0a4e33cd72bc318c4116dd10cff2813139c052533e090e0a49c28"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass2/browser-advanced.json",
+          "sha256": "06089de379f3690c69fa83d35889afd8b31a7508e09aa485ff2cc219e00fe95e"
+        }
+      ],
+      "implementation_sources": [
+        {
+          "path": "gp/survival.py",
+          "sha256": "4bc8f383e93658cd5f05395458a0617d3b1e8d824793fb9d999b321dbfd5a602"
+        },
+        {
+          "path": "tests/test_survival.py",
+          "sha256": "449bd3330e39004d72996a87d140d68de1bd02adf6df416a5b4f7727baca9989"
+        },
+        {
+          "path": "tests/fixtures/prism_survival_saved.json",
+          "sha256": "fad3ebf0fc724c7df09ef5a354d3c0c6fa22f1f6420e4e1d09c8f418086e43a5"
+        },
+        {
+          "path": "web/src/AdvancedAnalyses.tsx",
+          "sha256": "b5c245abc0b9338bd28ec402d0871a9598bd1af0471d7d8559d34bae24744fb8"
+        }
+      ],
+      "remaining_obligations": [
+        "Broader native missing/coding and endpoint conventions",
+        "Complete graph settings and CI rendering",
+        "Additional saved or live edge-case references"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "survival_comparisons",
+      "scope": "Logrank, trend, Gehan–Breslow–Wilcoxon and multiplicity",
+      "implementation_status": "partial",
+      "functional_equivalence": "not_established",
+      "verification_status": "saved_global_logrank_and_static_browser_verified",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/design-oracle-survival_kaplan_meier.json",
+          "sha256": "06193fb2fed0a4e33cd72bc318c4116dd10cff2813139c052533e090e0a49c28"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass2/browser-advanced.json",
+          "sha256": "06089de379f3690c69fa83d35889afd8b31a7508e09aa485ff2cc219e00fe95e"
+        }
+      ],
+      "implementation_sources": [
+        {
+          "path": "gp/survival.py",
+          "sha256": "4bc8f383e93658cd5f05395458a0617d3b1e8d824793fb9d999b321dbfd5a602"
+        },
+        {
+          "path": "tests/test_survival.py",
+          "sha256": "449bd3330e39004d72996a87d140d68de1bd02adf6df416a5b4f7727baca9989"
+        },
+        {
+          "path": "web/src/AdvancedAnalyses.tsx",
+          "sha256": "b5c245abc0b9338bd28ec402d0871a9598bd1af0471d7d8559d34bae24744fb8"
+        }
+      ],
+      "remaining_obligations": [
+        "Pairwise comparisons and adjustments",
+        "Trend and Gehan–Breslow–Wilcoxon tests",
+        "Hazard ratios and associated intervals",
+        "All native comparison settings"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "cox_regression",
+      "scope": "Cox proportional-hazards models",
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "verification_status": "not_established",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        }
+      ],
+      "implementation_sources": [],
+      "remaining_obligations": [
+        "Partial likelihood, tie methods and model coding",
+        "Wald/profile uncertainty",
+        "Predictions/reference levels/diagnostics",
+        "Numerical reference projects"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "multivariable_regression",
+      "scope": "Multiple linear/logistic/Poisson regression",
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "verification_status": "not_established",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        }
+      ],
+      "implementation_sources": [],
+      "remaining_obligations": [
+        "Categorical encoding and model terms",
+        "Likelihood/convergence/diagnostics",
+        "Missing values",
+        "Saved numerical reference cases"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "clustering_pca",
+      "scope": "Hierarchical clustering, k-means, PCA",
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "verification_status": "not_established",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/project-oracles.json",
+          "sha256": "a7fbc69fab9265217e51b3ae0b4227e35fef743e28afb6ad4c7c40db3ef0b17f"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        }
+      ],
+      "implementation_sources": [],
+      "remaining_obligations": [
+        "Implement saved example settings",
+        "Distance/linkage/scaling conventions",
+        "Initialization/randomness",
+        "Dendrogram/biplot/heatmap workflows"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "formula_columns",
+      "scope": "In-table formula language, 82 documented functions",
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "verification_status": "not_established",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/transforms.json",
+          "sha256": "47ca7743d70c01957af2cb7f8e510f9e6480b660b09256805546bdb0f11c92ff"
+        }
+      ],
+      "implementation_sources": [],
+      "remaining_obligations": [
+        "Bounded expression parser",
+        "References/dependency recalculation",
+        "Blank/error/type/coercion behavior",
+        "Special functions/distributions/random generation",
+        "Native or saved validation"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "data_transformations",
+      "scope": "Transform, normalize, extract/rearrange and derived data",
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "verification_status": "not_established",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/project-oracles.json",
+          "sha256": "a7fbc69fab9265217e51b3ae0b4227e35fef743e28afb6ad4c7c40db3ef0b17f"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        }
+      ],
+      "implementation_sources": [],
+      "remaining_obligations": [
+        "Analysis graph and dependent-table updates",
+        "Supported transformation semantics",
+        "Missing values and identifiers",
+        "Reconstruct saved transform/extraction cases"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "contingency_and_proportions",
+      "scope": "Contingency/proportions analyses",
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "verification_status": "not_established",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/schemas.json",
+          "sha256": "561d27f289d5dcdb2081417860009c4a0d3e9967b875ae22747201eb1ba91771"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        }
+      ],
+      "implementation_sources": [],
+      "remaining_obligations": [
+        "Additional settings and numerical evidence",
+        "Exact/chi-square tests and intervals",
+        "Table typing and graph workflows"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "xy_other_analyses",
+      "scope": "AUC, interpolation and other XY operations",
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "verification_status": "not_established",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        }
+      ],
+      "implementation_sources": [],
+      "remaining_obligations": [
+        "Baseline/peak/area/interpolation options",
+        "Native numerical evidence",
+        "Dependent result/graph workflow"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "prism_xml",
+      "scope": "XML/PZFX raw table compatibility",
+      "implementation_status": "partial",
+      "functional_equivalence": "not_established",
+      "verification_status": "bounded_parser_tests",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/schemas.json",
+          "sha256": "561d27f289d5dcdb2081417860009c4a0d3e9967b875ae22747201eb1ba91771"
+        }
+      ],
+      "implementation_sources": [
+        {
+          "path": "gp/import_prism.py",
+          "sha256": "9dd75c4562f36501ead42d20137e9a40ac065a227afa8314a66d06ceabcbdd99"
+        },
+        {
+          "path": "tests/test_import_prism.py",
+          "sha256": "ca611c09234846f0ad1c2157814156212827418b2839d678d6c94048b7d70b13"
+        }
+      ],
+      "remaining_obligations": [
+        "Replicate/preaveraged/grouped/survival/multivariable tables",
+        "Graphs/analyses/styles/notes",
+        "Round-trip and lossless exclusions"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "prism_zip",
+      "scope": "Modern ZIP JSON/CSV project compatibility",
+      "implementation_status": "partial",
+      "functional_equivalence": "not_established",
+      "verification_status": "21_parser_tests_and_actual_saved_project_imports_verified",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/project-oracles.json",
+          "sha256": "a7fbc69fab9265217e51b3ae0b4227e35fef743e28afb6ad4c7c40db3ef0b17f"
+        }
+      ],
+      "implementation_sources": [
+        {
+          "path": "gp/import_prism_zip.py",
+          "sha256": "5cb78ff080eace2e927212a2ddcde4de4e16d454dedc00a02bf3968f3742ed1b"
+        },
+        {
+          "path": "tests/test_import_prism_zip.py",
+          "sha256": "8d07bdb2efd53aee5998bc0f3d83f2a843e7da1f39f68316697c9de5ca68b295"
+        }
+      ],
+      "remaining_obligations": [
+        "All raw table kinds and cell attributes",
+        "Subject/factor/replicate preservation",
+        "Saved analyses/results/graphs/layouts",
+        "Lossless project round-trip/version compatibility"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "legacy_binary",
+      "scope": "Legacy PCFFGRA4 native project compatibility",
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "verification_status": "not_established",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/project-oracles.json",
+          "sha256": "a7fbc69fab9265217e51b3ae0b4227e35fef743e28afb6ad4c7c40db3ef0b17f"
+        }
+      ],
+      "implementation_sources": [],
+      "remaining_obligations": [
+        "Structured records and references",
+        "Read/write tables, analyses and graph state",
+        "Round-trip and malformed-input tests"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "workbook_workflow",
+      "scope": "Multi-sheet data→analysis→graph dependency workflow",
+      "implementation_status": "partial",
+      "functional_equivalence": "not_established",
+      "verification_status": "multi_sheet_link_invalidation_recalculation_and_persistence_browser_verified",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/project-oracles.json",
+          "sha256": "a7fbc69fab9265217e51b3ae0b4227e35fef743e28afb6ad4c7c40db3ef0b17f"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass2/browser-workbook.json",
+          "sha256": "19b3294b9dc5336996c6f4b6999e635765c80670db1e81460542909367b8a9a1"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass2/browser-recovery.json",
+          "sha256": "8fb195e01e58e4871f3e412544f97735fe93523d32cd4928eb696b3efb3079b2"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass2/browser-workbook-export.json",
+          "sha256": "def26497abe1d6fa8590cfe15592515ed32e3aab25cd6d2663f76723524de637"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass2/browser-history.json",
+          "sha256": "129485964cfbb9c9e50eda515be570419d0ba516e345a4dfa4a4bde64e0654f6"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass2/browser-history-race.json",
+          "sha256": "76ec0799b8f4fe0a90289ea4e93b048c59e7d705bfa41f6b31e30928ec8158e7"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/ui-function-ranges.json",
+          "sha256": "e734612ce0de231fa805bcc5a3f6af942d875543e5e8e1ceea15b276609caf34"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/raw-ui-context.json",
+          "sha256": "0061c5cc958406fefc42d3c2f3e9bd24592c967f376ed917114dc7b9bbb343fd"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/ui-close-ranges.json",
+          "sha256": "c93796096b7815965ae31839fcd63d5f5a95368a712fdf790785e0365e2a5253"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/raw-ui-close-context.json",
+          "sha256": "dea54e89c828d214b5ae61a6b25ec1a5f14d54cffb0f11f4da39e2f15c2519d8"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/full-pass-status.json",
+          "sha256": "180a6aa1b31b3fcedda5fe6362250d87f3f641742315ce8b2f634717f9167205"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/graph-apply-full.json",
+          "sha256": "c0d715d950d70eaaee939988c26130d3e93db37cec360f02510bd4c4a4298d26"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/graph-set-full.json",
+          "sha256": "9869e5491c8a30f0cea0669a5d4ac3dfc432b3973a4c60c484f1f5cda0f720ce"
+        }
+      ],
+      "implementation_sources": [
+        {
+          "path": "web/src/App.tsx",
+          "sha256": "9d252232ea9590a2ad2b073ce62bf724faf4e6a0ca1c5a6f0b85e502578c03b4"
+        },
+        {
+          "path": "web/src/data.ts",
+          "sha256": "f48a527a7b0bbb57343c3be2022c492386b51bddfd766ab3d0e5e3cb86195547"
+        },
+        {
+          "path": "web/src/workbook.ts",
+          "sha256": "aa194f37f6a4fb3cfc04aa9d513e3885667a86cf0b48fb6fe4a9d1c5aed25424"
+        },
+        {
+          "path": "web/src/workbook.test.ts",
+          "sha256": "fd3af88fbb31c61528ec335f02b484b58c6a611f27e7621015cfe0ee84e33a65"
+        },
+        {
+          "path": "web/src/WorkbookDialogs.tsx",
+          "sha256": "9c756feca05d932e84c908d96b420550cf32b918d71c4b8723ff0f0604f6be80"
+        },
+        {
+          "path": "web/src/workbook-storage.ts",
+          "sha256": "ebcdf8b67a27e0dbfbfcb85eb807dd37b56b78c9ceddfcabe8d3c7fd0434ad2f"
+        },
+        {
+          "path": "web/src/workbook-storage.test.ts",
+          "sha256": "f4527f170f8532ce31c1e22cbc3908f35cb2860e386cb6e9797ecf5c13621177"
+        },
+        {
+          "path": "web/src/workbook-history.ts",
+          "sha256": "535ceb3f73c666edbe1f357fcf88e36ff6bf932830dcf00f5d51a28da87f7ca5"
+        },
+        {
+          "path": "web/src/workbook-history.test.ts",
+          "sha256": "bf98c76b286343821a5cb0fc9ac26813df4347445cb49c26183ffb0ad22485bb"
+        }
+      ],
+      "remaining_obligations": [
+        "Workbook support for all native table/result families",
+        "Native recalculation timing and dependency propagation",
+        "Full native undo grouping/limits and exclusions",
+        "Full saved-analysis parameter editing",
+        "Complete sheet navigation and selection fidelity"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "graphing",
+      "scope": "Graph types and formatting",
+      "implementation_status": "partial",
+      "functional_equivalence": "not_established",
+      "verification_status": "independent_rendering_only",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-metadata/graph-map.json",
+          "sha256": "e3990b2247cc1243cf214855264cf80831090cafcc584225915d1cb98853fb34"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/ui-function-ranges.json",
+          "sha256": "e734612ce0de231fa805bcc5a3f6af942d875543e5e8e1ceea15b276609caf34"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/raw-ui-context.json",
+          "sha256": "0061c5cc958406fefc42d3c2f3e9bd24592c967f376ed917114dc7b9bbb343fd"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/ui-close-ranges.json",
+          "sha256": "c93796096b7815965ae31839fcd63d5f5a95368a712fdf790785e0365e2a5253"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/raw-ui-close-context.json",
+          "sha256": "dea54e89c828d214b5ae61a6b25ec1a5f14d54cffb0f11f4da39e2f15c2519d8"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/full-pass-status.json",
+          "sha256": "180a6aa1b31b3fcedda5fe6362250d87f3f641742315ce8b2f634717f9167205"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/graph-apply-full.json",
+          "sha256": "c0d715d950d70eaaee939988c26130d3e93db37cec360f02510bd4c4a4298d26"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/graph-set-full.json",
+          "sha256": "9869e5491c8a30f0cea0669a5d4ac3dfc432b3973a4c60c484f1f5cda0f720ce"
+        }
+      ],
+      "implementation_sources": [
+        {
+          "path": "web/src/Plot.tsx",
+          "sha256": "1de1530b38ab96076034af4eee55c39cf9f09fcf1afa3a48da39e67475791272"
+        },
+        {
+          "path": "gp/plotting.py",
+          "sha256": "c8f572312ad4d634ce3d476f3abad73672b54d7827db9a3b6a0b0b2dc16c9442"
+        },
+        {
+          "path": "web/src/AdvancedAnalyses.tsx",
+          "sha256": "b5c245abc0b9338bd28ec402d0871a9598bd1af0471d7d8559d34bae24744fb8"
+        }
+      ],
+      "remaining_obligations": [
+        "General grouped/multivariable graphs and full survival settings",
+        "Violin/heatmap/dendrogram/ellipses",
+        "Axes/ticks/transforms/breaks",
+        "Axes-only graphs and CreateGraphWithoutData confirmation",
+        "Annotations/significance/legends",
+        "Exact geometry and fonts"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "layouts_exports",
+      "scope": "Multi-graph publication layouts and exports",
+      "implementation_status": "partial",
+      "functional_equivalence": "not_established",
+      "verification_status": "SVG_PNG_PDF_basic_export_only",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
+          "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
+        }
+      ],
+      "implementation_sources": [
+        {
+          "path": "gp/plotting.py",
+          "sha256": "c8f572312ad4d634ce3d476f3abad73672b54d7827db9a3b6a0b0b2dc16c9442"
+        }
+      ],
+      "remaining_obligations": [
+        "Layouts/panels/alignment",
+        "Native page and font handling",
+        "Editable-object export",
+        "Image/vector comparison against Prism"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "runtime_workflow_equivalence",
+      "scope": "Native interactive behavior and complete functional equivalence",
+      "implementation_status": "unresolved",
+      "functional_equivalence": "not_established",
+      "verification_status": "no_native_execution",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/manifest.json",
+          "sha256": "79d4154c8f537e0eb1b34a5c9e727b8791f5ef0fe70e8761c3f8f86b2bc79c27"
+        }
+      ],
+      "implementation_sources": [],
+      "remaining_obligations": [
+        "Actual Prism on supported macOS host for unresolved runtime questions",
+        "Declared reproducible workflow captures",
+        "Representative numerical/format/rendering comparison matrix",
+        "All material feature families covered with explicit exceptions"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "prism_ui_ux",
+      "scope": "Prism workbook, table editing, analysis and graph dialog interactions",
+      "implementation_status": "partial",
+      "functional_equivalence": "not_established",
+      "verification_status": "recovered_core_workbook_and_dialog_structure_implemented_browser_checked_full_UI_equivalence_not_established",
+      "evidence": [
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/nibs.json",
+          "sha256": "ca10379bf418aa016e653640667387bf22713edd45ecd51420ba31bdbc09f3e9"
+        },
+        {
+          "path": "/workspace/gp-evidence/resources-pass2/localizations.json",
+          "sha256": "08f5ea8afa3a8ef921bb46768d0d91b7433337aaa76ab758aa598b8478eb421e"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass2/browser-workbook.json",
+          "sha256": "19b3294b9dc5336996c6f4b6999e635765c80670db1e81460542909367b8a9a1"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass2/browser-recovery.json",
+          "sha256": "8fb195e01e58e4871f3e412544f97735fe93523d32cd4928eb696b3efb3079b2"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass2/browser-workbook-export.json",
+          "sha256": "def26497abe1d6fa8590cfe15592515ed32e3aab25cd6d2663f76723524de637"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass2/browser-history.json",
+          "sha256": "129485964cfbb9c9e50eda515be570419d0ba516e345a4dfa4a4bde64e0654f6"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass2/browser-history-race.json",
+          "sha256": "76ec0799b8f4fe0a90289ea4e93b048c59e7d705bfa41f6b31e30928ec8158e7"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/ui-function-ranges.json",
+          "sha256": "e734612ce0de231fa805bcc5a3f6af942d875543e5e8e1ceea15b276609caf34"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/raw-ui-context.json",
+          "sha256": "0061c5cc958406fefc42d3c2f3e9bd24592c967f376ed917114dc7b9bbb343fd"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/ui-close-ranges.json",
+          "sha256": "c93796096b7815965ae31839fcd63d5f5a95368a712fdf790785e0365e2a5253"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/raw-ui-close-context.json",
+          "sha256": "dea54e89c828d214b5ae61a6b25ec1a5f14d54cffb0f11f4da39e2f15c2519d8"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/full-pass-status.json",
+          "sha256": "180a6aa1b31b3fcedda5fe6362250d87f3f641742315ce8b2f634717f9167205"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/graph-apply-full.json",
+          "sha256": "c0d715d950d70eaaee939988c26130d3e93db37cec360f02510bd4c4a4298d26"
+        },
+        {
+          "path": "/workspace/gp-evidence/native-pass3/graph-set-full.json",
+          "sha256": "9869e5491c8a30f0cea0669a5d4ac3dfc432b3973a4c60c484f1f5cda0f720ce"
+        }
+      ],
+      "implementation_sources": [
+        {
+          "path": "web/src/App.tsx",
+          "sha256": "9d252232ea9590a2ad2b073ce62bf724faf4e6a0ca1c5a6f0b85e502578c03b4"
+        },
+        {
+          "path": "docs/prism-ui-map.md",
+          "sha256": "b2905bb7bb70d1cdf88784fdff19f9dbfe91ecc16cc699405916b0ab0f8340d1"
+        },
+        {
+          "path": "web/src/workbook-storage.ts",
+          "sha256": "ebcdf8b67a27e0dbfbfcb85eb807dd37b56b78c9ceddfcabe8d3c7fd0434ad2f"
+        },
+        {
+          "path": "web/src/workbook-storage.test.ts",
+          "sha256": "f4527f170f8532ce31c1e22cbc3908f35cb2860e386cb6e9797ecf5c13621177"
+        },
+        {
+          "path": "web/src/workbook-history.ts",
+          "sha256": "535ceb3f73c666edbe1f357fcf88e36ff6bf932830dcf00f5d51a28da87f7ca5"
+        },
+        {
+          "path": "web/src/workbook-history.test.ts",
+          "sha256": "bf98c76b286343821a5cb0fc9ac26813df4347445cb49c26183ffb0ad22485bb"
+        }
+      ],
+      "remaining_obligations": [
+        "Full native sheet and table families in the workbook",
+        "Full data-table formats and keyboard/selection/undo interactions",
+        "Remaining analysis choices and complete parameter dialogs",
+        "Full graph/axes dialogs and Apply/OK/Cancel semantics",
+        "Runtime geometry, fonts, defaults and interaction validation"
+      ],
+      "priority": "high"
+    }
+  ],
+  "model_catalog": [
+    {
+      "family": "Binding - Competitive",
+      "name": "One site - Fit Ki",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Competitive",
+        "sha256": "f764e262d83a04cc8fb14dbea0cad054037aa7f8a7932246f3e79bc6c13473cf",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Competitive",
+      "name": "One site - Fit logIC50",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Competitive",
+        "sha256": "f764e262d83a04cc8fb14dbea0cad054037aa7f8a7932246f3e79bc6c13473cf",
+        "object_index": 48
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Competitive",
+      "name": "Two sites - Fit Ki",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Competitive",
+        "sha256": "f764e262d83a04cc8fb14dbea0cad054037aa7f8a7932246f3e79bc6c13473cf",
+        "object_index": 68
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Competitive",
+      "name": "Two sites - Fit logIC50",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Competitive",
+        "sha256": "f764e262d83a04cc8fb14dbea0cad054037aa7f8a7932246f3e79bc6c13473cf",
+        "object_index": 100
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Competitive",
+      "name": "One site -- Heterologous with depletion",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Competitive",
+        "sha256": "f764e262d83a04cc8fb14dbea0cad054037aa7f8a7932246f3e79bc6c13473cf",
+        "object_index": 127
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Competitive",
+      "name": "One site -- Homologous ",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Competitive",
+        "sha256": "f764e262d83a04cc8fb14dbea0cad054037aa7f8a7932246f3e79bc6c13473cf",
+        "object_index": 158
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Competitive",
+      "name": "Allosteric modulator titration",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Competitive",
+        "sha256": "f764e262d83a04cc8fb14dbea0cad054037aa7f8a7932246f3e79bc6c13473cf",
+        "object_index": 185
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Kinetics",
+      "name": "Dissociation - One phase exponential decay ",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Kinetics",
+        "sha256": "e2732b1982702b0ec03b71397a8d782338430e97d7909c18832d1af07640a98b",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Kinetics",
+      "name": "Association kinetics - One conc. of hot",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Kinetics",
+        "sha256": "e2732b1982702b0ec03b71397a8d782338430e97d7909c18832d1af07640a98b",
+        "object_index": 45
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Kinetics",
+      "name": "Association kinetics - Two or more conc. of hot.",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Kinetics",
+        "sha256": "e2732b1982702b0ec03b71397a8d782338430e97d7909c18832d1af07640a98b",
+        "object_index": 82
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Kinetics",
+      "name": "Association then dissociation",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Kinetics",
+        "sha256": "e2732b1982702b0ec03b71397a8d782338430e97d7909c18832d1af07640a98b",
+        "object_index": 106
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Kinetics",
+      "name": "Kinetics of competitive binding",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Kinetics",
+        "sha256": "e2732b1982702b0ec03b71397a8d782338430e97d7909c18832d1af07640a98b",
+        "object_index": 138
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Saturation",
+      "name": "One site -- Total",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Saturation",
+        "sha256": "b544444686f8c68fdc0ee67347d690d41ba79190b755c5e3097568ff183779f5",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Saturation",
+      "name": "One site -- Total, accounting for ligand depletion",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Saturation",
+        "sha256": "b544444686f8c68fdc0ee67347d690d41ba79190b755c5e3097568ff183779f5",
+        "object_index": 40
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Saturation",
+      "name": "One site -- Total and nonspecific binding",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Saturation",
+        "sha256": "b544444686f8c68fdc0ee67347d690d41ba79190b755c5e3097568ff183779f5",
+        "object_index": 63
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Saturation",
+      "name": "One site -- Specific binding",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Saturation",
+        "sha256": "b544444686f8c68fdc0ee67347d690d41ba79190b755c5e3097568ff183779f5",
+        "object_index": 82
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Saturation",
+      "name": "Two sites -- Specific binding",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Saturation",
+        "sha256": "b544444686f8c68fdc0ee67347d690d41ba79190b755c5e3097568ff183779f5",
+        "object_index": 98
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Saturation",
+      "name": "Two sites -- Total and nonspecific binding",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Saturation",
+        "sha256": "b544444686f8c68fdc0ee67347d690d41ba79190b755c5e3097568ff183779f5",
+        "object_index": 128
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Saturation",
+      "name": "Allosteric modulator shift",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Saturation",
+        "sha256": "b544444686f8c68fdc0ee67347d690d41ba79190b755c5e3097568ff183779f5",
+        "object_index": 152
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Binding - Saturation",
+      "name": "Specific binding with Hill slope",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Binding - Saturation",
+        "sha256": "b544444686f8c68fdc0ee67347d690d41ba79190b755c5e3097568ff183779f5",
+        "object_index": 188
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "One site binding (hyperbola)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "Two site binding (hyperbola)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 47
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "Sigmoidal dose-response",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 74
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "Sigmoidal dose-response (variable slope)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 105
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "One site competition",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 131
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "Two site competition",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 155
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "Boltzmann sigmoidal",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 188
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "One phase exponential decay",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 212
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "Two phase exponential decay",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 242
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "One phase exponential association",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 277
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "Two phase exponential association",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 302
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "Exponential growth",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 331
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "Power series: Y=A*X^B + C*X^D",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 357
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "Polynomial: First Order (straight line)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 383
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "Polynomial: Second Order (Y=A + B*X + C*X^2)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 406
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "Polynomial: Third Order (Y=A + B*X + C*X^2 + D*X^3)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 428
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "Polynomial: Fourth Order (Y=A + B*X + C*X^2 + D*X^3 + E*X^4)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 450
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "Sine wave",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 473
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Classic equations from prior versions of Prism",
+      "name": "Gaussian distribution",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Classic equations from prior versions of Prism",
+        "sha256": "c9c187938ec5a62ce8f1c89e660cd3fa43560e4d8026922d25eeb21c653a8bde",
+        "object_index": 499
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Inhibition",
+      "name": "log(inhibitor) vs. response (three parameters)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Inhibition",
+        "sha256": "b4e974d0d0a9a9a8117912d328b6288c8937028234bd0204d37430b1557d16b3",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Inhibition",
+      "name": "log(inhibitor) vs. response -- Variable slope (four parameters)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Inhibition",
+        "sha256": "b4e974d0d0a9a9a8117912d328b6288c8937028234bd0204d37430b1557d16b3",
+        "object_index": 57
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [
+        "log_dose_inhibition"
+      ],
+      "implementation_status": "partial_independent_model",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Optimizer/constraints/uncertainty/full option parity",
+        "Broader saved or live reference cases"
+      ]
+    },
+    {
+      "family": "Dose-response - Inhibition",
+      "name": "log(inhibitor) vs. normalized response",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Inhibition",
+        "sha256": "b4e974d0d0a9a9a8117912d328b6288c8937028234bd0204d37430b1557d16b3",
+        "object_index": 83
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Inhibition",
+      "name": "log(inhibitor) vs. normalized response -- Variable slope",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Inhibition",
+        "sha256": "b4e974d0d0a9a9a8117912d328b6288c8937028234bd0204d37430b1557d16b3",
+        "object_index": 108
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [
+        "normalized_log_dose_inhibition"
+      ],
+      "implementation_status": "partial_independent_model",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Optimizer/constraints/uncertainty/full option parity",
+        "Broader saved or live reference cases"
+      ]
+    },
+    {
+      "family": "Dose-response - Inhibition",
+      "name": "[Inhibitor] vs. response (three parameters) ",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Inhibition",
+        "sha256": "b4e974d0d0a9a9a8117912d328b6288c8937028234bd0204d37430b1557d16b3",
+        "object_index": 133
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Inhibition",
+      "name": "[Inhibitor] vs. response -- Variable slope (four parameters) ",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Inhibition",
+        "sha256": "b4e974d0d0a9a9a8117912d328b6288c8937028234bd0204d37430b1557d16b3",
+        "object_index": 159
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Inhibition",
+      "name": "[Inhibitor] vs. normalized response",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Inhibition",
+        "sha256": "b4e974d0d0a9a9a8117912d328b6288c8937028234bd0204d37430b1557d16b3",
+        "object_index": 184
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Inhibition",
+      "name": "[Inhibitor] vs. normalized response -- Variable slope ",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Inhibition",
+        "sha256": "b4e974d0d0a9a9a8117912d328b6288c8937028234bd0204d37430b1557d16b3",
+        "object_index": 209
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [
+        "normalized_dose_inhibition"
+      ],
+      "implementation_status": "partial_independent_model",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Optimizer/constraints/uncertainty/full option parity",
+        "Broader saved or live reference cases"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is concentration",
+      "name": "Asymmetric (five parameter), X is concentration",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is concentration",
+        "sha256": "429a9dab4e2276a382bf9400db1e0ec4bc32d19c46f7cefb320f78bbf29c2f75",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is concentration",
+      "name": "Biphasic, X is concentration",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is concentration",
+        "sha256": "429a9dab4e2276a382bf9400db1e0ec4bc32d19c46f7cefb320f78bbf29c2f75",
+        "object_index": 56
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is concentration",
+      "name": "Bell-shaped, X is concentration",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is concentration",
+        "sha256": "429a9dab4e2276a382bf9400db1e0ec4bc32d19c46f7cefb320f78bbf29c2f75",
+        "object_index": 88
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is concentration",
+      "name": "Operational model -- Receptor depletion, X is concentration",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is concentration",
+        "sha256": "429a9dab4e2276a382bf9400db1e0ec4bc32d19c46f7cefb320f78bbf29c2f75",
+        "object_index": 117
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is concentration",
+      "name": "Operational model -- Partial agonist, X is concentration",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is concentration",
+        "sha256": "429a9dab4e2276a382bf9400db1e0ec4bc32d19c46f7cefb320f78bbf29c2f75",
+        "object_index": 151
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is concentration",
+      "name": "Gaddum/Schild EC50 shift, X is concentration",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is concentration",
+        "sha256": "429a9dab4e2276a382bf9400db1e0ec4bc32d19c46f7cefb320f78bbf29c2f75",
+        "object_index": 177
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is concentration",
+      "name": "Gaddum/Schild EC50 shift (SchildSlope=1), X is concentration",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is concentration",
+        "sha256": "429a9dab4e2276a382bf9400db1e0ec4bc32d19c46f7cefb320f78bbf29c2f75",
+        "object_index": 209
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is concentration",
+      "name": "Allosteric EC50 shift, X is concentration",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is concentration",
+        "sha256": "429a9dab4e2276a382bf9400db1e0ec4bc32d19c46f7cefb320f78bbf29c2f75",
+        "object_index": 235
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is concentration",
+      "name": "[Agonist] vs. response -- Find ECanything",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is concentration",
+        "sha256": "429a9dab4e2276a382bf9400db1e0ec4bc32d19c46f7cefb320f78bbf29c2f75",
+        "object_index": 266
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is concentration",
+      "name": "EC50 shift, X is concentration",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is concentration",
+        "sha256": "429a9dab4e2276a382bf9400db1e0ec4bc32d19c46f7cefb320f78bbf29c2f75",
+        "object_index": 296
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is concentration",
+      "name": "Absolute IC50, X is concentration",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is concentration",
+        "sha256": "429a9dab4e2276a382bf9400db1e0ec4bc32d19c46f7cefb320f78bbf29c2f75",
+        "object_index": 325
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is log(concentration)",
+      "name": "Asymmetric (five parameter), X is log(concentration)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)",
+        "sha256": "515e9a4b96171866fa4089f4cb4180f15514f76bd66347d9e480b71c2964861d",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is log(concentration)",
+      "name": "Biphasic, X is log(concentration)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)",
+        "sha256": "515e9a4b96171866fa4089f4cb4180f15514f76bd66347d9e480b71c2964861d",
+        "object_index": 57
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is log(concentration)",
+      "name": "Bell-shaped, X is log(concentration)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)",
+        "sha256": "515e9a4b96171866fa4089f4cb4180f15514f76bd66347d9e480b71c2964861d",
+        "object_index": 89
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is log(concentration)",
+      "name": "Operational model -- Receptor depletion, X is log(concentration)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)",
+        "sha256": "515e9a4b96171866fa4089f4cb4180f15514f76bd66347d9e480b71c2964861d",
+        "object_index": 118
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is log(concentration)",
+      "name": "Operational model -- Partial agonist, X is log(concentration)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)",
+        "sha256": "515e9a4b96171866fa4089f4cb4180f15514f76bd66347d9e480b71c2964861d",
+        "object_index": 152
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is log(concentration)",
+      "name": "Gaddum/Schild EC50 shift, X is log(concentration)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)",
+        "sha256": "515e9a4b96171866fa4089f4cb4180f15514f76bd66347d9e480b71c2964861d",
+        "object_index": 180
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is log(concentration)",
+      "name": "Gaddum/Schild EC50 shift (SchildSlope=1), X is log(concentration)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)",
+        "sha256": "515e9a4b96171866fa4089f4cb4180f15514f76bd66347d9e480b71c2964861d",
+        "object_index": 212
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is log(concentration)",
+      "name": "Allosteric EC50 shift, X is log(concentration)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)",
+        "sha256": "515e9a4b96171866fa4089f4cb4180f15514f76bd66347d9e480b71c2964861d",
+        "object_index": 240
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is log(concentration)",
+      "name": "log(agonist) vs. response -- Find ECanything",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)",
+        "sha256": "515e9a4b96171866fa4089f4cb4180f15514f76bd66347d9e480b71c2964861d",
+        "object_index": 269
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is log(concentration)",
+      "name": "EC50 shift, X is log(concentration)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)",
+        "sha256": "515e9a4b96171866fa4089f4cb4180f15514f76bd66347d9e480b71c2964861d",
+        "object_index": 302
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Special, X is log(concentration)",
+      "name": "Absolute IC50, X is log(concentration)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Special, X is log(concentration)",
+        "sha256": "515e9a4b96171866fa4089f4cb4180f15514f76bd66347d9e480b71c2964861d",
+        "object_index": 330
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Stimulation",
+      "name": "log(agonist) vs. response (three parameters)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Stimulation",
+        "sha256": "3ced987d8c87e3e1d1e75d10f1ccd44a30a68b645ef0ccd8d7dbbf88884e912e",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Stimulation",
+      "name": "log(agonist) vs. response -- Variable slope (four parameters)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Stimulation",
+        "sha256": "3ced987d8c87e3e1d1e75d10f1ccd44a30a68b645ef0ccd8d7dbbf88884e912e",
+        "object_index": 57
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [
+        "log_dose_stimulation"
+      ],
+      "implementation_status": "partial_independent_model",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Optimizer/constraints/uncertainty/full option parity",
+        "Broader saved or live reference cases"
+      ]
+    },
+    {
+      "family": "Dose-response - Stimulation",
+      "name": "log(agonist) vs. normalized response",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Stimulation",
+        "sha256": "3ced987d8c87e3e1d1e75d10f1ccd44a30a68b645ef0ccd8d7dbbf88884e912e",
+        "object_index": 83
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Stimulation",
+      "name": "log(agonist) vs. normalized response -- Variable slope",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Stimulation",
+        "sha256": "3ced987d8c87e3e1d1e75d10f1ccd44a30a68b645ef0ccd8d7dbbf88884e912e",
+        "object_index": 108
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Stimulation",
+      "name": "[Agonist] vs. response (three parameters)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Stimulation",
+        "sha256": "3ced987d8c87e3e1d1e75d10f1ccd44a30a68b645ef0ccd8d7dbbf88884e912e",
+        "object_index": 133
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Stimulation",
+      "name": "[Agonist] vs. response -- Variable slope (four parameters) ",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Stimulation",
+        "sha256": "3ced987d8c87e3e1d1e75d10f1ccd44a30a68b645ef0ccd8d7dbbf88884e912e",
+        "object_index": 159
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Stimulation",
+      "name": "[Agonist] vs. normalized response",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Stimulation",
+        "sha256": "3ced987d8c87e3e1d1e75d10f1ccd44a30a68b645ef0ccd8d7dbbf88884e912e",
+        "object_index": 185
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Dose-response - Stimulation",
+      "name": "[Agonist] vs. normalized response -- Variable slope",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Dose-response - Stimulation",
+        "sha256": "3ced987d8c87e3e1d1e75d10f1ccd44a30a68b645ef0ccd8d7dbbf88884e912e",
+        "object_index": 210
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Enzyme kinetics - Inhibition",
+      "name": "Competitive inhibition",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Enzyme kinetics - Inhibition",
+        "sha256": "6eb941b83b243035c46f2913a120f3c3b84b07798ba3a724e7d46b6d89b9a681",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Enzyme kinetics - Inhibition",
+      "name": "Noncompetitive inhibition",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Enzyme kinetics - Inhibition",
+        "sha256": "6eb941b83b243035c46f2913a120f3c3b84b07798ba3a724e7d46b6d89b9a681",
+        "object_index": 50
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Enzyme kinetics - Inhibition",
+      "name": "Uncompetitive inhibition",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Enzyme kinetics - Inhibition",
+        "sha256": "6eb941b83b243035c46f2913a120f3c3b84b07798ba3a724e7d46b6d89b9a681",
+        "object_index": 76
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Enzyme kinetics - Inhibition",
+      "name": "Mixed model inhibition",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Enzyme kinetics - Inhibition",
+        "sha256": "6eb941b83b243035c46f2913a120f3c3b84b07798ba3a724e7d46b6d89b9a681",
+        "object_index": 95
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Enzyme kinetics - Inhibition",
+      "name": "Substrate inhibition",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Enzyme kinetics - Inhibition",
+        "sha256": "6eb941b83b243035c46f2913a120f3c3b84b07798ba3a724e7d46b6d89b9a681",
+        "object_index": 120
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Enzyme kinetics - Inhibition",
+      "name": "Morrison Ki",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Enzyme kinetics - Inhibition",
+        "sha256": "6eb941b83b243035c46f2913a120f3c3b84b07798ba3a724e7d46b6d89b9a681",
+        "object_index": 144
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Enzyme kinetics - Velocity as a function of substrate",
+      "name": "Michaelis-Menten",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Enzyme kinetics - Velocity as a function of substrate",
+        "sha256": "fa84d19aedbe18642b04ca290ddcb6fab6abcd3879ebaf61ef11edeb391dd1d6",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [
+        "michaelis_menten"
+      ],
+      "implementation_status": "partial_independent_model",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Optimizer/constraints/uncertainty/full option parity",
+        "Broader saved or live reference cases"
+      ]
+    },
+    {
+      "family": "Enzyme kinetics - Velocity as a function of substrate",
+      "name": "kcat ",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Enzyme kinetics - Velocity as a function of substrate",
+        "sha256": "fa84d19aedbe18642b04ca290ddcb6fab6abcd3879ebaf61ef11edeb391dd1d6",
+        "object_index": 38
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Enzyme kinetics - Velocity as a function of substrate",
+      "name": "Allosteric sigmoidal ",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Enzyme kinetics - Velocity as a function of substrate",
+        "sha256": "fa84d19aedbe18642b04ca290ddcb6fab6abcd3879ebaf61ef11edeb391dd1d6",
+        "object_index": 70
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Exponential",
+      "name": "One phase decay",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Exponential",
+        "sha256": "086aec6497c311b736375096a68d730b5ec46efc32fe3f7cf391e75f30f704f1",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [
+        "one_phase_decay"
+      ],
+      "implementation_status": "partial_independent_model",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Optimizer/constraints/uncertainty/full option parity",
+        "Broader saved or live reference cases"
+      ]
+    },
+    {
+      "family": "Exponential",
+      "name": "Plateau followed by one phase decay",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Exponential",
+        "sha256": "086aec6497c311b736375096a68d730b5ec46efc32fe3f7cf391e75f30f704f1",
+        "object_index": 58
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Exponential",
+      "name": "Two phase decay",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Exponential",
+        "sha256": "086aec6497c311b736375096a68d730b5ec46efc32fe3f7cf391e75f30f704f1",
+        "object_index": 84
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [
+        "two_phase_decay"
+      ],
+      "implementation_status": "partial_independent_model",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Optimizer/constraints/uncertainty/full option parity",
+        "Broader saved or live reference cases"
+      ]
+    },
+    {
+      "family": "Exponential",
+      "name": "Three phase decay",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Exponential",
+        "sha256": "086aec6497c311b736375096a68d730b5ec46efc32fe3f7cf391e75f30f704f1",
+        "object_index": 124
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Exponential",
+      "name": "One-phase association",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Exponential",
+        "sha256": "086aec6497c311b736375096a68d730b5ec46efc32fe3f7cf391e75f30f704f1",
+        "object_index": 155
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [
+        "one_phase_association"
+      ],
+      "implementation_status": "partial_independent_model",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Optimizer/constraints/uncertainty/full option parity",
+        "Broader saved or live reference cases"
+      ]
+    },
+    {
+      "family": "Exponential",
+      "name": "Plateau followed by one phase association  ",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Exponential",
+        "sha256": "086aec6497c311b736375096a68d730b5ec46efc32fe3f7cf391e75f30f704f1",
+        "object_index": 180
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Exponential",
+      "name": "Two phase association",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Exponential",
+        "sha256": "086aec6497c311b736375096a68d730b5ec46efc32fe3f7cf391e75f30f704f1",
+        "object_index": 204
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Exponential",
+      "name": "Exponential growth equation",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Exponential",
+        "sha256": "086aec6497c311b736375096a68d730b5ec46efc32fe3f7cf391e75f30f704f1",
+        "object_index": 238
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Gaussian",
+      "name": "Gaussian",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Gaussian",
+        "sha256": "7ad0d2895ef9ac19caf47647149cd19ff38821b887545061d744da8cdaf9ae11",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [
+        "gaussian"
+      ],
+      "implementation_status": "partial_independent_model",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Optimizer/constraints/uncertainty/full option parity",
+        "Broader saved or live reference cases"
+      ]
+    },
+    {
+      "family": "Gaussian",
+      "name": "Sum of two Gaussians",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Gaussian",
+        "sha256": "7ad0d2895ef9ac19caf47647149cd19ff38821b887545061d744da8cdaf9ae11",
+        "object_index": 39
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Gaussian",
+      "name": "Lognormal",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Gaussian",
+        "sha256": "7ad0d2895ef9ac19caf47647149cd19ff38821b887545061d744da8cdaf9ae11",
+        "object_index": 61
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Gaussian",
+      "name": "Cumulative Gaussian -- Percents",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Gaussian",
+        "sha256": "7ad0d2895ef9ac19caf47647149cd19ff38821b887545061d744da8cdaf9ae11",
+        "object_index": 88
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Gaussian",
+      "name": "Cumulative Gaussian -- Fraction",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Gaussian",
+        "sha256": "7ad0d2895ef9ac19caf47647149cd19ff38821b887545061d744da8cdaf9ae11",
+        "object_index": 114
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Gaussian",
+      "name": "Cumulative Gaussian -- Counts",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Gaussian",
+        "sha256": "7ad0d2895ef9ac19caf47647149cd19ff38821b887545061d744da8cdaf9ae11",
+        "object_index": 138
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Gaussian",
+      "name": "Lorentzian (Cauchy)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Gaussian",
+        "sha256": "7ad0d2895ef9ac19caf47647149cd19ff38821b887545061d744da8cdaf9ae11",
+        "object_index": 163
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Gaussian",
+      "name": "Sum of two Lorentzians",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Gaussian",
+        "sha256": "7ad0d2895ef9ac19caf47647149cd19ff38821b887545061d744da8cdaf9ae11",
+        "object_index": 179
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Growth curves",
+      "name": "Exponential (Malthusian) growth",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Growth curves",
+        "sha256": "4ffa702cddb39069ad29a3bbd32b58b928dda9ac30848b1700dc8a8a0e6028b7",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Growth curves",
+      "name": "Exponential growth with log(population)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Growth curves",
+        "sha256": "4ffa702cddb39069ad29a3bbd32b58b928dda9ac30848b1700dc8a8a0e6028b7",
+        "object_index": 51
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Growth curves",
+      "name": "Exponential plateau",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Growth curves",
+        "sha256": "4ffa702cddb39069ad29a3bbd32b58b928dda9ac30848b1700dc8a8a0e6028b7",
+        "object_index": 77
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Growth curves",
+      "name": "Gompertz growth",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Growth curves",
+        "sha256": "4ffa702cddb39069ad29a3bbd32b58b928dda9ac30848b1700dc8a8a0e6028b7",
+        "object_index": 101
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Growth curves",
+      "name": "Logistic growth",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Growth curves",
+        "sha256": "4ffa702cddb39069ad29a3bbd32b58b928dda9ac30848b1700dc8a8a0e6028b7",
+        "object_index": 125
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Growth curves",
+      "name": "Beta growth then decay",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Growth curves",
+        "sha256": "4ffa702cddb39069ad29a3bbd32b58b928dda9ac30848b1700dc8a8a0e6028b7",
+        "object_index": 148
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Linear quadratic curves",
+      "name": "Linear quadratic cell death (Y is fraction of cells surviving)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Linear quadratic curves",
+        "sha256": "9036e9bd375ad84b90ff5d7e60bbc160d746db38eb176260ae98ead688208b2c",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Linear quadratic curves",
+      "name": "Linear quadratic survival (Y is percentage)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Linear quadratic curves",
+        "sha256": "9036e9bd375ad84b90ff5d7e60bbc160d746db38eb176260ae98ead688208b2c",
+        "object_index": 44
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Linear quadratic curves",
+      "name": "Linear quadratic survival (Y is # alive cells)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Linear quadratic curves",
+        "sha256": "9036e9bd375ad84b90ff5d7e60bbc160d746db38eb176260ae98ead688208b2c",
+        "object_index": 61
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Linear quadratic curves",
+      "name": "Linear quadratic cell death (Y is fraction of dead cells)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Linear quadratic curves",
+        "sha256": "9036e9bd375ad84b90ff5d7e60bbc160d746db38eb176260ae98ead688208b2c",
+        "object_index": 79
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Linear quadratic curves",
+      "name": "Linear quadratic survival (Y is percentage cells dead) ",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Linear quadratic curves",
+        "sha256": "9036e9bd375ad84b90ff5d7e60bbc160d746db38eb176260ae98ead688208b2c",
+        "object_index": 96
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Linear quadratic curves",
+      "name": "Linear quadratic survival (Y is # dead cells)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Linear quadratic curves",
+        "sha256": "9036e9bd375ad84b90ff5d7e60bbc160d746db38eb176260ae98ead688208b2c",
+        "object_index": 113
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Lines",
+      "name": "Straight line",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Lines",
+        "sha256": "f8e82b7d31c9c73283140b9ac9dcd513d2c47f2d5ce2045ee6dd199c2b50b50d",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [
+        "straight_line"
+      ],
+      "implementation_status": "partial_independent_model",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Optimizer/constraints/uncertainty/full option parity",
+        "Broader saved or live reference cases"
+      ]
+    },
+    {
+      "family": "Lines",
+      "name": "Line through point (X0, Y0)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Lines",
+        "sha256": "f8e82b7d31c9c73283140b9ac9dcd513d2c47f2d5ce2045ee6dd199c2b50b50d",
+        "object_index": 47
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Lines",
+      "name": "Line through origin",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Lines",
+        "sha256": "f8e82b7d31c9c73283140b9ac9dcd513d2c47f2d5ce2045ee6dd199c2b50b50d",
+        "object_index": 63
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Lines",
+      "name": "Horizontal line",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Lines",
+        "sha256": "f8e82b7d31c9c73283140b9ac9dcd513d2c47f2d5ce2045ee6dd199c2b50b50d",
+        "object_index": 78
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Lines",
+      "name": "Semilog line -- X is log, Y is linear",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Lines",
+        "sha256": "f8e82b7d31c9c73283140b9ac9dcd513d2c47f2d5ce2045ee6dd199c2b50b50d",
+        "object_index": 94
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Lines",
+      "name": "Semilog line -- X is linear,  Y is log",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Lines",
+        "sha256": "f8e82b7d31c9c73283140b9ac9dcd513d2c47f2d5ce2045ee6dd199c2b50b50d",
+        "object_index": 118
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Lines",
+      "name": "Log-log line -- X and Y both log",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Lines",
+        "sha256": "f8e82b7d31c9c73283140b9ac9dcd513d2c47f2d5ce2045ee6dd199c2b50b50d",
+        "object_index": 142
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Lines",
+      "name": "Segmental linear regression ",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Lines",
+        "sha256": "f8e82b7d31c9c73283140b9ac9dcd513d2c47f2d5ce2045ee6dd199c2b50b50d",
+        "object_index": 166
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Lines",
+      "name": "Continuous hinge function. Segmental regression lines with gentle connection",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Lines",
+        "sha256": "f8e82b7d31c9c73283140b9ac9dcd513d2c47f2d5ce2045ee6dd199c2b50b50d",
+        "object_index": 195
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Lines",
+      "name": "Cumulative Gaussian --  Percentages",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Lines",
+        "sha256": "f8e82b7d31c9c73283140b9ac9dcd513d2c47f2d5ce2045ee6dd199c2b50b50d",
+        "object_index": 215
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Lines",
+      "name": "Cumulative Gaussian -- Fractions",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Lines",
+        "sha256": "f8e82b7d31c9c73283140b9ac9dcd513d2c47f2d5ce2045ee6dd199c2b50b50d",
+        "object_index": 241
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Lines",
+      "name": "Two intersecting lines. Fit the crossing point. ",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Lines",
+        "sha256": "f8e82b7d31c9c73283140b9ac9dcd513d2c47f2d5ce2045ee6dd199c2b50b50d",
+        "object_index": 264
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Polynomial",
+      "name": "First order polynomial (straight line)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Polynomial",
+        "sha256": "16711432e6b1dff520ef5662c5e3f977895122b2aec2ca69d158a2178ec71311",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Polynomial",
+      "name": "Centered first order polynomial (straight line)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Polynomial",
+        "sha256": "16711432e6b1dff520ef5662c5e3f977895122b2aec2ca69d158a2178ec71311",
+        "object_index": 29
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Polynomial",
+      "name": "Second order polynomial (quadratic) ",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Polynomial",
+        "sha256": "16711432e6b1dff520ef5662c5e3f977895122b2aec2ca69d158a2178ec71311",
+        "object_index": 47
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Polynomial",
+      "name": "Centered second order polynomial (quadratic) ",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Polynomial",
+        "sha256": "16711432e6b1dff520ef5662c5e3f977895122b2aec2ca69d158a2178ec71311",
+        "object_index": 64
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Polynomial",
+      "name": "Third order polynomial  (cubic)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Polynomial",
+        "sha256": "16711432e6b1dff520ef5662c5e3f977895122b2aec2ca69d158a2178ec71311",
+        "object_index": 80
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Polynomial",
+      "name": "Centered third order polynomial  (cubic)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Polynomial",
+        "sha256": "16711432e6b1dff520ef5662c5e3f977895122b2aec2ca69d158a2178ec71311",
+        "object_index": 97
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Polynomial",
+      "name": "Fourth order polynomial",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Polynomial",
+        "sha256": "16711432e6b1dff520ef5662c5e3f977895122b2aec2ca69d158a2178ec71311",
+        "object_index": 113
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Polynomial",
+      "name": "Centered fourth order polynomial",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Polynomial",
+        "sha256": "16711432e6b1dff520ef5662c5e3f977895122b2aec2ca69d158a2178ec71311",
+        "object_index": 130
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Polynomial",
+      "name": "Fifth order polynomial",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Polynomial",
+        "sha256": "16711432e6b1dff520ef5662c5e3f977895122b2aec2ca69d158a2178ec71311",
+        "object_index": 146
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Polynomial",
+      "name": "Centered fifth order polynomial",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Polynomial",
+        "sha256": "16711432e6b1dff520ef5662c5e3f977895122b2aec2ca69d158a2178ec71311",
+        "object_index": 163
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Polynomial",
+      "name": "Sixth order polynomial",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Polynomial",
+        "sha256": "16711432e6b1dff520ef5662c5e3f977895122b2aec2ca69d158a2178ec71311",
+        "object_index": 179
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Polynomial",
+      "name": "Centered sixth order polynomial",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Polynomial",
+        "sha256": "16711432e6b1dff520ef5662c5e3f977895122b2aec2ca69d158a2178ec71311",
+        "object_index": 196
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Sine waves",
+      "name": "Standard sine wave",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Sine waves",
+        "sha256": "ccf473e92252dd06eb3244a180cc23198ac67d990443409be47f69089d3df243",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Sine waves",
+      "name": "Damped sine wave ",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Sine waves",
+        "sha256": "ccf473e92252dd06eb3244a180cc23198ac67d990443409be47f69089d3df243",
+        "object_index": 45
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Sine waves",
+      "name": "Sinc()",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Sine waves",
+        "sha256": "ccf473e92252dd06eb3244a180cc23198ac67d990443409be47f69089d3df243",
+        "object_index": 70
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Sine waves",
+      "name": "Sine wave with nonzero baseline",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Sine waves",
+        "sha256": "ccf473e92252dd06eb3244a180cc23198ac67d990443409be47f69089d3df243",
+        "object_index": 90
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Standard curves to interpolate",
+      "name": "Line",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Standard curves to interpolate",
+        "sha256": "a59e3ccd36dc33a5519ec1247df7a93e8b808921eeea46825a6b5c4655aae59d",
+        "object_index": 6
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Standard curves to interpolate",
+      "name": "Sigmoidal, 4PL, X is log(concentration)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Standard curves to interpolate",
+        "sha256": "a59e3ccd36dc33a5519ec1247df7a93e8b808921eeea46825a6b5c4655aae59d",
+        "object_index": 47
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Standard curves to interpolate",
+      "name": "Sigmoidal, 4PL, X is concentration",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Standard curves to interpolate",
+        "sha256": "a59e3ccd36dc33a5519ec1247df7a93e8b808921eeea46825a6b5c4655aae59d",
+        "object_index": 84
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Standard curves to interpolate",
+      "name": "Asymmetric Sigmoidal, 5PL, X is log(concentration)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Standard curves to interpolate",
+        "sha256": "a59e3ccd36dc33a5519ec1247df7a93e8b808921eeea46825a6b5c4655aae59d",
+        "object_index": 104
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Standard curves to interpolate",
+      "name": "Asymmetric Sigmoidal, 5PL, X is concentration",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Standard curves to interpolate",
+        "sha256": "a59e3ccd36dc33a5519ec1247df7a93e8b808921eeea46825a6b5c4655aae59d",
+        "object_index": 135
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Standard curves to interpolate",
+      "name": "Semilog line",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Standard curves to interpolate",
+        "sha256": "a59e3ccd36dc33a5519ec1247df7a93e8b808921eeea46825a6b5c4655aae59d",
+        "object_index": 155
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Standard curves to interpolate",
+      "name": "Hyperbola (X is concentration)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Standard curves to interpolate",
+        "sha256": "a59e3ccd36dc33a5519ec1247df7a93e8b808921eeea46825a6b5c4655aae59d",
+        "object_index": 179
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Standard curves to interpolate",
+      "name": "Second order polynomial (quadratic)",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Standard curves to interpolate",
+        "sha256": "a59e3ccd36dc33a5519ec1247df7a93e8b808921eeea46825a6b5c4655aae59d",
+        "object_index": 205
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Standard curves to interpolate",
+      "name": "Third order polynomial  (cubic) ",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Standard curves to interpolate",
+        "sha256": "a59e3ccd36dc33a5519ec1247df7a93e8b808921eeea46825a6b5c4655aae59d",
+        "object_index": 230
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    },
+    {
+      "family": "Standard curves to interpolate",
+      "name": "Pade (1,1) approximant",
+      "source": {
+        "relative_path": "SharedSupport/Equations/Cache/Standard curves to interpolate",
+        "sha256": "a59e3ccd36dc33a5519ec1247df7a93e8b808921eeea46825a6b5c4655aae59d",
+        "object_index": 253
+      },
+      "recovery": "definition_and_variables_observed",
+      "gp_model_ids": [],
+      "implementation_status": "unimplemented",
+      "functional_equivalence": "not_established",
+      "remaining": [
+        "Independent implementation",
+        "Defaults and optimizer semantics",
+        "Reference tests"
+      ]
+    }
+  ],
+  "known_bounded_inventory": {
+    "resource_files": 950,
+    "equation_records": 152,
+    "resource_nibs": 323,
+    "in_table_functions": 82,
+    "zip_projects": 14,
+    "saved_analyses": 16
+  },
+  "implementation_snapshot": [
+    {
+      "path": "gp/models.py",
+      "sha256": "a829b93d70a87a6082af02cad394449b7e1f3cbf75f6b114e7789be1fb5dc8be"
+    },
+    {
+      "path": "gp/statistics.py",
+      "sha256": "b5479fcaf0fdc8d552f96985b3974586be79806821257c5ed253f1669255366b"
+    },
+    {
+      "path": "gp/descriptive.py",
+      "sha256": "0f7f7cf7a56bd8a750313d0f6ba8c29b7000a7284598acac38b22679aa3c61cf"
+    },
+    {
+      "path": "gp/regression_models.py",
+      "sha256": "e66df955d817a7d860df9471570cc230bd8ecbf750bae321bf589966c3de12a3"
+    },
+    {
+      "path": "gp/import_prism.py",
+      "sha256": "9dd75c4562f36501ead42d20137e9a40ac065a227afa8314a66d06ceabcbdd99"
+    },
+    {
+      "path": "gp/import_prism_zip.py",
+      "sha256": "5cb78ff080eace2e927212a2ddcde4de4e16d454dedc00a02bf3968f3742ed1b"
+    },
+    {
+      "path": "web/src/App.tsx",
+      "sha256": "9d252232ea9590a2ad2b073ce62bf724faf4e6a0ca1c5a6f0b85e502578c03b4"
+    },
+    {
+      "path": "web/src/Plot.tsx",
+      "sha256": "1de1530b38ab96076034af4eee55c39cf9f09fcf1afa3a48da39e67475791272"
+    },
+    {
+      "path": "web/src/compute.worker.ts",
+      "sha256": "6c038a78232a84fa2b0f92506ceea1ca2aa0ca7bb9d7080aee192152c6428f0a"
+    },
+    {
+      "path": "gp/survival.py",
+      "sha256": "4bc8f383e93658cd5f05395458a0617d3b1e8d824793fb9d999b321dbfd5a602"
+    },
+    {
+      "path": "gp/factorial_anova.py",
+      "sha256": "4a31dde970f8d4f747240215a7476e6c61e309776a219ff7d4c70ce621c0ab52"
+    },
+    {
+      "path": "gp/advanced.py",
+      "sha256": "c2dd1e0784f4532655c4918e9af4bf41bd5f7d7613ad166cc5f98a0729698058"
+    },
+    {
+      "path": "web/src/AdvancedAnalyses.tsx",
+      "sha256": "b5c245abc0b9338bd28ec402d0871a9598bd1af0471d7d8559d34bae24744fb8"
+    },
+    {
+      "path": "web/src/workbook.ts",
+      "sha256": "aa194f37f6a4fb3cfc04aa9d513e3885667a86cf0b48fb6fe4a9d1c5aed25424"
+    },
+    {
+      "path": "web/src/workbook-storage.ts",
+      "sha256": "ebcdf8b67a27e0dbfbfcb85eb807dd37b56b78c9ceddfcabe8d3c7fd0434ad2f"
+    },
+    {
+      "path": "web/src/workbook-storage.test.ts",
+      "sha256": "f4527f170f8532ce31c1e22cbc3908f35cb2860e386cb6e9797ecf5c13621177"
+    },
+    {
+      "path": "web/src/workbook-history.ts",
+      "sha256": "535ceb3f73c666edbe1f357fcf88e36ff6bf932830dcf00f5d51a28da87f7ca5"
+    },
+    {
+      "path": "web/src/workbook-history.test.ts",
+      "sha256": "bf98c76b286343821a5cb0fc9ac26813df4347445cb49c26183ffb0ad22485bb"
+    },
+    {
+      "path": "web/src/WorkbookDialogs.tsx",
+      "sha256": "9c756feca05d932e84c908d96b420550cf32b918d71c4b8723ff0f0604f6be80"
+    }
+  ],
+  "refresh_notes": "Source changes after generated_at_utc require rechecking statuses. Passing a bounded saved case does not verify every native option or edge case."
+}

@@ -1,0 +1,74 @@
+{
+  "provenance": {
+    "prism_version": "11.1.0",
+    "archive_name": "MV- Paired t test.prismt",
+    "archive_sha256": "892ad7ba6c7f1be7b2b519b68172a935c4eae35add91184323c9b0312f28baee",
+    "results": {
+      "member": "analyses/0E1A6A85-3079-4278-9EB3-43DFC9EACCD9/results.json",
+      "bytes": 5077,
+      "sha256": "9e1e3c61f70fed84e1e6021c0853263a6ef355e68512d5a901158b6af9f1a8f1"
+    },
+    "data": {
+      "member": "data/tables/126B1419-67E9-49DF-A8D2-BB564EA99925/data.csv",
+      "bytes": 399,
+      "sha256": "b4fcc8ae3ba4f70919e601f75e5d250c2ca48e70d0bcbe0a0ce0d10bca669e6b"
+    },
+    "parameter_swapDirection": true,
+    "interpretation": "Saved Prism result, not newly executed reference. Complete cases pivoted by Patient_ID; swapDirection selects Drug_B minus Drug_A."
+  },
+  "columns": [
+    {
+      "name": "Drug_B",
+      "values": [
+        89.0,
+        131.0,
+        109.0,
+        120.0,
+        106.0,
+        104.0,
+        126.0,
+        120.0,
+        132.0,
+        118.0,
+        106.0,
+        110.0,
+        89.0,
+        108.0,
+        106.0
+      ]
+    },
+    {
+      "name": "Drug_A",
+      "values": [
+        132.0,
+        154.0,
+        103.0,
+        119.0,
+        115.0,
+        107.0,
+        129.0,
+        123.0,
+        134.0,
+        118.0,
+        127.0,
+        117.0,
+        93.0,
+        119.0,
+        126.0
+      ]
+    }
+  ],
+  "expected": {
+    "t": 2.918346124408894,
+    "df": 14.0,
+    "p": 0.011227414728918878,
+    "difference": -9.466666666666667,
+    "sd": 12.563363213650046,
+    "sem": 3.243846433254768,
+    "ci_low": -16.424025314361142,
+    "ci_high": -2.509308018972191,
+    "r_squared": 0.378240480210092,
+    "cohen_d": -0.753513729220307,
+    "hedges_g": -0.7124129803537448
+  }
+}

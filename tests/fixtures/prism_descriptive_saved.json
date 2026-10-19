@@ -1,0 +1,111 @@
+{
+  "evidence_type": "Numerical facts from bundled saved Prism results, not a fresh execution",
+  "source": {
+    "archive": {
+      "path": "/workspace/gp-inputs/prism11-image/GraphPad Prism 11/Prism 11.app/Contents/SharedSupport/Portfolio/Graphs to explore/Geometric mean.pzt",
+      "sha256": "ea28cc2fb2c2db0886a6338c97db2e1c5b77573a04757140d09bf4634556eb67"
+    },
+    "parameters": {
+      "member": "analyses/FCF1C323-1CB1-46FD-BD40-1A13DF5A60B3/parameters.json",
+      "bytes": 1022,
+      "sha256": "fd4ac0c0acc071b890be91206f92324374aa90c82dcaf95a80919cedab0f7931"
+    },
+    "results": {
+      "member": "analyses/FCF1C323-1CB1-46FD-BD40-1A13DF5A60B3/results.json",
+      "bytes": 2921,
+      "sha256": "b9a334e09328a3b02d3db3ddf8c6026876b8c9a8253f8c7f4d427aa3bcf11787"
+    },
+    "input_sheet": {
+      "member": "data/sheets/00F19FCC-AAE8-4A57-9E90-51C7EC3FDA8E/sheet.json",
+      "bytes": 1065,
+      "sha256": "92cb730d6f757d48776adec6d061df1b0299a48047a840d2ed23b4803abf585b"
+    },
+    "input_csv": {
+      "member": "data/tables/5FC5F5B6-4829-4522-8FDE-062CCE274C68/data.csv",
+      "bytes": 99,
+      "sha256": "242a2bdcb8f961710fb08d7e3134c2e9ea6d1674ed3ecaed5dedb2c98455b2a9"
+    },
+    "oracle_fixture_sha256": "d55fd98e8caf73d7bb8e324f51bf560c78d3a020748b95c6c1075ab353736a8a"
+  },
+  "confidence": 0.95,
+  "groups": {
+    "Control": {
+      "values": [
+        1.0,
+        2.0,
+        4.0,
+        9.0,
+        24.0,
+        35.0,
+        45.0,
+        56.0,
+        67.0,
+        89.0,
+        111.0,
+        222.0,
+        345.0,
+        666.0
+      ],
+      "expected": {
+        "sum": 1676.0,
+        "coeffOfVariation": 154.20322315584556,
+        "skewness": 2.382098741231295,
+        "kurtosis": 5.922926773138205,
+        "firstQuartile": 7.75,
+        "thirdQuartile": 138.75,
+        "percentiles.lower": 1.5,
+        "percentiles.upper": 505.5,
+        "range": 665.0,
+        "geometricMean": 35.54819883822085,
+        "geometricSD": 6.798249751736781,
+        "geometricMeanCI.lower": 11.75454478657362,
+        "geometricMeanCI.upper": 107.505178940242,
+        "qcLines.meanMinus1SD": -64.88900143514083,
+        "qcLines.meanPlus1SD": 304.31757286371226,
+        "qcLines.meanMinus2SD": -249.49228858456735,
+        "qcLines.meanPlus2SD": 488.9208600131388,
+        "qcLines.meanMinus3SD": -434.09557573399394,
+        "qcLines.meanPlus3SD": 673.5241471625653
+      }
+    },
+    "Treated": {
+      "values": [
+        3.0,
+        4.0,
+        7.0,
+        14.0,
+        21.0,
+        34.0,
+        45.0,
+        56.0,
+        78.0,
+        99.0,
+        234.0,
+        543.0,
+        567.0,
+        897.0
+      ],
+      "expected": {
+        "sum": 2602.0,
+        "coeffOfVariation": 150.34377482129494,
+        "skewness": 1.7394811971410908,
+        "kurtosis": 2.16903386254939,
+        "firstQuartile": 12.25,
+        "thirdQuartile": 311.25,
+        "percentiles.lower": 3.5,
+        "percentiles.upper": 732.0,
+        "range": 894.0,
+        "geometricMean": 51.99641022615932,
+        "geometricSD": 6.248995157046956,
+        "geometricMeanCI.lower": 18.050375409870014,
+        "geometricMeanCI.upper": 149.78229621355646,
+        "qcLines.meanMinus1SD": -93.56750148929248,
+        "qcLines.meanPlus1SD": 465.28178720357823,
+        "qcLines.meanMinus2SD": -372.9921458357278,
+        "qcLines.meanPlus2SD": 744.7064315500136,
+        "qcLines.meanMinus3SD": -652.4167901821631,
+        "qcLines.meanPlus3SD": 1024.131075896449
+      }
+    }
+  }
+}

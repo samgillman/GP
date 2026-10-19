@@ -1,0 +1,184 @@
+{
+  "evidence_type": "Numerical facts from bundled saved Prism fit; not a fresh execution",
+  "source": {
+    "archive": {
+      "path": "/workspace/gp-inputs/prism11-image/GraphPad Prism 11/Prism 11.app/Contents/SharedSupport/SampleData/MultipleVariables/MV- Simple Nonlinear Regression.prismt",
+      "sha256": "e6324c49de8ecaade197b9d04efd09a6e29c23327b364ad9bc9723700a93dc99"
+    },
+    "parameters": {
+      "member": "analyses/FBC16A8C-E1F2-4AB0-8DF6-2F1408D18F97/parameters.json",
+      "bytes": 5834,
+      "sha256": "748ad765cc1cc0362d73a118d85a13f3a3c354078e4695d447e7bf1dde8bf604"
+    },
+    "results": {
+      "member": "analyses/FBC16A8C-E1F2-4AB0-8DF6-2F1408D18F97/results.json",
+      "bytes": 12103,
+      "sha256": "5216116c166ef2fd8220737eb7c07318ab15204120f0fe96833e9a05d3dcc88b"
+    },
+    "input_csv": {
+      "member": "data/tables/96CC2B11-0869-489E-8304-3B2BAA8654B7/data.csv",
+      "bytes": 1159,
+      "sha256": "23dc062232a622c80519456d2f9982f496408c3a7e1f860980a10837e6e25c24"
+    }
+  },
+  "observed_settings": {
+    "equation_name": "[Inhibitor] vs. normalized response -- Variable slope ",
+    "replicates": "INDIVIDUAL",
+    "fittingMethod": "LS",
+    "weighting": "NO_WEIGHTING",
+    "IC50_constraint": "GREATER than 0",
+    "CI_method_not_reproduced": "PROFILE_LIKELIHOOD"
+  },
+  "groups": {
+    "Inhibitor A": {
+      "x": [
+        0.1,
+        0.1,
+        0.3,
+        0.3,
+        1.0,
+        1.0,
+        3.0,
+        3.0,
+        10.0,
+        10.0,
+        30.0,
+        30.0,
+        100.0,
+        100.0,
+        300.0,
+        300.0,
+        1000.0,
+        1000.0
+      ],
+      "y": [
+        105.85,
+        96.26,
+        104.58,
+        96.77,
+        85.02,
+        90.09,
+        68.55,
+        83.23,
+        57.47,
+        51.37,
+        29.66,
+        30.16,
+        12.07,
+        11.93,
+        9.58,
+        6.61,
+        5.08,
+        7.25
+      ],
+      "expected_parameters": {
+        "IC50": 11.760561613215039,
+        "HillSlope": -0.868406235205411,
+        "logIC50": 1.0704280615102248
+      },
+      "expected_sse": 340.69075071141424,
+      "expected_r_squared": 0.9867305963968012,
+      "expected_df": 16.0
+    },
+    "Inhibitor B": {
+      "x": [
+        0.1,
+        0.1,
+        0.3,
+        0.3,
+        1.0,
+        1.0,
+        3.0,
+        3.0,
+        10.0,
+        10.0,
+        30.0,
+        30.0,
+        100.0,
+        100.0,
+        300.0,
+        300.0,
+        1000.0,
+        1000.0
+      ],
+      "y": [
+        101.76,
+        103.11,
+        109.87,
+        99.49,
+        98.51,
+        102.32,
+        95.47,
+        88.32,
+        87.22,
+        80.56,
+        71.18,
+        65.61,
+        31.07,
+        35.97,
+        14.86,
+        18.46,
+        11.1,
+        8.89
+      ],
+      "expected_parameters": {
+        "IC50": 57.47450967054739,
+        "HillSlope": -0.9753972844867087,
+        "logIC50": 1.759475274882005
+      },
+      "expected_sse": 318.3437467811229,
+      "expected_r_squared": 0.9863581358773821,
+      "expected_df": 16.0
+    },
+    "Inhibitor C": {
+      "x": [
+        0.1,
+        0.1,
+        0.3,
+        0.3,
+        1.0,
+        1.0,
+        3.0,
+        3.0,
+        10.0,
+        10.0,
+        30.0,
+        30.0,
+        100.0,
+        100.0,
+        300.0,
+        300.0,
+        1000.0,
+        1000.0
+      ],
+      "y": [
+        101.95,
+        99.4,
+        106.33,
+        111.23,
+        98.04,
+        86.25,
+        97.71,
+        104.54,
+        98.05,
+        92.78,
+        91.86,
+        81.9,
+        75.35,
+        73.24,
+        50.5,
+        56.43,
+        31.54,
+        29.68
+      ],
+      "expected_parameters": {
+        "IC50": 360.04597957034787,
+        "HillSlope": -0.8097546923037751,
+        "logIC50": 2.556357965763346
+      },
+      "expected_sse": 483.1364570586258,
+      "expected_r_squared": 0.9548154629118659,
+      "expected_df": 16.0
+    }
+  }
+}
