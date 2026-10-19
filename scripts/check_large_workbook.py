@@ -65,11 +65,16 @@ with sync_playwright() as p:
     upload('A,B\n1,4\n2,6\n3,5','links.csv')
     page.wait_for_function('JSON.parse(localStorage.getItem("gp.workbook.v2")).sheets.some(s=>s.name==="links")')
     source_id=source()['id']
-    def analyze(choice=None):
+    def analyze(choice=None, test=None):
         page.get_by_role('button',name='Analyze Data…',exact=True).click()
         dialog=page.get_by_role('dialog',name='Analyze Data',exact=True)
         if choice: dialog.get_by_role('radio',name=choice,exact=True).check()
         dialog.get_by_role('button',name='Create analysis',exact=True).click()
+        if test:
+            # t tests open Prism-style parameters before anything is calculated.
+            parameters=page.get_by_role('dialog',name=f'Parameters: {choice}',exact=True)
+            parameters.get_by_role('radio',name=test,exact=True).check()
+            parameters.get_by_role('button',name='OK',exact=True).click()
     analyze()
     page.wait_for_function('(id)=>{const b=JSON.parse(localStorage.getItem("gp.workbook.v2"));return b.sheets.some(s=>s.kind==="results"&&s.status==="current"&&s.dataId===id&&s.id===b.activeSheetId)}',arg=source_id, timeout=120000)
     first_result=source()
@@ -114,13 +119,13 @@ with sync_playwright() as p:
     assert len(source()['project']['columns'])==2
     assert page.evaluate('window.hostile') is None
     grid_top=page.locator('.data-grid-viewport').bounding_box()['y']
-    analyze('Unpaired t test (Welch)')
+    analyze('t tests (and nonparametric tests)',"Unpaired t test with Welch's correction. Do not assume equal SDs.")
     expect(page.locator('.workbook-notifications .error')).to_be_visible(timeout=120000)
     error=page.locator('.workbook-notifications .error').inner_text()
     assert 'gp.statistics' not in error and 'errors.pydantic' not in error,error
     assert page.locator('.data-grid-viewport').bounding_box()['y']==grid_top
     page.get_by_label('<img src=x onerror=window.hostile=true>, row 1',exact=True).fill('1e200')
-    analyze('Unpaired t test (Welch)')
+    analyze('t tests (and nonparametric tests)',"Unpaired t test with Welch's correction. Do not assume equal SDs.")
     expect(page.locator('.workbook-notifications .error')).to_contain_text('1e100')
     assert 'errors.pydantic' not in page.locator('.workbook-notifications .error').inner_text()
     print('Plaintext names and stable constant/overflow error notifications confirmed',flush=True)

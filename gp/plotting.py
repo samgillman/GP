@@ -14,6 +14,33 @@ PLOT_LOCK = threading.Lock()
 PALETTE = ["#315efb", "#dd7e44", "#309c88", "#a56ad1", "#cd5868", "#75913a"]
 
 
+def bracket_levels(annotations, tops, step):
+    """Mirror web/src/plot-geometry.ts: shorter spans sit lowest and overlapping
+    brackets stack one step higher. Returns (lo, hi, y, label), 0-based."""
+    placed = []
+    spans = sorted(((min(a.a, a.b), max(a.a, a.b), a.label) for a in annotations
+                    if a.a != a.b and a.a in tops and a.b in tops), key=lambda p: (p[1]-p[0], p[0]))
+    for lo, hi, label in spans:
+        y = max(tops[i] for i in range(lo, hi+1) if i in tops) + step*.6
+        for other in placed:
+            if other[0] <= hi and other[1] >= lo:
+                y = max(y, other[2] + step)
+        placed.append((lo, hi, y, label))
+    return placed
+
+
+def draw_brackets(axis, annotations, tops, bottom):
+    span = max(tops.values()) - bottom
+    step = (span or abs(max(tops.values()))*.2 or 1)*.09
+    placed = bracket_levels(annotations, tops, step)
+    for lo, hi, y, label in placed:
+        axis.plot([lo, lo, hi, hi], [y-step*.25, y, y, y-step*.25], color="black", linewidth=1.2, solid_capstyle="butt", zorder=5)
+        axis.text((lo+hi)/2, y + step*.08, label, ha="center", va="bottom", fontsize=10, zorder=5)
+    if placed:
+        low, high = axis.get_ylim()
+        axis.set_ylim(low, max(high, max(p[2] for p in placed) + step))
+
+
 def export_plot(request):
     data, graph = request.data, request.graph
     if sum(len(c.values) for c in data.columns) > 20000:
@@ -62,6 +89,7 @@ def export_plot(request):
             axis.set_xlabel(graph.x_label or data.columns[0].name)
             axis.legend(frameon=False)
         else:
+            tops, lows = {}, [0.0] if graph.type == "bar" else []
             for i, column in enumerate(data.columns):
                 y = values(column)
                 if not len(y):
@@ -69,6 +97,8 @@ def export_plot(request):
                 color = palette[i % len(palette)]
                 summary = descriptive(column.name, y, data.confidence)
                 error = summary[graph.error] if graph.error in {"sd", "sem"} else (summary["ci_high"]-summary["mean"] if graph.error == "ci" and summary["ci_high"] is not None else None)
+                tops[i] = max(float(np.max(y)), summary["mean"] + (error or 0))
+                lows.append(min(float(np.min(y)), summary["mean"] - (error or 0)))
                 if graph.type == "bar":
                     axis.bar(i, summary["mean"], color=color, edgecolor="black", linewidth=1.5, width=.6)
                 elif graph.type == "box":
@@ -81,6 +111,8 @@ def export_plot(request):
             if graph.type == "line":
                 means = [s["mean"] if s["mean"] is not None else np.nan for s in outcome["summary"]]
                 axis.plot(range(len(means)), means, color=palette[0], linewidth=1.5)
+            if tops and graph.annotations:
+                draw_brackets(axis, graph.annotations, tops, min(lows + list(tops.values())))
             axis.set_xticks(range(len(data.columns)), [c.name for c in data.columns], rotation=20 if len(data.columns)>4 else 0)
             axis.set_xlabel(graph.x_label)
         axis.set_ylabel(graph.y_label or "Value")

@@ -2,7 +2,11 @@
 
 Prepared 2026-10-19, America/Chicago. This is a continuation checkpoint, **not completion of Prism parity**.
 
-## Latest update: reversible value exclusions (read this first)
+## Latest update: Column t tests, one-way ANOVA and pairwise brackets (read this first)
+
+The newest unit makes Analyze → t tests / One-way ANOVA → parameters dialog → tabbed results → graph significance brackets work end to end, with the website warming up its Python engine at startup. Read [column comparisons](column-comparisons.md) and the newest section of [completion-progress.md](completion-progress.md) for the evidence boundary (no new REA analysis; only the saved paired-t case is a Prism comparison), three known differences from guide exact-P statements, and open work. `scripts/check_column_analysis.py` is in CI for both builds; the large-workbook check selects Welch through the parameters dialog. Saved results of `t_test`/`one_way_anova` carry an `options` object; graphs may carry `graph.pairwise`.
+
+## Earlier update: reversible value exclusions
 
 A later session worked in a **fresh cloud container**, not `/workspace`: checkout `/home/user/GP` on branch `claude/vibrant-keller-dzmvpg`, Node 22.22 (repository pins 24.18), Python 3.13. `/workspace/rea`, `/workspace/gp-inputs`, `/workspace/gp-evidence` and `/workspace/.gp-tools` did **not** exist. The REA skill was read from a fresh public clone (`morluto/rea` 6.7.0, `b4938ae`). Without the Prism artifacts no new REA analysis was possible; committed Evidence IDs were reused. The network policy denied `cdn.jsdelivr.net`, so the static Pyodide runtime could not be assembled and static-browser checks were not run there.
 

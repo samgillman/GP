@@ -1,9 +1,12 @@
+import type { ComparisonOptions } from "./column-analysis.ts";
 export type TableType = "column" | "xy";
 export type Analysis =
   | "descriptive"
   | "welch_t"
   | "paired_t"
   | "anova"
+  | "t_test"
+  | "one_way_anova"
   | "linear_regression"
   | "dose_response"
   | "nonlinear_regression";
@@ -18,6 +21,8 @@ export type Graph = {
   y_label: string;
   colors: string[];
   show_points: boolean;
+  // Brackets from the graph's linked t test or one-way ANOVA.
+  pairwise?: { style: "asterisks" | "p"; show_ns: boolean };
 };
 export type Project = {
   version: 1;
@@ -133,11 +138,12 @@ export function numeric(value: string): number | null {
     throw new Error(`“${value}” is outside the supported range: −1e100 to 1e100.`);
   return n;
 }
-export function requestData(project: Project) {
+export function requestData(project: Project, options?: ComparisonOptions) {
   return {
     table_type: project.table_type,
     analysis: project.analysis,
     confidence: 0.95,
+    ...(options ? { options } : {}),
     regression_model: project.regression_model ?? "one_phase_decay",
     columns: project.columns.map((c) => ({
       name: c.name,
@@ -331,6 +337,8 @@ export function parseProject(text: string): Project {
       "welch_t",
       "paired_t",
       "anova",
+      "t_test",
+      "one_way_anova",
       "linear_regression",
       "dose_response",
       "nonlinear_regression",
@@ -364,7 +372,13 @@ export function parseProject(text: string): Project {
     !Array.isArray(g.colors) ||
     !g.colors.every(
       (v: unknown) => typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v),
-    )
+    ) ||
+    (g.pairwise !== undefined &&
+      (!g.pairwise ||
+        typeof g.pairwise !== "object" ||
+        !["asterisks", "p"].includes(g.pairwise.style) ||
+        typeof g.pairwise.show_ns !== "boolean" ||
+        Object.keys(g.pairwise).length !== 2))
   )
     throw new Error("Invalid project graph settings.");
   return p as Project;
@@ -424,10 +438,21 @@ export type Summary = {
   qc_mean_plus_3sd?: number | null;
   undefined_reasons?: Record<string, string>;
 };
+/** A Prism-style results page. Two-column tables are label/value rows where a
+ * one-cell row is a section heading and an empty row is a spacer. */
+export type ResultTable = {
+  title: string;
+  columns: string[];
+  rows: (string | number | null)[][];
+};
+/** Indices refer to the analyzed data sets in request order. */
+export type PairwiseComparison = { a: number; b: number; p: number; summary: string };
 export type Response = {
   analysis: string;
   summary: Summary[];
   results: { label: string; value: number | string | null }[];
+  tables?: ResultTable[];
+  comparisons?: PairwiseComparison[];
   warnings: string[];
   fit: {
     series: string;

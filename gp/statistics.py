@@ -39,6 +39,8 @@ def require(condition, message):
 
 
 def analyze(request: AnalysisRequest):
+    if request.analysis in {"t_test", "one_way_anova"}:
+        return analyze_column_comparison(request)
     columns = request.columns
     data = [values(c) for c in columns]
     summary_columns, summary_data = columns, data
@@ -240,3 +242,20 @@ def analyze(request: AnalysisRequest):
                 row["label"] + ": " + row["value"] for row in results if row["label"].endswith(": Fit status")
             ))
     return output
+
+
+def analyze_column_comparison(request: AnalysisRequest):
+    """t tests and one-way ANOVA: tabbed tables plus pairwise comparisons for graphs."""
+    from .column_tests import ColumnTestError, analyze_columns
+    data = [values(c) for c in request.columns]
+    require(any(len(d) for d in data), "Enter at least one numeric observation in the series being analyzed.")
+    try:
+        report = analyze_columns(request, request.analysis)
+    except ColumnTestError as exc:
+        raise AnalysisError(str(exc)) from exc
+    notices = list(report.notices)
+    if any(v is None for c in request.columns for v in c.values) or len({len(c.values) for c in request.columns}) > 1:
+        notices.insert(0, "Missing values are excluded; matched and paired analyses use only rows complete in every analyzed column.")
+    notices.append(f"Confidence intervals use {request.confidence:.0%} confidence; significance uses alpha = {request.options.alpha:g}.")
+    return dict(analysis=request.analysis, summary=[descriptive(c.name, d, request.confidence) for c, d in zip(request.columns, data)],
+                results=report.results, warnings=notices, fit=[], tables=report.tables, comparisons=report.comparisons)

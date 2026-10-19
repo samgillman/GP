@@ -88,6 +88,10 @@
         {
           "path": "tests/test_prism_reference.py",
           "sha256": "709e11a8921ab0d0f54a8f9611c1cd572fc374b08f9e7875e351729ed7ebafed"
+        },
+        {
+          "path": "gp/column_tests.py",
+          "sha256": "b979714bdc7355223797e1d651d0dfe19cd9d4ca5ddef5649e89c0ff4c23ef1c"
         }
       ],
       "remaining_obligations": [
@@ -102,7 +106,7 @@
       "scope": "Unpaired t tests",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
-      "verification_status": "independent_math_tests",
+      "verification_status": "independent_math_tests_and_browser_workflow",
       "evidence": [
         {
           "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
@@ -111,15 +115,23 @@
       ],
       "implementation_sources": [
         {
+          "path": "gp/column_tests.py",
+          "sha256": "b979714bdc7355223797e1d651d0dfe19cd9d4ca5ddef5649e89c0ff4c23ef1c"
+        },
+        {
+          "path": "gp/models.py",
+          "sha256": "d8e851695e6f1efe022520e7de8013d4985634e2fcc3ada2a9c75f940b63cdaa"
+        },
+        {
           "path": "gp/statistics.py",
-          "sha256": "3e84842cf26985341976e8cd45413e11d4ca725fd46c2144f16a1f679705533e"
+          "sha256": "bac0bbe874724ec35bbfe28eef27e680f436ff535cdbc0be849e167cd1b78180"
         }
       ],
       "remaining_obligations": [
-        "Equal-variance Student test choice",
         "Lognormal choices",
-        "Full tail/CI/effect-size settings",
-        "Saved Prism numerical oracles for these choices"
+        "Effect sizes, AICc and residual diagnostics",
+        "Guide exact-P rule for Mann–Whitney with ties (≤100 in smaller group)",
+        "Saved Prism numerical oracles for Student, Welch, Mann–Whitney and one-tailed choices"
       ],
       "priority": "high"
     },
@@ -169,7 +181,7 @@
       "scope": "Ordinary one-way ANOVA",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
-      "verification_status": "independent_math_tests",
+      "verification_status": "independent_math_tests_and_browser_workflow",
       "evidence": [
         {
           "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
@@ -178,14 +190,23 @@
       ],
       "implementation_sources": [
         {
+          "path": "gp/column_tests.py",
+          "sha256": "b979714bdc7355223797e1d651d0dfe19cd9d4ca5ddef5649e89c0ff4c23ef1c"
+        },
+        {
+          "path": "gp/models.py",
+          "sha256": "d8e851695e6f1efe022520e7de8013d4985634e2fcc3ada2a9c75f940b63cdaa"
+        },
+        {
           "path": "gp/statistics.py",
-          "sha256": "3e84842cf26985341976e8cd45413e11d4ca725fd46c2144f16a1f679705533e"
+          "sha256": "bac0bbe874724ec35bbfe28eef27e680f436ff535cdbc0be849e167cd1b78180"
         }
       ],
       "remaining_obligations": [
-        "Unequal-variance and nonparametric models",
-        "All diagnostics/effect sizes",
-        "Multiplicity and plotting workflows"
+        "Lognormal model",
+        "Effect sizes beyond R squared, residual normality and plots",
+        "Exact small-sample Kruskal–Wallis P",
+        "Saved Prism one-way reference cases"
       ],
       "priority": "high"
     },
@@ -265,31 +286,43 @@
     {
       "id": "repeated_and_mixed",
       "scope": "Repeated-measures ANOVA and mixed-effects models",
-      "implementation_status": "unimplemented",
+      "implementation_status": "partial",
       "functional_equivalence": "not_established",
-      "verification_status": "not_established",
+      "verification_status": "independent_math_tests",
       "evidence": [
         {
           "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
           "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
         }
       ],
-      "implementation_sources": [],
+      "implementation_sources": [
+        {
+          "path": "gp/column_tests.py",
+          "sha256": "b979714bdc7355223797e1d651d0dfe19cd9d4ca5ddef5649e89c0ff4c23ef1c"
+        },
+        {
+          "path": "gp/models.py",
+          "sha256": "d8e851695e6f1efe022520e7de8013d4985634e2fcc3ada2a9c75f940b63cdaa"
+        },
+        {
+          "path": "gp/statistics.py",
+          "sha256": "bac0bbe874724ec35bbfe28eef27e680f436ff535cdbc0be849e167cd1b78180"
+        }
+      ],
       "remaining_obligations": [
-        "Subject/block alignment",
-        "Sphericity/Geisser–Greenhouse",
-        "Missing values and variance-component estimation",
+        "Missing values and variance-component (mixed-effects) estimation",
         "Convergence/boundary handling",
-        "Reference results beyond ordinary ANOVA"
+        "Exact small-table Friedman P",
+        "Reference results beyond the paired/F = t² identity"
       ],
       "priority": "high"
     },
     {
       "id": "multiple_comparisons",
       "scope": "Multiplicity-adjusted comparisons and FDR",
-      "implementation_status": "unimplemented",
+      "implementation_status": "partial",
       "functional_equivalence": "not_established",
-      "verification_status": "not_established",
+      "verification_status": "independent_math_tests",
       "evidence": [
         {
           "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
@@ -300,12 +333,25 @@
           "sha256": "a7fbc69fab9265217e51b3ae0b4227e35fef743e28afb6ad4c7c40db3ef0b17f"
         }
       ],
-      "implementation_sources": [],
+      "implementation_sources": [
+        {
+          "path": "gp/column_tests.py",
+          "sha256": "b979714bdc7355223797e1d651d0dfe19cd9d4ca5ddef5649e89c0ff4c23ef1c"
+        },
+        {
+          "path": "gp/models.py",
+          "sha256": "d8e851695e6f1efe022520e7de8013d4985634e2fcc3ada2a9c75f940b63cdaa"
+        },
+        {
+          "path": "gp/statistics.py",
+          "sha256": "bac0bbe874724ec35bbfe28eef27e680f436ff535cdbc0be849e167cd1b78180"
+        }
+      ],
       "remaining_obligations": [
-        "Tukey/Dunnett/Šídák/Holm–Šídák/Bonferroni/FDR variants",
-        "Family definition and selected comparisons",
-        "Adjusted P values and intervals",
-        "Tie/order behavior"
+        "Holm–Šídák, Newman–Keuls, Dunnett T3, Tamhane T2 and FDR variants",
+        "Selected-pair families and swap direction",
+        "Two-way and multifactor families",
+        "Saved Prism multiple-comparison families"
       ],
       "priority": "high"
     },

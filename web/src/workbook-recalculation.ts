@@ -38,6 +38,7 @@ export function recalculationTask(
     source?.kind === "data" ? source.revision : null,
     sheet.analysis,
     sheet.regression_model,
+    sheet.options ?? null,
     sheet.columnIndices,
     sheet.datasetIds,
     source?.kind === "data" ? source.rowIds : null,
@@ -77,11 +78,14 @@ export function recalculationTask(
       };
     return {
       ...task,
-      input: requestData({
-        ...selected,
-        analysis: sheet.analysis,
-        regression_model: sheet.regression_model,
-      }),
+      input: requestData(
+        {
+          ...selected,
+          analysis: sheet.analysis,
+          regression_model: sheet.regression_model,
+        },
+        sheet.options,
+      ),
     };
   } catch (error) {
     return {

@@ -688,13 +688,21 @@
       ],
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
-        "docs/prism-coverage.json:prism_ui_ux"
+        "docs/prism-coverage.json:prism_ui_ux",
+        "web/src/App.tsx run(): t tests and one-way ANOVA analyze only the data sets ticked in Analyze Data; results keep their dataset identities",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "docs/prism-coverage.json:prism_ui_ux"
       ],
       "audit_status": "partial_ui_or_missing_choices",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export); the t test on two of three columns reports df 8"
+      ],
+      "limitations": [
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A013",
@@ -2061,11 +2069,13 @@
       "acceptance": [
         "Compare signed mean difference, SE, fractional df, two-sided P and CI against independent references, unbalanced variances, n=2 and one/both zero variances."
       ],
-      "unknowns": "Current core is two-sided only, first-minus-second; guide equal-SD recipe is not a Welch oracle.",
+      "unknowns": "One-/two-tailed and both difference directions are selectable. Prism's Welch output wording and edge cases are not compared.",
       "implementation_evidence": [
         "gp/statistics.py",
         "tests/test_statistics.py",
-        "tests/test_prism_reference.py"
+        "tests/test_prism_reference.py",
+        "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "gp/statistics.py",
@@ -2073,7 +2083,16 @@
         "tests/test_prism_reference.py"
       ],
       "audit_status": "partial_backend",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_welch_one_tailed_and_reversed_difference",
+        "tests/test_column_tests.py::test_welch_and_brown_forsythe_anova_reduce_to_welch_t_for_two_groups",
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+      ],
+      "limitations": [
+        "n=2 and one-zero-variance outputs are not compared with Prism; both-zero variance is refused with an explanation.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A064",
@@ -2098,7 +2117,9 @@
       "implementation_evidence": [
         "gp/statistics.py",
         "tests/test_statistics.py",
-        "tests/test_prism_reference.py"
+        "tests/test_prism_reference.py",
+        "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "gp/statistics.py",
@@ -2106,7 +2127,15 @@
         "tests/test_prism_reference.py"
       ],
       "audit_status": "partial_backend",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_paired_t_matches_saved_prism_11_1_with_swapped_direction",
+        "tests/test_column_tests.py::test_repeated_measures_reduces_to_paired_t_and_epsilon_matches_contrast_formula"
+      ],
+      "limitations": [
+        "Effect sizes and asymmetric-missing-row comparisons with Prism remain open.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A065",
@@ -2117,7 +2146,7 @@
         "3.11.1",
         "3.12"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_TABLE",
         "D_PARAMS",
@@ -2127,15 +2156,25 @@
       "acceptance": [
         "Guide Male n5/Female n6: means44.20/55, B−A10.80, SE9.010, t1.199,df9,P.2613,CI[-9.583,31.18],eta².1377; compare full precision from source dataset and unequal-size tests."
       ],
-      "unknowns": "Current backend has no Student choice; guide screenshot values are rounded, not full-precision tolerances.",
+      "unknowns": "Student unpaired t is the default unpaired Gaussian choice. The guide example's raw data and full-precision Prism output remain unavailable.",
       "implementation_evidence": [
-        "resources-pass2/feature-map.json:TTests.nib"
+        "resources-pass2/feature-map.json:TTests.nib",
+        "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:TTests.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_unpaired_t_matches_scipy_and_reports_prism_rows",
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+      ],
+      "limitations": [
+        "The guide's Male/Female example data were not available, so its rounded values were not reproduced.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A066",
@@ -2233,7 +2272,7 @@
         "3.11.1",
         "3.12"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_TABLE",
         "D_PARAMS",
@@ -2245,13 +2284,22 @@
       ],
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
-        "resources-pass2/feature-map.json:TTests.nib"
+        "resources-pass2/feature-map.json:TTests.nib",
+        "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:TTests.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_mann_whitney_exact_and_tied_approximate_match_scipy"
+      ],
+      "limitations": [
+        "GP uses exact P only without ties and with at most 50 values per group; the guide states exact P even with ties up to 100 values in the smaller group (audit P0199). No CI of the location difference (A073).",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A070",
@@ -2291,7 +2339,7 @@
         "3.11.1",
         "3.12"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_TABLE",
         "D_PARAMS",
@@ -2303,13 +2351,22 @@
       ],
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
-        "resources-pass2/feature-map.json:TTests.nib"
+        "resources-pass2/feature-map.json:TTests.nib",
+        "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:TTests.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_wilcoxon_excludes_zero_differences_and_matches_scipy"
+      ],
+      "limitations": [
+        "Exact P only without ties for up to 50 nonzero pairs; Prism's exact rule is not compared.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A072",
@@ -2320,7 +2377,7 @@
         "3.11.1",
         "3.12"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_TABLE",
         "D_PARAMS",
@@ -2332,13 +2389,22 @@
       ],
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
-        "resources-pass2/feature-map.json:TTests.nib"
+        "resources-pass2/feature-map.json:TTests.nib",
+        "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:TTests.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_wilcoxon_excludes_zero_differences_and_matches_scipy"
+      ],
+      "limitations": [
+        "Only discarding zero differences is implemented; the Pratt choice is not offered.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A073",
@@ -2378,7 +2444,7 @@
         "3.11.1",
         "3.12"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_TABLE",
         "D_PARAMS",
@@ -2390,13 +2456,22 @@
       ],
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
-        "resources-pass2/feature-map.json:TTests.nib"
+        "resources-pass2/feature-map.json:TTests.nib",
+        "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:TTests.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_welch_one_tailed_and_reversed_difference"
+      ],
+      "limitations": [
+        "One-tailed P is reported as half the two-tailed P without a predeclared direction field, a GP decision.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A075",
@@ -2407,7 +2482,7 @@
         "3.11.1",
         "3.12"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_TABLE",
         "D_PARAMS",
@@ -2419,13 +2494,23 @@
       ],
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
-        "resources-pass2/feature-map.json:TTests.nib"
+        "resources-pass2/feature-map.json:TTests.nib",
+        "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:TTests.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_welch_one_tailed_and_reversed_difference",
+        "tests/test_column_tests.py::test_paired_t_matches_saved_prism_11_1_with_swapped_direction"
+      ],
+      "limitations": [
+        "Graph annotations show P values or asterisks only, so direction does not affect them.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A076",
@@ -2436,7 +2521,7 @@
         "3.11.1",
         "3.12"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_TABLE",
         "D_PARAMS",
@@ -2448,13 +2533,22 @@
       ],
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
-        "resources-pass2/feature-map.json:TTests.nib"
+        "resources-pass2/feature-map.json:TTests.nib",
+        "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:TTests.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_unpaired_t_matches_scipy_and_reports_prism_rows"
+      ],
+      "limitations": [
+        "Larger-to-smaller variance ratio with a two-tailed P capped at 1; the guide example values were not reproduced.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A077",
@@ -3088,14 +3182,24 @@
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
         "gp/statistics.py",
-        "tests/test_statistics.py"
+        "tests/test_statistics.py",
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "gp/statistics.py",
         "tests/test_statistics.py"
       ],
       "audit_status": "partial_backend",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_ordinary_anova_variance_tests_and_tukey_match_scipy",
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+      ],
+      "limitations": [
+        "Effect sizes beyond R squared, residual diagnostics and saved Prism one-way cases remain open.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A100",
@@ -3107,7 +3211,7 @@
         "3.9",
         "3.11.2"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_DESIGN",
         "D_TABLE",
@@ -3120,13 +3224,23 @@
       ],
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
-        "resources-pass2/feature-map.json:OneWayANOVA.nib"
+        "resources-pass2/feature-map.json:OneWayANOVA.nib",
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_welch_anova_matches_scipy_for_three_groups",
+        "tests/test_column_tests.py::test_welch_and_brown_forsythe_anova_reduce_to_welch_t_for_two_groups"
+      ],
+      "limitations": [
+        "Games-Howell is the only follow-up; Dunnett T3 and Tamhane T2 are not offered.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A101",
@@ -3138,7 +3252,7 @@
         "3.9",
         "3.11.2"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_DESIGN",
         "D_TABLE",
@@ -3151,13 +3265,22 @@
       ],
       "unknowns": "Native corrected/original variants and simultaneous reporting unresolved.",
       "implementation_evidence": [
-        "resources-pass2/feature-map.json:OneWayANOVA.nib"
+        "resources-pass2/feature-map.json:OneWayANOVA.nib",
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_welch_and_brown_forsythe_anova_reduce_to_welch_t_for_two_groups"
+      ],
+      "limitations": [
+        "Brown-Forsythe F* is checked by its two-group identity only; no saved Prism case.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A102",
@@ -3200,7 +3323,7 @@
         "3.9",
         "3.11.2"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_DESIGN",
         "D_TABLE",
@@ -3213,13 +3336,23 @@
       ],
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
-        "resources-pass2/feature-map.json:OneWayANOVA.nib"
+        "resources-pass2/feature-map.json:OneWayANOVA.nib",
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_kruskal_wallis_and_dunn_match_scipy_and_two_group_identity"
+      ],
+      "limitations": [
+        "P is always the chi-square approximation; the guide describes exact small-sample P.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A104",
@@ -3231,7 +3364,7 @@
         "3.9",
         "3.11.2"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_DESIGN",
         "D_TABLE",
@@ -3244,13 +3377,23 @@
       ],
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
-        "resources-pass2/feature-map.json:OneWayANOVA.nib"
+        "resources-pass2/feature-map.json:OneWayANOVA.nib",
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_friedman_matches_scipy_with_ties"
+      ],
+      "limitations": [
+        "Rows with any missing value are dropped (complete blocks); P is always the chi-square approximation; the guide describes exact P for small tables (audit P0257).",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A105",
@@ -3262,7 +3405,7 @@
         "3.9",
         "3.11.2"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_DESIGN",
         "D_TABLE",
@@ -3275,13 +3418,22 @@
       ],
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
-        "resources-pass2/feature-map.json:OneWayANOVA.nib"
+        "resources-pass2/feature-map.json:OneWayANOVA.nib",
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_repeated_measures_reduces_to_paired_t_and_epsilon_matches_contrast_formula"
+      ],
+      "limitations": [
+        "Complete rows only; no mixed-effects model for missing values (A108).",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A106",
@@ -3293,7 +3445,7 @@
         "3.9",
         "3.11.2"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_DESIGN",
         "D_TABLE",
@@ -3306,13 +3458,21 @@
       ],
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
-        "resources-pass2/feature-map.json:OneWayANOVA.nib"
+        "resources-pass2/feature-map.json:OneWayANOVA.nib",
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_repeated_measures_reduces_to_paired_t_and_epsilon_matches_contrast_formula"
+      ],
+      "limitations": [
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A107",
@@ -3324,7 +3484,7 @@
         "3.9",
         "3.11.2"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_DESIGN",
         "D_TABLE",
@@ -3337,13 +3497,22 @@
       ],
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
-        "resources-pass2/feature-map.json:OneWayANOVA.nib"
+        "resources-pass2/feature-map.json:OneWayANOVA.nib",
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_repeated_measures_reduces_to_paired_t_and_epsilon_matches_contrast_formula"
+      ],
+      "limitations": [
+        "Epsilon uses the double-centred covariance (Greenhouse-Geisser); its lower bound and Prism's displayed values are not compared.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A108",
@@ -3479,7 +3648,7 @@
         "3.9",
         "3.11.2"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_DESIGN",
         "D_TABLE",
@@ -3492,13 +3661,23 @@
       ],
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
-        "resources-pass2/feature-map.json:OneWayANOVA.nib"
+        "resources-pass2/feature-map.json:OneWayANOVA.nib",
+        "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_ordinary_anova_variance_tests_and_tukey_match_scipy",
+        "tests/test_column_tests.py::test_graphpad_p_style_extremes_and_bartlett_minimum_size"
+      ],
+      "limitations": [
+        "Only the Brown-Forsythe and Bartlett SD tests and R squared are reported; residual normality, QQ/residual plots and AICc are absent.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A113",
@@ -4042,7 +4221,7 @@
         "3.11.2",
         "3.11.3"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_MULTIPLICITY",
         "D_DESIGN",
@@ -4055,14 +4234,25 @@
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
-        "resources-pass2/feature-map.json:MultipleTTests.nib"
+        "resources-pass2/feature-map.json:MultipleTTests.nib",
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_ordinary_anova_variance_tests_and_tukey_match_scipy",
+        "tests/test_column_tests.py::test_fast_studentized_range_matches_scipy",
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+      ],
+      "limitations": [
+        "Repeated-measures Tukey uses each pair's differences, a GP decision; no saved Prism family compared.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A130",
@@ -4073,7 +4263,7 @@
         "3.11.2",
         "3.11.3"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_MULTIPLICITY",
         "D_DESIGN",
@@ -4086,14 +4276,24 @@
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
-        "resources-pass2/feature-map.json:MultipleTTests.nib"
+        "resources-pass2/feature-map.json:MultipleTTests.nib",
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_pooled_bonferroni_sidak_fisher_and_dunnett",
+        "tests/test_column_tests.py::test_dunnett_with_one_comparison_equals_the_pooled_t_test"
+      ],
+      "limitations": [
+        "Ordinary designs only; no saved Prism family compared.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A131",
@@ -4104,7 +4304,7 @@
         "3.11.2",
         "3.11.3"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_MULTIPLICITY",
         "D_DESIGN",
@@ -4117,14 +4317,23 @@
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
-        "resources-pass2/feature-map.json:MultipleTTests.nib"
+        "resources-pass2/feature-map.json:MultipleTTests.nib",
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_pooled_bonferroni_sidak_fisher_and_dunnett"
+      ],
+      "limitations": [
+        "No saved Prism family compared.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A132",
@@ -4166,7 +4375,7 @@
         "3.11.2",
         "3.11.3"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_MULTIPLICITY",
         "D_DESIGN",
@@ -4179,14 +4388,23 @@
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
-        "resources-pass2/feature-map.json:MultipleTTests.nib"
+        "resources-pass2/feature-map.json:MultipleTTests.nib",
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_pooled_bonferroni_sidak_fisher_and_dunnett"
+      ],
+      "limitations": [
+        "No saved Prism family compared.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A134",
@@ -4197,7 +4415,7 @@
         "3.11.2",
         "3.11.3"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_MULTIPLICITY",
         "D_DESIGN",
@@ -4210,14 +4428,23 @@
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
-        "resources-pass2/feature-map.json:MultipleTTests.nib"
+        "resources-pass2/feature-map.json:MultipleTTests.nib",
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_pooled_bonferroni_sidak_fisher_and_dunnett"
+      ],
+      "limitations": [
+        "Labelled 'no correction for multiple comparisons'; not gated on the omnibus test.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A135",
@@ -4259,7 +4486,7 @@
         "3.11.2",
         "3.11.3"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_MULTIPLICITY",
         "D_DESIGN",
@@ -4272,14 +4499,23 @@
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
-        "resources-pass2/feature-map.json:MultipleTTests.nib"
+        "resources-pass2/feature-map.json:MultipleTTests.nib",
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_welch_anova_matches_scipy_for_three_groups"
+      ],
+      "limitations": [
+        "Games-Howell P values are not compared with an independent reference beyond the Welch ANOVA path; no saved Prism family.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A137",
@@ -4352,7 +4588,7 @@
         "3.11.2",
         "3.11.3"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_MULTIPLICITY",
         "D_DESIGN",
@@ -4365,14 +4601,23 @@
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
-        "resources-pass2/feature-map.json:MultipleTTests.nib"
+        "resources-pass2/feature-map.json:MultipleTTests.nib",
+        "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_kruskal_wallis_and_dunn_match_scipy_and_two_group_identity"
+      ],
+      "limitations": [
+        "Bonferroni-adjusted Dunn's test after Kruskal-Wallis and rank-sum Dunn's after Friedman; selected-pair families are not offered.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A140",
@@ -4898,7 +5143,7 @@
         "3.11.2",
         "3.11.3"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_MULTIPLICITY",
         "D_RENDER",
@@ -4909,10 +5154,23 @@
         "Add/format/choose/remove/show-all/hide-all link to analysis contrast IDs and recompute stars from raw P; graphical positions do not redefine statistical families."
       ],
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "web/src/WorkbookDialogs.tsx PairwiseDialog; web/src/App.tsx pairwiseAnnotations (Change menu and Pairwise toolbar); web/src/plot-geometry.ts bracketLevels; web/src/Plot.tsx; gp/plotting.py draw_brackets; gp/models.py GraphAnnotation",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+      ],
       "evidence": [],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_column_tests.py::test_bracket_levels_match_screen_layout",
+        "tests/test_column_tests.py::test_export_draws_pairwise_brackets_and_validates_them",
+        "web/src/plot-geometry.test.ts: pairwise brackets stack like the export",
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+      ],
+      "limitations": [
+        "One analysis at a time with show/hide non-significant; no per-comparison selection, formatting controls or compact letter display.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A160",
@@ -10585,7 +10843,7 @@
         "Prism11 differences §2",
         "Prism11 differences §3"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_TABLE",
         "D_DESIGN",
@@ -10599,13 +10857,22 @@
       ],
       "unknowns": "User source §1 author-reported seen; parent UI worker owns layout, analysis owns stable result-page IDs and persistence semantics.",
       "implementation_evidence": [
-        "/workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md"
+        "/workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md",
+        "web/src/App.tsx result-tabs tablist and web/src/ResultPages.tsx: one tab per results page plus Descriptive statistics",
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
       ],
       "evidence": [
         "/workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+      ],
+      "limitations": [
+        "Tabs have no close controls and are not keyboard-arrow navigable, so Prism 11's closable tabs are not reproduced.",
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+      ]
     },
     {
       "id": "A352",

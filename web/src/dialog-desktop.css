@@ -635,3 +635,6 @@
   border: 1px solid #222;
   background: #dfe6f2;
 }
+.desktop-parameters {
+  width: min(560px, calc(100vw - 32px));
+}

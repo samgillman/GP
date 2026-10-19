@@ -76,7 +76,49 @@ export function logarithmicTicks(min: number, max: number) {
   }
   return ticks;
 }
-export function buildPlotGeometry(project: Project, result: Response | null) {
+/** A significance bracket between two column-graph series (0-based positions). */
+export type PlotAnnotation = { a: number; b: number; label: string };
+export type PlotBracket = { x1: number; x2: number; y: number; label: string };
+
+/** Shorter spans sit lowest; overlapping brackets stack one step higher. */
+export function bracketLevels(
+  annotations: PlotAnnotation[],
+  tops: number[],
+  step: number,
+): PlotBracket[] {
+  const placed: { lo: number; hi: number; y: number; label: string }[] = [];
+  const ordered = annotations
+    .filter(
+      (a) => a.a !== a.b && tops[a.a] !== undefined && tops[a.b] !== undefined,
+    )
+    .map((a) => ({
+      lo: Math.min(a.a, a.b),
+      hi: Math.max(a.a, a.b),
+      label: a.label,
+    }))
+    .sort((p, q) => p.hi - p.lo - (q.hi - q.lo) || p.lo - q.lo);
+  for (const item of ordered) {
+    let y =
+      Math.max(...tops.slice(item.lo, item.hi + 1).filter(Number.isFinite)) +
+      step * 0.6;
+    for (const other of placed)
+      if (other.lo <= item.hi && other.hi >= item.lo)
+        y = Math.max(y, other.y + step);
+    placed.push({ ...item, y });
+  }
+  return placed.map(({ lo, hi, y, label }) => ({
+    x1: lo + 1,
+    x2: hi + 1,
+    y,
+    label,
+  }));
+}
+
+export function buildPlotGeometry(
+  project: Project,
+  result: Response | null,
+  annotations: PlotAnnotation[] = [],
+) {
   const { graph, columns } = project;
   const xy = project.table_type === "xy";
   const logX = xy && result?.analysis === "dose_response";
@@ -178,6 +220,16 @@ export function buildPlotGeometry(project: Project, result: Response | null) {
     minY = Math.min(0, minY);
     maxY = Math.max(0, maxY);
   }
+  let brackets: PlotBracket[] = [];
+  if (!xy && annotations.length) {
+    const step = (maxY - minY || Math.abs(maxY) * 0.2 || 1) * 0.09;
+    const tops = series.map((s) =>
+      Math.max(s.max ?? -Infinity, s.hi ?? -Infinity, s.mean ?? -Infinity),
+    );
+    brackets = bracketLevels(annotations, tops, step);
+    for (const bracket of brackets)
+      maxY = Math.max(maxY, bracket.y + step * 0.5);
+  }
   const range = maxY - minY || Math.abs(maxY) * 0.2 || 1;
   // Preserve the zero baseline for wholly positive/negative bars.
   if (!bar || maxY !== 0) maxY += range * 0.15;
@@ -239,6 +291,7 @@ export function buildPlotGeometry(project: Project, result: Response | null) {
     maxY,
     xTicks,
     yTicks: yAxis.ticks,
+    brackets,
     x,
     y,
   };

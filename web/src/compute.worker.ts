@@ -33,6 +33,9 @@ from gp.factorial_anova import FactorialAnovaRequest, analyze_factorial
 
 def gp_dispatch(path, payload):
     data = json.loads(payload)
+    if path == '/api/warmup':
+        import gp.column_tests
+        return json.dumps({'status': 'ready'})
     if path == '/api/analyze':
         with np.errstate(over='raise', divide='raise', invalid='raise'):
             return json.dumps(analyze(AnalysisRequest.model_validate(data)), allow_nan=False)

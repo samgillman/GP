@@ -371,3 +371,42 @@ test("updates reject identity collisions and XY X replacement requires review", 
   assert.equal(book.sheets[2].kind === "results" && book.sheets[2].selectionInvalid, true);
   assert.deepEqual(parseWorkbook(JSON.stringify(book)), book);
 });
+
+test("t test parameters persist with results, are validated, and drive recalculation", async () => {
+  const { defaultComparisonOptions } = await import("./column-analysis.ts");
+  const { recalculationTask } = await import("./workbook-recalculation.ts");
+  let book = fromProject(sample("column"));
+  const dataId = book.activeSheetId;
+  const options = { ...defaultComparisonOptions, equal_sd: false };
+  book = recordResult(book, {
+    name: "Welch's t test of data",
+    dataId,
+    analysis: "t_test",
+    options,
+    columnIndices: [0, 1],
+    sourceRevision: 0,
+    result: { ...response, analysis: "t_test", summary: ["A", "B"].map((name) => ({ name, n: 8, mean: null, sd: null, sem: null, median: null, min: null, max: null, ci_low: null, ci_high: null })), comparisons: [{ a: 0, b: 1, p: 0.01, summary: "*" }], tables: [{ title: "T", columns: ["T", ""], rows: [["P value", "0.0100"], [], ["Section"]] }] },
+  });
+  const resultId = book.activeSheetId;
+  assert.deepEqual(parseWorkbook(JSON.stringify(book)), book);
+  const saved = JSON.parse(JSON.stringify(book));
+  delete saved.sheets.find((s: { id: string }) => s.id === resultId).options;
+  assert.throws(() => parseWorkbook(JSON.stringify(saved)), /parameters/);
+  const descriptiveWithOptions = JSON.parse(JSON.stringify(book));
+  const sheet = descriptiveWithOptions.sheets.find((s: { id: string }) => s.id === resultId);
+  sheet.analysis = "descriptive";
+  sheet.result.analysis = "descriptive";
+  assert.throws(() => parseWorkbook(JSON.stringify(descriptiveWithOptions)), /parameters/);
+  const badComparison = JSON.parse(JSON.stringify(book));
+  badComparison.sheets.find((s: { id: string }) => s.id === resultId).result.comparisons[0].b = 9;
+  assert.throws(() => parseWorkbook(JSON.stringify(badComparison)));
+  const project = structuredClone(sourceSheet(book, book.sheets[0]).project);
+  project.columns[0].values[0] = "41";
+  book = updateData(book, dataId, project);
+  const result = book.sheets.find((s) => s.id === resultId);
+  if (result?.kind !== "results") throw new Error("result expected");
+  const task = recalculationTask(book, result)!;
+  assert.deepEqual(task.input?.options, options);
+  const changed = { ...result, options: { ...options, tails: 1 as const } };
+  assert.notEqual(recalculationTask(book, changed)!.key, task.key);
+});
