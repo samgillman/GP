@@ -90,7 +90,7 @@ def import_prism(content):
             if not y_columns:
                 raise AnalysisError("no Y columns were found")
             imported, used_names = [], set()
-            excluded = 0
+            excluded_cells, unreadable = [], 0
             for column_index, column in enumerate(raw_columns):
                 subcolumns = children(column, "Subcolumn")
                 if len(subcolumns) != 1 or column.get("Subcolumns", "1") != "1":
@@ -108,9 +108,20 @@ def import_prism(content):
                         raise AnalysisError("invalid Excluded boolean attribute")
                     marked = exclusion in {"1", "true"}
                     if text.endswith("*") and table.get("EVFormat") == "AsteriskAfterNumber":
-                        marked = True
+                        marked, text = True, text[:-1].rstrip()
                     if marked:
-                        numeric.append(None); excluded += 1
+                        # Keep the original value with its exclusion; an excluded cell
+                        # without a finite number can only be represented as missing.
+                        try:
+                            value = float(text)
+                        except ValueError:
+                            value = math.nan
+                        if math.isfinite(value):
+                            excluded_cells.append([column_index, len(numeric)])
+                            numeric.append(value)
+                        else:
+                            numeric.append(None)
+                            unreadable += bool(text)
                     elif not text:
                         numeric.append(None)
                     else:
@@ -123,9 +134,12 @@ def import_prism(content):
                         numeric.append(value)
                 imported.append(dict(name=name, values=numeric))
             validated = AnalysisRequest(table_type="xy" if kind == "XY" else "column", columns=imported)
-            tables.append(dict(id=table.get("ID", f"Table{index}"), title=table_title, table_type=validated.table_type, columns=[c.model_dump() for c in validated.columns]))
-            if excluded:
-                notices.append(f"{table_title}: {excluded} excluded observations imported as missing cells; row positions preserved.")
+            tables.append(dict(id=table.get("ID", f"Table{index}"), title=table_title, table_type=validated.table_type,
+                               columns=[c.model_dump() for c in validated.columns], excluded=excluded_cells))
+            if excluded_cells:
+                notices.append(f"{table_title}: {len(excluded_cells)} excluded values imported with their original numbers and kept excluded.")
+            if unreadable:
+                notices.append(f"{table_title}: {unreadable} excluded cells had no finite number and were imported as missing.")
         except (AnalysisError, ValidationError) as exc:
             reason = str(exc) if isinstance(exc, AnalysisError) else "table exceeds supported limits (32 columns, 10,000 rows per column, 100,000 cells) or has invalid names/data"
             notices.append(f"Skipped {table_title}: {reason}.")

@@ -237,17 +237,34 @@ function csvDelimiter(text: string): "," | ";" {
   if (header.semicolon && data?.semicolon && !data.comma) return ";";
   return ",";
 }
-export function importCsv(text: string, delimiter?: "," | ";"): Column[] {
+function readCsv(
+  text: string,
+  delimiter: "," | ";" | undefined,
+  excludedMarks: boolean,
+) {
   const rows = parseDelimited(text, delimiter ?? csvDelimiter(text));
   if (rows.length < 2)
     throw new Error("CSV needs a header row and at least one data row.");
   const headers = rows[0];
   if (headers.length > 30 || rows.length > 10001)
     throw new Error("Use up to 30 columns and 10,000 rows.");
+  const excluded: { column: number; row: number }[] = [];
   for (let i = 1; i < rows.length; i++) {
     if (rows[i].length > headers.length)
       throw new Error(`Row ${i + 1} has more fields than the header.`);
     rows[i].forEach((value, c) => {
+      const marked = excludedMarks ? /^\s*(\S+?)\s*\*\s*$/.exec(value) : null;
+      if (marked) {
+        try {
+          if (numeric(marked[1]) !== null) {
+            rows[i][c] = marked[1];
+            excluded.push({ column: c, row: i - 1 });
+            return;
+          }
+        } catch {
+          // Not a number followed by an asterisk: report the original text below.
+        }
+      }
       try {
         numeric(value);
       } catch (error) {
@@ -255,19 +272,44 @@ export function importCsv(text: string, delimiter?: "," | ";"): Column[] {
       }
     });
   }
-  return headers.map((h, c) => ({
-    name: h.trim() ? h : `Series ${c + 1}`,
-    values: rows.slice(1).map((row) => row[c] ?? ""),
-  }));
+  return {
+    columns: headers.map((h, c) => ({
+      name: h.trim() ? h : `Series ${c + 1}`,
+      values: rows.slice(1).map((row) => row[c] ?? ""),
+    })),
+    excluded,
+  };
 }
-export function exportCsv(columns: Column[]): string {
+export function importCsv(text: string, delimiter?: "," | ";"): Column[] {
+  return readCsv(text, delimiter, false).columns;
+}
+/** Like importCsv, but a number followed by an asterisk (GP's asterisk export
+ * and Prism's documented excluded-value notation) imports as an excluded value.
+ */
+export function importCsvWithExclusions(text: string, delimiter?: "," | ";") {
+  return readCsv(text, delimiter, true);
+}
+/** How excluded values are written: as plain numbers, followed by an asterisk,
+ * or as blanks. These are the three choices the Prism guide documents.
+ */
+export type ExcludedExport = "value" | "asterisk" | "blank";
+export function exportCsv(
+  columns: Column[],
+  excluded?: ReadonlyMap<number, ReadonlySet<number>>,
+  mode: ExcludedExport = "value",
+): string {
   const quote = (v: string) =>
     !v || /[";,\n\r]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v;
+  const cell = (column: number, row: number) => {
+    const value = columns[column].values[row] ?? "";
+    if (!value || !excluded?.get(column)?.has(row)) return value;
+    return mode === "blank" ? "" : mode === "asterisk" ? `${value}*` : value;
+  };
   return [
     columns.map((c) => quote(c.name)).join(","),
     ...Array.from(
       { length: Math.max(0, ...columns.map((c) => c.values.length)) },
-      (_, i) => columns.map((c) => quote(c.values[i] ?? "")).join(","),
+      (_, i) => columns.map((_, c) => quote(cell(c, i))).join(","),
     ),
   ].join("\r\n");
 }

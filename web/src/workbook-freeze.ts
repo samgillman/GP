@@ -1,4 +1,9 @@
-import { datasetSelection, responseValid, sourceSheet } from "./workbook.ts";
+import {
+  datasetSelection,
+  responseValid,
+  sameSourceData,
+  sourceSheet,
+} from "./workbook.ts";
 import type {
   DataSheet,
   FrozenResultSnapshot,
@@ -54,13 +59,7 @@ function checkedResult(source: DataSheet, result: ResultSheet) {
     );
   if (
     result.frozen &&
-    (!result.frozenSource ||
-      result.frozenSource.revision !== source.revision ||
-      result.frozenSource.project.table_type !== source.project.table_type ||
-      JSON.stringify(result.frozenSource.project.columns) !==
-        JSON.stringify(source.project.columns) ||
-      JSON.stringify(result.frozenSource.rowIds) !==
-        JSON.stringify(source.rowIds))
+    (!result.frozenSource || !sameSourceData(result.frozenSource, source))
   )
     throw new Error(
       "The linked frozen result belongs to different source data. Unfreeze and recalculate it first.",

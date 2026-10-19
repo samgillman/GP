@@ -63,7 +63,7 @@ test("remembering stores an immutable reference without serialization, storage, 
   const file = recoveryFile(() => {
     throw new Error("Memory recovery must not read storage");
   });
-  assert.equal(file?.text, '{"version":3}');
+  assert.equal(file?.text, '{"version":4}');
   assert.equal(file?.source, "memory");
   assert.equal(serializations, 1);
 });

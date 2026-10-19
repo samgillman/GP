@@ -77,6 +77,7 @@ export default function Plot({
   dataTableName,
   onSelectPoint,
   onGoToCell,
+  onExcludePoint,
   selectedPoint,
   selectedPointRanges,
 }: {
@@ -88,6 +89,8 @@ export default function Plot({
   dataTableName?: string;
   onSelectPoint?: (seriesIndex: number, row: number) => void;
   onGoToCell?: (seriesIndex: number, row: number) => void;
+  // Excludes the point's source value; omitted for frozen graph snapshots.
+  onExcludePoint?: (seriesIndex: number, row: number) => void;
   selectedPoint?: PointReference | null;
   selectedPointRanges?: SelectedPointRange[];
 }) {
@@ -715,6 +718,18 @@ export default function Plot({
                 }}
               >
                 Go to cell
+              </button>
+            )}
+            {onExcludePoint && (
+              <button
+                type="button"
+                title="Keep the value in the data table but leave it out of analyses and graphs"
+                onClick={() => {
+                  onExcludePoint(hover.hit.seriesIndex, hover.hit.row);
+                  setHover(null);
+                }}
+              >
+                Exclude Values
               </button>
             )}
           </div>

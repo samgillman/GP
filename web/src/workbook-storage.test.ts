@@ -55,7 +55,7 @@ test("explicit recovery resolution permits autosave; valid legacy files migrate"
     persistWorkbook((_, value) => (output = value), restored.workbook, null),
     true,
   );
-  assert.equal(JSON.parse(output).version, 3);
+  assert.equal(JSON.parse(output).version, 4);
 });
 test("sheet limit permits 500 sheets but rejects creation of sheet 501 without throwing", () => {
   let book = fromProject(sample("column"));

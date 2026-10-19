@@ -1,7 +1,11 @@
-import { parseProject, sample } from "./data.ts";
+import { numeric, parseProject, sample } from "./data.ts";
 import type { Analysis, Graph, Project, Response, TableType } from "./data.ts";
 import { assertWorkbookDependencyIntegrity } from "./workbook-dependencies.ts";
 export const WORKBOOK_STORAGE = "gp.workbook.v2";
+/** Excluded observations by dataset ID, each listing row IDs in table order.
+ * The entered text stays in the project; analyses and graphs treat it as missing.
+ */
+export type Exclusions = Record<string, string[]>;
 export type DataSheet = {
   kind: "data";
   id: string;
@@ -9,6 +13,7 @@ export type DataSheet = {
   revision: number;
   rowIds: string[];
   project: Project;
+  excluded?: Exclusions;
   frozen?: boolean;
 };
 export type ResultSheet = {
@@ -44,7 +49,7 @@ export type GraphSheet = {
 };
 export type Sheet = DataSheet | ResultSheet | GraphSheet;
 export type Workbook = {
-  version: 3;
+  version: 4;
   name: string;
   activeSheetId: string;
   sheets: Sheet[];
@@ -64,6 +69,107 @@ export function newRowIds(count: number): string[] {
   if (!Number.isInteger(count) || count < 0 || count > 10000)
     throw new Error("Invalid represented row count.");
   return Array.from({ length: count }, id);
+}
+
+function excludable(value: string | undefined): boolean {
+  try {
+    return numeric(value ?? "") !== null;
+  } catch {
+    return false;
+  }
+}
+
+/** Canonical exclusions: dataset order, row order, numeric cells only, and no
+ * empty entries. With `previous`, a cell whose text changed loses its exclusion:
+ * GP treats a newly entered value as a new observation. Row moves keep it.
+ */
+export function canonicalExclusions(
+  project: Project,
+  rowIds: string[],
+  excluded: Exclusions | undefined,
+  previous?: { project: Project; rowIds: string[] },
+): Exclusions | undefined {
+  if (!excluded) return undefined;
+  const rows = new Map(rowIds.map((rowId, index) => [rowId, index]));
+  const before = previous && new Map(previous.rowIds.map((rowId, index) => [rowId, index]));
+  const result: Exclusions = {};
+  for (const column of project.columns) {
+    const wanted = column.id === undefined ? undefined : excluded[column.id];
+    if (!Array.isArray(wanted) || !wanted.length) continue;
+    const old = previous?.project.columns.find((candidate) => candidate.id === column.id);
+    const kept = new Set<number>();
+    for (const rowId of wanted) {
+      const row = rows.get(rowId);
+      if (row === undefined || !excludable(column.values[row])) continue;
+      if (before) {
+        const oldRow = before.get(rowId);
+        if (!old || oldRow === undefined || old.values[oldRow] !== column.values[row])
+          continue;
+      }
+      kept.add(row);
+    }
+    if (kept.size)
+      result[column.id!] = [...kept].sort((a, b) => a - b).map((row) => rowIds[row]);
+  }
+  return Object.keys(result).length ? result : undefined;
+}
+
+/** Column index → excluded row indices, for display and export. */
+export function exclusionPositions(data: DataSheet): Map<number, Set<number>> {
+  const positions = new Map<number, Set<number>>();
+  if (!data.excluded) return positions;
+  const rows = new Map(data.rowIds.map((rowId, index) => [rowId, index]));
+  data.project.columns.forEach((column, index) => {
+    const excluded = data.excluded![column.id ?? ""];
+    if (!excluded?.length) return;
+    positions.set(
+      index,
+      new Set(excluded.map((rowId) => rows.get(rowId)!).filter((row) => row !== undefined)),
+    );
+  });
+  return positions;
+}
+
+export function excludedCount(data: DataSheet, datasetIds?: string[]): number {
+  if (!data.excluded) return 0;
+  return (datasetIds ?? Object.keys(data.excluded)).reduce(
+    (count, uid) => count + (data.excluded![uid]?.length ?? 0),
+    0,
+  );
+}
+
+/** The analysis and graph view of a table: excluded cells become missing. */
+export function includedProject(data: DataSheet): Project {
+  const positions = exclusionPositions(data);
+  if (!positions.size) return data.project;
+  return {
+    ...data.project,
+    columns: data.project.columns.map((column, index) => {
+      const rows = positions.get(index);
+      return rows
+        ? { ...column, values: column.values.map((value, row) => (rows.has(row) ? "" : value)) }
+        : column;
+    }),
+  };
+}
+
+/** Whether a captured snapshot holds exactly the live table's scientific input.
+ * Revisions alone are insufficient: undo and document replacement reuse them.
+ */
+export function sameSourceData(captured: DataSheet, live: DataSheet): boolean {
+  return (
+    captured.revision === live.revision &&
+    captured.project.table_type === live.project.table_type &&
+    JSON.stringify(captured.project.columns) === JSON.stringify(live.project.columns) &&
+    JSON.stringify(captured.rowIds) === JSON.stringify(live.rowIds) &&
+    JSON.stringify(captured.excluded ?? null) === JSON.stringify(live.excluded ?? null)
+  );
+}
+
+function withExclusions(sheet: DataSheet, excluded: Exclusions | undefined): DataSheet {
+  const next = { ...sheet };
+  delete next.excluded;
+  return excluded ? { ...next, excluded } : next;
 }
 
 /** IDs are authoritative; column indices are a derived compatibility view. */
@@ -123,7 +229,11 @@ export function dataIndices(p: Project) {
     .map((_, i) => i)
     .filter((i) => p.table_type !== "xy" || i !== 0);
 }
-export function fromProject(project: Project): Workbook {
+export type CellPosition = { column: number; row: number };
+export function fromProject(
+  project: Project,
+  excludedCells: CellPosition[] = [],
+): Workbook {
   const dataId = id(),
     graphId = id();
   const identified = {
@@ -135,19 +245,31 @@ export function fromProject(project: Project): Workbook {
     })),
     graph: structuredClone(project.graph),
   };
+  const rowIds = newRowIds(representedRowCount(identified));
+  const requested: Exclusions = {};
+  for (const { column, row } of excludedCells) {
+    const dataset = identified.columns[column];
+    if (!dataset || rowIds[row] === undefined || !excludable(dataset.values[row]))
+      throw new Error("Excluded cells must contain numeric values.");
+    (requested[dataset.id] ??= []).push(rowIds[row]);
+  }
+  const data: DataSheet = withExclusions(
+    {
+      kind: "data",
+      id: dataId,
+      name: project.name,
+      revision: 0,
+      project: identified,
+      rowIds,
+    },
+    canonicalExclusions(identified, rowIds, requested),
+  );
   return {
-    version: 3,
+    version: 4,
     name: project.name,
     activeSheetId: dataId,
     sheets: [
-      {
-        kind: "data",
-        id: dataId,
-        name: project.name,
-        revision: 0,
-        project: identified,
-        rowIds: newRowIds(representedRowCount(identified)),
-      },
+      data,
       {
         kind: "graph",
         id: graphId,
@@ -169,17 +291,23 @@ export function sourceSheet(book: Workbook, sheet: Sheet): DataSheet {
     throw new Error("The source data table is missing.");
   return data;
 }
+/** Selected datasets as analyses and graphs see them, with exclusions applied. */
 export function selectedProject(data: DataSheet, indices: number[]): Project {
+  const included = includedProject(data);
   return {
-    ...data.project,
+    ...included,
     columns: [
-      ...(data.project.table_type === "xy" ? [data.project.columns[0]] : []),
-      ...indices.map((i) => data.project.columns[i]).filter(Boolean),
+      ...(included.table_type === "xy" ? [included.columns[0]] : []),
+      ...indices.map((i) => included.columns[i]).filter(Boolean),
     ],
   };
 }
-export function addData(book: Workbook, project: Project): Workbook {
-  const fresh = fromProject(project);
+export function addData(
+  book: Workbook,
+  project: Project,
+  excludedCells: CellPosition[] = [],
+): Workbook {
+  const fresh = fromProject(project, excludedCells);
   return {
     ...book,
     activeSheetId: fresh.activeSheetId,
@@ -204,11 +332,14 @@ export function blankProject(type: TableType, name: string): Project {
     },
   };
 }
+/** `excluded` replaces the table's exclusions; otherwise existing exclusions
+ * follow their dataset/row identities and are dropped for removed or edited cells.
+ */
 export function updateData(
   book: Workbook,
   dataId: string,
   next: Project,
-  options: { rowIds?: string[] } = {},
+  options: { rowIds?: string[]; excluded?: Exclusions } = {},
 ): Workbook {
   const source = book.sheets.find((s) => s.id === dataId);
   if (!source || source.kind !== "data")
@@ -236,23 +367,34 @@ export function updateData(
   validateUpdatedIdentities(rowIds, source.rowIds, existing, "row");
   if (columns.some((column) => rowIds.includes(column.id!)))
     throw new Error("Dataset and row IDs must be distinct.");
+  const excluded = canonicalExclusions(
+    next,
+    rowIds,
+    options.excluded ?? source.excluded,
+    source,
+  );
+  const exclusionsChanged =
+    JSON.stringify(source.excluded ?? null) !== JSON.stringify(excluded ?? null);
   const changed =
     source.project.table_type !== next.table_type ||
     JSON.stringify(source.project.columns) !== JSON.stringify(next.columns) ||
     rowIds.some((row, index) => row !== source.rowIds[index]) ||
-    rowIds.length !== source.rowIds.length;
-  // GP's bounded freeze permits labels/view metadata but protects numeric data
-  // and row/dataset structure. It does not reproduce Prism's editing exceptions.
+    rowIds.length !== source.rowIds.length ||
+    exclusionsChanged;
+  // GP's bounded freeze permits labels/view metadata but protects numeric data,
+  // exclusions and row/dataset structure. It does not reproduce Prism's editing
+  // exceptions.
   const protectedChange =
     source.project.table_type !== next.table_type ||
     JSON.stringify(
       source.project.columns.map(({ id, values }) => ({ id, values })),
     ) !==
       JSON.stringify(next.columns.map(({ id, values }) => ({ id, values }))) ||
-    JSON.stringify(rowIds) !== JSON.stringify(source.rowIds);
+    JSON.stringify(rowIds) !== JSON.stringify(source.rowIds) ||
+    exclusionsChanged;
   if (source.frozen && protectedChange)
     throw new Error(
-      "Unfreeze the data sheet before changing values or table structure.",
+      "Unfreeze the data sheet before changing values, exclusions or table structure.",
     );
   const xChanged =
     source.project.table_type === "xy" &&
@@ -271,13 +413,16 @@ export function updateData(
     ...book,
     sheets: book.sheets.map((s) => {
       if (s.id === dataId)
-        return {
-          ...source,
-          project: next,
-          rowIds,
-          name: next.name,
-          revision: source.revision + (changed ? 1 : 0),
-        };
+        return withExclusions(
+          {
+            ...source,
+            project: next,
+            rowIds,
+            name: next.name,
+            revision: source.revision + (changed ? 1 : 0),
+          },
+          excluded,
+        );
       if (!changed || s.kind === "data" || s.dataId !== dataId || s.frozen)
         return s;
       const selection = remap(s.datasetIds);
@@ -316,6 +461,62 @@ export function updateData(
     }),
   };
 }
+export type CellRange = {
+  startRow: number;
+  endRow: number;
+  startColumn: number;
+  endColumn: number;
+};
+
+/** One Exclude Values command over a selected rectangle. If every numeric
+ * selected value is already excluded it restores them; otherwise it excludes all
+ * of them. Blank and non-numeric draft cells are never excluded. This toggle rule
+ * is GP's choice; Prism's native `excludeValues:` handler has not been traced.
+ */
+export function toggleExcludedValues(
+  book: Workbook,
+  dataId: string,
+  range: CellRange,
+): { book: Workbook; excluded: boolean; count: number } {
+  const source = book.sheets.find((s) => s.id === dataId);
+  if (!source || source.kind !== "data")
+    throw new Error("Select values in a data table to exclude them.");
+  if (source.frozen)
+    throw new Error("Unfreeze this data table before excluding or including values.");
+  const current = exclusionPositions(source);
+  const cells: CellPosition[] = [];
+  const lastColumn = Math.min(range.endColumn, source.project.columns.length - 1);
+  const lastRow = Math.min(range.endRow, source.rowIds.length - 1);
+  for (let column = Math.max(0, range.startColumn); column <= lastColumn; column++)
+    for (let row = Math.max(0, range.startRow); row <= lastRow; row++)
+      if (excludable(source.project.columns[column].values[row]))
+        cells.push({ column, row });
+  if (!cells.length)
+    throw new Error("Select one or more numeric values to exclude or include.");
+  const exclude = cells.some(({ column, row }) => !current.get(column)?.has(row));
+  const next: Exclusions = structuredClone(source.excluded ?? {});
+  const changed = new Map<string, Set<string>>();
+  for (const { column, row } of cells) {
+    const uid = source.project.columns[column].id!;
+    if (!changed.has(uid)) changed.set(uid, new Set());
+    changed.get(uid)!.add(source.rowIds[row]);
+  }
+  for (const [uid, rows] of changed)
+    next[uid] = exclude
+      ? [...(next[uid] ?? []), ...rows]
+      : (next[uid] ?? []).filter((rowId) => !rows.has(rowId));
+  return {
+    book: updateData(book, dataId, source.project, {
+      rowIds: source.rowIds,
+      excluded: next,
+    }),
+    excluded: exclude,
+    count: exclude
+      ? cells.filter(({ column, row }) => !current.get(column)?.has(row)).length
+      : cells.length,
+  };
+}
+
 export function recordResult(
   book: Workbook,
   input: Omit<ResultSheet, "id" | "kind" | "status" | "datasetIds"> & {
@@ -377,7 +578,10 @@ export function addGraph(
     (JSON.stringify(
       datasetSelection(source, result.columnIndices).datasetIds,
     ) !== JSON.stringify(result.datasetIds) ||
-      (result.frozen && result.sourceRevision !== source.revision))
+      (result.frozen &&
+        (result.sourceRevision !== source.revision ||
+          !result.frozenSource ||
+          !sameSourceData(result.frozenSource, source))))
   )
     throw new Error(
       "This result uses historical source data. Unfreeze and recalculate it before creating a new live graph.",
@@ -495,6 +699,37 @@ function validateDraftProject(project: Project) {
   );
 }
 
+/** Rejects dangling, duplicate, blank or non-numeric exclusions rather than
+ * dropping them, which would silently return excluded values to analyses.
+ */
+function validateExclusions(sheet: DataSheet) {
+  if (sheet.excluded === undefined) return;
+  const excluded = sheet.excluded as unknown;
+  if (!excluded || typeof excluded !== "object" || Array.isArray(excluded))
+    throw new Error("Invalid excluded values.");
+  const datasets = new Set(sheet.project.columns.map((column) => column.id));
+  const rows = new Set(sheet.rowIds);
+  let count = 0;
+  for (const [uid, rowIds] of Object.entries(excluded)) {
+    if (
+      !datasets.has(uid) ||
+      !Array.isArray(rowIds) ||
+      !rowIds.length ||
+      new Set(rowIds).size !== rowIds.length ||
+      !rowIds.every((rowId) => typeof rowId === "string" && rows.has(rowId))
+    )
+      throw new Error(
+        "Excluded values refer to missing, duplicate or dangling identities.",
+      );
+    count += rowIds.length;
+  }
+  const canonical = canonicalExclusions(sheet.project, sheet.rowIds, sheet.excluded);
+  if (excludedCount({ ...sheet, excluded: canonical }) !== count)
+    throw new Error("Only numeric values can be excluded.");
+  if (canonical) sheet.excluded = canonical;
+  else delete sheet.excluded;
+}
+
 // Historical snapshots have their own identity namespace: their IDs intentionally
 // overlap live tables, and may refer to rows/datasets that have since been removed.
 function validateFrozenSource(source: DataSheet, dataId: string) {
@@ -523,6 +758,7 @@ function validateFrozenSource(source: DataSheet, dataId: string) {
   ];
   if (!ids.every(validIdentity) || new Set(ids).size !== ids.length)
     throw new Error("Invalid or duplicate frozen source identities.");
+  validateExclusions(source);
 }
 
 function validateSavedSelection(
@@ -594,7 +830,7 @@ export function parseWorkbook(text: string): Workbook {
   }
   if (
     !raw ||
-    ![2, 3].includes(raw.version) ||
+    ![2, 3, 4].includes(raw.version) ||
     typeof raw.name !== "string" ||
     !Array.isArray(raw.sheets) ||
     !raw.sheets.length ||
@@ -605,6 +841,7 @@ export function parseWorkbook(text: string): Workbook {
   const book = raw as Workbook,
     ids = new Set<string>();
   const migrating = raw.version === 2;
+  const legacy = raw.version < 4;
   for (const s of book.sheets) {
     if (
       !s ||
@@ -623,6 +860,15 @@ export function parseWorkbook(text: string): Workbook {
       (migrating && s.frozen)
     )
       throw new Error("Invalid or unsupported frozen sheet state.");
+    if (
+      legacy &&
+      ("excluded" in s ||
+        (s.kind !== "data" &&
+          typeof s.frozenSource === "object" &&
+          s.frozenSource !== null &&
+          "excluded" in s.frozenSource))
+    )
+      throw new Error("Excluded values require GP workbook version 4.");
     ids.add(s.id);
     if (s.kind === "data") {
       validateDraftProject(s.project);
@@ -658,6 +904,7 @@ export function parseWorkbook(text: string): Workbook {
         throw new Error("Missing, invalid, or duplicate dataset/row IDs.");
       stableIds.add(uid);
     }
+    validateExclusions(sheet);
   }
   for (const s of book.sheets) {
     if (s.kind === "data") continue;
@@ -705,7 +952,7 @@ export function parseWorkbook(text: string): Workbook {
       validateSavedResult(source, s, Boolean(s.frozen));
     }
   }
-  book.version = 3;
+  book.version = 4;
   assertWorkbookDependencyIntegrity(book);
   return book;
 }

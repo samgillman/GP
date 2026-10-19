@@ -4,6 +4,7 @@ import {
   parseDelimited,
   importCsv,
   exportCsv,
+  importCsvWithExclusions,
   numeric,
   parseProject,
   sample,
@@ -161,4 +162,37 @@ test("optional standalone dataset IDs roundtrip but never leak into numerical re
     raw.columns[0].id = invalid;
     assert.throws(() => parseProject(JSON.stringify(raw)), /Invalid project table/);
   }
+});
+
+test("excluded values export as numbers, asterisked numbers or blanks and round-trip", () => {
+  const columns = [
+    { name: "A", values: ["1", "2.50", ""] },
+    { name: "B", values: ["-3e2", "4"] },
+  ];
+  const excluded = new Map([[0, new Set([1, 2])], [1, new Set([0])]]);
+  assert.equal(exportCsv(columns), "A,B\r\n1,-3e2\r\n2.50,4\r\n\"\",\"\"");
+  assert.equal(exportCsv(columns, excluded, "value"), exportCsv(columns));
+  assert.equal(
+    exportCsv(columns, excluded, "asterisk"),
+    "A,B\r\n1,-3e2*\r\n2.50*,4\r\n\"\",\"\"",
+  );
+  assert.equal(
+    exportCsv(columns, excluded, "blank"),
+    "A,B\r\n1,\"\"\r\n\"\",4\r\n\"\",\"\"",
+  );
+  const imported = importCsvWithExclusions(exportCsv(columns, excluded, "asterisk"));
+  assert.deepEqual(imported.columns.map((column) => column.values), [
+    ["1", "2.50", ""],
+    ["-3e2", "4", ""],
+  ]);
+  assert.deepEqual(imported.excluded, [
+    { column: 1, row: 0 },
+    { column: 0, row: 1 },
+  ]);
+  // Strict import and malformed markers keep reporting the original text.
+  assert.throws(() => importCsv("A\n1*"), /not a valid number/);
+  assert.throws(() => importCsvWithExclusions("A\n*"), /not a valid number/);
+  assert.throws(() => importCsvWithExclusions("A\n-*"), /not a valid number/);
+  assert.throws(() => importCsvWithExclusions("A\n1 2*"), /not a valid number/);
+  assert.deepEqual(importCsvWithExclusions("A;B\n1 *;2\n").excluded, [{ column: 0, row: 0 }]);
 });

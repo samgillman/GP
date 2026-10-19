@@ -141,18 +141,21 @@
         "web/src/data.ts",
         "web/src/workbook-actions.ts",
         "web/src/workbook-selection.ts",
-        "web/src/App.tsx"
+        "web/src/App.tsx",
+        "web/src/workbook.ts: GP workbook version 4 stores exclusions by stable dataset/row IDs; v2/v3 migrate and reject unsupported exclusion fields"
       ],
       "prism_reference_evidence": [],
       "limitations": [
         "Implemented stable identities cover current Column/XY sheets, datasets and represented rows; cells use dataset/row composites. Replicate/subject, rich graph-object and layout-placement families remain open.",
         "Version3 is an independent GP schema. Native dataset GUID references support identity separation; native row-ID serialization and full file equivalence are not claimed.",
-        "Storage key gp.workbook.v2 is retained for compatibility; serialized document version is3. Existing source files remain unmodified."
+        "Storage key gp.workbook.v2 is retained for compatibility; serialized document version is 4 (version 3 introduced identities; version 4 adds exclusions). Existing source files remain unmodified.",
+        "Version 4 is required for exclusions so older GP builds reject such files instead of silently re-including excluded values."
       ],
       "validation_evidence": [
         "web/src/workbook.test.ts: v1 draft/v2 saved-result migration; strict v3 dataset/row IDs and reference validation; duplicate names, reorder/insert/delete and explicit row mapping",
         "web/src/workbook-actions.test.ts: fresh data-copy IDs and source-preserving graph copies",
-        "web/src/workbook-selection.test.ts: stable graph selection and source-cell navigation after source mutations"
+        "web/src/workbook-selection.test.ts: stable graph selection and source-cell navigation after source mutations",
+        "web/src/workbook-exclusions.test.ts: 10 tests covering toggle/mixed/restore, blank/draft/virtual cells, row insert/reorder/delete and dataset insert/delete identity tracking, edit/clear dropping only that exclusion, XY excluded X, undo/redo, frozen data/result/graph boundaries including revision reuse, v4 round trip, v3 migration and malformed-exclusion rejection, data-copy remapping and imported positions."
       ]
     },
     {
@@ -260,7 +263,8 @@
         "Current Column/XY families only; unsupported result exclusions, formulas/compatibility flags and native special unfreeze branches remain open.",
         "Snapshot persistence, undo and direct recalculation on thaw are independently implemented GP behavior; underlying native setFrozen/storage/invalidation bodies and a running Prism comparison remain unresolved.",
         "Frozen graph creation rejects stale or mismatched linked output. Historical result-to-new-live-graph and changed-source live export require explicit recalculation, avoiding silent recomputation of a captured curve.",
-        "Source-table deletion retains current family cascade, not full Prism orphan semantics. Large snapshots remain subject to workbook/browser-storage limits and recovery warnings."
+        "Source-table deletion retains current family cascade, not full Prism orphan semantics. Large snapshots remain subject to workbook/browser-storage limits and recovery warnings.",
+        "Frozen data tables reject exclusion changes (GP choice). The shipped CoreLegacy string 1018 says frozen tables allow excluding values from results tables; results-side exclusion is not implemented."
       ],
       "validation_evidence": [
         "web/src/workbook-freeze.test.ts:15 cases covering snapshots, frozen output, guards, historical graph links, deletion, remapping, save/reopen, duplication and undo/redo",
@@ -285,9 +289,14 @@
         "Continuous typing/dragging is grouped appropriately; Apply commits once; Cancel restores only uncommitted changes.",
         "Async derived results neither add user edits nor erase redo; document replacements cancel outstanding work."
       ],
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "web/src/App.tsx: Exclude/Include values commit exactly one labelled history entry from menu, toolbar, cell context or graph point details"
+      ],
       "prism_reference_evidence": [],
-      "limitations": []
+      "limitations": [],
+      "validation_evidence": [
+        "web/src/workbook-exclusions.test.ts and scripts/check_exclusions.py: exclusion undo/redo restore the complete exclusion map and recalculated output."
+      ]
     },
     {
       "id": "W006",
@@ -427,7 +436,7 @@
       "id": "D001",
       "title": "Typed cell representation, missingness and exclusions",
       "phase": 3,
-      "status": "not_started",
+      "status": "partial",
       "guide_sections": [
         "2.1",
         "2.6",
@@ -442,9 +451,25 @@
         "Blank differs from zero; reversible exclusion retains original numeric value and affects analysis/graph/export consistently.",
         "Support number, text, date and elapsed-time representations without unsafe coercion."
       ],
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "web/src/workbook.ts: DataSheet.excluded keyed by dataset ID → row IDs; canonicalExclusions, includedProject/selectedProject analysis view, toggleExcludedValues, sameSourceData, v4 validation/migration",
+        "web/src/DataGrid.tsx and web/src/data-grid.ts: blue italic asterisk cells, excluded ARIA label, Exclude/Include Values context command and shared allExcluded state",
+        "web/src/App.tsx: Edit menu, Data toolbar and graph point-details Exclude Values commands routed to one undoable command; status counts; results note; CSV export choice dialog",
+        "web/src/workbook-freeze.ts and web/src/workbook-actions.ts: frozen snapshots capture exclusions; data copies remap them to fresh identities"
+      ],
       "prism_reference_evidence": [],
-      "limitations": []
+      "limitations": [
+        "Implemented: reversible exclusion state separate from entered text, blank≠zero preserved, numeric-only exclusions, consistent omission from analyses, recalculation, plotted points and graph export.",
+        "Still open: typed text/date/elapsed-time representations, censored and error cell states, subject/replicate identities, and results-side exclusions.",
+        "GP choice: editing or clearing an excluded cell's text drops that exclusion (a new value is a new observation); row moves keep it. Native behavior for edited excluded cells is unverified.",
+        "No running Prism reference: blue-italic-asterisk display and calculation omission follow the public Prism guide (audit P0120); colors, spacing and toggle rule are GP choices, not compared screenshots or native traces.",
+        "Static self-contained build not exercised in the 2026-10-19 cloud container: its network policy denied cdn.jsdelivr.net, so scripts/build_browser.py could not fetch the locked Pyodide wheels. CI runs scripts/check_exclusions.py against both static and server builds; that hosted result has not been observed."
+      ],
+      "validation_evidence": [
+        "web/src/workbook-exclusions.test.ts: 10 tests covering toggle/mixed/restore, blank/draft/virtual cells, row insert/reorder/delete and dataset insert/delete identity tracking, edit/clear dropping only that exclusion, XY excluded X, undo/redo, frozen data/result/graph boundaries including revision reuse, v4 round trip, v3 migration and malformed-exclusion rejection, data-copy remapping and imported positions.",
+        "scripts/check_exclusions.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenario groups passed with zero page errors — context menu, toolbar and Edit menu toggles; computed blue italic style and asterisk; actual recalculated means and analysis payload nulls; results note; drawn graph points and graph-export payload; graph point Exclude Values with undo; reload persistence; CSV asterisk export and re-import; Prism XML Excluded import; frozen-table command disabling.",
+        "web/src/workbook.test.ts and existing suites: 157 frontend tests and TypeScript passed after the v4 schema change; 268 backend tests passed."
+      ]
     },
     {
       "id": "D002",
@@ -792,15 +817,19 @@
         "Merge projects remaps identities and preserves dependencies; distinguish open/import/merge.",
         "Mac direct Excel import is not assumed; test supported HTML clipboard instead."
       ],
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "web/src/data.ts importCsvWithExclusions and App CSV import: numbers followed by an asterisk import as excluded values, with a notice"
+      ],
       "prism_reference_evidence": [],
-      "limitations": []
+      "limitations": [
+        "Asterisk recognition is automatic on GP CSV import, not the Prism import/Paste Special filter option."
+      ]
     },
     {
       "id": "E007",
       "title": "Exclusion UI and output policy",
       "phase": 4,
-      "status": "not_started",
+      "status": "partial",
       "guide_sections": [
         "2.6"
       ],
@@ -814,9 +843,28 @@
         "Exclude from calculations and plotted observations; clipboard/export choices number/asterisk/blank preserve intended semantics.",
         "Undo/reload/native file roundtrip retain exclusions; results-side exclusion maps to source identities."
       ],
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "web/src/workbook.ts: DataSheet.excluded keyed by dataset ID → row IDs; canonicalExclusions, includedProject/selectedProject analysis view, toggleExcludedValues, sameSourceData, v4 validation/migration",
+        "web/src/DataGrid.tsx and web/src/data-grid.ts: blue italic asterisk cells, excluded ARIA label, Exclude/Include Values context command and shared allExcluded state",
+        "web/src/App.tsx: Edit menu, Data toolbar and graph point-details Exclude Values commands routed to one undoable command; status counts; results note; CSV export choice dialog",
+        "web/src/workbook-freeze.ts and web/src/workbook-actions.ts: frozen snapshots capture exclusions; data copies remap them to fresh identities",
+        "gp/import_prism.py: Prism XML Excluded=1/true and EVFormat=AsteriskAfterNumber cells import their original numbers with explicit [column,row] exclusions",
+        "web/src/data.ts: exportCsv excluded-value modes value/asterisk/blank; importCsvWithExclusions recognizes a number followed by an asterisk"
+      ],
       "prism_reference_evidence": [],
-      "limitations": []
+      "limitations": [
+        "Implemented: toggle selected values without deleting them; blue italic asterisk display with an ARIA/tooltip explanation; calculation, graph and export-input omission; undo, reload, JSON save/open and Prism XML import retain exclusions; CSV export/copy offer number/asterisk/blank when a table has exclusions.",
+        "Open: grid Copy selected cells/⌘C still copies entered text without an excluded-value policy or copy preference (P0166); no TXT/XML data export; ZIP import still rejects EXCLUDED cell flags because their row encoding is not documented in committed evidence; no native XML export round trip; results-side exclusions and exclusion of fit points from results are absent; no keyboard shortcut because no native key equivalent was recovered.",
+        "Toggle rule (restore only when every numeric selected value is already excluded) is a GP choice; Prism's excludeValues: handler is untraced.",
+        "No running Prism reference: blue-italic-asterisk display and calculation omission follow the public Prism guide (audit P0120); colors, spacing and toggle rule are GP choices, not compared screenshots or native traces.",
+        "Static self-contained build not exercised in the 2026-10-19 cloud container: its network policy denied cdn.jsdelivr.net, so scripts/build_browser.py could not fetch the locked Pyodide wheels. CI runs scripts/check_exclusions.py against both static and server builds; that hosted result has not been observed."
+      ],
+      "validation_evidence": [
+        "web/src/workbook-exclusions.test.ts: 10 tests covering toggle/mixed/restore, blank/draft/virtual cells, row insert/reorder/delete and dataset insert/delete identity tracking, edit/clear dropping only that exclusion, XY excluded X, undo/redo, frozen data/result/graph boundaries including revision reuse, v4 round trip, v3 migration and malformed-exclusion rejection, data-copy remapping and imported positions.",
+        "scripts/check_exclusions.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenario groups passed with zero page errors — context menu, toolbar and Edit menu toggles; computed blue italic style and asterisk; actual recalculated means and analysis payload nulls; results note; drawn graph points and graph-export payload; graph point Exclude Values with undo; reload persistence; CSV asterisk export and re-import; Prism XML Excluded import; frozen-table command disabling.",
+        "web/src/data.test.ts: three CSV export modes, asterisk round trip and malformed-marker rejection; web/src/data-grid.test.ts: Exclude/Include state over numeric represented cells.",
+        "tests/test_import_prism.py: excluded original values and positions for Column and XY, asterisk format, unreadable excluded cells, and asterisks without the excluded-value format still rejected."
+      ]
     },
     {
       "id": "P001",

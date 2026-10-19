@@ -105,3 +105,5 @@ Runtime evidence is still needed for menu selection/visibility, point versus dat
 `web/src/plot-view.ts` records the nine recovered menu presets and their REA source. GP now exposes each preset through 1000%; dense canvas backing resolution stays capped independently of view zoom. `scripts/check_graph_zoom.py` verifies the choices, shortcut/reset behavior and unchanged saved graph settings in both server and static builds. Those GP checks do not establish native zoom geometry, minimum or step rules.
 
 Individual point overrides/reset, the full dataset drawing-order and missing-value options, typed-table formats and complete native tooltip behavior remain open requirements. The decoded controls are evidence to implement and verify them, not proof that GP already supports them.
+
+Later work used the decoded **Exclude Values** label (`excludeValues:`) to add GP's exclusion command to data-cell context menus and graph point details. The native handler, menu key equivalent and owning context remain untraced; see the [exclusion evidence ledger](prism-exclusions-evidence.md).

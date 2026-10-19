@@ -36,7 +36,7 @@ The Column unpaired-t-test and XY linear-regression examples establish:
 - Titles can contain nested formatting elements. Empty observations retain their row positions.
 - `XAdvancedColumn` can duplicate `XColumn`; importing both would incorrectly duplicate the independent variable.
 - Dose-response examples contain replicate subcolumns and zero-dose controls. These require treatment beyond a single-series importer and are not silently flattened or averaged.
-- `Contents/Resources/PrismXMLSchema.xsd` declares `Excluded` as an XML Schema Boolean with default zero. The importer follows those Boolean values, rather than treating mere attribute presence as exclusion.
+- `Contents/Resources/PrismXMLSchema.xsd` declares `Excluded` as an XML Schema Boolean with default zero. The importer follows those Boolean values, rather than treating mere attribute presence as exclusion. Since workbook version 4 it keeps each excluded cell's original number together with its exclusion instead of importing it as missing.
 
 These observations informed GP's explicit table types, row-paired missing-value handling, Prism XML importer, analysis selection, and graph workflow. The importer has deliberately narrower scope than Prism's schema.
 

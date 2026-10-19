@@ -198,7 +198,7 @@ test("v3 assigns one identity per dataset and represented row, not virtual cells
   project.columns = [{ name: "A", values: ["1", "", "-"] }, { name: "B", values: ["2"] }];
   const book = fromProject(project);
   const data = sourceSheet(book, book.sheets[0]);
-  assert.equal(book.version, 3);
+  assert.equal(book.version, 4);
   assert.equal(data.rowIds.length, 3);
   assert.equal(new Set([...data.rowIds, ...data.project.columns.map((column) => column.id)]).size, 5);
   assert.equal(project.columns[0].id, undefined);
@@ -210,7 +210,7 @@ test("v1 workbook migration preserves draft strings while standalone project imp
   const legacy = sample("column");
   legacy.columns[0].values = ["-", "", "1e", "1e101"];
   const migrated = parseWorkbook(JSON.stringify(legacy));
-  assert.equal(migrated.version, 3);
+  assert.equal(migrated.version, 4);
   assert.throws(() => parseProject(JSON.stringify(legacy)), /not a valid number/);
   assert.deepEqual(sourceSheet(migrated, migrated.sheets[0]).project.columns[0].values, legacy.columns[0].values);
   assert.deepEqual(parseWorkbook(JSON.stringify(migrated)), migrated);
@@ -236,7 +236,7 @@ test("v2 migration preserves sheet links, ordered selections, valid results, dra
     }
   }
   const migrated = parseWorkbook(JSON.stringify(legacy));
-  assert.equal(migrated.version, 3);
+  assert.equal(migrated.version, 4);
   assert.deepEqual(migrated.sheets.map((sheet) => sheet.id), book.sheets.map((sheet) => sheet.id));
   const originalResult = book.sheets.find((sheet) => sheet.kind === "results")!;
   const saved = migrated.sheets.find((sheet) => sheet.id === originalResult.id)!;

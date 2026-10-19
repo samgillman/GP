@@ -167,7 +167,7 @@ def main():
         try:
             page.goto(BASE)
             page.wait_for_selector(".data-grid-viewport")
-            initial = wait_book(lambda w: w["version"] == 3, "initial v3 workbook")
+            initial = wait_book(lambda w: w["version"] == 4, "initial v4 workbook")
             draft_id = initial["activeSheetId"]
             cell(0, 0).fill("-")
             wait_book(lambda w: sheet(draft_id, w)["project"]["columns"][0]["values"][0] == "-", "numeric draft saved")
@@ -194,7 +194,7 @@ def main():
             (OUT / "legacy-v2.json").write_text(json.dumps(legacy, indent=2))
             page.evaluate("args => localStorage.setItem(args.key, JSON.stringify(args.book))", {"key": STORAGE, "book": legacy})
             page.reload()
-            migrated = wait_book(lambda w: w["version"] == 3, "legacy v2 migrated")
+            migrated = wait_book(lambda w: w["version"] == 4, "legacy v2 migrated")
             assert without_identity(migrated) == legacy, "Migration changed drafts, settings, results or references"
             ids = []
             for item in migrated["sheets"]:
@@ -332,7 +332,7 @@ def main():
             current_result(result_id)
             saved = save("frozen-workbook-v3.json")
             persisted = json.loads(saved.read_text())
-            assert persisted["version"] == 3 and sheet(graph_id, persisted) == frozen_graph
+            assert persisted["version"] == 4 and sheet(graph_id, persisted) == frozen_graph
             page.reload()
             wait_book(lambda w: w["activeSheetId"] == graph_id, "frozen graph restored")
             assert sheet(graph_id) == frozen_graph

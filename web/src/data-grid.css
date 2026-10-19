@@ -291,3 +291,24 @@
   background: #ffebe6;
   color: #a03f32;
 }
+
+/* Excluded values stay visible in blue italics followed by an asterisk
+   (public Prism guide; GP's color and spacing are independent choices). */
+.app > main .data-grid-table.sheet .data-grid-cell.is-excluded input {
+  color: #1d5fc4;
+  font-style: italic;
+  padding-right: 14px;
+}
+.app > main .data-grid-table.sheet .data-grid-cell.is-excluded::after {
+  content: "*";
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  color: #1d5fc4;
+  font:
+    italic 12px -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  pointer-events: none;
+}

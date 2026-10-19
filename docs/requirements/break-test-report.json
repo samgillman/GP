@@ -547,16 +547,18 @@
         "Insert/delete row/column and clear use shared transactions; exclude preserves original value, blue italic asterisk and affects analyses/graphs; unsupported actions never masquerade as implemented."
       ],
       "implementation_evidence": [
-        "Row/column/cell context menus insert, delete or clear using one workbook change."
+        "Row/column/cell context menus insert, delete or clear using one workbook change.",
+        "Cell, row and column context menus offer Exclude/Include Values with persistent blue italic asterisk exclusions (see E007)."
       ],
       "prism_reference_evidence": [
         "REA decode_interface_builder ev_212198e3cb25470fb0235238305c0f50a540af50328dc6518b90657015019b68 and ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f; docs/prism-ui-rea-evidence.md records source NIB hashes, recognized controls, unresolved connectors and scope limits."
       ],
       "validation_evidence": [
-        "Chromium last-row delete and paste/header context checks passed."
+        "Chromium last-row delete and paste/header context checks passed.",
+        "scripts/check_exclusions.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenario groups passed with zero page errors — context menu, toolbar and Edit menu toggles; computed blue italic style and asterisk; actual recalculated means and analysis payload nulls; results note; drawn graph points and graph-export payload; graph point Exclude Values with undo; reload persistence; CSV asterisk export and re-import; Prism XML Excluded import; frozen-table command disabling."
       ],
       "limitations": [
-        "Persistent exclusions and Format Points are not implemented."
+        "Persistent exclusions are implemented; Format Points and per-point styling are not."
       ]
     },
     {
@@ -762,7 +764,7 @@
     {
       "id": "B036",
       "title": "Persistent point formatting and exclusion",
-      "status": "not_started",
+      "status": "partial",
       "source": "2026-10-19 user graph-tooltip/selection/zoom report",
       "dependencies": [
         "B022",
@@ -772,10 +774,19 @@
         "Point and cell context actions save point color, size, symbol, border and exclusions; analysis and graph respect exclusions; save/open/undo preserve them.",
         "Per-point overrides inherit dataset styling when reset; implement reset-individual-formatting separately from editing dataset defaults."
       ],
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "Data-cell and graph point-details Exclude Values commands persist exclusions by dataset/row identity; analyses and graphs omit them; save/open/undo preserve them."
+      ],
+      "validation_evidence": [
+        "web/src/workbook-exclusions.test.ts: 10 tests covering toggle/mixed/restore, blank/draft/virtual cells, row insert/reorder/delete and dataset insert/delete identity tracking, edit/clear dropping only that exclusion, XY excluded X, undo/redo, frozen data/result/graph boundaries including revision reuse, v4 round trip, v3 migration and malformed-exclusion rejection, data-copy remapping and imported positions.",
+        "scripts/check_exclusions.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenario groups passed with zero page errors — context menu, toolbar and Edit menu toggles; computed blue italic style and asterisk; actual recalculated means and analysis payload nulls; results note; drawn graph points and graph-export payload; graph point Exclude Values with undo; reload persistence; CSV asterisk export and re-import; Prism XML Excluded import; frozen-table command disabling."
+      ],
       "prism_reference_evidence": [
         "REA decode_interface_builder ev_212198e3cb25470fb0235238305c0f50a540af50328dc6518b90657015019b68 and ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f; docs/prism-ui-rea-evidence.md records source NIB hashes, recognized controls, unresolved connectors and scope limits."
+      ],
+      "limitations": [
+        "Per-point color, size, symbol and border overrides and their reset-to-dataset behavior are not implemented. Excluded points are not drawn, so they are restored from the data table or Undo, not from the graph.",
+        "No running Prism reference: blue-italic-asterisk display and calculation omission follow the public Prism guide (audit P0120); colors, spacing and toggle rule are GP choices, not compared screenshots or native traces."
       ]
     }
   ]

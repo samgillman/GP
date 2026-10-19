@@ -2,6 +2,14 @@
 
 Prepared 2026-10-19, America/Chicago. This is a continuation checkpoint, **not completion of Prism parity**.
 
+## Latest update: reversible value exclusions (read this first)
+
+A later session worked in a **fresh cloud container**, not `/workspace`: checkout `/home/user/GP` on branch `claude/vibrant-keller-dzmvpg`, Node 22.22 (repository pins 24.18), Python 3.13. `/workspace/rea`, `/workspace/gp-inputs`, `/workspace/gp-evidence` and `/workspace/.gp-tools` did **not** exist. The REA skill was read from a fresh public clone (`morluto/rea` 6.7.0, `b4938ae`). Without the Prism artifacts no new REA analysis was possible; committed Evidence IDs were reused. The network policy denied `cdn.jsdelivr.net`, so the static Pyodide runtime could not be assembled and static-browser checks were not run there.
+
+That session implemented GP workbook **version 4** exclusions keyed by dataset/row IDs: blue italic asterisk cells; omission from analyses, recalculation, graphs and graph export; context menu, Edit menu, Data toolbar and graph point-details commands as single undo entries; freeze/copy/reload/save handling; lossless Prism XML `Excluded` import; and CSV export/copy choices with asterisk re-import. See [exclusion evidence](prism-exclusions-evidence.md) and the newest section of [completion-progress.md](completion-progress.md) for tests run, GP choices, open native questions and the unrun static path. New fixtures must now use version 4. `scripts/check_exclusions.py` is in CI for both builds.
+
+The sections below describe the earlier `/workspace` environment and remain accurate for that history.
+
 ## User objective and operating requirements
 
 Build a complete browser recreation of **GraphPad Prism for macOS**, using the actual **morluto/rea repository, tools and skill**. The user explicitly rejected a prototype and mathematical similarity alone. UI and UX parity are part of the goal. They supplied an installer, Prism 10 guide, Prism 11 differences, defect reports and a detailed parity CSV. They authorized continued implementation and GitHub publication. Do not repeatedly ask whether to continue.

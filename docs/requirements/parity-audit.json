@@ -4131,7 +4131,7 @@
       "audit_id": "P0120",
       "title": "Exclude selected values",
       "phase": 4,
-      "status": "not_started",
+      "status": "partial",
       "area": "Data tables & entry",
       "subarea": "Excluding values",
       "priority": "High",
@@ -4154,19 +4154,29 @@
       "assessment": "not_implemented_or_reference_unverified",
       "implementation_plan": "Phase 4; D001/E007. Implement Exclude selected values in reversible exclusion metadata keyed by dataset and row IDs. Required behavior: Exclude button marks selected values blue italic with asterisk; they stay visible but leave analyses and graphs. Verify: retain original text while excluding calculations/graphs, compare blue-italic-asterisk indication and every clipboard/export policy, and test undo/reorder/delete/save/reopen; exercise this option in both browser and server workflows where applicable and compare a pinned-version Prism reference.",
       "review_note": "REA confirms exclusion menu actions but current GP has no durable exclusions. Preserve original values and identity before enabling the command.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "web/src/workbook.ts: DataSheet.excluded keyed by dataset ID → row IDs; canonicalExclusions, includedProject/selectedProject analysis view, toggleExcludedValues, sameSourceData, v4 validation/migration",
+        "web/src/DataGrid.tsx and web/src/data-grid.ts: blue italic asterisk cells, excluded ARIA label, Exclude/Include Values context command and shared allExcluded state",
+        "web/src/App.tsx: Edit menu, Data toolbar and graph point-details Exclude Values commands routed to one undoable command; status counts; results note; CSV export choice dialog"
+      ],
+      "validation_evidence": [
+        "web/src/workbook-exclusions.test.ts: 10 tests covering toggle/mixed/restore, blank/draft/virtual cells, row insert/reorder/delete and dataset insert/delete identity tracking, edit/clear dropping only that exclusion, XY excluded X, undo/redo, frozen data/result/graph boundaries including revision reuse, v4 round trip, v3 migration and malformed-exclusion rejection, data-copy remapping and imported positions.",
+        "scripts/check_exclusions.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenario groups passed with zero page errors — context menu, toolbar and Edit menu toggles; computed blue italic style and asterisk; actual recalculated means and analysis payload nulls; results note; drawn graph points and graph-export payload; graph point Exclude Values with undo; reload persistence; CSV asterisk export and re-import; Prism XML Excluded import; frozen-table command disabling."
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
-      ]
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference: blue-italic-asterisk display and calculation omission follow the public Prism guide (audit P0120); colors, spacing and toggle rule are GP choices, not compared screenshots or native traces.",
+        "Static self-contained build not exercised in the 2026-10-19 cloud container: its network policy denied cdn.jsdelivr.net, so scripts/build_browser.py could not fetch the locked Pyodide wheels. CI runs scripts/check_exclusions.py against both static and server builds; that hosted result has not been observed."
+      ],
+      "status_note": "Implemented in GP: data-table, menu, toolbar and graph-point commands; blue italic asterisk; omitted from analyses, graphs and graph export; undo/reload/save/import retain it. Native comparison and static-build run remain open. (2026-10-19; review_note retains the earlier reconciliation text.)"
     },
     {
       "id": "AUD-P0121",
       "audit_id": "P0121",
       "title": "Copy and export of excluded values",
       "phase": 4,
-      "status": "not_started",
+      "status": "partial",
       "area": "Data tables & entry",
       "subarea": "Excluding values",
       "priority": "Low",
@@ -4189,12 +4199,23 @@
       "assessment": "not_implemented_or_reference_unverified",
       "implementation_plan": "Phase 4; D001/E007. Implement Copy and export of excluded values in reversible exclusion metadata keyed by dataset and row IDs. Required behavior: Excluded values can be copied or exported as blanks, plain numbers or with an asterisk. Verify: retain original text while excluding calculations/graphs, compare blue-italic-asterisk indication and every clipboard/export policy, and test undo/reorder/delete/save/reopen; exercise this option in both browser and server workflows where applicable and compare a pinned-version Prism reference.",
       "review_note": "The original audit finding is retained as supplied. This option is not native-parity verified; complete its typed model, real command, undo/dependency behavior and save/export contract before closure.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "web/src/workbook.ts: DataSheet.excluded keyed by dataset ID → row IDs; canonicalExclusions, includedProject/selectedProject analysis view, toggleExcludedValues, sameSourceData, v4 validation/migration",
+        "web/src/DataGrid.tsx and web/src/data-grid.ts: blue italic asterisk cells, excluded ARIA label, Exclude/Include Values context command and shared allExcluded state",
+        "web/src/App.tsx: Edit menu, Data toolbar and graph point-details Exclude Values commands routed to one undoable command; status counts; results note; CSV export choice dialog",
+        "web/src/data.ts: exportCsv modes and importCsvWithExclusions"
+      ],
+      "validation_evidence": [
+        "web/src/data.test.ts: CSV export modes and asterisk re-import",
+        "scripts/check_exclusions.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenario groups passed with zero page errors — context menu, toolbar and Edit menu toggles; computed blue italic style and asterisk; actual recalculated means and analysis payload nulls; results note; drawn graph points and graph-export payload; graph point Exclude Values with undo; reload persistence; CSV asterisk export and re-import; Prism XML Excluded import; frozen-table command disabling."
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
-      ]
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference: blue-italic-asterisk display and calculation omission follow the public Prism guide (audit P0120); colors, spacing and toggle rule are GP choices, not compared screenshots or native traces.",
+        "Static self-contained build not exercised in the 2026-10-19 cloud container: its network policy denied cdn.jsdelivr.net, so scripts/build_browser.py could not fetch the locked Pyodide wheels. CI runs scripts/check_exclusions.py against both static and server builds; that hosted result has not been observed."
+      ],
+      "status_note": "Export data as CSV and Copy table as CSV offer plain numbers, asterisk or blanks when exclusions exist. Grid range copy and copy preferences still use entered text. (2026-10-19; review_note retains the earlier reconciliation text.)"
     },
     {
       "id": "AUD-P0122",
@@ -5067,7 +5088,7 @@
       "audit_id": "P0147",
       "title": "Exclude asterisked values",
       "phase": 4,
-      "status": "not_started",
+      "status": "partial",
       "area": "Data tables & entry",
       "subarea": "Import",
       "priority": "Low",
@@ -5089,12 +5110,23 @@
       "assessment": "not_implemented_or_reference_unverified",
       "implementation_plan": "Phase 4; E006. Implement Exclude asterisked values in Import preview, filtering and placement pipeline. Required behavior: Filter option excludes file values followed by an asterisk. Verify: use source-hashed files covering delimiters, quoting, BOM/CRLF, row/column filters, decimal rules and insertion points; check exact imported cells, warnings, undo and resulting calculations; exercise this option in both browser and server workflows where applicable and compare a pinned-version Prism reference.",
       "review_note": "The original audit finding is retained as supplied. This option is not native-parity verified; complete its typed model, real command, undo/dependency behavior and save/export contract before closure.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "web/src/workbook.ts: DataSheet.excluded keyed by dataset ID → row IDs; canonicalExclusions, includedProject/selectedProject analysis view, toggleExcludedValues, sameSourceData, v4 validation/migration",
+        "web/src/DataGrid.tsx and web/src/data-grid.ts: blue italic asterisk cells, excluded ARIA label, Exclude/Include Values context command and shared allExcluded state",
+        "web/src/App.tsx: Edit menu, Data toolbar and graph point-details Exclude Values commands routed to one undoable command; status counts; results note; CSV export choice dialog",
+        "web/src/data.ts: exportCsv modes and importCsvWithExclusions"
+      ],
+      "validation_evidence": [
+        "web/src/data.test.ts: CSV export modes and asterisk re-import",
+        "scripts/check_exclusions.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenario groups passed with zero page errors — context menu, toolbar and Edit menu toggles; computed blue italic style and asterisk; actual recalculated means and analysis payload nulls; results note; drawn graph points and graph-export payload; graph point Exclude Values with undo; reload persistence; CSV asterisk export and re-import; Prism XML Excluded import; frozen-table command disabling."
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
-      ]
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference: blue-italic-asterisk display and calculation omission follow the public Prism guide (audit P0120); colors, spacing and toggle rule are GP choices, not compared screenshots or native traces.",
+        "Static self-contained build not exercised in the 2026-10-19 cloud container: its network policy denied cdn.jsdelivr.net, so scripts/build_browser.py could not fetch the locked Pyodide wheels. CI runs scripts/check_exclusions.py against both static and server builds; that hosted result has not been observed."
+      ],
+      "status_note": "GP CSV import automatically treats a number followed by an asterisk as an excluded value. Prism's selectable import/Paste Special filter option is not implemented. (2026-10-19; review_note retains the earlier reconciliation text.)"
     },
     {
       "id": "AUD-P0148",
@@ -5582,7 +5614,7 @@
       "audit_id": "P0162",
       "title": "Export excluded-value handling",
       "phase": 10,
-      "status": "not_started",
+      "status": "partial",
       "area": "Data tables & entry",
       "subarea": "Export",
       "priority": "Low",
@@ -5605,12 +5637,23 @@
       "assessment": "not_implemented_or_reference_unverified",
       "implementation_plan": "Phase 10; L030/E007. Implement Export excluded-value handling in typed data/results table serializers and export options. Required behavior: Export dialog writes excluded values normally, with an asterisk, or as blanks. Verify: roundtrip titles, rich text/subcolumns, original digits, missing/excluded policies, separators and CSV/TXT/XML structure using both browser and server paths; exercise this option in both browser and server workflows where applicable and compare a pinned-version Prism reference.",
       "review_note": "The original audit finding is retained as supplied. This option is not native-parity verified; complete its typed model, real command, undo/dependency behavior and save/export contract before closure.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
+      "implementation_evidence": [
+        "web/src/workbook.ts: DataSheet.excluded keyed by dataset ID → row IDs; canonicalExclusions, includedProject/selectedProject analysis view, toggleExcludedValues, sameSourceData, v4 validation/migration",
+        "web/src/DataGrid.tsx and web/src/data-grid.ts: blue italic asterisk cells, excluded ARIA label, Exclude/Include Values context command and shared allExcluded state",
+        "web/src/App.tsx: Edit menu, Data toolbar and graph point-details Exclude Values commands routed to one undoable command; status counts; results note; CSV export choice dialog",
+        "web/src/data.ts: exportCsv modes and importCsvWithExclusions"
+      ],
+      "validation_evidence": [
+        "web/src/data.test.ts: CSV export modes and asterisk re-import",
+        "scripts/check_exclusions.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenario groups passed with zero page errors — context menu, toolbar and Edit menu toggles; computed blue italic style and asterisk; actual recalculated means and analysis payload nulls; results note; drawn graph points and graph-export payload; graph point Exclude Values with undo; reload persistence; CSV asterisk export and re-import; Prism XML Excluded import; frozen-table command disabling."
+      ],
       "prism_reference_evidence": [],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
-      ]
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "No running Prism reference: blue-italic-asterisk display and calculation omission follow the public Prism guide (audit P0120); colors, spacing and toggle rule are GP choices, not compared screenshots or native traces.",
+        "Static self-contained build not exercised in the 2026-10-19 cloud container: its network policy denied cdn.jsdelivr.net, so scripts/build_browser.py could not fetch the locked Pyodide wheels. CI runs scripts/check_exclusions.py against both static and server builds; that hosted result has not been observed."
+      ],
+      "status_note": "CSV export dialog writes excluded values normally, with an asterisk or as blanks. Other export formats and native export options remain open. (2026-10-19; review_note retains the earlier reconciliation text.)"
     },
     {
       "id": "AUD-P0163",
