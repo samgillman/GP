@@ -1,0 +1,293 @@
+/* The virtual canvas keeps actual pixel widths and heights: never stretch cells. */
+.app > main .data-grid-shell {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  position: relative;
+}
+.app > main .data-grid-viewport.sheet-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  position: relative;
+  scroll-behavior: auto;
+}
+.app > main .data-grid-table.sheet {
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 0;
+  margin: 0;
+  font-size: 12px;
+  background: #fff;
+}
+.app > main .data-grid-table.sheet thead {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+}
+.app > main .data-grid-table.sheet thead tr {
+  height: 60px;
+}
+.app > main .data-grid-table.sheet th,
+.app > main .data-grid-table.sheet td {
+  box-sizing: border-box;
+  padding: 0;
+  min-width: 0;
+  max-width: none;
+  border: 0;
+  border-right: 1px solid #cdd0d4;
+  border-bottom: 1px solid #dce0e4;
+}
+.app > main .data-grid-table.sheet tbody tr:not(.data-grid-row-gap) {
+  height: 24px;
+}
+.app > main .data-grid-table.sheet .data-grid-column-header {
+  position: relative;
+  width: auto;
+  height: 60px;
+  background: #edf0f3;
+  font-weight: 400;
+  vertical-align: top;
+  overflow: hidden;
+}
+.app > main .data-grid-table.sheet .data-grid-column-header input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 23px;
+  min-width: 0;
+  padding: 2px 6px;
+  font:
+    600 12px -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  text-align: center;
+  color: #24282c;
+  background: #fff;
+  border: 0;
+  border-top: 1px solid #cbd0d5;
+  border-bottom: 1px solid #cbd0d5;
+  border-radius: 0;
+  box-shadow: none;
+}
+.app > main .data-grid-table.sheet .data-grid-column-header input::placeholder {
+  color: #92979d;
+  font-weight: 400;
+}
+.app > main .data-grid-table.sheet .data-grid-group {
+  display: block;
+  width: 100%;
+  height: 19px;
+  padding: 0 5px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #4e535b;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 19px;
+  box-shadow: none;
+}
+.app > main .data-grid-entry-label {
+  display: block;
+  height: 17px;
+  line-height: 17px;
+  text-align: center;
+  font-size: 10px;
+  color: #565c65;
+}
+.app > main .data-grid-resize {
+  position: absolute;
+  width: 7px;
+  top: 0;
+  bottom: 0;
+  right: -1px;
+  cursor: col-resize;
+  z-index: 2;
+  touch-action: none;
+}
+.app > main .data-grid-resize:hover,
+.app > main .data-grid-resize:focus-visible {
+  background: #2383d787;
+  outline: none;
+}
+.app > main .data-grid-table.sheet .data-grid-corner,
+.app > main .data-grid-table.sheet .data-grid-row-number {
+  position: sticky;
+  left: 0;
+  width: 38px;
+  min-width: 38px;
+  background: #eef0f3;
+  z-index: 2;
+}
+.app > main .data-grid-table.sheet .data-grid-corner {
+  z-index: 6;
+}
+.app > main .data-grid-table.sheet .data-grid-corner button,
+.app > main .data-grid-table.sheet .data-grid-row-number button {
+  display: block;
+  position: static;
+  inset: auto;
+  width: 100%;
+  height: 23px;
+  padding: 0 2px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #555e68;
+  font-size: 10px;
+  text-align: center;
+  box-shadow: none;
+  opacity: 1;
+}
+.app > main .data-grid-table.sheet .data-grid-corner button {
+  height: 59px;
+  font-size: 16px;
+}
+.app > main .data-grid-table.sheet .data-grid-cell {
+  height: 24px;
+  background: #fff;
+  position: relative;
+}
+.app > main .data-grid-table.sheet .data-grid-cell input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 23px;
+  box-sizing: border-box;
+  border: 0;
+  padding: 2px 6px;
+  border-radius: 0;
+  box-shadow: none;
+  font:
+    12px -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  color: #20262e;
+  text-align: right;
+  background: transparent;
+  caret-color: transparent;
+  outline: none;
+  user-select: text;
+}
+.app > main .data-grid-table.sheet .data-grid-cell.is-selected {
+  background: #deebfb;
+}
+.app > main .data-grid-table.sheet .data-grid-cell.is-active {
+  box-shadow: inset 0 0 0 2px #2378cf;
+}
+.app > main .data-grid-table.sheet .data-grid-cell.is-active.is-editing {
+  background: #fff;
+  box-shadow: inset 0 0 0 2px #2378cf;
+}
+.app > main .data-grid-table.sheet .data-grid-cell.is-editing input {
+  caret-color: auto;
+}
+.app
+  > main
+  .data-grid-table.sheet
+  .data-grid-cell:not(.is-editing)
+  input::selection {
+  background: transparent;
+  color: inherit;
+}
+.app > main .data-grid-table.sheet .data-grid-column-gap {
+  border: 0;
+  padding: 0;
+  background: #fff;
+}
+.app > main .data-grid-table.sheet thead .data-grid-column-gap {
+  background: #edf0f3;
+}
+.app > main .data-grid-table.sheet .data-grid-row-gap,
+.app > main .data-grid-table.sheet .data-grid-row-gap td {
+  border: 0;
+  padding: 0;
+  line-height: 0;
+  font-size: 0;
+  min-height: 0;
+  background: #fff;
+}
+.app > main .data-grid-footer.sheet-footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 31px;
+  padding: 4px 8px;
+  border-top: 1px solid #c8cdd3;
+  font-size: 11px;
+}
+.app > main .data-grid-footer > div {
+  display: flex;
+  gap: 5px;
+}
+.app > main .data-grid-footer button {
+  min-height: 22px;
+  height: 22px;
+  padding: 1px 8px;
+  font-size: 11px;
+}
+.app > main .data-grid-notice {
+  padding: 5px 8px;
+  font-size: 12px;
+  background: #fff4cf;
+  color: #5c4b18;
+  display: flex;
+  justify-content: space-between;
+}
+.app > main .data-grid-notice button {
+  border: 0;
+  background: transparent;
+  padding: 0 5px;
+}
+.data-grid-context-menu {
+  position: fixed;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  width: 205px;
+  padding: 5px;
+  border: 1px solid #b6bbc3;
+  border-radius: 6px;
+  background: #f7f7f9;
+  box-shadow: 0 5px 18px #0003;
+}
+.data-grid-context-menu button {
+  text-align: left;
+  font-size: 12px;
+  padding: 5px 8px;
+  min-height: 26px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: #272c34;
+  box-shadow: none;
+}
+.data-grid-context-menu button:hover:not(:disabled),
+.data-grid-context-menu button:focus-visible {
+  color: #fff;
+  background: #2679d0;
+  outline: none;
+}
+.data-grid-context-menu button:disabled {
+  color: #9a9ca1;
+}
+@media (max-width: 650px) {
+  .app > main .data-grid-selection-count {
+    display: none;
+  }
+}
+
+.app > main .data-grid-table.sheet .data-grid-cell input.invalid-cell {
+  background: #ffebe6;
+  color: #a03f32;
+}

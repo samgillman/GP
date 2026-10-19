@@ -199,11 +199,17 @@ def logrank(groups):
         warnings.append(
             "The groups do not provide a full-rank survival comparison; only estimable contrasts contribute."
         )
+    undefined_reason = None
     if not df:
-        warnings.append(
-            "There is no event-time comparison information; a logrank p value is undefined."
+        undefined_reason = (
+            "Logrank test is undefined because no events were observed in any group."
+            if not len(event_times) else
+            "Logrank test is undefined because there is no event-time comparison information."
         )
+        warnings.append(undefined_reason)
     return dict(
+        status="defined" if df else "undefined",
+        undefined_reason=undefined_reason,
         statistic=statistic,
         df=df,
         p_value=p_value,
@@ -218,12 +224,13 @@ def logrank(groups):
 def analyze_survival(groups, confidence=0.95):
     """Return named KM curves and an optional global logrank comparison."""
     validated = _groups(groups)
+    comparison = logrank(groups) if len(validated) > 1 else None
     return dict(
         curves={
             name: kaplan_meier(t, e, confidence) for name, (t, e) in validated.items()
         },
-        logrank=logrank(groups) if len(validated) > 1 else None,
+        logrank=comparison,
         warnings=[
             "Right-censored observations from time zero; no delayed entry, competing risks, hazard ratios, trend tests, or pairwise post-tests are computed."
-        ],
+        ] + (comparison["warnings"] if comparison else []),
     )

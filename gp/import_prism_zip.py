@@ -46,6 +46,19 @@ def _object(value):
     return value
 
 
+def _title(value, default, maximum):
+    """Read the plain text of a string or structured Prism title."""
+    if value is None:
+        return default
+    if isinstance(value, dict):
+        value = value.get("string")
+    if not isinstance(value, str):
+        raise AnalysisError("unsupported title representation; expected text or a structured string title")
+    if len(value) > maximum:
+        raise AnalysisError(f"title exceeds {maximum} characters")
+    return value or default
+
+
 def _no_duplicates(pairs):
     result = {}
     for key, value in pairs:
@@ -109,7 +122,7 @@ def import_prism_zip(content):
                 title = f"Table {uid}"
                 try:
                     sheet = obj(f"data/sheets/{uid}/sheet.json")
-                    title = str(sheet.get("title", title))[:200]
+                    title = _title(sheet.get("title"), title, 200)
                     table = _object(sheet.get("table"))
                     kind = table.get("format")
                     if kind not in {"column", "xy"}:
@@ -171,9 +184,7 @@ def import_prism_zip(content):
                             attrs = cell.get("attributes", [])
                             if not isinstance(attrs, list) or not all(isinstance(a, str) and a in SAFE_ATTRIBUTES for a in attrs):
                                 raise AnalysisError("unsupported cell flags; excluded or censored observations were not included")
-                        name = str(ds.get("title") or ("X" if role == "x" else f"Series {len(columns)+1}"))
-                        if len(name) > 100:
-                            raise AnalysisError("column title exceeds 100 characters")
+                        name = _title(ds.get("title"), "X" if role == "x" else f"Series {len(columns)+1}", 100)
                         base, suffix = name, 2
                         while name in used_names:
                             name = f"{base[:90]} ({suffix})"

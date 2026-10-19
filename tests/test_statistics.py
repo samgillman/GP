@@ -97,7 +97,7 @@ def test_four_parameter_logistic_recovers_known_parameters(hill):
     ("paired_t", [[1,2,3],[2,3,4]], "column"),
     ("anova", [[1,1],[2,2]], "column"),
     ("linear_regression", [[1,1,1],[2,3,4]], "xy"),
-    ("dose_response", [[0,1,2,3,4,5],[1,3,4,5,6,7]], "xy"),
+    ("dose_response", [[-1,1,2,3,4,5],[1,3,4,5,6,7]], "xy"),
     ("dose_response", [[1,2,3,4,5],[1,3,4,5,6]], "xy"),
     ("descriptive", [[None]], "column"),
     ("linear_regression", [[1,2,3],[2,3,4]], "column"),

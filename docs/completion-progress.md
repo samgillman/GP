@@ -9,14 +9,79 @@
 
 ## Latest document revision
 
-All four new uploads are hashed in [source-map.json](requirements/source-map.json). The comparison was reviewed in full including its new sections. Prism 10 HTML differs only in an introductory provenance paragraph; all 51 image sources match the earlier upload. The companion Markdown is retained as a source identity, while the full-guide audit uses the HTML text. The new Prism 11 HTML supplies 10 screenshots; source-only options remain distinct from visually observed ones. New requirements cover the added scientific, graph, settings and provenance details.
+All four new uploads are hashed in [source-map.json](requirements/source-map.json). The comparison was reviewed in full including its new sections. Prism 10 HTML differs only in an introductory provenance paragraph; all 51 image sources match the earlier upload. The companion Markdown is retained as a source identity, while the full-guide audit uses the HTML text. All 10 screenshots supplied in the new Prism11 HTML were visually inspected by the team: Welcome/Collaborate, formula table/Inspector, multifactor data/results/comparison graph, survival risk table and axes. Source-only options remain distinct from visually observed ones. New requirements cover the added scientific, graph, settings and provenance details.
 
 ## First work unit
 
-W002 — automatic recomputation of existing direct analyses. Planned acceptance includes all linked analyses, stale-response rejection, navigation, unrelated edits, undo/redo, invalid drafts, failures without retry loops, recovery/open boundaries, persistence, static worker and server behavior. General transform/constant/layout dependencies are separately tracked by W003.
+W002 — automatic recomputation of existing direct analyses (implementation and results below). Acceptance includes all linked analyses, stale-response rejection, navigation, unrelated edits, undo/redo, invalid drafts, failures without retry loops, recovery/open boundaries, persistence, static worker and server behavior. General transform/constant/layout dependencies are separately tracked by W003.
 
 ## External reference and production blockers
 
 - No directly executable Prism macOS reference is available in this Linux workspace. Saved outputs and the user's guide support bounded tests; runtime-only parity remains open.
 - Direct HTTPS checks of gp.samgillman.org and GitHub deployment API returned proxy 403 in the prior turn. Latest Git push and live deployment are separate facts. Q004 remains open.
 - Third-party cloud/account/office integrations need actual supported access and platform capability; they are not simulated.
+
+## Plan published before implementation
+
+- `9851d36`: complete dependency-ordered plan and detailed registers committed before application changes.
+- `c1bad4b`: final new-document graph details integrated and pushed to `main`.
+- Baseline inventory: **1,051 unique tracked requirements**, including 152 equations and 82 formula functions; all 226 Prism 10 headings, 21 Prism 11 headings and 32 legacy coverage families mapped. Counts describe inventory, not completeness or percentage achieved.
+- Native runtime comparisons, remaining resource discovery, unsupported integrations and production checks are still open. The plan does not waive them.
+
+## Implemented work unit: W002
+
+Existing direct analyses automatically recalculate after source or analysis changes and on reopening stale workbooks. Each result retains its own analysis/model/dataset selection. Updates are debounced and sequential; obsolete replies are rejected using complete input identity and document boundaries. Invalid drafts and changed selections pause the affected result. Failures remain visible without an automatic retry loop.
+
+Derived updates preserve the active sheet, renamed result, independent analyses and undo/redo. They use the normal persistence path without creating user history entries. Manual Recalculate remains available. The static worker cannot physically interrupt Python already executing; aborted replies are discarded. General dependency chains, typed tables and frozen sheets remain W003/W004 work.
+
+Evidence: `web/src/workbook-recalculation.ts`, 17 dedicated tests in `web/src/workbook-recalculation.test.ts`, and `scripts/check_recalculation.py` using actual numerical outputs in Chromium. W002 is **implemented_gp_verified**, not native equivalence verified.
+
+## Scientific correction: part of A197
+
+Raw zero-dose controls now enter current standalone 4PL and normalized-inhibition fits, sample counts, residuals and degrees of freedom. Direction-correct finite endpoints avoid taking log(0). Already-logarithmic dose models keep their original interpretation. Browser and exported log graphs omit zero only from drawing coordinates and explain its presence in the fit.
+
+Tests cover increasing/decreasing fits, concentration-unit scaling, noisy zero controls that alter the objective, missing pairs, invalid concentrations, sufficient distinct positive doses and export coordinates. A browser regression exposed an expensive opposite-direction search after an effectively exact fit. The solver now orders directions using observed trend and skips the second start only when dimensionless mean squared residual is at most double-precision epsilon; noisy data still compare both directions. Existing saved positive-dose reference tolerances are unchanged. Other model parameterizations, native optimizer fidelity, weighting and confidence/profile intervals remain open; A197 is **partial**.
+
+## Import safeguards: parts of F011/F016/F017/F045/F046/F055
+
+Unsupported numeric Nested and MultipleVariables XML tables are explicitly rejected before ordinary-column parsing. XML TableSequence controls import order; ambiguous IDs reject and broken/duplicate/unlisted references produce diagnostics. ZIP structured titles preserve their text; unsupported or overlong title representations reject explicitly. The browser shows the original unsupported-table reason when no table can be imported and leaves the current workbook intact.
+
+All 11 bundled extended XML examples were correctly rejected; all 14 bundled ZIP templates retained their previous supported/unsupported outcomes. Structured ZIP titles have guide-backed synthetic tests; the bundled ZIP sample set contains no such titles. See [source-bound importer evidence](import-safeguards-evidence.json). These are safeguards, not full support for those table families or lossless native files.
+
+## Earlier validation for the first work units
+
+- Final full backend suite: **241 passed**, including the optimizer performance correction. One existing Starlette/httpx deprecation warning.
+- Frontend suite: **42 passed**, including 17 new queue/state/history tests; TypeScript passed.
+- Server and self-contained static builds completed; all 19 Pyodide packages verified against their lock hashes. Updated numerical/import module bytes in the browser zip match their source files. The bundled Pyodide runtime uses NumPy2.2.5/SciPy1.14.1; server uses its separately pinned versions, so both paths are tested. The corrected exact zero-dose fit completed in0.401s in the bundled runtime (excluding cold-start loading).
+- Chromium actual-calculation checks exercise multiple linked analyses, independent tables, invalid drafts, navigation, undo/redo, saved stale reopening, numerical means, zero-dose fitting and finite log plotting.
+- Native-import browser check passed: the specific unsupported-table reason is visible and the workbook is unchanged. Desktop UI/theme/dialog/graph/results/mobile regression checks also passed.
+- `python3 scripts/check_requirements.py` passes identities, dependency references, source coverage and evidence gates.
+- `.github/workflows/ci.yml` runs the same requirements/unit/build/browser checks on pushes and pull requests. The hosted workflow result has not yet been observed.
+
+## Next work and limits
+
+Continue phase 1 with versioned stable identities and the general dependency graph (W001/W003), then freeze/unfreeze (W004), before extending table families and their analysis/UI contracts. All other open IDs remain in their registers; the new documents' added features have not been declared implemented simply because they were read.
+
+The latest direct HTTPS check of `https://gp.samgillman.org` still failed at the environment's CONNECT proxy with HTTP403. This is not evidence that the site itself is down or current. Source publication and production deployment verification remain separate.
+
+## User stress and interaction reports
+
+The reports are now tracked as B001–B036, including explicit point-hover/navigation, linked selection and durable point-format/exclusion requirements. The source manifest contains **1,087 requirements**; this is an inventory, not a completion percentage.
+
+The integrated changes include iterative full-data graph bounds, dense canvas drawing, a virtualized 10,000×30 grid, graph zoom/pan and source-cell hooks, independent import defaults, numeric error cleanup, in-memory render recovery and prominent autosave failure recovery. Backend limits now match the advertised 300,000 cells. The numeric edge fixes cover two-pair Hedges g, Y-only XY descriptions, constant-series isolation in standalone 4PL, and no-event logrank diagnostics. Sheet deletion/duplication helpers preserve dependency consistency and undo snapshots.
+
+Current full unit runs passed 266 backend and 87 frontend tests. Nineteen grid browser workflows and standalone 200,000-point drawing/selection/zoom checks passed. Integrated server recalculation also passed with the new grid and error text. Static/server builds and all 19 locked browser-runtime packages succeeded. Integrated server stress checks passed for 200,000 and 300,000 observations, including full drawing and graph-setting isolation. Server and static integration checks passed for analysis identity/settings, subset source-cell mapping, hostile names, constant/overflow error layout, quota failure/download, and controlled render failure/download/retry. Static recalculation, native-import diagnostics, desktop/theme/mobile checks and the virtual-grid regression also passed. Recovered zoom presets from 50% through 1000%, shortcut/reset controls, bounded canvas backing stores and unchanged saved graph settings passed in both server and static builds.
+
+A final review found and fixed selected-cell Undo routing and loss of the selected rectangle when switching sheets. Fourteen focused unit tests and six browser regressions passed; the final static production build then passed all 23 grid checks, and the server production build passed the six targeted review regressions; caret editing retains native text Undo, while range clear/paste use workbook history. The selected range and its anchor now survive sheet navigation.
+
+Grid virtualization does **not** close the performance report: whole-workbook serialization/history still makes large-table editing slow. Per-point styling/exclusion, complete axes/text editing, smart zoom, freeze, typed tables and the broader native workflow remain open. View zoom does not imply expanded graph-export capacity; server export still has its separate 20,000-cell limit.
+
+## REA resumed as an explicit reconstruction requirement
+
+The user required continued use of the REA repository tools, not only guide-driven development. `AGENTS.md` now records that workflow. The current checkout is REA 6.7.0 at 255d906e15a141b0f4acee60dc73976f03adc94c. Its public launcher and MCP interface are used directly; Ghidra 12.1.4 is available. The chat's direct tool registration is not aligned, so no connected-tool claim is made.
+
+The public REA compiled-UI decoder recovered 20 selected unchanged Prism archives using documented partial-bundle carriers. See [Prism UI REA evidence](prism-ui-rea-evidence.md) for exact Evidence IDs, source hashes and unresolved connector coverage. This directly established shipped zoom presets through 1000%, per-point overrides/reset controls and source-row actions. The decoder's linked-data-region tooltip is explicitly distinguished from still-unresolved graph-hover behavior. A new full-image Ghidra pass is tracing zoom and tooltip methods; its results will be added only after the queries complete.
+
+## Publication checkpoint requested by the user
+
+The current tested application is being published to `main` for user testing. Server and static production builds include the grid review fixes. The new native REA zoom/tooltip queries remain pending and have not been used to claim behavior; their evidence export and closed-session snapshot are queued after the queries. This checkpoint does not close the full-equivalence plan.

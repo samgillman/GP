@@ -112,9 +112,14 @@
         "A checked requirement has implementation plus GP tests; verified-equivalent additionally has adequate Prism references.",
         "Keep each unmet requirement open with next action and blocker."
       ],
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        ".github/workflows/ci.yml",
+        "scripts/check_requirements.py"
+      ],
       "prism_reference_evidence": [],
-      "limitations": []
+      "limitations": [
+        "Workflow added and local commands validated; hosted Actions run not verified from this environment. Full per-requirement fixture coverage remains open."
+      ]
     },
     {
       "id": "W001",
@@ -139,7 +144,7 @@
       "id": "W002",
       "title": "Automatic recomputation of existing direct analyses",
       "phase": 1,
-      "status": "not_started",
+      "status": "implemented_gp_verified",
       "guide_sections": [
         "1.1",
         "1.7",
@@ -156,9 +161,21 @@
         "Failures attach to the affected result, do not display old output as current or retry indefinitely.",
         "Derived refreshes preserve undo/redo; static worker and server modes have matching behavior."
       ],
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "web/src/workbook-recalculation.ts",
+        "web/src/App.tsx",
+        "web/src/workbook.ts"
+      ],
       "prism_reference_evidence": [],
-      "limitations": []
+      "limitations": [
+        "Only existing direct analyses of Column/XY data; dependency chains and freezing remain W003/W004.",
+        "Abort discards obsolete replies but does not physically interrupt Python already running in the static worker.",
+        "No live native Prism workflow comparison; this is GP behavior verified, not verified_equivalent."
+      ],
+      "validation_evidence": [
+        "web/src/workbook-recalculation.test.ts:17 scheduling/state regression tests",
+        "scripts/check_recalculation.py:actual calculation checks against server and static browser"
+      ]
     },
     {
       "id": "W003",
@@ -462,7 +479,7 @@
       "acceptance": [
         "Row/column factors, replicate subcolumns, mean/error entry, missing cells and factor labels.",
         "Support subject-along-rows and subject-across-columns matching; preserve experimental unit identity.",
-        "Represent documented three-way 2\u00d72\u00d7K encoding and integrate existing standalone ANOVA workspace."
+        "Represent documented three-way 2×2×K encoding and integrate existing standalone ANOVA workspace."
       ],
       "implementation_evidence": [],
       "prism_reference_evidence": [],
@@ -817,7 +834,7 @@
       ],
       "acceptance": [
         "Show/hide toolbar/navigator/inspector/status, sheet/gallery/section controls and contextual cell or graph coordinates.",
-        "Zoom-to-page/graph, 50\u20131000%, reset preferences, graph/layout rulers/grid and accessibility remain coherent."
+        "Zoom-to-page/graph, 50–1000%, reset preferences, graph/layout rulers/grid and accessibility remain coherent."
       ],
       "implementation_evidence": [],
       "prism_reference_evidence": [],

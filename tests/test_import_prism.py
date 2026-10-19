@@ -58,3 +58,61 @@ def test_import_endpoint_and_bad_xml():
     assert response.status_code == 200
     assert response.json()["tables"][0]["columns"][0]["values"] == [1,2]
     assert client.post('/api/import-prism',json={"content":"broken"}).status_code == 422
+
+
+@pytest.mark.parametrize("extended", ["Nested", "MultipleVariables", "FutureType", ""])
+def test_extended_numeric_tables_are_never_reinterpreted_as_columns(extended):
+    xml = document(f'<Table TableType="OneWay" ExtTableType="{extended}"><Title>Special design</Title>'
+                   + column('A', '<d>1</d><d>2</d>') + '</Table>')
+    result = import_prism(xml)
+    assert result["tables"] == []
+    assert any(f"Skipped Special design: unsupported extended table type {extended or 'unknown'}" in w
+               for w in result["warnings"])
+
+
+def numeric_table(uid, value):
+    return f'<Table ID="{uid}" TableType="OneWay">' + column(uid, f'<d>{value}</d>') + '</Table>'
+
+
+def test_table_sequence_controls_order_without_reassigning_data():
+    xml = document('<TableSequence><Ref ID="B"/><Ref ID="A" Selected="1"/></TableSequence>'
+                   + numeric_table('A', 11) + numeric_table('B', 22))
+    result = import_prism(xml)
+    assert [(t["id"], t["columns"][0]["values"]) for t in result["tables"]] == [('B', [22]), ('A', [11])]
+
+
+def test_table_sequence_missing_duplicate_and_unlisted_refs_are_visible():
+    xml = document('<TableSequence><Ref ID="B"/><Ref ID="missing"/><Ref ID="B"/></TableSequence>'
+                   + numeric_table('A', 11) + numeric_table('B', 22))
+    result = import_prism(xml)
+    assert [t["id"] for t in result["tables"]] == ['B', 'A']
+    assert any("'missing' does not identify" in w for w in result["warnings"])
+    assert any("Duplicate TableSequence reference 'B'" in w for w in result["warnings"])
+    assert any("absent from TableSequence" in w for w in result["warnings"])
+
+
+def test_no_sequence_preserves_document_order():
+    result = import_prism(document(numeric_table('B', 22) + numeric_table('A', 11)))
+    assert [t["id"] for t in result["tables"]] == ['B', 'A']
+
+
+@pytest.mark.parametrize("body", [
+    numeric_table('A', 11) + numeric_table('A', 22),
+    '<TableSequence/><TableSequence/>' + numeric_table('A', 11),
+])
+def test_ambiguous_xml_references_are_rejected(body):
+    with pytest.raises(AnalysisError, match="ambiguous"):
+        import_prism(document(body))
+
+
+def test_empty_import_endpoint_retains_each_unsupported_table_reason():
+    xml = document('<Table TableType="OneWay" ExtTableType="MultipleVariables"><Title>Covariates</Title>'
+                   + column('Age', '<d>30</d><d>40</d>') + '</Table>'
+                   + '<Table TableType="Survival"><Title>Time to event</Title></Table>')
+    response = TestClient(app).post('/api/import-prism', json={"content": xml})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["tables"] == []
+    assert any("Skipped Covariates: unsupported extended table type MultipleVariables" in w for w in body["warnings"])
+    assert any("Skipped Time to event: unsupported table type Survival" in w for w in body["warnings"])
+    assert body["warnings"][-1] == "No supported raw column or XY tables were found."

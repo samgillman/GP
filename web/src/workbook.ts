@@ -224,7 +224,7 @@ export function addGraph(
   };
   return { ...book, activeSheetId: graph.id, sheets: [...book.sheets, graph] };
 }
-function responseValid(r: unknown): r is Response {
+export function responseValid(r: unknown): r is Response {
   if (!r || typeof r !== "object") return false;
   const v = r as Response;
   return (

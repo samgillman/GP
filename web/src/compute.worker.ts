@@ -1,4 +1,5 @@
 import type { PyodideInterface } from "pyodide";
+import { errorMessage } from "./error-message.ts";
 
 let engine: Promise<PyodideInterface> | null = null;
 let renderReady = false;
@@ -24,6 +25,7 @@ import json, numpy as np
 from pydantic import ValidationError
 from gp.models import AnalysisRequest, ExportRequest
 from gp.statistics import analyze, AnalysisError
+from gp.survival import SurvivalError
 from gp.import_prism import import_prism, PrismImportRequest
 from gp.import_prism_zip import PrismZipImportRequest
 from gp.advanced import SurvivalRequest
@@ -47,6 +49,19 @@ def gp_dispatch(path, payload):
         from gp.plotting import export_plot
         return export_plot(ExportRequest.model_validate(data))
     raise AnalysisError('Unknown operation.')
+
+def gp_dispatch_safe(path, payload):
+    global gp_error_body
+    gp_error_body = None
+    try:
+        return gp_dispatch(path, payload)
+    except ValidationError as exc:
+        gp_error_body = json.dumps({'detail': [
+            {'loc': ['body', *error['loc']], 'msg': error['msg'], 'type': error['type']}
+            for error in exc.errors(include_url=False, include_context=False, include_input=False)
+        ]}, allow_nan=False)
+    except (AnalysisError, SurvivalError) as exc:
+        gp_error_body = json.dumps({'detail': str(exc)}, allow_nan=False)
 `);
       return py;
     })();
@@ -70,7 +85,12 @@ self.onmessage = ({ data }) => {
       }
       py.globals.set("gp_path", path);
       py.globals.set("gp_payload", JSON.stringify(body));
-      const value = await py.runPythonAsync("gp_dispatch(gp_path, gp_payload)");
+      const value = await py.runPythonAsync("gp_dispatch_safe(gp_path, gp_payload)");
+      const errorBody = py.globals.get("gp_error_body");
+      if (typeof errorBody === "string") {
+        self.postMessage({ id, status: 422, body: JSON.parse(errorBody) });
+        return;
+      }
       if (path === "/api/export") {
         const bytes = value.toJs();
         value.destroy();
@@ -88,15 +108,7 @@ self.onmessage = ({ data }) => {
         self.postMessage({ id, status: 200, body: JSON.parse(value) });
       }
     } catch (error) {
-      const raw = error instanceof Error ? error.message : String(error);
-      const detail =
-        raw
-          .split("\n")
-          .filter(Boolean)
-          .at(-1)
-          ?.replace(/^(AnalysisError|ValueError|FloatingPointError): /, "") ||
-        "Analysis failed. Check your data and try again.";
-      self.postMessage({ id, status: 422, body: { detail } });
+      self.postMessage({ id, status: 422, body: { detail: errorMessage(error) } });
     }
   });
 };

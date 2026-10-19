@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-10-19T18:33:34.672227+00:00",
+  "generated_at_utc": "2026-10-19T20:05:14.808680+00:00",
   "target": {
     "product": "GraphPad Prism",
     "version": "11.1.0",
@@ -46,7 +46,7 @@
       "implementation_sources": [
         {
           "path": "gp/statistics.py",
-          "sha256": "b5479fcaf0fdc8d552f96985b3974586be79806821257c5ed253f1669255366b"
+          "sha256": "3e84842cf26985341976e8cd45413e11d4ca725fd46c2144f16a1f679705533e"
         },
         {
           "path": "gp/descriptive.py",
@@ -83,7 +83,7 @@
       "implementation_sources": [
         {
           "path": "gp/statistics.py",
-          "sha256": "b5479fcaf0fdc8d552f96985b3974586be79806821257c5ed253f1669255366b"
+          "sha256": "3e84842cf26985341976e8cd45413e11d4ca725fd46c2144f16a1f679705533e"
         },
         {
           "path": "tests/test_prism_reference.py",
@@ -112,7 +112,7 @@
       "implementation_sources": [
         {
           "path": "gp/statistics.py",
-          "sha256": "b5479fcaf0fdc8d552f96985b3974586be79806821257c5ed253f1669255366b"
+          "sha256": "3e84842cf26985341976e8cd45413e11d4ca725fd46c2144f16a1f679705533e"
         }
       ],
       "remaining_obligations": [
@@ -158,7 +158,7 @@
       ],
       "implementation_sources": [],
       "remaining_obligations": [
-        "D’Agostino-Pearson, Shapiro-Wilk, Anderson-Darling, KS variant",
+        "D\u2019Agostino-Pearson, Shapiro-Wilk, Anderson-Darling, KS variant",
         "Minimum sample/tie conventions",
         "Numerical oracles"
       ],
@@ -179,7 +179,7 @@
       "implementation_sources": [
         {
           "path": "gp/statistics.py",
-          "sha256": "b5479fcaf0fdc8d552f96985b3974586be79806821257c5ed253f1669255366b"
+          "sha256": "3e84842cf26985341976e8cd45413e11d4ca725fd46c2144f16a1f679705533e"
         }
       ],
       "remaining_obligations": [
@@ -277,7 +277,7 @@
       "implementation_sources": [],
       "remaining_obligations": [
         "Subject/block alignment",
-        "Sphericity/Geisser–Greenhouse",
+        "Sphericity/Geisser\u2013Greenhouse",
         "Missing values and variance-component estimation",
         "Convergence/boundary handling",
         "Reference results beyond ordinary ANOVA"
@@ -302,7 +302,7 @@
       ],
       "implementation_sources": [],
       "remaining_obligations": [
-        "Tukey/Dunnett/Šídák/Holm–Šídák/Bonferroni/FDR variants",
+        "Tukey/Dunnett/\u0160\u00edd\u00e1k/Holm\u2013\u0160\u00edd\u00e1k/Bonferroni/FDR variants",
         "Family definition and selected comparisons",
         "Adjusted P values and intervals",
         "Tie/order behavior"
@@ -328,7 +328,7 @@
       "implementation_sources": [
         {
           "path": "gp/statistics.py",
-          "sha256": "b5479fcaf0fdc8d552f96985b3974586be79806821257c5ed253f1669255366b"
+          "sha256": "3e84842cf26985341976e8cd45413e11d4ca725fd46c2144f16a1f679705533e"
         }
       ],
       "remaining_obligations": [
@@ -378,7 +378,7 @@
       "implementation_sources": [
         {
           "path": "gp/regression_models.py",
-          "sha256": "e66df955d817a7d860df9471570cc230bd8ecbf750bae321bf589966c3de12a3"
+          "sha256": "742de9c5f0f6ac51310cc560defdfa082a26997c1188a8aeb00b02485cb10b17"
         }
       ],
       "remaining_obligations": [
@@ -419,15 +419,15 @@
       "implementation_sources": [
         {
           "path": "gp/regression_models.py",
-          "sha256": "e66df955d817a7d860df9471570cc230bd8ecbf750bae321bf589966c3de12a3"
+          "sha256": "742de9c5f0f6ac51310cc560defdfa082a26997c1188a8aeb00b02485cb10b17"
         },
         {
           "path": "gp/statistics.py",
-          "sha256": "b5479fcaf0fdc8d552f96985b3974586be79806821257c5ed253f1669255366b"
+          "sha256": "3e84842cf26985341976e8cd45413e11d4ca725fd46c2144f16a1f679705533e"
         },
         {
           "path": "tests/test_regression_models.py",
-          "sha256": "15558aa9998bf53a64c8d0e17555c0fd8545e07fb1aa3addcf67ae2e0385ac46"
+          "sha256": "73bba9e63126789f77bcbf6299ccc02abf5d68093f7e83929cd766d9d77f790c"
         },
         {
           "path": "tests/fixtures/prism_normalized_inhibition_saved.json",
@@ -443,7 +443,8 @@
         "Profile-likelihood intervals",
         "Model comparison and prediction/confidence bands"
       ],
-      "priority": "high"
+      "priority": "high",
+      "latest_progress": "Current4PL and normalized raw-concentration inhibition fits include zero controls. Native optimizer/uncertainty/options equivalence remains open."
     },
     {
       "id": "correlation",
@@ -468,7 +469,7 @@
     },
     {
       "id": "survival_km",
-      "scope": "Kaplan–Meier curves, risk/event/censor tables, confidence intervals",
+      "scope": "Kaplan\u2013Meier curves, risk/event/censor tables, confidence intervals",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
       "verification_status": "714_populated_saved_values_medians_and_static_browser_verified",
@@ -489,7 +490,7 @@
       "implementation_sources": [
         {
           "path": "gp/survival.py",
-          "sha256": "4bc8f383e93658cd5f05395458a0617d3b1e8d824793fb9d999b321dbfd5a602"
+          "sha256": "bb9ef502edff7391338061ce67c3eec16348ed39bf157ce427b94a24743422ce"
         },
         {
           "path": "tests/test_survival.py",
@@ -513,7 +514,7 @@
     },
     {
       "id": "survival_comparisons",
-      "scope": "Logrank, trend, Gehan–Breslow–Wilcoxon and multiplicity",
+      "scope": "Logrank, trend, Gehan\u2013Breslow\u2013Wilcoxon and multiplicity",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
       "verification_status": "saved_global_logrank_and_static_browser_verified",
@@ -534,7 +535,7 @@
       "implementation_sources": [
         {
           "path": "gp/survival.py",
-          "sha256": "4bc8f383e93658cd5f05395458a0617d3b1e8d824793fb9d999b321dbfd5a602"
+          "sha256": "bb9ef502edff7391338061ce67c3eec16348ed39bf157ce427b94a24743422ce"
         },
         {
           "path": "tests/test_survival.py",
@@ -547,7 +548,7 @@
       ],
       "remaining_obligations": [
         "Pairwise comparisons and adjustments",
-        "Trend and Gehan–Breslow–Wilcoxon tests",
+        "Trend and Gehan\u2013Breslow\u2013Wilcoxon tests",
         "Hazard ratios and associated intervals",
         "All native comparison settings"
       ],
@@ -726,11 +727,11 @@
       "implementation_sources": [
         {
           "path": "gp/import_prism.py",
-          "sha256": "9dd75c4562f36501ead42d20137e9a40ac065a227afa8314a66d06ceabcbdd99"
+          "sha256": "9fa6c0d12842a813b9cae6d117e9fc428f69afe96c4a5c05c843f433d4cb2731"
         },
         {
           "path": "tests/test_import_prism.py",
-          "sha256": "ca611c09234846f0ad1c2157814156212827418b2839d678d6c94048b7d70b13"
+          "sha256": "e8cd8a1f5af9d5837ec01dbe0fcfdc31801c1936febb891174af8e7ba5afd4a0"
         }
       ],
       "remaining_obligations": [
@@ -738,7 +739,8 @@
         "Graphs/analyses/styles/notes",
         "Round-trip and lossless exclusions"
       ],
-      "priority": "high"
+      "priority": "high",
+      "latest_progress": "Added explicit extended-table rejection, XML sequence diagnostics, structured ZIP title text and empty-import UI reasons; full native file support remains open."
     },
     {
       "id": "prism_zip",
@@ -755,11 +757,11 @@
       "implementation_sources": [
         {
           "path": "gp/import_prism_zip.py",
-          "sha256": "5cb78ff080eace2e927212a2ddcde4de4e16d454dedc00a02bf3968f3742ed1b"
+          "sha256": "04729079d9364e5488e741dadffc8767f8d6ab573f8e5b4e86bf3bd04c5855d3"
         },
         {
           "path": "tests/test_import_prism_zip.py",
-          "sha256": "8d07bdb2efd53aee5998bc0f3d83f2a843e7da1f39f68316697c9de5ca68b295"
+          "sha256": "e611fdc004e64d497ccd55e0c568bb42464e33cce914e4879a5b475e79634255"
         }
       ],
       "remaining_obligations": [
@@ -768,7 +770,8 @@
         "Saved analyses/results/graphs/layouts",
         "Lossless project round-trip/version compatibility"
       ],
-      "priority": "high"
+      "priority": "high",
+      "latest_progress": "Added explicit extended-table rejection, XML sequence diagnostics, structured ZIP title text and empty-import UI reasons; full native file support remains open."
     },
     {
       "id": "legacy_binary",
@@ -792,7 +795,7 @@
     },
     {
       "id": "workbook_workflow",
-      "scope": "Multi-sheet data→analysis→graph dependency workflow",
+      "scope": "Multi-sheet data\u2192analysis\u2192graph dependency workflow",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
       "verification_status": "multi_sheet_link_invalidation_recalculation_and_persistence_browser_verified",
@@ -853,15 +856,15 @@
       "implementation_sources": [
         {
           "path": "web/src/App.tsx",
-          "sha256": "2c9b9e7998afc97155c1ac3d08bcd44406c40ef08d811efd173e80e5ffd1470c"
+          "sha256": "20889aff4ab8698c4a7c693bda12b32c4e0dd201db390eb0830eb0ca9578fbd6"
         },
         {
           "path": "web/src/data.ts",
-          "sha256": "f48a527a7b0bbb57343c3be2022c492386b51bddfd766ab3d0e5e3cb86195547"
+          "sha256": "8751bb0eef34eb5b44f344b70df5d22a367e2a4badc089e511792ca4fafe022e"
         },
         {
           "path": "web/src/workbook.ts",
-          "sha256": "aa194f37f6a4fb3cfc04aa9d513e3885667a86cf0b48fb6fe4a9d1c5aed25424"
+          "sha256": "48e3f94786ec86c7651dd06897ae1aede835b51597ea60cbfdeb45bbd850a949"
         },
         {
           "path": "web/src/workbook.test.ts",
@@ -895,7 +898,8 @@
         "Full saved-analysis parameter editing",
         "Complete sheet navigation and selection fidelity"
       ],
-      "priority": "high"
+      "priority": "high",
+      "latest_progress": "Existing direct analyses now recalculate automatically with debounce, input-identity guards, visible errors, navigation and undo preservation. Full typed workbook/dependency DAG/freeze remains open."
     },
     {
       "id": "graphing",
@@ -944,11 +948,11 @@
       "implementation_sources": [
         {
           "path": "web/src/Plot.tsx",
-          "sha256": "1de1530b38ab96076034af4eee55c39cf9f09fcf1afa3a48da39e67475791272"
+          "sha256": "173a19da430d1f3207f6bb1a3b86bc38d03597578c7f1a1a3d9990d8c1c49a53"
         },
         {
           "path": "gp/plotting.py",
-          "sha256": "c8f572312ad4d634ce3d476f3abad73672b54d7827db9a3b6a0b0b2dc16c9442"
+          "sha256": "095de67a08e1d5f6c2f70d9e62207a1293280f9c69f3ea61ee6d808baf67b995"
         },
         {
           "path": "web/src/AdvancedAnalyses.tsx",
@@ -980,7 +984,7 @@
       "implementation_sources": [
         {
           "path": "gp/plotting.py",
-          "sha256": "c8f572312ad4d634ce3d476f3abad73672b54d7827db9a3b6a0b0b2dc16c9442"
+          "sha256": "095de67a08e1d5f6c2f70d9e62207a1293280f9c69f3ea61ee6d808baf67b995"
         }
       ],
       "remaining_obligations": [
@@ -1099,7 +1103,7 @@
       "implementation_sources": [
         {
           "path": "web/src/App.tsx",
-          "sha256": "2c9b9e7998afc97155c1ac3d08bcd44406c40ef08d811efd173e80e5ffd1470c"
+          "sha256": "20889aff4ab8698c4a7c693bda12b32c4e0dd201db390eb0830eb0ca9578fbd6"
         },
         {
           "path": "docs/prism-ui-map.md",
@@ -1139,7 +1143,7 @@
         },
         {
           "path": "scripts/check_desktop_ui.py",
-          "sha256": "7b3b874be9f9eb4ca42e6d8dfb7b875f028bdea2b8d7579530c2c3e9593921c6"
+          "sha256": "5f186b08584291d9c55f0012cc189d6a19c1453ac93f32708ef4d25683f548f6"
         },
         {
           "path": "web/src/desktop-dark.css",
@@ -3915,11 +3919,11 @@
   "implementation_snapshot": [
     {
       "path": "gp/models.py",
-      "sha256": "a829b93d70a87a6082af02cad394449b7e1f3cbf75f6b114e7789be1fb5dc8be"
+      "sha256": "22caf625ee3b7f9dfaf24c9f5f013b0a96bb6d788f7dee033a4f4887e0643871"
     },
     {
       "path": "gp/statistics.py",
-      "sha256": "b5479fcaf0fdc8d552f96985b3974586be79806821257c5ed253f1669255366b"
+      "sha256": "3e84842cf26985341976e8cd45413e11d4ca725fd46c2144f16a1f679705533e"
     },
     {
       "path": "gp/descriptive.py",
@@ -3927,31 +3931,31 @@
     },
     {
       "path": "gp/regression_models.py",
-      "sha256": "e66df955d817a7d860df9471570cc230bd8ecbf750bae321bf589966c3de12a3"
+      "sha256": "742de9c5f0f6ac51310cc560defdfa082a26997c1188a8aeb00b02485cb10b17"
     },
     {
       "path": "gp/import_prism.py",
-      "sha256": "9dd75c4562f36501ead42d20137e9a40ac065a227afa8314a66d06ceabcbdd99"
+      "sha256": "9fa6c0d12842a813b9cae6d117e9fc428f69afe96c4a5c05c843f433d4cb2731"
     },
     {
       "path": "gp/import_prism_zip.py",
-      "sha256": "5cb78ff080eace2e927212a2ddcde4de4e16d454dedc00a02bf3968f3742ed1b"
+      "sha256": "04729079d9364e5488e741dadffc8767f8d6ab573f8e5b4e86bf3bd04c5855d3"
     },
     {
       "path": "web/src/App.tsx",
-      "sha256": "2c9b9e7998afc97155c1ac3d08bcd44406c40ef08d811efd173e80e5ffd1470c"
+      "sha256": "20889aff4ab8698c4a7c693bda12b32c4e0dd201db390eb0830eb0ca9578fbd6"
     },
     {
       "path": "web/src/Plot.tsx",
-      "sha256": "1de1530b38ab96076034af4eee55c39cf9f09fcf1afa3a48da39e67475791272"
+      "sha256": "173a19da430d1f3207f6bb1a3b86bc38d03597578c7f1a1a3d9990d8c1c49a53"
     },
     {
       "path": "web/src/compute.worker.ts",
-      "sha256": "6c038a78232a84fa2b0f92506ceea1ca2aa0ca7bb9d7080aee192152c6428f0a"
+      "sha256": "f14d706c91ce6b53a918b29db92a4f75b1608850ce8f6da33192ed4ca2fc5ac3"
     },
     {
       "path": "gp/survival.py",
-      "sha256": "4bc8f383e93658cd5f05395458a0617d3b1e8d824793fb9d999b321dbfd5a602"
+      "sha256": "bb9ef502edff7391338061ce67c3eec16348ed39bf157ce427b94a24743422ce"
     },
     {
       "path": "gp/factorial_anova.py",
@@ -3967,7 +3971,7 @@
     },
     {
       "path": "web/src/workbook.ts",
-      "sha256": "aa194f37f6a4fb3cfc04aa9d513e3885667a86cf0b48fb6fe4a9d1c5aed25424"
+      "sha256": "48e3f94786ec86c7651dd06897ae1aede835b51597ea60cbfdeb45bbd850a949"
     },
     {
       "path": "web/src/workbook-storage.ts",
@@ -3988,7 +3992,83 @@
     {
       "path": "web/src/WorkbookDialogs.tsx",
       "sha256": "7e5fd3c6bf937e5271332d48ccdf46e220302425011a5c59933855c109b2a49a"
+    },
+    {
+      "path": "web/src/workbook-recalculation.ts",
+      "sha256": "f3a6e28e2cce117ec1ed972494f652a3f7c0563df188e90956d038d330d1e335"
+    },
+    {
+      "path": "web/src/workbook-recalculation.test.ts",
+      "sha256": "2afd8d403af99c1b56bb9b7da0db1ffa63613e080838b0f4375bb67da30270c7"
+    },
+    {
+      "path": "scripts/check_recalculation.py",
+      "sha256": "6dec2708a6b474ec99b1341864dd735c693561b316f338d19e76f161c92f5259"
+    },
+    {
+      "path": "scripts/check_import_diagnostics.py",
+      "sha256": "089eb75afa3e9c70e84f0e4e5c6bc9b698e2d789f655868c82e1c178832ad940"
+    },
+    {
+      "path": "tests/test_zero_dose.py",
+      "sha256": "ec5abb6592e2b03a91aa4c49c4aa028e93870b6389ec33aaa67942179f1c64d5"
+    },
+    {
+      "path": "web/src/DataGrid.tsx",
+      "sha256": "37dfa6603f2b1a9a15a3f89fac747c53bd93c348a96ec42a3b313222ef012ec7"
+    },
+    {
+      "path": "web/src/data-grid.ts",
+      "sha256": "7ba2341f9fd32af63363f7f082cb1baba3e0dbf71dc8050464bf6a364c5737b7"
+    },
+    {
+      "path": "web/src/plot-geometry.ts",
+      "sha256": "077b7c154c49f7a1f6b03412f8577ab3d2f66648659bf92b27a5971b40369d97"
+    },
+    {
+      "path": "web/src/plot-view.ts",
+      "sha256": "a1379228ecdcb8782b78d7990d259e1a018b1ed7aafce3b9699ec7b9bba1dae5"
+    },
+    {
+      "path": "web/src/data.ts",
+      "sha256": "8751bb0eef34eb5b44f344b70df5d22a367e2a4badc089e511792ca4fafe022e"
+    },
+    {
+      "path": "web/src/WorkbookErrorBoundary.tsx",
+      "sha256": "473bbf3e98706b0872b0c93cf01c4c868429f6b60df8e0aa4269201bea3509d8"
+    },
+    {
+      "path": "web/src/error-message.ts",
+      "sha256": "f6a927fb3f9d24b8e43f01bddb05bf38dcc41ffc5adc7f83643a687627c3a58d"
+    },
+    {
+      "path": "web/src/render-recovery.ts",
+      "sha256": "1bafa2004503feb7798e63bea0780e25345067ccf1c617bff0ae66c90063c54d"
+    },
+    {
+      "path": "web/src/workbook-actions.ts",
+      "sha256": "bd7cf36570354470acf97adcb85f77fb1270afee9662e219732ce797907c162b"
+    },
+    {
+      "path": "scripts/check_large_workbook.py",
+      "sha256": "e3fb41f0a83e3902f0149574da755d3401acab8d69e25d559842b4869b64034e"
+    },
+    {
+      "path": "scripts/check_graph_zoom.py",
+      "sha256": "be6c561b9769ee650660a6bae8146f2ab98174e0d790afdd70f7c911af21f0bd"
+    },
+    {
+      "path": "scripts/check_grid_ui.py",
+      "sha256": "71736bc4df08c60fc4028ffa7e3953cd2d5450b2dbca940c8304de8cd5964491"
+    },
+    {
+      "path": "tests/test_analysis_edges.py",
+      "sha256": "b3f90d3873c1a4dfa6f1813df7f1f8b8fcfabc7925f7acd2b7a10e491a865daf"
+    },
+    {
+      "path": "tests/test_table_capacity.py",
+      "sha256": "b69c1763db6506a542f272dcfcd7cb77bf3c6b7f6e41fba125f52a5eba8a1d94"
     }
   ],
-  "refresh_notes": "Source changes after generated_at_utc require rechecking statuses. Passing a bounded saved case does not verify every native option or edge case."
+  "refresh_notes": "Updated implementation hashes for automatic recalculation, zero-dose controls, safe imports and user-reported capacity/interaction/recovery defects. REA compiled-UI findings are recorded in docs/prism-ui-rea-evidence.md; all limitations and open native comparisons remain explicit. Complete option-level plan: docs/completion-plan.md; live source map: docs/requirements/source-map.json. Passing GP checks does not establish full Prism parity."
 }

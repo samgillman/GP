@@ -31,6 +31,12 @@ def export_plot(request):
                 raise AnalysisError("XY graphs support scatter or line; choose a column table for bar or box graphs.")
             for i, column in enumerate(data.columns[1:]):
                 x, y = pairs(data.columns[0], column)
+                if data.analysis == "dose_response":
+                    # All pairs, including zero controls, were analyzed above.
+                    # Filter only the log-coordinate drawing to avoid clipping
+                    # zero to an artificial off-axis coordinate/line segment.
+                    visible = x > 0
+                    x, y = x[visible], y[visible]
                 color = palette[i % len(palette)]
                 if graph.type == "line":
                     order = np.argsort(x, kind="stable")
@@ -39,7 +45,10 @@ def export_plot(request):
                     axis.scatter(x, y, color=color, s=26, alpha=.8, label=column.name)
                 fit = next((fit for fit in outcome["fit"] if fit["series"] == column.name), None)
                 if fit:
-                    axis.plot([p["x"] for p in fit["points"]], [p["y"] for p in fit["points"]], color=color, linewidth=2)
+                    points = fit["points"]
+                    if data.analysis == "dose_response":
+                        points = [p for p in points if p["x"] > 0]
+                    axis.plot([p["x"] for p in points], [p["y"] for p in points], color=color, linewidth=2)
             if data.analysis == "dose_response":
                 axis.set_xscale("log")
             axis.set_xlabel(graph.x_label or data.columns[0].name)

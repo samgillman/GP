@@ -1,319 +1,731 @@
-import { fmt, numeric, palette } from "./data";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { fmt, palette } from "./data";
+import {
+  buildPlotGeometry,
+  DENSE_POINT_THRESHOLD,
+  drawDensePoints,
+  drawSelectedPoints,
+  plotFrame,
+  pointHitIndex,
+} from "./plot-geometry";
+import type {
+  PlotGeometry,
+  PointHit,
+  PointReference,
+  SelectedPointRange,
+} from "./plot-geometry";
 import type { Project, Response } from "./data";
-function quantile(v: number[], p: number) {
-  const a = [...v].sort((a, b) => a - b),
-    i = (a.length - 1) * p,
-    l = Math.floor(i);
-  return a[l] + (a[Math.ceil(i)] - a[l]) * (i - l);
+import {
+  canvasPixelRatio,
+  clampGraphZoom,
+  GRAPH_ZOOM_PRESETS,
+  MAX_GRAPH_ZOOM,
+  MIN_GRAPH_ZOOM,
+} from "./plot-view";
+function DensePoints({
+  geometry,
+  zoom,
+  selection,
+}: {
+  geometry: PlotGeometry;
+  zoom: number;
+  selection?: SelectedPointRange[];
+}) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useLayoutEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ratio = canvasPixelRatio(zoom, window.devicePixelRatio);
+    canvas.width = plotFrame.width * ratio;
+    canvas.height = plotFrame.height * ratio;
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    context.scale(ratio, ratio);
+    if (selection) drawSelectedPoints(context, geometry, selection);
+    else drawDensePoints(context, geometry);
+  }, [geometry, zoom, selection]);
+  return (
+    <foreignObject
+      x="0"
+      y="0"
+      width={plotFrame.width}
+      height={plotFrame.height}
+      pointerEvents="none"
+    >
+      <canvas
+        ref={ref}
+        style={{
+          width: plotFrame.width,
+          height: plotFrame.height,
+          display: "block",
+        }}
+        aria-label={
+          selection
+            ? "Selected observations from the data table"
+            : `${geometry.count.toLocaleString()} observations rendered in full. Overlapping observations may cover one another.`
+        }
+      />
+    </foreignObject>
+  );
 }
 export default function Plot({
   project,
   result,
+  onFormatAxes,
+  onEditText,
+  onSelectDataset,
+  dataTableName,
+  onSelectPoint,
+  onGoToCell,
+  selectedPoint,
+  selectedPointRanges,
 }: {
   project: Project;
   result: Response | null;
+  onFormatAxes?: (axis: "x" | "y") => void;
+  onEditText?: (field: "x_label" | "y_label") => void;
+  onSelectDataset?: (index: number) => void;
+  dataTableName?: string;
+  onSelectPoint?: (seriesIndex: number, row: number) => void;
+  onGoToCell?: (seriesIndex: number, row: number) => void;
+  selectedPoint?: PointReference | null;
+  selectedPointRanges?: SelectedPointRange[];
 }) {
-  const { graph, columns, table_type } = project,
-    xy = table_type === "xy",
-    logX = xy && result?.analysis === "dose_response";
-  const safe = (s: string) => {
-    try {
-      return numeric(s);
-    } catch {
-      return null;
-    }
-  };
-  const series = columns.slice(xy ? 1 : 0).map((c, i) => {
-    const points = c.values.flatMap((s, row) => {
-      const y = safe(s),
-        x = xy ? safe(columns[0].values[row] ?? "") : i + 1;
-      return y === null || x === null ? [] : [{ x, y, row }];
-    });
-    const values = points.map((p) => p.y),
-      n = values.length,
-      mean = n ? values.reduce((a, b) => a + b, 0) / n : 0,
-      sd =
-        n > 1
-          ? Math.sqrt(values.reduce((a, b) => a + (b - mean) ** 2, 0) / (n - 1))
-          : 0;
-    const summary = result?.summary.find((s) => s.name === c.name);
-    let lo = mean,
-      hi = mean;
-    if (graph.error === "sd") {
-      lo -= sd;
-      hi += sd;
-    }
-    if (graph.error === "sem") {
-      lo -= sd / Math.sqrt(n || 1);
-      hi += sd / Math.sqrt(n || 1);
-    }
+  const [zoom, setZoom] = useState(100);
+  const [pan, setPan] = useState(false);
+  const [localSelection, setLocalSelection] = useState<PointReference | null>(
+    null,
+  );
+  const [hover, setHover] = useState<{
+    hit: PointHit;
+    left: number;
+    top: number;
+    context: boolean;
+  } | null>(null);
+  const viewport = useRef<HTMLDivElement>(null);
+  const workspace = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const drag = useRef<{
+    x: number;
+    y: number;
+    left: number;
+    top: number;
+    moved: boolean;
+  } | null>(null);
+  const dragged = useRef(false);
+  const anchor = useRef<{
+    x: number;
+    y: number;
+    left: number;
+    top: number;
+    ratio: number;
+  } | null>(null);
+  const zoomRef = useRef(zoom);
+  zoomRef.current = zoom;
+  const { graph } = project;
+  const geometry = useMemo(
+    () => buildPlotGeometry(project, result),
+    [project, result],
+  );
+  const findPoint = useMemo(
+    () => (geometry ? pointHitIndex(geometry) : null),
+    [geometry],
+  );
+  useLayoutEffect(() => {
+    setHover(null);
+    setLocalSelection(null);
+  }, [geometry]);
+  function hitAt(clientX: number, clientY: number) {
+    const matrix = svgRef.current?.getScreenCTM();
     if (
-      graph.error === "ci" &&
-      summary?.ci_low != null &&
-      summary?.ci_high != null
-    ) {
-      lo = summary.ci_low;
-      hi = summary.ci_high;
+      !matrix ||
+      !findPoint ||
+      !(graph.show_points || graph.type === "scatter")
+    )
+      return null;
+    const p = new DOMPoint(clientX, clientY).matrixTransform(matrix.inverse());
+    return findPoint(
+      p.x,
+      p.y,
+      Math.min(30, Math.max(6, 12 / Math.hypot(matrix.a, matrix.b))),
+    );
+  }
+  function showTooltip(
+    hit: PointHit,
+    clientX: number,
+    clientY: number,
+    context = false,
+  ) {
+    const rect = workspace.current?.getBoundingClientRect();
+    if (!rect) return;
+    setHover({
+      hit,
+      context,
+      left: Math.max(4, Math.min(rect.width - 240, clientX - rect.left + 12)),
+      top: Math.max(4, clientY - rect.top + 12),
+    });
+  }
+  function changeZoom(value: number, clientX?: number, clientY?: number) {
+    const next = clampGraphZoom(value);
+    const view = viewport.current;
+    if (view) {
+      const rect = view.getBoundingClientRect();
+      const x =
+        clientX === undefined ? view.clientWidth / 2 : clientX - rect.left;
+      const y =
+        clientY === undefined ? view.clientHeight / 2 : clientY - rect.top;
+      anchor.current = {
+        x,
+        y,
+        left: view.scrollLeft,
+        top: view.scrollTop,
+        ratio: next / zoomRef.current,
+      };
     }
-    return {
-      name: c.name,
-      points,
-      values,
-      mean,
-      lo,
-      hi,
-      color:
-        graph.colors[i % graph.colors.length] || palette[i % palette.length],
+    zoomRef.current = next;
+    setZoom(next);
+    setHover(null);
+  }
+  useLayoutEffect(() => {
+    const view = viewport.current,
+      pending = anchor.current;
+    if (view && pending) {
+      view.scrollLeft = (pending.left + pending.x) * pending.ratio - pending.x;
+      view.scrollTop = (pending.top + pending.y) * pending.ratio - pending.y;
+    }
+    anchor.current = null;
+  }, [zoom]);
+  useLayoutEffect(() => {
+    const view = viewport.current;
+    if (!view) return;
+    const wheel = (event: WheelEvent) => {
+      if (!(event.ctrlKey || event.metaKey)) return;
+      event.preventDefault();
+      changeZoom(
+        zoomRef.current * Math.exp(-event.deltaY * 0.005),
+        event.clientX,
+        event.clientY,
+      );
     };
-  });
-  const all = series.flatMap((s) => s.points),
-    fits = result?.fit ?? [];
-  if (!all.length)
+    view.addEventListener("wheel", wheel, { passive: false });
+    return () => view.removeEventListener("wheel", wheel);
+  }, [!!geometry]);
+  if (!geometry)
     return (
       <div className="empty-chart">Enter numeric data to create a graph.</div>
     );
-  const ys = [
-    ...all.map((p) => p.y),
-    ...(!xy && graph.type !== "box" ? series.flatMap((s) => [s.lo, s.hi]) : []),
-    ...fits.flatMap((f) => f.points.map((p) => p.y)),
-  ];
-  let minY = Math.min(...ys),
-    maxY = Math.max(...ys);
-  if (graph.type === "bar") {
-    minY = Math.min(0, minY);
-    maxY = Math.max(0, maxY);
-  }
-  const range = maxY - minY || Math.abs(maxY) * 0.2 || 1;
-  maxY += range * 0.15;
-  minY -= range * 0.05;
-  const xValues = [
-    ...all.map((p) => p.x),
-    ...fits.flatMap((f) => f.points.map((p) => p.x)),
-  ];
-  let minX = xy ? Math.min(...xValues) : 0.4,
-    maxX = xy ? Math.max(...xValues) : series.length + 0.6;
-  if (minX === maxX) {
-    minX -= 1;
-    maxX += 1;
-  }
-  if (xy && !logX) {
-    const pad = (maxX - minX) * 0.07;
-    minX -= pad;
-    maxX += pad;
-  }
-  if (logX) {
-    const lo = Math.log10(minX),
-      hi = Math.log10(maxX),
-      pad = (hi - lo) * 0.07 || 0.1;
-    minX = 10 ** (lo - pad);
-    maxX = 10 ** (hi + pad);
-  }
-  const W = 680,
-    H = 420,
-    left = 72,
-    right = 28,
-    top = 35,
-    bottom = 78,
-    pw = W - left - right,
+  const { series, fits, xy, count, x, y, xTicks, yTicks } = geometry;
+  const { width: W, height: H, left, right, top, bottom } = plotFrame;
+  const pw = W - left - right,
     ph = H - top - bottom;
-  const x = (v: number) =>
-      left +
-      (logX
-        ? (Math.log10(v) - Math.log10(minX)) /
-          (Math.log10(maxX) - Math.log10(minX))
-        : (v - minX) / (maxX - minX)) *
-        pw,
-    y = (v: number) => top + ((maxY - v) / (maxY - minY)) * ph;
+  const showPoints = graph.show_points || graph.type === "scatter";
+  const dense = showPoints && count > DENSE_POINT_THRESHOLD;
   return (
-    <svg
-      viewBox={`0 0 ${W} ${H}`}
-      className="plot"
-      role="img"
-      aria-label={`${graph.title}. ${graph.type} graph of ${series.map((s) => s.name).join(", ")}.`}
+    <div
+      ref={workspace}
+      className="plot-workspace"
+      style={{ position: "relative" }}
+      onPointerLeave={() => {
+        if (!hover?.context) setHover(null);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          setHover(null);
+          setPan(false);
+          return;
+        }
+        if (!(event.ctrlKey || event.metaKey)) return;
+        if (event.key === "+" || event.key === "=") {
+          event.preventDefault();
+          changeZoom(zoom + 25);
+        }
+        if (event.key === "-") {
+          event.preventDefault();
+          changeZoom(zoom - 25);
+        }
+        if (event.key === "0") {
+          event.preventDefault();
+          changeZoom(100);
+        }
+      }}
     >
-      <title>{graph.title}</title>
-      <rect width={W} height={H} fill="white" />
-      {Array.from({ length: 5 }, (_, i) => {
-        const v = minY + ((maxY - minY) * i) / 4;
-        return (
-          <g key={i}>
-            <line
-              x1={left}
-              x2={W - right}
-              y1={y(v)}
-              y2={y(v)}
-              stroke="#e9eded"
-              strokeDasharray="3 5"
-            />
-            <text x={left - 12} y={y(v) + 4} textAnchor="end" className="tick">
-              {fmt(v)}
-            </text>
-          </g>
-        );
-      })}
-      <path
-        d={`M${left},${top}V${H - bottom}H${W - right}`}
-        fill="none"
-        stroke="#919f9f"
-      />
-      {xy
-        ? Array.from({ length: 5 }, (_, i) => {
-            const v = logX
-              ? 10 **
-                (Math.log10(minX) +
-                  ((Math.log10(maxX) - Math.log10(minX)) * i) / 4)
-              : minX + ((maxX - minX) * i) / 4;
-            return (
-              <text
-                key={i}
-                x={x(v)}
-                y={H - bottom + 25}
-                textAnchor="middle"
-                className="tick"
-              >
-                {fmt(v)}
-              </text>
-            );
-          })
-        : series.map((s, i) => (
-            <text
-              key={i}
-              x={x(i + 1)}
-              y={H - bottom + 26}
-              textAnchor="middle"
-              className="tick"
-            >
-              {s.name.length > 20 ? s.name.slice(0, 19) + "…" : s.name}
-            </text>
+      <div
+        role="toolbar"
+        aria-label="Graph view"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          padding: "4px 10px",
+          flexWrap: "wrap",
+        }}
+      >
+        <button
+          type="button"
+          aria-label="Zoom out graph"
+          disabled={zoom <= MIN_GRAPH_ZOOM}
+          onClick={() => changeZoom(zoom - 25)}
+        >
+          −
+        </button>
+        <label style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          Zoom
+          <input
+            type="range"
+            aria-label="Graph zoom"
+            min={MIN_GRAPH_ZOOM}
+            max={MAX_GRAPH_ZOOM}
+            step="1"
+            value={zoom}
+            style={{ width: 110 }}
+            onChange={(e) => changeZoom(Number(e.target.value))}
+          />
+          <output style={{ minWidth: 38 }}>{zoom}%</output>
+        </label>
+        <button
+          type="button"
+          aria-label="Zoom in graph"
+          disabled={zoom >= MAX_GRAPH_ZOOM}
+          onClick={() => changeZoom(zoom + 25)}
+        >
+          +
+        </button>
+        <select
+          aria-label="Graph zoom preset"
+          value={GRAPH_ZOOM_PRESETS.some((value) => value === zoom) ? zoom : ""}
+          onChange={(event) => changeZoom(Number(event.target.value))}
+        >
+          {!GRAPH_ZOOM_PRESETS.some((value) => value === zoom) && (
+            <option value="" disabled>
+              {zoom}% (custom)
+            </option>
+          )}
+          {GRAPH_ZOOM_PRESETS.map((value) => (
+            <option key={value} value={value}>
+              {value}%
+            </option>
           ))}
-      <text
-        x={left + pw / 2}
-        y={H - 18}
-        textAnchor="middle"
-        className="axis-label"
-      >
-        {graph.x_label}
-      </text>
-      <text
-        transform={`translate(18 ${top + ph / 2}) rotate(-90)`}
-        textAnchor="middle"
-        className="axis-label"
-      >
-        {graph.y_label}
-      </text>
-      {series.map((s, i) => {
-        const cx = x(i + 1),
-          bw = Math.min(72, (pw / series.length) * 0.46),
-          v = s.values,
-          points = [...s.points].sort((a, b) => a.x - b.x);
-        return (
-          <g key={i}>
-            {!xy && graph.type === "bar" && v.length > 0 && (
-              <rect
-                x={cx - bw / 2}
-                y={Math.min(y(s.mean), y(0))}
-                width={bw}
-                height={Math.abs(y(0) - y(s.mean))}
-                rx="2"
-                fill={s.color}
-                fillOpacity=".72"
-              />
-            )}
-            {!xy && graph.type === "box" && v.length > 0 && (
-              <g stroke={s.color} strokeWidth="2">
-                <line
-                  x1={cx}
-                  x2={cx}
-                  y1={y(Math.min(...v))}
-                  y2={y(Math.max(...v))}
-                />
-                <line
-                  x1={cx - bw / 4}
-                  x2={cx + bw / 4}
-                  y1={y(Math.min(...v))}
-                  y2={y(Math.min(...v))}
-                />
-                <line
-                  x1={cx - bw / 4}
-                  x2={cx + bw / 4}
-                  y1={y(Math.max(...v))}
-                  y2={y(Math.max(...v))}
-                />
-                <rect
-                  x={cx - bw / 2}
-                  y={y(quantile(v, 0.75))}
-                  width={bw}
-                  height={Math.max(
-                    1,
-                    y(quantile(v, 0.25)) - y(quantile(v, 0.75)),
-                  )}
-                  fill={s.color}
-                  fillOpacity=".16"
-                />
-                <line
-                  x1={cx - bw / 2}
-                  x2={cx + bw / 2}
-                  y1={y(quantile(v, 0.5))}
-                  y2={y(quantile(v, 0.5))}
-                />
-              </g>
-            )}
-            {graph.type === "line" && xy && (
-              <polyline
-                points={points.map((p) => `${x(p.x)},${y(p.y)}`).join(" ")}
-                fill="none"
-                stroke={s.color}
-                strokeWidth="2"
-              />
-            )}
-            {!xy &&
-              graph.error !== "none" &&
-              graph.type !== "box" &&
-              v.length > 0 && (
-                <g stroke={s.color} strokeWidth="2">
-                  <line x1={cx} x2={cx} y1={y(s.lo)} y2={y(s.hi)} />
-                  <line x1={cx - 7} x2={cx + 7} y1={y(s.lo)} y2={y(s.lo)} />
-                  <line x1={cx - 7} x2={cx + 7} y1={y(s.hi)} y2={y(s.hi)} />
-                  <line
-                    x1={cx - 13}
-                    x2={cx + 13}
-                    y1={y(s.mean)}
-                    y2={y(s.mean)}
-                  />
-                </g>
-              )}
-            {(graph.show_points || graph.type === "scatter") &&
-              s.points.map((p, j) => (
-                <circle
-                  key={j}
-                  cx={x(p.x) + (!xy ? (((j * 17) % 11) - 5) * 2.1 : 0)}
-                  cy={y(p.y)}
-                  r={xy ? 4 : 3.6}
-                  fill={s.color}
-                  stroke="white"
-                  strokeWidth="1.1"
-                >
-                  <title>
-                    {s.name}, row {p.row + 1}: {fmt(p.y)}
-                  </title>
-                </circle>
-              ))}
-          </g>
-        );
-      })}
-      {fits.map((f, i) => (
-        <polyline
-          key={i}
-          points={f.points.map((p) => `${x(p.x)},${y(p.y)}`).join(" ")}
-          fill="none"
-          stroke={
-            series.find((s) => s.name === f.series)?.color ??
-            palette[i % palette.length]
+        </select>
+        <button
+          type="button"
+          onClick={() => {
+            changeZoom(100);
+            anchor.current = null;
+            viewport.current?.scrollTo(0, 0);
+          }}
+        >
+          Fit width
+        </button>
+        <button
+          type="button"
+          aria-pressed={pan}
+          onClick={() => setPan((v) => !v)}
+        >
+          Hand pan
+        </button>
+      </div>
+      <div
+        ref={viewport}
+        role="region"
+        aria-label="Graph viewport"
+        tabIndex={0}
+        style={{
+          overflow: "auto",
+          maxHeight: "65vh",
+          cursor: pan ? "grab" : "auto",
+          touchAction: pan ? "none" : "auto",
+        }}
+        onPointerDown={(e) => {
+          e.currentTarget.focus({ preventScroll: true });
+          if (e.button !== 0 || (!pan && hitAt(e.clientX, e.clientY))) return;
+          if ((e.target as Element).tagName === "text") return;
+          dragged.current = false;
+          drag.current = {
+            x: e.clientX,
+            y: e.clientY,
+            left: e.currentTarget.scrollLeft,
+            top: e.currentTarget.scrollTop,
+            moved: false,
+          };
+          e.currentTarget.setPointerCapture(e.pointerId);
+          e.preventDefault();
+        }}
+        onPointerMove={(e) => {
+          if (!drag.current) return;
+          if (
+            Math.abs(e.clientX - drag.current.x) +
+              Math.abs(e.clientY - drag.current.y) >
+            3
+          ) {
+            drag.current.moved = true;
+            dragged.current = true;
+            setHover(null);
           }
-          strokeWidth="2.5"
-          strokeDasharray="6 4"
-        />
-      ))}
-    </svg>
+          e.currentTarget.scrollLeft =
+            drag.current.left - (e.clientX - drag.current.x);
+          e.currentTarget.scrollTop =
+            drag.current.top - (e.clientY - drag.current.y);
+        }}
+        onPointerUp={(e) => {
+          drag.current = null;
+          if (e.currentTarget.hasPointerCapture(e.pointerId))
+            e.currentTarget.releasePointerCapture(e.pointerId);
+        }}
+        onPointerCancel={() => {
+          drag.current = null;
+        }}
+        onLostPointerCapture={() => {
+          drag.current = null;
+        }}
+      >
+        <div style={{ width: `${zoom}%`, minWidth: 0 }}>
+          <svg
+            ref={svgRef}
+            onPointerMove={(event) => {
+              if (drag.current || hover?.context) return;
+              const hit = hitAt(event.clientX, event.clientY);
+              if (hit) showTooltip(hit, event.clientX, event.clientY);
+            }}
+            onClick={(event) => {
+              if (dragged.current) {
+                dragged.current = false;
+                return;
+              }
+              const hit = hitAt(event.clientX, event.clientY);
+              if (!hit) {
+                setHover(null);
+                return;
+              }
+              setLocalSelection({ seriesIndex: hit.seriesIndex, row: hit.row });
+              onSelectPoint?.(hit.seriesIndex, hit.row);
+              showTooltip(hit, event.clientX, event.clientY);
+            }}
+            onContextMenu={(event) => {
+              const hit = hitAt(event.clientX, event.clientY);
+              if (!hit) return;
+              event.preventDefault();
+              showTooltip(hit, event.clientX, event.clientY, true);
+            }}
+            viewBox={`0 0 ${W} ${H}`}
+            className="plot"
+            style={{
+              width: "100%",
+              height: "auto",
+              maxHeight: "none",
+              minHeight: 0,
+              padding: 0,
+              overflow: "visible",
+            }}
+            role="img"
+            onDoubleClick={(event) => {
+              if ((event.target as Element).tagName === "text") return;
+              const hit = hitAt(event.clientX, event.clientY);
+              if (hit) onSelectDataset?.(hit.seriesIndex);
+            }}
+            aria-label={`${graph.title}. ${graph.type} graph of ${series.map((s) => s.name).join(", ")}.`}
+          >
+            <title>{graph.title}</title>
+            <desc>
+              {count.toLocaleString()} observations.{" "}
+              {dense
+                ? "Every point is drawn on a canvas layer; no observations are sampled or aggregated. Overlapping points may cover one another."
+                : ""}
+            </desc>
+            <rect width={W} height={H} fill="white" />
+            {yTicks.map((v, i) => {
+              return (
+                <g key={i}>
+                  <line
+                    x1={left}
+                    x2={W - right}
+                    y1={y(v)}
+                    y2={y(v)}
+                    stroke="#e9eded"
+                    strokeDasharray="3 5"
+                  />
+                  <text
+                    x={left - 12}
+                    y={y(v) + 4}
+                    textAnchor="end"
+                    className="tick"
+                    onDoubleClick={() => onFormatAxes?.("y")}
+                  >
+                    {fmt(v)}
+                  </text>
+                </g>
+              );
+            })}
+            <path
+              d={`M${left},${top}V${H - bottom}H${W - right}`}
+              fill="none"
+              stroke="#919f9f"
+            />
+            {xy
+              ? xTicks.map((v, i) => {
+                  return (
+                    <text
+                      key={i}
+                      x={x(v)}
+                      y={H - bottom + 25}
+                      textAnchor="middle"
+                      className="tick"
+                      onDoubleClick={() => onFormatAxes?.("x")}
+                    >
+                      {fmt(v)}
+                    </text>
+                  );
+                })
+              : series.map((s, i) => (
+                  <text
+                    key={i}
+                    x={x(i + 1)}
+                    y={H - bottom + 26}
+                    textAnchor="middle"
+                    className="tick"
+                    onDoubleClick={() => onFormatAxes?.("x")}
+                  >
+                    {s.name.length > 20 ? s.name.slice(0, 19) + "…" : s.name}
+                  </text>
+                ))}
+            <text
+              x={left + pw / 2}
+              y={H - 18}
+              textAnchor="middle"
+              className="axis-label"
+              onDoubleClick={() => onEditText?.("x_label")}
+            >
+              {graph.x_label}
+            </text>
+            <text
+              transform={`translate(18 ${top + ph / 2}) rotate(-90)`}
+              textAnchor="middle"
+              className="axis-label"
+              onDoubleClick={() => onEditText?.("y_label")}
+            >
+              {graph.y_label}
+            </text>
+            {series.map((s, i) => {
+              const cx = x(i + 1),
+                bw = Math.min(72, (pw / series.length) * 0.46),
+                v = s.values,
+                points =
+                  graph.type === "line" && xy
+                    ? s.points.slice().sort((a, b) => a.x - b.x)
+                    : s.points;
+              return (
+                <g
+                  key={i}
+                  onDoubleClick={(event) => {
+                    event.stopPropagation();
+                    onSelectDataset?.(i);
+                  }}
+                >
+                  {!xy && graph.type === "bar" && v.length > 0 && (
+                    <rect
+                      x={cx - bw / 2}
+                      y={Math.min(y(s.mean), y(0))}
+                      width={bw}
+                      height={Math.abs(y(0) - y(s.mean))}
+                      rx="2"
+                      fill={s.color}
+                      fillOpacity=".72"
+                    />
+                  )}
+                  {!xy && graph.type === "box" && v.length > 0 && (
+                    <g stroke={s.color} strokeWidth="2">
+                      <line x1={cx} x2={cx} y1={y(s.min)} y2={y(s.max)} />
+                      <line
+                        x1={cx - bw / 4}
+                        x2={cx + bw / 4}
+                        y1={y(s.min)}
+                        y2={y(s.min)}
+                      />
+                      <line
+                        x1={cx - bw / 4}
+                        x2={cx + bw / 4}
+                        y1={y(s.max)}
+                        y2={y(s.max)}
+                      />
+                      <rect
+                        x={cx - bw / 2}
+                        y={y(s.quartiles![2])}
+                        width={bw}
+                        height={Math.max(
+                          1,
+                          y(s.quartiles![0]) - y(s.quartiles![2]),
+                        )}
+                        fill={s.color}
+                        fillOpacity=".16"
+                      />
+                      <line
+                        x1={cx - bw / 2}
+                        x2={cx + bw / 2}
+                        y1={y(s.quartiles![1])}
+                        y2={y(s.quartiles![1])}
+                      />
+                    </g>
+                  )}
+                  {graph.type === "line" && xy && (
+                    <polyline
+                      points={points
+                        .map((p) => `${x(p.x)},${y(p.y)}`)
+                        .join(" ")}
+                      fill="none"
+                      stroke={s.color}
+                      strokeWidth="2"
+                    />
+                  )}
+                  {!xy &&
+                    graph.error !== "none" &&
+                    graph.type !== "box" &&
+                    v.length > 0 && (
+                      <g stroke={s.color} strokeWidth="2">
+                        <line x1={cx} x2={cx} y1={y(s.lo)} y2={y(s.hi)} />
+                        <line
+                          x1={cx - 7}
+                          x2={cx + 7}
+                          y1={y(s.lo)}
+                          y2={y(s.lo)}
+                        />
+                        <line
+                          x1={cx - 7}
+                          x2={cx + 7}
+                          y1={y(s.hi)}
+                          y2={y(s.hi)}
+                        />
+                        <line
+                          x1={cx - 13}
+                          x2={cx + 13}
+                          y1={y(s.mean)}
+                          y2={y(s.mean)}
+                        />
+                      </g>
+                    )}
+                  {showPoints &&
+                    !dense &&
+                    s.points.map((p, j) => (
+                      <circle
+                        key={j}
+                        cx={x(p.x) + (!xy ? (((j * 17) % 11) - 5) * 2.1 : 0)}
+                        cy={y(p.y)}
+                        r={xy ? 4 : 3.6}
+                        fill={s.color}
+                        stroke="white"
+                        strokeWidth="1.1"
+                      >
+                        <title>
+                          {s.name}, row {p.row + 1}: {fmt(p.y)}
+                        </title>
+                      </circle>
+                    ))}
+                </g>
+              );
+            })}
+            {dense && <DensePoints geometry={geometry} zoom={zoom} />}
+            {!!selectedPointRanges?.length && (
+              <DensePoints
+                geometry={geometry}
+                zoom={zoom}
+                selection={selectedPointRanges}
+              />
+            )}
+            {(() => {
+              const selection =
+                selectedPoint === undefined ? localSelection : selectedPoint;
+              if (!selection) return null;
+              const dataset = series[selection.seriesIndex];
+              const index =
+                dataset?.points.findIndex(
+                  (point) => point.row === selection.row,
+                ) ?? -1;
+              if (index < 0) return null;
+              const point = dataset.points[index];
+              return (
+                <circle
+                  data-selected-point="true"
+                  cx={x(point.x) + (!xy ? (((index * 17) % 11) - 5) * 2.1 : 0)}
+                  cy={y(point.y)}
+                  r="7"
+                  fill="none"
+                  stroke="#0866db"
+                  strokeWidth="2.5"
+                  pointerEvents="none"
+                />
+              );
+            })()}
+            {fits.map((f, i) => (
+              <polyline
+                key={i}
+                points={f.points.map((p) => `${x(p.x)},${y(p.y)}`).join(" ")}
+                fill="none"
+                stroke={
+                  series.find((s) => s.name === f.series)?.color ??
+                  palette[i % palette.length]
+                }
+                strokeWidth="2.5"
+                strokeDasharray="6 4"
+              />
+            ))}
+          </svg>
+        </div>
+      </div>
+      {hover && series[hover.hit.seriesIndex] && (
+        <div
+          role="group"
+          aria-label="Point details"
+          style={{
+            position: "absolute",
+            zIndex: 5,
+            left: hover.left,
+            top: hover.top,
+            width: 228,
+            padding: 10,
+            background: "#fff",
+            color: "#222",
+            border: "1px solid #8d8d8d",
+            borderRadius: 4,
+            boxShadow: "0 3px 12px #0003",
+            fontSize: 12,
+          }}
+        >
+          <button
+            type="button"
+            aria-label="Close point details"
+            style={{ float: "right" }}
+            onClick={() => setHover(null)}
+          >
+            ×
+          </button>
+          <strong>{dataTableName ?? project.name}</strong>
+          <div>
+            {series[hover.hit.seriesIndex].name} · Row {hover.hit.row + 1}
+          </div>
+          <div>
+            {xy
+              ? `X: ${hover.hit.x} · Y: ${hover.hit.y}`
+              : `Value: ${hover.hit.y}`}
+          </div>
+          <div style={{ display: "flex", gap: 5, marginTop: 6 }}>
+            {onGoToCell && (
+              <button
+                type="button"
+                onClick={() => {
+                  onGoToCell(hover.hit.seriesIndex, hover.hit.row);
+                  setHover(null);
+                }}
+              >
+                Go to cell
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+      {dense && (
+        <p style={{ fontSize: 11, margin: "4px 12px" }}>
+          {count.toLocaleString()} points · Canvas display, with every
+          observation retained. Overlapping points may cover one another.
+        </p>
+      )}
+    </div>
   );
 }

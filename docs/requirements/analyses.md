@@ -1,3 +1,5 @@
+> Planning audit snapshot. Current execution status and evidence are maintained in the companion JSON register and [execution log](../completion-progress.md).
+
 # Section 3 analysis requirements plan
 
 **Planning only. No implementation or repository changes in this audit.**

@@ -259,13 +259,13 @@ def test_normalized_inhibition_synthetic_recovery_and_units(scale):
 
 def test_normalized_inhibition_domains_and_direction():
     params = {"IC50": 10, "HillSlope": -1}
+    with pytest.raises(ModelFitError, match="nonnegative"):
+        evaluate_model("normalized_dose_inhibition", [-1], params)
+    with pytest.raises(ModelFitError, match="nonnegative"):
+        fit_model(
+            "normalized_dose_inhibition", [-1, 1, 10, 100], [90, 80, 50, 20]
+        )
     for invalid in (0, -1):
-        with pytest.raises(ModelFitError, match="positive"):
-            evaluate_model("normalized_dose_inhibition", [invalid], params)
-        with pytest.raises(ModelFitError, match="positive"):
-            fit_model(
-                "normalized_dose_inhibition", [invalid, 1, 10, 100], [90, 80, 50, 20]
-            )
         with pytest.raises(ModelFitError, match="positive"):
             evaluate_model(
                 "normalized_dose_inhibition", [1], {**params, "IC50": invalid}

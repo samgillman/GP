@@ -1,0 +1,282 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { sample } from "./data.ts";
+import type { Response } from "./data.ts";
+import {
+  buildPlotGeometry,
+  drawDensePoints,
+  linearTicks,
+  plotFrame,
+  pointHitIndex,
+  drawSelectedPoints,
+} from "./plot-geometry.ts";
+
+for (const [columns, rows] of [
+  [20, 10_000],
+  [1, 300_000],
+]) {
+  test(`${columns * rows} observations retain full bounds and draw every point without variadic calls`, () => {
+    const project = sample("column");
+    project.graph.type = "scatter";
+    project.graph.error = "none";
+    project.columns = Array.from({ length: columns }, (_, c) => ({
+      name: `Group ${c}`,
+      values: Array.from({ length: rows }, (_, r) => String(c * rows + r)),
+    }));
+    project.columns[columns - 1].values[rows - 1] = "900000";
+    project.columns[0].values[rows - 2] = "-700000";
+    const geometry = buildPlotGeometry(project, null)!;
+    assert.equal(geometry.count, columns * rows);
+    assert.ok(geometry.minY <= -700000);
+    assert.ok(geometry.maxY >= 900000);
+    assert.equal(geometry.series[columns - 1].points[rows - 1].row, rows - 1);
+    let arcs = 0,
+      fills = 0,
+      strokes = 0,
+      foundLow = false,
+      foundHigh = false;
+    const context = {
+      beginPath() {},
+      arc(x: number, y: number) {
+        assert.ok(Number.isFinite(x) && Number.isFinite(y));
+        assert.ok(
+          y >= plotFrame.top && y <= plotFrame.height - plotFrame.bottom,
+        );
+        if (y === geometry.y(-700000)) foundLow = true;
+        if (y === geometry.y(900000)) foundHigh = true;
+        arcs++;
+      },
+      fill() {
+        fills++;
+      },
+      stroke() {
+        strokes++;
+      },
+    } as unknown as CanvasRenderingContext2D;
+    drawDensePoints(context, geometry);
+    assert.equal(arcs, columns * rows);
+    assert.equal(fills, arcs);
+    assert.equal(strokes, arcs);
+    assert.ok(
+      foundLow && foundHigh,
+      "both outliers must be rendered, not just included in bounds",
+    );
+  });
+}
+test("300000-value box uses all observations for whiskers and quartiles", () => {
+  const project = sample("column");
+  project.graph.type = "box";
+  project.columns = [
+    {
+      name: "Large",
+      values: Array.from({ length: 300_000 }, (_, i) => String(i)),
+    },
+  ];
+  const geometry = buildPlotGeometry(project, null)!;
+  const series = geometry.series[0];
+  assert.equal(series.min, 0);
+  assert.equal(series.max, 299999);
+  assert.deepEqual(series.quartiles, [74999.75, 149999.5, 224999.25]);
+});
+test("300000 XY observations include extrema from data and fit without spreading", () => {
+  const project = sample("xy");
+  project.graph.error = "none";
+  project.columns = [
+    {
+      name: "X",
+      values: Array.from({ length: 300_000 }, (_, i) => String(i - 150000)),
+    },
+    {
+      name: "Y",
+      values: Array.from({ length: 300_000 }, (_, i) => String(i % 13)),
+    },
+  ];
+  const result: Response = {
+    analysis: "linear_regression",
+    summary: [],
+    results: [],
+    warnings: [],
+    fit: [
+      {
+        series: "Y",
+        parameters: {},
+        points: [
+          { x: 500000, y: 800000 },
+          { x: -500000, y: -800000 },
+        ],
+      },
+    ],
+  };
+  const geometry = buildPlotGeometry(project, result)!;
+  assert.equal(geometry.count, 300_000);
+  assert.ok(geometry.minX <= -500000 && geometry.maxX >= 500000);
+  assert.ok(geometry.minY <= -800000 && geometry.maxY >= 800000);
+});
+test("dose-response log display excludes nonpositive X without changing input or fit", () => {
+  const project = sample("xy");
+  project.columns = [
+    { name: "X", values: ["0", "-1", "0.1", "1", "10"] },
+    { name: "Y", values: ["-999", "999", "2", "3", "4"] },
+  ];
+  const result: Response = {
+    analysis: "dose_response",
+    summary: [],
+    results: [],
+    warnings: [],
+    fit: [
+      {
+        series: "Y",
+        parameters: {},
+        points: [
+          { x: 0, y: -500 },
+          { x: 0.1, y: 2 },
+          { x: 10, y: 4 },
+        ],
+      },
+    ],
+  };
+  const geometry = buildPlotGeometry(project, result)!;
+  assert.equal(geometry.count, 3);
+  assert.equal(geometry.fits[0].points.length, 2);
+  assert.ok(geometry.minX > 0 && geometry.minY > -500 && geometry.maxY < 999);
+  assert.deepEqual(
+    geometry.series[0].points.map((p) => p.row),
+    [2, 3, 4],
+  );
+  assert.equal(project.columns[0].values.length, 5);
+  assert.equal(result.fit[0].points.length, 3);
+  assert.ok(
+    geometry.xTicks.every((v) => v > 0 && Number.isFinite(geometry.x(v))),
+  );
+});
+test("positive and negative bars end their axis at zero; mixed bars include zero", () => {
+  for (const [values, side] of [
+    [["10", "20"], "min"],
+    [["-10", "-20"], "max"],
+    [["-10", "20"], "mixed"],
+  ] as const) {
+    const project = sample("column");
+    project.graph.error = "none";
+    project.columns = [{ name: "A", values: [...values] }];
+    const g = buildPlotGeometry(project, null)!;
+    if (side === "min") assert.equal(g.minY, 0);
+    if (side === "max") assert.equal(g.maxY, 0);
+    assert.ok(g.minY <= 0 && g.maxY >= 0);
+  }
+});
+test("linear ticks use short decimal steps at ordinary and small scales", () => {
+  assert.deepEqual(linearTicks(1.13, 9.72).ticks, [0, 2, 4, 6, 8, 10]);
+  assert.deepEqual(
+    linearTicks(0.00113, 0.00972).ticks,
+    [0, 0.002, 0.004, 0.006, 0.008, 0.01],
+  );
+});
+test("empty and missing XY cells never create synthetic observations", () => {
+  const project = sample("xy");
+  project.columns = [
+    { name: "X", values: ["1", "", "3", "4"] },
+    { name: "Y", values: ["", "2", "3", "bad"] },
+  ];
+  const g = buildPlotGeometry(project, null)!;
+  assert.deepEqual(g.series[0].points, [{ x: 3, y: 3, row: 2 }]);
+  project.columns[1].values = [""];
+  assert.equal(buildPlotGeometry(project, null), null);
+});
+
+test("spatial hit testing identifies dense observations and expands beyond marker radius", () => {
+  const project = sample("xy");
+  project.columns = [
+    {
+      name: "X",
+      values: Array.from({ length: 300_000 }, (_, i) => String(i % 1000)),
+    },
+    {
+      name: "Y",
+      values: Array.from({ length: 300_000 }, (_, i) =>
+        String(Math.floor(i / 1000)),
+      ),
+    },
+  ];
+  const geometry = buildPlotGeometry(project, null)!;
+  const hit = pointHitIndex(geometry);
+  const row = 152_500,
+    point = geometry.series[0].points[row];
+  assert.equal(hit(geometry.x(point.x), geometry.y(point.y), 0.01)?.row, row);
+  assert.equal(hit(-100, -100), null);
+  const simple = sample("xy");
+  simple.columns = [
+    { name: "X", values: ["1", "", "5"] },
+    { name: "Y", values: ["2", "7", "9"] },
+  ];
+  const g = buildPlotGeometry(simple, null)!;
+  const found = pointHitIndex(g)(g.x(5) + 8, g.y(9), 12)!;
+  assert.equal(found.row, 2);
+  assert.equal(found.seriesIndex, 0);
+  assert.equal(found.y, 9);
+});
+test("coincident points select the last drawn dataset and original row", () => {
+  const project = sample("xy");
+  project.columns = [
+    { name: "X", values: ["1", "1"] },
+    { name: "First", values: ["2", "2"] },
+    { name: "Last", values: ["2", "2"] },
+  ];
+  const g = buildPlotGeometry(project, null)!;
+  const hit = pointHitIndex(g)(g.x(1), g.y(2))!;
+  assert.equal(hit.seriesIndex, 1);
+  assert.equal(hit.row, 1);
+});
+
+test("zero-only bars have a finite zero-based domain", () => {
+  const p = sample("column");
+  p.columns = [{ name: "Zero", values: ["0", "0"] }];
+  const g = buildPlotGeometry(p, null)!;
+  assert.equal(g.minY, 0);
+  assert.ok(g.maxY > 0);
+  assert.ok(Number.isFinite(g.y(0)));
+});
+test("300000-point selection draws every selected observation without DOM marks", () => {
+  const p = sample("column");
+  p.columns = [
+    {
+      name: "All",
+      values: Array.from({ length: 300_000 }, (_, r) => String(r)),
+    },
+  ];
+  const g = buildPlotGeometry(p, null)!;
+  let arcs = 0;
+  const context = {
+    beginPath() {},
+    arc() {
+      arcs++;
+    },
+    stroke() {},
+  } as unknown as CanvasRenderingContext2D;
+  const count = drawSelectedPoints(context, g, [
+    { seriesIndex: 0, startRow: 0, endRow: 299999 },
+  ]);
+  assert.equal(count, 300000);
+  assert.equal(arcs, 300000);
+  assert.equal(
+    drawSelectedPoints(context, g, [
+      { seriesIndex: 1, startRow: 0, endRow: 299999 },
+    ]),
+    0,
+  );
+});
+test("selection ranges preserve missing-cell row identities and tolerate reversed ranges", () => {
+  const p = sample("column");
+  p.columns = [{ name: "A", values: ["1", "", "3", "4"] }];
+  const g = buildPlotGeometry(p, null)!;
+  const context = {
+    beginPath() {},
+    arc() {},
+    stroke() {},
+  } as unknown as CanvasRenderingContext2D;
+  assert.equal(
+    drawSelectedPoints(context, g, [
+      { seriesIndex: 0, startRow: 2, endRow: 1 },
+    ]),
+    1,
+  );
+});

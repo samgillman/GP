@@ -6102,7 +6102,7 @@
         "3.4.2",
         "3.11.4"
       ],
-      "status": "not_started",
+      "status": "partial",
       "dependencies": [
         "D_EXPR",
         "D_FITS",
@@ -6114,11 +6114,13 @@
       "acceptance": [
         "Allow X=0 for valid [Agonist]/[Inhibitor] parameterizations using mathematical limits with sign-aware Hill slope; fit raw X including zero while log-scaled display handles zero separately."
       ],
-      "unknowns": "Current dose_response and normalized_dose_inhibition reject zero doses, contradicting guide; needs a correction, not documentation-only workaround.",
+      "unknowns": "Zero-dose raw concentrations now work in current standalone4PL and normalized inhibition fits; other unimplemented catalogue models remain open. Native optimizer/defaults/uncertainty and all parameterizations are not established.",
       "implementation_evidence": [
+        "gp/statistics.py",
         "gp/regression_models.py",
-        "resources-pass2/equations.json",
-        "resources-pass2/feature-map.json:NonlinearRegression.nib"
+        "gp/plotting.py",
+        "web/src/Plot.tsx",
+        "web/src/App.tsx"
       ],
       "evidence": [
         "gp/regression_models.py",
@@ -6126,7 +6128,18 @@
         "resources-pass2/feature-map.json:NonlinearRegression.nib"
       ],
       "audit_status": "not_implemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_zero_dose.py",
+        "tests/test_regression_models.py",
+        "tests/test_statistics.py",
+        "tests/test_prism_reference.py",
+        "scripts/check_recalculation.py"
+      ],
+      "limitations": [
+        "Unweighted independent bounded fits; no parameter/profile confidence intervals for standalone4PL.",
+        "Adequate distinct positive concentrations required; degenerate zero slope is not fitted."
+      ]
     },
     {
       "id": "A198",

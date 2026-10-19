@@ -122,3 +122,41 @@ def test_future_format_is_not_assumed_compatible():
         f["document.json"]["formatVersion"] = "2-0-0"
     with pytest.raises(AnalysisError, match="format version"):
         import_prism_zip(fixture(changes=change))
+
+
+def test_structured_titles_import_text_preserving_unicode_and_whitespace():
+    def change(f):
+        f["data/sheets/SHEET/sheet.json"]["title"] = {"string": "Dose α\nresponse", "version": 1}
+        f["data/sets/A.json"]["title"] = {"string": "Control μM", "version": 1}
+        f["data/sets/B.json"]["title"] = {"string": "Treatment μM", "version": 1}
+    table = import_prism_zip(fixture(changes=change))["tables"][0]
+    assert table["title"] == "Dose α\nresponse"
+    assert [c["name"] for c in table["columns"]] == ["Control μM", "Treatment μM"]
+    assert table["columns"][0]["values"] == [1, None]
+
+
+def test_structured_duplicate_titles_get_distinct_names():
+    def change(f):
+        for key in ['A', 'B']:
+            f[f"data/sets/{key}.json"]["title"] = {"string": "Same", "version": 1}
+    table = import_prism_zip(fixture(changes=change))["tables"][0]
+    assert [c["name"] for c in table["columns"]] == ["Same", "Same (2)"]
+
+
+@pytest.mark.parametrize("value", [{"version": 1}, {"string": 12}, ["A"], 42, {"string": "A" * 201}])
+@pytest.mark.parametrize("member", ["data/sheets/SHEET/sheet.json", "data/sets/A.json"])
+def test_invalid_titles_are_reported_without_stringifying_or_truncating(value, member):
+    def change(f):
+        f[member]["title"] = value
+    result = import_prism_zip(fixture(changes=change))
+    assert result["tables"] == []
+    assert any(w.startswith("Skipped") and "title" in w for w in result["warnings"])
+
+
+def test_empty_structured_titles_use_existing_fallback_names():
+    def change(f):
+        f["data/sheets/SHEET/sheet.json"]["title"] = {"string": ""}
+        f["data/sets/A.json"]["title"] = {"string": ""}
+    table = import_prism_zip(fixture(changes=change))["tables"][0]
+    assert table["title"] == "Table SHEET"
+    assert table["columns"][0]["name"] == "Series 1"

@@ -1,9 +1,9 @@
 """Transparent, standard SciPy analyses; no proprietary implementation."""
 import warnings
 import numpy as np
-from scipy import optimize, special, stats
+from scipy import optimize, stats
 from .models import AnalysisRequest
-from .regression_models import fit_model, ModelFitError
+from .regression_models import fit_model, ModelFitError, _concentration_fraction, _concentration_grid
 from .descriptive import extended_summary
 
 
@@ -41,8 +41,11 @@ def require(condition, message):
 def analyze(request: AnalysisRequest):
     columns = request.columns
     data = [values(c) for c in columns]
-    require(any(len(d) for d in data), "Enter at least one numeric observation.")
-    output = dict(analysis=request.analysis, summary=[descriptive(c.name, d, request.confidence) for c, d in zip(columns, data)], results=[], warnings=[], fit=[])
+    summary_columns, summary_data = columns, data
+    if request.analysis == "descriptive" and request.table_type == "xy":
+        summary_columns, summary_data = columns[1:], data[1:]
+    require(any(len(d) for d in summary_data), "Enter at least one numeric observation in the series being analyzed.")
+    output = dict(analysis=request.analysis, summary=[descriptive(c.name, d, request.confidence) for c, d in zip(summary_columns, summary_data)], results=[], warnings=[], fit=[])
     results, notices = output["results"], output["warnings"]
     def add(label, value):
         if isinstance(value, (float, np.floating)):
@@ -56,7 +59,9 @@ def analyze(request: AnalysisRequest):
     notices.append(f"Mean confidence intervals use the Student t distribution ({request.confidence:.1%} confidence); SD is the sample standard deviation.")
     kind = request.analysis
     if kind == "descriptive":
-        for summary, observations in zip(output["summary"], data):
+        if request.table_type == "xy":
+            notices.append("Descriptive statistics summarize each Y series independently, including Y observations whose X cell is missing; X is not summarized.")
+        for summary, observations in zip(output["summary"], summary_data):
             extra = extended_summary(observations, request.confidence)
             for notice in extra.pop("warnings", []):
                 notices.append(f"{summary['name']}: {notice}")
@@ -103,7 +108,9 @@ def analyze(request: AnalysisRequest):
             add("SEM of differences", se)
             add("R squared", t*t/(t*t+df))
             add("Cohen d (paired differences)", cohen_d)
-            add("Hedges g (paired differences)", cohen_d*(1-3/(4*df-1)))
+            add("Hedges g (paired differences)", cohen_d*(1-3/(4*df-1)) if df > 1 else None)
+            if df <= 1:
+                notices.append("Hedges g (paired differences) is undefined with fewer than three complete pairs: the bias correction requires residual degrees of freedom greater than one.")
             notices.append("Paired t is reported as a magnitude; the mean difference, interval, and effect sizes retain first-minus-second direction.")
     elif kind == "anova":
         require(len(data) >= 2 and all(len(d) >= 2 for d in data), "One-way ANOVA requires at least two groups with two observations each.")
@@ -161,21 +168,45 @@ def analyze(request: AnalysisRequest):
                 predicted = intercept+slope*grid
             else:
                 require(len(x) >= 6 and len(np.unique(x)) >= 4, prefix+"4PL fitting requires at least six pairs and four distinct X values.")
-                require(np.all(x > 0), prefix+"4PL dose response requires strictly positive X values; omit zero-dose controls from the fitted series.")
-                require(np.ptp(y) > 0, prefix+"Y values must vary for dose-response fitting.")
+                require(np.all(x >= 0), prefix+"4PL dose response requires nonnegative concentrations.")
+                positive_x = x[x > 0]
+                require(len(np.unique(positive_x)) >= 3, prefix+"4PL fitting requires at least three distinct positive concentrations in addition to any zero controls.")
+                has_zero = bool(np.any(x == 0))
+                if np.ptp(y) == 0:
+                    reason = "Dose-response fit is undefined because Y is constant; EC50 and Hill slope cannot be identified."
+                    add(prefix+"Fit status", reason)
+                    notices.append(prefix+reason)
+                    continue
                 # Fit dimensionless responses for numerical stability and constrained, positive EC50.
                 ybase, yscale = float(np.min(y)), float(np.ptp(y))
                 z = (y-ybase)/yscale
-                logx = np.log(x)
-                lo, hi = float(np.min(logx)-np.log(1000)), float(np.max(logx)+np.log(1000))
-                def four_pl(lx, bottom, top, log_ec50, hill):
-                    return bottom+(top-bottom)*special.expit(hill*(lx-log_ec50))
+                positive_logx = np.log(positive_x)
+                lo, hi = float(np.min(positive_logx)-np.log(1000)), float(np.max(positive_logx)+np.log(1000))
+                def four_pl(doses, bottom, top, log_ec50, hill):
+                    return bottom+(top-bottom)*_concentration_fraction(doses, log_ec50, hill)
                 candidates = []
-                for direction in (1., -1.):
+                # Try the observed monotone direction first. This is only a
+                # starting order: noisy fits still compare both directions.
+                positive_z = z[x > 0]
+                trend = np.dot(positive_logx-np.mean(positive_logx), positive_z-np.mean(positive_z))
+                first_direction = 1. if trend >= 0 else -1.
+                # z spans one response unit. An average squared residual below
+                # double-precision epsilon is an effectively exact curve (RMS
+                # below sqrt(eps) of the response span). Another start cannot
+                # improve the objective meaningfully at this numerical scale.
+                exact_sse = np.finfo(float).eps * len(x)
+                for direction in (first_direction, -first_direction):
                     try:
                         with warnings.catch_warnings(record=True):
-                            pars, covariance = optimize.curve_fit(four_pl, logx, z, p0=[0, 1, np.median(logx), direction], bounds=([-10, 0, lo, -10], [1, 11, hi, 10]), maxfev=20000)
-                        candidates.append((float(np.sum((z-four_pl(logx, *pars))**2)), pars, covariance))
+                            # At zero dose the limiting plateau depends on the
+                            # sign of Hill. Keep that sign fixed per candidate.
+                            hill_low = 1e-8 if has_zero and direction > 0 else -10
+                            hill_high = -1e-8 if has_zero and direction < 0 else 10
+                            pars, covariance = optimize.curve_fit(four_pl, x, z, p0=[0, 1, np.median(positive_logx), direction], bounds=([-10, 0, lo, hill_low], [1, 11, hi, hill_high]), maxfev=20000)
+                        score = float(np.sum((z-four_pl(x, *pars))**2))
+                        candidates.append((score, pars, covariance))
+                        if score <= exact_sse and pars[1] > pars[0] and abs(pars[3]) > 1e-8:
+                            break
                     except (RuntimeError, ValueError, FloatingPointError):
                         pass
                 require(bool(candidates), prefix+"4PL fit did not converge. Check dose coverage and observations.")
@@ -183,16 +214,18 @@ def analyze(request: AnalysisRequest):
                 bottom, top, log_ec50, hill = map(float, pars)
                 require(top > bottom and abs(hill) > 1e-8, prefix+"A dose-response curve could not be identified from these observations.")
                 params = dict(bottom=ybase+yscale*bottom, top=ybase+yscale*top, ec50=float(np.exp(log_ec50)), hill_slope=hill)
-                observed_fit = ybase+yscale*four_pl(logx, *pars)
+                observed_fit = ybase+yscale*four_pl(x, *pars)
                 ss_res = np.sum((y-observed_fit)**2)
                 ss_total = np.sum((y-np.mean(y))**2)
                 add(prefix+"Complete pairs", len(x))
                 for key, value in params.items():
-                    add(prefix+key.replace("_", " ").title(), value)
+                    add(prefix+("EC50" if key == "ec50" else key.replace("_", " ").title()), value)
                 add(prefix+"R squared", 1-ss_res/ss_total)
                 add(prefix+"Residual degrees of freedom", len(x)-4)
-                grid = np.geomspace(np.min(x), np.max(x), 200)
-                predicted = ybase+yscale*four_pl(np.log(grid), *pars)
+                grid = _concentration_grid(x)
+                predicted = ybase+yscale*four_pl(grid, *pars)
+                if has_zero:
+                    notices.append(prefix+"Zero-dose observations are included in the fit. A logarithmic X axis cannot display X=0.")
                 notices.append(prefix+"4PL: bottom + (top − bottom) / (1 + (EC50 / X)^Hill). Positive Hill increases; negative Hill decreases. Parameter confidence intervals are not estimated.")
                 if not np.all(np.isfinite(covariance)) or np.linalg.cond(covariance) > 1e12:
                     notices.append(prefix+"The 4PL parameters are weakly identified; collect more observations spanning both plateaus.")
@@ -202,4 +235,8 @@ def analyze(request: AnalysisRequest):
                     notices.append(prefix+"The fit reached a parameter bound and may be unreliable.")
             require(np.all(np.isfinite(predicted)) and all(np.isfinite(v) for v in params.values()), prefix+"Fit produced non-finite parameters.")
             output["fit"].append(dict(series=col.name, points=[dict(x=float(xx), y=float(yy)) for xx, yy in zip(grid, predicted)], parameters=params))
+        if kind == "dose_response" and not output["fit"]:
+            raise AnalysisError("No Y series could be fitted. " + " ".join(
+                row["label"] + ": " + row["value"] for row in results if row["label"].endswith(": Fit status")
+            ))
     return output

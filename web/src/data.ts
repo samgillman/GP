@@ -98,13 +98,39 @@ export function sample(kind: TableType): Project {
     graph: { ...graph, colors: [...palette] },
   };
 }
+export function importedProject(
+  columns: Column[],
+  tableType: TableType,
+  name: string,
+): Project {
+  return {
+    version: 1,
+    name,
+    table_type: tableType,
+    analysis: "descriptive",
+    columns: columns.map((column) => ({
+      name: column.name,
+      values: [...column.values],
+    })),
+    graph: {
+      type: tableType === "xy" ? "line" : "bar",
+      error: tableType === "xy" ? "none" : "sem",
+      title: name,
+      x_label: tableType === "xy" ? (columns[0]?.name ?? "X") : "Groups",
+      y_label: "Value",
+      colors: [...palette],
+      show_points: true,
+    },
+  };
+}
+export const MAX_NUMERIC_MAGNITUDE = 1e100;
 export function numeric(value: string): number | null {
   if (!value.trim()) return null;
   if (!/^[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(value.trim()))
     throw new Error(`“${value}” is not a valid number.`);
   const n = Number(value);
-  if (!Number.isFinite(n))
-    throw new Error(`“${value}” is outside the supported number range.`);
+  if (!Number.isFinite(n) || Math.abs(n) > MAX_NUMERIC_MAGNITUDE)
+    throw new Error(`“${value}” is outside the supported range: −1e100 to 1e100.`);
   return n;
 }
 export function requestData(project: Project) {
@@ -118,9 +144,9 @@ export function requestData(project: Project) {
       values: c.values.map((value, i) => {
         try {
           return numeric(value);
-        } catch {
+        } catch (error) {
           throw new Error(
-            `${c.name}, row ${i + 1}: “${value}” is not a finite number. Use an empty cell for missing data.`,
+            `${c.name}, row ${i + 1}: ${(error as Error).message} Enter a finite number, or leave the cell empty for missing data.`,
           );
         }
       }),
@@ -182,12 +208,37 @@ export function parseDelimited(text: string, delimiter = ","): string[][] {
     row.push(field);
     rows.push(row);
   }
-  while (rows.length && rows[rows.length - 1].every((c) => c === ""))
-    rows.pop();
   return rows;
 }
-export function importCsv(text: string): Column[] {
-  const rows = parseDelimited(text);
+function csvDelimiter(text: string): "," | ";" {
+  // Count separators outside quoted fields in the first two logical records.
+  // A numeric data row resolves headers containing an unquoted other separator.
+  const records: { comma: number; semicolon: number }[] = [];
+  let counts = { comma: 0, semicolon: 0 };
+  let quoted = false;
+  for (let i = 0; i < text.length && records.length < 2; i++) {
+    const c = text[i];
+    if (c === '"') {
+      if (quoted && text[i + 1] === '"') i++;
+      else quoted = !quoted;
+    } else if (!quoted) {
+      if (c === ",") counts.comma++;
+      if (c === ";") counts.semicolon++;
+      if (c === "\r" || c === "\n") {
+        if (c === "\r" && text[i + 1] === "\n") i++;
+        records.push(counts);
+        counts = { comma: 0, semicolon: 0 };
+      }
+    }
+  }
+  if (records.length < 2) records.push(counts);
+  const [header, data] = records;
+  if (header.semicolon && !header.comma) return ";";
+  if (header.semicolon && data?.semicolon && !data.comma) return ";";
+  return ",";
+}
+export function importCsv(text: string, delimiter?: "," | ";"): Column[] {
+  const rows = parseDelimited(text, delimiter ?? csvDelimiter(text));
   if (rows.length < 2)
     throw new Error("CSV needs a header row and at least one data row.");
   const headers = rows[0];
@@ -196,16 +247,22 @@ export function importCsv(text: string): Column[] {
   for (let i = 1; i < rows.length; i++) {
     if (rows[i].length > headers.length)
       throw new Error(`Row ${i + 1} has more fields than the header.`);
-    rows[i].forEach(numeric);
+    rows[i].forEach((value, c) => {
+      try {
+        numeric(value);
+      } catch (error) {
+        throw new Error(`CSV row ${i + 1}, column ${c + 1}: ${(error as Error).message}`);
+      }
+    });
   }
   return headers.map((h, c) => ({
-    name: h.trim() || `Series ${c + 1}`,
+    name: h.trim() ? h : `Series ${c + 1}`,
     values: rows.slice(1).map((row) => row[c] ?? ""),
   }));
 }
 export function exportCsv(columns: Column[]): string {
   const quote = (v: string) =>
-    /[",\n\r]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v;
+    !v || /[";,\n\r]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v;
   return [
     columns.map((c) => quote(c.name)).join(","),
     ...Array.from(
@@ -278,11 +335,19 @@ export function download(blob: Blob, name: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 export function fmt(n: number | null | undefined): string {
-  return n == null
-    ? "—"
-    : Math.abs(n) > 0 && Math.abs(n) < 0.001
-      ? n.toExponential(3)
-      : new Intl.NumberFormat("en", { maximumFractionDigits: 3 }).format(n);
+  if (n == null || !Number.isFinite(n)) return "—";
+  const magnitude = Math.abs(n);
+  if (magnitude >= 1e6 || (magnitude > 0 && magnitude < 0.001))
+    return n.toExponential(3);
+  const rounded = Number(n.toFixed(3));
+  if (!Number.isInteger(n) && Number.isInteger(rounded)) {
+    // Preserve near-integer distinctions, especially R² values just below 1.
+    const precise = Number(n.toPrecision(8));
+    return precise === rounded
+      ? String(n)
+      : new Intl.NumberFormat("en", { maximumSignificantDigits: 8 }).format(n);
+  }
+  return new Intl.NumberFormat("en", { maximumFractionDigits: 3 }).format(n);
 }
 export type Summary = {
   name: string;

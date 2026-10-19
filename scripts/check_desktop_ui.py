@@ -22,6 +22,7 @@ with sync_playwright() as p:
     page.screenshot(path=str(shots / 'data.png'))
     # Empty visible cells create real editable data, with one undo restoring the table.
     original = workbook()
+    page.locator('.data-grid-viewport').evaluate('(el) => { el.scrollTop = 24 * 25; el.scrollLeft = 7 * 112; el.dispatchEvent(new Event("scroll")); }')
     page.get_by_label('Series 8, row 30', exact=True).fill('123')
     changed = workbook()
     source = next(s for s in changed['sheets'] if s['kind'] == 'data')
@@ -87,7 +88,7 @@ with sync_playwright() as p:
     assert workbook() == snapshot
     page.get_by_role('button', name='Show data table', exact=True).click()
     page.screenshot(path=str(shots / 'dark-data.png'))
-    assert page.locator('.sheet td').first.evaluate('(cell) => getComputedStyle(cell).backgroundColor') == 'rgb(255, 255, 255)'
+    assert page.locator('.data-grid-cell:not(.is-selected)').first.evaluate('(cell) => getComputedStyle(cell).backgroundColor') == 'rgb(255, 255, 255)'
     page.get_by_role('button', name='Analyze Data…', exact=True).click()
     page.screenshot(path=str(shots / 'dark-analyze.png'))
     expect(page.get_by_role('dialog', name='Analyze Data', exact=True)).to_be_visible()

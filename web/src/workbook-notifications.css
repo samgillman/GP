@@ -1,0 +1,49 @@
+.workbook-notifications {
+  position: fixed;
+  top: 140px;
+  right: 24px;
+  z-index: 90;
+  width: min(620px, calc(100vw - 48px));
+  display: grid;
+  gap: 8px;
+  pointer-events: none;
+}
+.workbook-notifications .alert {
+  pointer-events: auto;
+  margin: 0;
+  box-shadow: 0 4px 18px #0003;
+  align-items: start;
+  max-height: 40vh;
+  overflow: auto;
+}
+.workbook-notifications .storage-warning {
+  flex-wrap: wrap;
+  border: 2px solid #b54708;
+}
+.workbook-notifications button {
+  flex-shrink: 0;
+}
+.sheet-context-menu {
+  position: fixed;
+  z-index: 110;
+  min-width: 200px;
+  padding: 5px;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  background: Canvas;
+  color: CanvasText;
+  box-shadow: 0 5px 18px #0004;
+}
+.sheet-context-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px;
+  background: transparent;
+  color: inherit;
+  border: 0;
+}
+.sheet-context-menu button:hover {
+  background: #2874c8;
+  color: white;
+}

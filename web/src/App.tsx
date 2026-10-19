@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity,
   ArrowDownToLine,
@@ -27,6 +27,7 @@ import {
   exportCsv,
   fmt,
   importCsv,
+  importedProject,
   numeric,
   palette,
   parseDelimited,
@@ -35,6 +36,11 @@ import {
 } from "./data";
 import type { Analysis, Graph, Project, Response, TableType } from "./data";
 import Plot from "./Plot";
+import DataGrid from "./DataGrid";
+import type { GridRange } from "./data-grid";
+import { deleteSheet, deletionIds, duplicateSheet } from "./workbook-actions";
+import { getRecoveryWorkbook, rememberWorkbook } from "./render-recovery";
+import { errorMessage } from "./error-message";
 import AdvancedAnalyses from "./AdvancedAnalyses";
 import { apiFetch, browserOnly } from "./api";
 import {
@@ -105,6 +111,12 @@ import {
   shouldHandleHistoryShortcut,
 } from "./workbook-history";
 import type { HistoryOptions } from "./workbook-history";
+import {
+  WorkbookRecalculator,
+  applyRecalculatedResult,
+} from "./workbook-recalculation";
+import type { RecalculationStates } from "./workbook-recalculation";
+
 function DesktopMenu({
   label,
   children,
@@ -174,12 +186,34 @@ export default function App() {
     }
   }
   const [advanced, setAdvanced] = useState(false);
+  const [sheetMenu, setSheetMenu] = useState<{
+    id: string;
+    x: number;
+    y: number;
+  } | null>(null);
+  useEffect(() => {
+    if (!sheetMenu) return;
+    const close = () => setSheetMenu(null);
+    const key = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
+    };
+    window.addEventListener("click", close);
+    window.addEventListener("keydown", key);
+    return () => {
+      window.removeEventListener("click", close);
+      window.removeEventListener("keydown", key);
+    };
+  }, [sheetMenu]);
   const [collapsedSections, setCollapsedSections] = useState<
     Record<string, boolean>
   >({});
-  const [restoration] = useState(() =>
-    restoreWorkbook((key) => localStorage.getItem(key)),
-  );
+  const [restoration] = useState(() => {
+    const restored = restoreWorkbook((key) => localStorage.getItem(key));
+    return {
+      ...restored,
+      workbook: getRecoveryWorkbook() ?? restored.workbook,
+    };
+  });
   const [recovery, setRecovery] = useState(restoration.recovery);
   const [workbook, setWorkbookState] = useState<Workbook>(restoration.workbook),
     [error, setError] = useState(""),
@@ -191,6 +225,79 @@ export default function App() {
     [importWarnings, setImportWarnings] = useState<string[]>([]),
     [selectedImport, setSelectedImport] = useState(0);
   const workbookRef = useRef(workbook);
+  rememberWorkbook(workbook);
+  const [selection, setSelection] = useState<{
+    dataId: string;
+    range: GridRange;
+  } | null>(null);
+  const [focusCell, setFocusCell] = useState<{
+    dataId: string;
+    column: number;
+    row: number;
+    token: number;
+  }>();
+  useEffect(() => {
+    if (!notice) return;
+    const timer = window.setTimeout(() => setNotice(""), 5000);
+    return () => window.clearTimeout(timer);
+  }, [notice]);
+  useEffect(() => {
+    if (saved && !recovery) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [saved, recovery]);
+  const recalculator = useRef<WorkbookRecalculator | null>(null);
+  const [recalculations, setRecalculations] = useState<RecalculationStates>({});
+  useEffect(() => {
+    const queue = new WorkbookRecalculator({
+      read: () => workbookRef.current,
+      compute: async (task, signal) => {
+        const response = await apiFetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(task.input),
+          signal,
+        });
+        const body: unknown = await response.json();
+        if (!response.ok) throw new Error(message(body));
+        return body;
+      },
+      apply: (task, result) => {
+        const before = workbookRef.current;
+        const next = applyRecalculatedResult(before, task, result);
+        if (next === before) return;
+        const limit = workbookLimitError(next);
+        if (limit) throw new Error(limit);
+        // Derived output is not a user edit: keep selection, undo/redo and any
+        // independent manual analysis intact. The normal persistence effect saves it.
+        workbookRef.current = next;
+        rememberWorkbook(next);
+        setWorkbookState(next);
+      },
+      changed: setRecalculations,
+    });
+    recalculator.current = queue;
+    queue.sync();
+    return () => {
+      queue.dispose();
+      recalculator.current = null;
+    };
+  }, []);
+  useEffect(() => {
+    recalculator.current?.sync();
+  }, [workbook]);
+  function recalculationMessage(id: string): string {
+    const state = recalculations[id];
+    if (!state) return "Linked analysis is waiting to recalculate.";
+    return state.phase === "error"
+      ? `Recalculation failed: ${state.message} Use Recalculate analysis to retry.`
+      : state.message;
+  }
+
   const historyRef = useRef(emptyHistory());
   const [history, setHistory] = useState(historyRef.current);
   function editOptions(label: string): HistoryOptions {
@@ -259,7 +366,10 @@ export default function App() {
         revision.current++;
         setBusy(false);
       }
+      if (options.reset) recalculator.current?.reset();
       workbookRef.current = next;
+      rememberWorkbook(next);
+      recalculator.current?.sync();
       setWorkbookState(next);
       return true;
     } catch (error) {
@@ -312,24 +422,45 @@ export default function App() {
         : source.project.regression_model,
     graph: graphSheet?.graph ?? source.project.graph,
   };
-  const plotProject = graphSheet
-    ? {
-        ...selectedProject(source, graphSheet.columnIndices),
-        graph: graphSheet.graph,
-      }
-    : project;
-  const plotNames = new Set(
-    plotProject.columns
-      .slice(project.table_type === "xy" ? 1 : 0)
-      .map((c) => c.name),
+  const plotProject = useMemo(
+    () =>
+      graphSheet
+        ? {
+            ...selectedProject(source, graphSheet.columnIndices),
+            graph: graphSheet.graph,
+          }
+        : source.project,
+    [source.project, graphSheet],
   );
-  const plotResult = result
-    ? {
-        ...result,
-        summary: result.summary.filter((s) => plotNames.has(s.name)),
-        fit: result.fit.filter((f) => plotNames.has(f.series)),
-      }
-    : null;
+  const plotResult = useMemo(() => {
+    if (!result) return null;
+    const names = new Set(
+      plotProject.columns
+        .slice(plotProject.table_type === "xy" ? 1 : 0)
+        .map((c) => c.name),
+    );
+    return {
+      ...result,
+      summary: result.summary.filter((s) => names.has(s.name)),
+      fit: result.fit.filter((f) => names.has(f.series)),
+    };
+  }, [result, plotProject]);
+  const selectedPointRanges = useMemo(() => {
+    if (selection?.dataId !== source.id) return [];
+    return (graphSheet?.columnIndices ?? dataIndices(source.project)).flatMap(
+      (column, seriesIndex) =>
+        column >= selection.range.startColumn &&
+        column <= selection.range.endColumn
+          ? [
+              {
+                seriesIndex,
+                startRow: selection.range.startRow,
+                endRow: selection.range.endRow,
+              },
+            ]
+          : [],
+    );
+  }, [selection, source.id, source.project, graphSheet]);
   function selectSheet(id: string) {
     controller.current?.abort();
     revision.current++;
@@ -408,6 +539,8 @@ export default function App() {
     historyRef.current = moved.history;
     setHistory(moved.history);
     workbookRef.current = moved.workbook;
+    rememberWorkbook(moved.workbook);
+    recalculator.current?.sync();
     setWorkbookState(moved.workbook);
     setError("");
     setNotice(`${direction === "undo" ? "Undid" : "Redid"}: ${moved.label}.`);
@@ -417,6 +550,7 @@ export default function App() {
       const target = event.target;
       const editing =
         target instanceof HTMLElement &&
+        !target.closest(".data-grid-cell:not(.is-editing)") &&
         Boolean(
           target.closest(
             'input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"]',
@@ -457,6 +591,12 @@ export default function App() {
       let changed = updateData(w, source.id, {
         ...updated,
         graph: source.project.graph,
+        ...(selectedSheet.kind === "results"
+          ? {
+              analysis: source.project.analysis,
+              regression_model: source.project.regression_model,
+            }
+          : {}),
       });
       if (
         JSON.stringify(updated.graph) !== JSON.stringify(project.graph) &&
@@ -481,6 +621,11 @@ export default function App() {
             s.id === selectedSheet.id
               ? {
                   ...selectedSheet,
+                  name:
+                    selectedSheet.name ===
+                    `${analysisLabels[selectedSheet.analysis]} — ${source.name}`
+                      ? `${analysisLabels[updated.analysis]} — ${source.name}`
+                      : selectedSheet.name,
                   analysis: updated.analysis,
                   regression_model: updated.regression_model,
                   status: "stale",
@@ -508,11 +653,6 @@ export default function App() {
     count = project.columns
       .slice(xy ? 1 : 0)
       .reduce((n, c) => n + c.values.filter((v) => v.trim()).length, 0);
-  const displayedRows = Math.max(rows, 32);
-  const displayedColumns = Array.from(
-    { length: Math.max(project.columns.length, 8) },
-    (_, i) => project.columns[i] ?? { name: `Series ${i + 1}`, values: [] },
-  );
   function expandColumns(p: Project, col: number) {
     const columns = [...p.columns];
     while (columns.length <= col)
@@ -584,6 +724,21 @@ export default function App() {
     prefix = "",
     forceNew = false,
   ) {
+    const existing = forceNew
+      ? undefined
+      : selectedSheet.kind === "results"
+        ? selectedSheet
+        : !prefix
+          ? workbook.sheets.find(
+              (s): s is ResultSheet =>
+                s.kind === "results" &&
+                s.dataId === source.id &&
+                s.analysis === analysis &&
+                !s.selectionInvalid &&
+                s.regression_model === project.regression_model &&
+                JSON.stringify(s.columnIndices) === JSON.stringify(indices),
+            )
+          : undefined;
     controller.current?.abort();
     const ctrl = new AbortController();
     controller.current = ctrl;
@@ -618,10 +773,9 @@ export default function App() {
           recordResult(
             w,
             {
-              name:
-                selectedSheet.kind === "results" && !forceNew
-                  ? selectedSheet.name
-                  : `${prefix}${analysisLabels[analysis]} — ${source.name}`,
+              name: existing
+                ? existing.name
+                : `${prefix}${analysisLabels[analysis]} — ${source.name}`,
               dataId: source.id,
               analysis,
               regression_model: project.regression_model,
@@ -629,9 +783,7 @@ export default function App() {
               sourceRevision: source.revision,
               result: body,
             },
-            selectedSheet.kind === "results" && !forceNew
-              ? selectedSheet.id
-              : undefined,
+            existing?.id,
           ),
         );
       }
@@ -642,16 +794,7 @@ export default function App() {
     }
   }
   function message(body: unknown) {
-    if (typeof body === "object" && body !== null) {
-      const b = body as Record<string, unknown>;
-      if (typeof b.detail === "string") return b.detail;
-      if (typeof b.error === "string") return b.error;
-      if (Array.isArray(b.detail))
-        return b.detail
-          .map((v: { msg?: string }) => v.msg ?? "Invalid data")
-          .join("; ");
-    }
-    return "The request could not be completed. Check your data and try again.";
+    return errorMessage(body);
   }
   async function exportGraph(format: "svg" | "png" | "pdf") {
     setError("");
@@ -764,7 +907,11 @@ export default function App() {
         const body = await response.json();
         if (!response.ok) throw new Error(message(body));
         if (!body.tables?.length)
-          throw new Error("No supported data tables were found.");
+          throw new Error(
+            body.warnings?.length
+              ? body.warnings.join(" ")
+              : "No supported data tables were found.",
+          );
         setImported(body.tables);
         setImportWarnings(body.warnings ?? []);
         setSelectedImport(0);
@@ -776,11 +923,10 @@ export default function App() {
         );
       const columns = importCsv(text);
       const accepted = setWorkbook((w) =>
-        addData(w, {
-          ...project,
-          name: file.name.replace(/\.csv$/i, ""),
-          columns,
-        }),
+        addData(
+          w,
+          importedProject(columns, "column", file.name.replace(/\.csv$/i, "")),
+        ),
       );
       if (!accepted) return;
       setNotice(
@@ -793,23 +939,17 @@ export default function App() {
   function applyImport() {
     const t = imported[selectedImport];
     const accepted = setWorkbook((w) =>
-      addData(w, {
-        ...project,
-        name: t.title,
-        table_type: t.table_type,
-        columns: t.columns.map((c) => ({
-          name: c.name,
-          values: c.values.map((v) => (v == null ? "" : String(v))),
-        })),
-        analysis: "descriptive",
-        graph: {
-          ...project.graph,
-          type: t.table_type === "xy" ? "scatter" : "bar",
-          title: t.title,
-          x_label:
-            t.table_type === "xy" ? (t.columns[0]?.name ?? "X") : "Group",
-        },
-      }),
+      addData(
+        w,
+        importedProject(
+          t.columns.map((c) => ({
+            name: c.name,
+            values: c.values.map((v) => (v == null ? "" : String(v))),
+          })),
+          t.table_type,
+          t.title,
+        ),
+      ),
     );
     setImported([]);
     if (!accepted) return;
@@ -818,12 +958,104 @@ export default function App() {
     );
   }
   function replaceSample(type: TableType) {
-    if (
-      window.confirm(
-        "Replace this table with the sample dataset? Save your project first to keep the current data.",
+    setWorkbook((w) => addData(w, sample(type)));
+    setNotice("Sample added as a new data table.");
+  }
+  function retrySave() {
+    try {
+      setSaved(
+        persistWorkbook(
+          (key, value) => localStorage.setItem(key, value),
+          workbookRef.current,
+          recovery,
+        ),
+      );
+    } catch {
+      setSaved(false);
+    }
+  }
+  function selectPoint(seriesIndex: number, row: number, navigate = false) {
+    const column = (graphSheet?.columnIndices ?? dataIndices(source.project))[
+      seriesIndex
+    ];
+    if (column === undefined) return;
+    setSelection({
+      dataId: source.id,
+      range: {
+        startColumn: column,
+        endColumn: column,
+        startRow: row,
+        endRow: row,
+      },
+    });
+    if (navigate) {
+      setFocusCell((previous) => ({
+        dataId: source.id,
+        column,
+        row,
+        token: (previous?.token ?? 0) + 1,
+      }));
+      selectSheet(source.id);
+    }
+  }
+  function clearRange(range: GridRange) {
+    change((p) => ({
+      ...p,
+      columns: p.columns.map((c, i) =>
+        i < range.startColumn || i > range.endColumn
+          ? c
+          : {
+              ...c,
+              values: c.values.map((v, row) =>
+                row >= range.startRow && row <= range.endRow ? "" : v,
+              ),
+            },
+      ),
+    }));
+  }
+  function insertRow(row: number) {
+    if (rows >= 10000) {
+      setError("This table has reached the 10,000-row limit.");
+      return;
+    }
+    change((p) => ({
+      ...p,
+      columns: p.columns.map((c) => {
+        const values = Array.from(
+          { length: Math.max(rows, row) },
+          (_, i) => c.values[i] ?? "",
+        );
+        values.splice(row, 0, "");
+        return { ...c, values };
+      }),
+    }));
+  }
+  function insertColumn(column: number) {
+    if (project.columns.length >= 30) {
+      setError("This table has reached the 30-column limit.");
+      return;
+    }
+    change((p) => {
+      const columns = expandColumns(p, Math.max(0, column - 1));
+      columns.splice(column, 0, { name: `Series ${column + 1}`, values: [] });
+      return { ...p, columns };
+    });
+  }
+  function removeSheet(id = selectedSheet.id) {
+    try {
+      const ids = deletionIds(workbookRef.current, id);
+      const target = workbookRef.current.sheets.find((s) => s.id === id)!;
+      if (
+        ids.size > 1 &&
+        !window.confirm(
+          `Delete “${target.name}” and its ${ids.size - 1} linked sheets? You can undo this deletion.`,
+        )
       )
-    )
-      change(sample(type));
+        return;
+      setWorkbook((w) => deleteSheet(w, id), { label: "Delete sheet" });
+    } catch (error) {
+      setError(errorMessage(error));
+    }
   }
   function saveWorkbook() {
     download(
@@ -938,6 +1170,19 @@ export default function App() {
             </button>
             <button role="menuitem" onClick={() => void copyData()}>
               Copy table as CSV
+            </button>
+            <button
+              role="menuitem"
+              onClick={() =>
+                setWorkbook((w) => duplicateSheet(w, selectedSheet.id), {
+                  label: "Duplicate sheet",
+                })
+              }
+            >
+              Duplicate sheet
+            </button>
+            <button role="menuitem" onClick={() => removeSheet()}>
+              Delete sheet
             </button>
           </DesktopMenu>
           <DesktopMenu label="View">
@@ -1193,6 +1438,37 @@ export default function App() {
           </div>
         </div>
       </header>
+      {sheetMenu && (
+        <div
+          role="menu"
+          aria-label="Sheet actions"
+          className="sheet-context-menu"
+          style={{ left: sheetMenu.x, top: sheetMenu.y }}
+        >
+          <button
+            role="menuitem"
+            onClick={() => {
+              selectSheet(sheetMenu.id);
+              requestAnimationFrame(focusSheetName);
+            }}
+          >
+            Rename sheet
+          </button>
+          <button
+            role="menuitem"
+            onClick={() =>
+              setWorkbook((w) => duplicateSheet(w, sheetMenu.id), {
+                label: "Duplicate sheet",
+              })
+            }
+          >
+            Duplicate sheet
+          </button>
+          <button role="menuitem" onClick={() => removeSheet(sheetMenu.id)}>
+            Delete sheet
+          </button>
+        </div>
+      )}
       <aside className="sidebar">
         <input
           className="navigator-search"
@@ -1242,6 +1518,14 @@ export default function App() {
                       s.id === selectedSheet.id ? "page" : undefined
                     }
                     onClick={() => selectSheet(s.id)}
+                    onContextMenu={(event) => {
+                      event.preventDefault();
+                      setSheetMenu({
+                        id: s.id,
+                        x: Math.min(event.clientX, window.innerWidth - 210),
+                        y: Math.min(event.clientY, window.innerHeight - 150),
+                      });
+                    }}
                     title={s.name}
                   >
                     {kind === "data" ? (
@@ -1253,7 +1537,10 @@ export default function App() {
                     )}
                     <span>{s.name}</span>
                     {s.kind === "results" && s.status === "stale" && (
-                      <span className="stale-dot" title="Needs recalculation">
+                      <span
+                        className="stale-dot"
+                        title={recalculationMessage(s.id)}
+                      >
                         •
                       </span>
                     )}
@@ -1409,29 +1696,53 @@ export default function App() {
               </div>
             </section>
           )}
-          {error && (
-            <div className="alert error" role="alert">
-              <span>{error}</span>
-              <button aria-label="Dismiss error" onClick={() => setError("")}>
-                <X size={16} />
-              </button>
-            </div>
-          )}
-          {notice && (
-            <div className="alert notice" role="status">
-              <span>{notice}</span>
-              <button aria-label="Dismiss notice" onClick={() => setNotice("")}>
-                <X size={16} />
-              </button>
-            </div>
-          )}
+          <div className="workbook-notifications">
+            {!saved && !recovery && (
+              <div className="alert error storage-warning" role="alert">
+                <span>
+                  Changes are only in memory. Browser storage is full or
+                  unavailable. Download your workbook before closing this page.
+                </span>
+                <button onClick={saveWorkbook}>Download workbook</button>
+                <button onClick={retrySave}>Retry save</button>
+              </div>
+            )}
+            {error && (
+              <div className="alert error" role="alert">
+                <span>{errorMessage(error)}</span>
+                <button aria-label="Dismiss error" onClick={() => setError("")}>
+                  <X size={16} />
+                </button>
+              </div>
+            )}
+            {notice && (
+              <div className="alert notice" role="status">
+                <span>{notice}</span>
+                <button
+                  aria-label="Dismiss notice"
+                  onClick={() => setNotice("")}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            )}
+          </div>
           {active === "graph" && linkedResult?.status === "stale" && (
             <div className="alert notice" role="status">
-              This graph's linked analysis needs recalculation. Select its
-              result sheet in Family and choose Recalculate analysis. Raw data
-              remains visible.
+              {recalculationMessage(linkedResult.id)} Raw data remains visible.
+              Fitted curves appear when the linked analysis is current.
             </div>
           )}
+          {active === "graph" &&
+            plotResult?.analysis === "dose_response" &&
+            plotResult.fit.some((fit) =>
+              fit.points.some((point) => point.x === 0),
+            ) && (
+              <div className="alert notice" role="status">
+                Zero-dose controls are included in the fit. They cannot be
+                displayed on the logarithmic X axis.
+              </div>
+            )}
           {selectedSheet.kind === "graph" &&
             !selectedSheet.columnIndices.length && (
               <div className="alert notice" role="status">
@@ -1442,8 +1753,7 @@ export default function App() {
           {selectedSheet.kind === "results" &&
             selectedSheet.status === "stale" && (
               <div className="alert notice" role="status">
-                Source data or parameters changed. This linked result needs
-                recalculation. Run analysis to update this sheet.
+                {recalculationMessage(selectedSheet.id)}
               </div>
             )}
           <div className="analysis-bar">
@@ -1557,297 +1867,209 @@ export default function App() {
           </div>
           {active !== "results" ? (
             <div className={`workspace-grid sheet-${active}-view`}>
-              <section className="card data-card">
-                <div className="card-heading">
-                  <div>
-                    <span className="card-icon">
-                      <Table2 size={17} />
-                    </span>
-                    <h2>Data table</h2>
-                    <span className="subtle-count">{count} values</span>
-                  </div>
-                  <select
-                    aria-label="Table type"
-                    className="small-select"
-                    value={project.table_type}
-                    onChange={(e) => {
-                      const type = e.target.value as TableType;
-                      change((p) => ({
-                        ...p,
-                        table_type: type,
-                        analysis: "descriptive",
-                        graph: {
-                          ...p.graph,
-                          type: type === "xy" ? "scatter" : "bar",
-                          x_label: type === "xy" ? p.columns[0].name : "Group",
-                        },
-                      }));
-                    }}
-                  >
-                    <option value="column">Column</option>
-                    <option value="xy">XY</option>
-                  </select>
-                </div>
-                <div className="data-tools">
-                  <span className="table-indicator" />
-                  <span>
-                    {xy ? "X values + Y series" : "Replicates in columns"}
-                  </span>
-                  <div className="sample-select">
+              {active === "data" && (
+                <section className="card data-card">
+                  <div className="card-heading">
+                    <div>
+                      <span className="card-icon">
+                        <Table2 size={17} />
+                      </span>
+                      <h2>Data table</h2>
+                      <span className="subtle-count">{count} values</span>
+                    </div>
                     <select
-                      aria-label="Load a sample dataset"
-                      value=""
+                      aria-label="Table type"
+                      className="small-select"
+                      value={project.table_type}
                       onChange={(e) => {
-                        replaceSample(e.target.value as TableType);
+                        const type = e.target.value as TableType;
+                        change((p) => ({
+                          ...p,
+                          table_type: type,
+                          analysis: "descriptive",
+                          graph: {
+                            ...p.graph,
+                            type: type === "xy" ? "scatter" : "bar",
+                            x_label:
+                              type === "xy" ? p.columns[0].name : "Group",
+                          },
+                        }));
                       }}
                     >
-                      <option value="" disabled>
-                        Sample datasets
-                      </option>
-                      <option value="column">Treatment response</option>
-                      <option value="xy">Dose response</option>
+                      <option value="column">Column</option>
+                      <option value="xy">XY</option>
                     </select>
                   </div>
-                </div>
-                <div className="sheet-wrap">
-                  <table className="sheet">
-                    <thead>
-                      <tr>
-                        <th className="row-number">#</th>
-                        {displayedColumns.map((c, i) => (
-                          <th key={i}>
-                            <div className="column-letter">
-                              {xy && i === 0
-                                ? "X"
-                                : `Group ${String.fromCharCode(65 + i - (xy ? 1 : 0))}`}
-                              <button
-                                title={`Remove ${c.name}`}
-                                aria-label={`Remove column ${c.name}`}
-                                disabled={
-                                  project.columns.length <= 1 ||
-                                  i >= project.columns.length
-                                }
-                                onClick={() =>
-                                  change((p) => ({
-                                    ...p,
-                                    columns: p.columns.filter(
-                                      (_, j) => j !== i,
-                                    ),
-                                  }))
-                                }
-                              >
-                                <X size={11} />
-                              </button>
-                            </div>
-                            <input
-                              aria-label={`Column ${i + 1} name`}
-                              value={i < project.columns.length ? c.name : ""}
-                              placeholder="Title"
-                              onChange={(e) =>
-                                change((p) => ({
-                                  ...p,
-                                  columns: expandColumns(p, i).map((v, j) =>
-                                    j === i
-                                      ? { ...v, name: e.target.value }
-                                      : v,
-                                  ),
-                                }))
-                              }
-                            />
-                            <span className="column-entry-kind">
-                              {xy && i === 0 ? "X" : "Y"}
-                            </span>
-                            <span
-                              className="column-line"
-                              style={{
-                                background:
-                                  xy && i === 0
-                                    ? "#b9c6c5"
-                                    : project.graph.colors[
-                                        (i - (xy ? 1 : 0)) %
-                                          project.graph.colors.length
-                                      ] || palette[i % palette.length],
-                              }}
-                            />
-                          </th>
-                        ))}
-                        <th className="add-column">
-                          <button
-                            aria-label="Add column"
-                            disabled={project.columns.length >= 30}
-                            onClick={() =>
-                              change((p) => ({
-                                ...p,
-                                columns: [
-                                  ...p.columns,
-                                  {
-                                    name: `Series ${p.columns.length + 1}`,
-                                    values: Array(rows).fill(""),
-                                  },
-                                ],
-                              }))
-                            }
-                          >
-                            <Plus size={16} />
-                          </button>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {Array.from({ length: displayedRows }, (_, r) => (
-                        <tr key={r}>
-                          <th className="row-number">
-                            <span>{r + 1}</span>
-                            <button
-                              aria-label={`Remove row ${r + 1}`}
-                              title={`Remove row ${r + 1}`}
-                              disabled={r >= rows}
-                              onClick={() =>
-                                change((p) => ({
-                                  ...p,
-                                  columns: p.columns.map((c) => ({
-                                    ...c,
-                                    values: c.values.filter((_, i) => i !== r),
-                                  })),
-                                }))
-                              }
-                            >
-                              <X size={11} />
-                            </button>
-                          </th>
-                          {displayedColumns.map((c, col) => {
-                            let valid = true;
-                            try {
-                              numeric(c.values[r] ?? "");
-                            } catch {
-                              valid = false;
-                            }
-                            return (
-                              <td key={col}>
-                                <input
-                                  type="text"
-                                  inputMode="decimal"
-                                  className={valid ? "" : "invalid-cell"}
-                                  aria-label={`${c.name}, row ${r + 1}`}
-                                  aria-invalid={!valid}
-                                  value={c.values[r] ?? ""}
-                                  onChange={(e) =>
-                                    updateCell(col, r, e.target.value)
-                                  }
-                                  onPaste={(e) => paste(e, col, r)}
-                                />
-                              </td>
-                            );
-                          })}
-                          <td className="blank-cell" />
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <div className="sheet-footer">
-                  <button
-                    className="text-button"
-                    disabled={rows >= 10000}
-                    onClick={() =>
+                  <div className="data-tools">
+                    <span className="table-indicator" />
+                    <span>
+                      {xy ? "X values + Y series" : "Replicates in columns"}
+                    </span>
+                    <div className="sample-select">
+                      <select
+                        aria-label="Load a sample dataset"
+                        value=""
+                        onChange={(e) => {
+                          replaceSample(e.target.value as TableType);
+                        }}
+                      >
+                        <option value="" disabled>
+                          Sample datasets
+                        </option>
+                        <option value="column">Treatment response</option>
+                        <option value="xy">Dose response</option>
+                      </select>
+                    </div>
+                  </div>
+                  <DataGrid
+                    key={source.id}
+                    sheetId={source.id}
+                    columns={project.columns}
+                    tableType={project.table_type}
+                    colors={project.graph.colors}
+                    onCellChange={updateCell}
+                    onPaste={paste}
+                    onRenameColumn={(col, name) =>
+                      change((p) => ({
+                        ...p,
+                        columns: expandColumns(p, col).map((c, i) =>
+                          i === col ? { ...c, name } : c,
+                        ),
+                      }))
+                    }
+                    onRemoveColumn={(col) =>
+                      change((p) => ({
+                        ...p,
+                        columns: p.columns.filter((_, i) => i !== col),
+                      }))
+                    }
+                    onAddColumn={() => insertColumn(project.columns.length)}
+                    onRemoveRow={(row) =>
                       change((p) => ({
                         ...p,
                         columns: p.columns.map((c) => ({
                           ...c,
-                          values: [
-                            ...Array.from(
-                              { length: rows },
-                              (_, i) => c.values[i] ?? "",
-                            ),
-                            "",
-                          ],
+                          values: c.values.filter((_, i) => i !== row),
                         })),
                       }))
                     }
-                  >
-                    <Plus size={14} />
-                    Add row
-                  </button>
-                  <span>
-                    {rows} rows · {project.columns.length} columns
-                  </span>
-                </div>
-                <div className="table-tip">
-                  Paste cells from a spreadsheet. Leave missing values blank.
-                </div>
-              </section>
-              <section className="card graph-card">
-                <div className="card-heading">
-                  <div>
-                    <span className="card-icon">
-                      <BarChart3 size={17} />
-                    </span>
-                    <h2>{graphSheet?.name ?? "Graph"}</h2>
+                    onAddRow={() => insertRow(rows)}
+                    onInsertRow={insertRow}
+                    onInsertColumn={insertColumn}
+                    onClearRange={clearRange}
+                    onError={setError}
+                    focusCell={
+                      focusCell?.dataId === source.id ? focusCell : undefined
+                    }
+                    onSelectionChange={(range) =>
+                      setSelection({ dataId: source.id, range })
+                    }
+                  />
+                  <div className="table-tip">
+                    Paste cells from a spreadsheet. Leave missing values blank.
                   </div>
-                </div>
-                <div className="graph-types">
-                  {(["scatter", "bar", "box", "line"] as const).map((t) => (
-                    <button
-                      key={t}
-                      disabled={xy ? t === "bar" || t === "box" : t === "line"}
-                      className={project.graph.type === t ? "selected" : ""}
-                      onClick={() => graph({ type: t })}
-                    >
-                      {t === "scatter"
-                        ? "Scatter"
-                        : t === "bar"
-                          ? "Bar"
-                          : t === "box"
-                            ? "Box plot"
-                            : "Line"}
-                    </button>
-                  ))}
-                </div>
-                <div className="chart-title">{project.graph.title}</div>
-                <Plot project={plotProject} result={plotResult} />
-                <div className="legend">
-                  {plotProject.columns.slice(xy ? 1 : 0).map((c, i) => (
-                    <span key={i}>
-                      <i
-                        style={{
-                          background:
-                            project.graph.colors[
-                              i % project.graph.colors.length
-                            ] || palette[i % palette.length],
-                        }}
-                      />
-                      {c.name}
-                    </span>
-                  ))}
-                </div>
-                <div className="graph-caption">
-                  {xy
-                    ? "X and Y observations"
-                    : project.graph.type === "box"
-                      ? "Median, interquartile range; whiskers show min–max"
-                      : `Mean${project.graph.error === "none" ? "" : ` ± ${project.graph.error === "ci" ? "95% CI" : project.graph.error.toUpperCase()}`}`}
-                  {project.graph.error === "ci" && !result && !xy
-                    ? " · Run analysis to show confidence intervals"
-                    : ""}
-                </div>
-                <div className="export-row">
-                  <span>
-                    <ArrowDownToLine size={14} />
-                    Export figure
-                  </span>
-                  <div>
-                    {(["svg", "png", "pdf"] as const).map((f) => (
+                </section>
+              )}
+              {active === "graph" && (
+                <section className="card graph-card">
+                  <div className="card-heading">
+                    <div>
+                      <span className="card-icon">
+                        <BarChart3 size={17} />
+                      </span>
+                      <h2>{graphSheet?.name ?? "Graph"}</h2>
+                    </div>
+                  </div>
+                  <div className="graph-types">
+                    {(["scatter", "bar", "box", "line"] as const).map((t) => (
                       <button
-                        key={f}
-                        disabled={exporting}
-                        onClick={() => void exportGraph(f)}
+                        key={t}
+                        disabled={
+                          xy ? t === "bar" || t === "box" : t === "line"
+                        }
+                        className={project.graph.type === t ? "selected" : ""}
+                        onClick={() => graph({ type: t })}
                       >
-                        {f.toUpperCase()}
+                        {t === "scatter"
+                          ? "Scatter"
+                          : t === "bar"
+                            ? "Bar"
+                            : t === "box"
+                              ? "Box plot"
+                              : "Line"}
                       </button>
                     ))}
                   </div>
-                </div>
-              </section>
+                  <div className="chart-title">{project.graph.title}</div>
+                  <Plot
+                    key={graphSheet?.id}
+                    project={plotProject}
+                    result={plotResult}
+                    dataTableName={source.name}
+                    selectedPointRanges={selectedPointRanges}
+                    onSelectPoint={(series, row) => selectPoint(series, row)}
+                    onGoToCell={(series, row) => selectPoint(series, row, true)}
+                    selectedPoint={
+                      selection?.dataId === source.id &&
+                      selection.range.startColumn ===
+                        selection.range.endColumn &&
+                      selection.range.startRow === selection.range.endRow
+                        ? {
+                            seriesIndex: (
+                              graphSheet?.columnIndices ??
+                              dataIndices(source.project)
+                            ).indexOf(selection.range.startColumn),
+                            row: selection.range.startRow,
+                          }
+                        : null
+                    }
+                    onFormatAxes={() => setFormatDialog(true)}
+                    onEditText={() => setFormatDialog(true)}
+                  />
+                  <div className="legend">
+                    {plotProject.columns.slice(xy ? 1 : 0).map((c, i) => (
+                      <span key={i}>
+                        <i
+                          style={{
+                            background:
+                              project.graph.colors[
+                                i % project.graph.colors.length
+                              ] || palette[i % palette.length],
+                          }}
+                        />
+                        {c.name}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="graph-caption">
+                    {xy
+                      ? "X and Y observations"
+                      : project.graph.type === "box"
+                        ? "Median, interquartile range; whiskers show min–max"
+                        : `Mean${project.graph.error === "none" ? "" : ` ± ${project.graph.error === "ci" ? "95% CI" : project.graph.error.toUpperCase()}`}`}
+                    {project.graph.error === "ci" && !result && !xy
+                      ? " · Run analysis to show confidence intervals"
+                      : ""}
+                  </div>
+                  <div className="export-row">
+                    <span>
+                      <ArrowDownToLine size={14} />
+                      Export figure
+                    </span>
+                    <div>
+                      {(["svg", "png", "pdf"] as const).map((f) => (
+                        <button
+                          key={f}
+                          disabled={exporting}
+                          onClick={() => void exportGraph(f)}
+                        >
+                          {f.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              )}
             </div>
           ) : (
             <section className="card results-card">
@@ -1874,10 +2096,9 @@ export default function App() {
                   </div>
                   <h3>No current results</h3>
                   <p>
-                    Choose an analysis above and run it to see your results.
-                    <br />
-                    Linked results need recalculation whenever their source data
-                    or parameters change.
+                    Linked results update automatically after source data or
+                    analysis parameters change. Invalid cells or changed dataset
+                    selections need correction before calculation can finish.
                   </p>
                   <button
                     className="button primary"
@@ -2057,7 +2278,8 @@ export default function App() {
                   : "Graph sheet"}
             </span>
             <span className="status-save">
-              {busy
+              {busy ||
+              Object.values(recalculations).some((s) => s.phase === "running")
                 ? "Analyzing…"
                 : recovery
                   ? "Autosave paused"

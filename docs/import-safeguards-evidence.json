@@ -1,0 +1,308 @@
+{
+  "scope": "Regression probes; no full format support or native roundtrip claims. Structured title support is guide-backed, synthetically tested; no structured titles found in these bundled ZIP tables.",
+  "xml": [
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/Breast Cancer Update II.pzfx",
+      "sha256": "4d2a63f822a41764536f7db598cb770de22a8963ab37c3b3e0f5af65b4171862",
+      "tables": 0,
+      "warnings": [
+        "Imports raw numeric table data only; saved analyses, formatting, notes, and graphs are not imported.",
+        "Skipped MV: Principal Component Analysis: unsupported extended table type MultipleVariables; its grouping or variable semantics cannot be imported as ordinary column or XY data.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/Correlation matrix.xml",
+      "sha256": "a3ab8f210bce64ab5c7cebeb3e161e91c931b3123ee5a8ce66cbe512bbd6ba24",
+      "tables": 0,
+      "warnings": [
+        "Imports raw numeric table data only; saved analyses, formatting, notes, and graphs are not imported.",
+        "Skipped MV: Correlation matrix: unsupported extended table type MultipleVariables; its grouping or variable semantics cannot be imported as ordinary column or XY data.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/Cox Sample Data.pzfx",
+      "sha256": "d7121bf3d2c95ef6fe87b8d37a85a852b06bbd785b5b01334338376c867ad4a7",
+      "tables": 0,
+      "warnings": [
+        "Imports raw numeric table data only; saved analyses, formatting, notes, and graphs are not imported.",
+        "Skipped CHD Sample Data (Cox Regression): unsupported extended table type MultipleVariables; its grouping or variable semantics cannot be imported as ordinary column or XY data.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/Logistic (Titanic).pzfx",
+      "sha256": "d6d5b159caa939e74306d4a7e0fd27068d96563e1d7aba895e3b7c613ae2b171",
+      "tables": 0,
+      "warnings": [
+        "Imports raw numeric table data only; saved analyses, formatting, notes, and graphs are not imported.",
+        "Skipped MV: Multiple logistic regression (Titanic): unsupported extended table type MultipleVariables; its grouping or variable semantics cannot be imported as ordinary column or XY data.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/Multiple Linear Regression (Text variables).pzfx",
+      "sha256": "599cdf325b8e1fd3e587b02216d825233661afc7a0185f7b454b3877c9ec66ac",
+      "tables": 0,
+      "warnings": [
+        "Imports raw numeric table data only; saved analyses, formatting, notes, and graphs are not imported.",
+        "Skipped MV: Multiple linear regression: unsupported extended table type MultipleVariables; its grouping or variable semantics cannot be imported as ordinary column or XY data.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/Multiple Logistic Regression (Text Variables).pzfx",
+      "sha256": "8e8bfb361a037fc6d54c6f1fecbec50c78fade047434d99ba18424c537de3375",
+      "tables": 0,
+      "warnings": [
+        "Imports raw numeric table data only; saved analyses, formatting, notes, and graphs are not imported.",
+        "Skipped MV: Multiple logistic regression (Titanic): unsupported extended table type MultipleVariables; its grouping or variable semantics cannot be imported as ordinary column or XY data.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/Multiple regression.xml",
+      "sha256": "5b994bb877cbe47c9d589aa365f499c58416b575e66ae7801ac006e5a938d84c",
+      "tables": 0,
+      "warnings": [
+        "Imports raw numeric table data only; saved analyses, formatting, notes, and graphs are not imported.",
+        "Skipped MV: Multiple linear regression: unsupported extended table type MultipleVariables; its grouping or variable semantics cannot be imported as ordinary column or XY data.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/Poisson Regression (Text variables).pzfx",
+      "sha256": "40391a7d06d281934483296764abff81496b9dd1ab6a4f89394cd109f45af909",
+      "tables": 0,
+      "warnings": [
+        "Imports raw numeric table data only; saved analyses, formatting, notes, and graphs are not imported.",
+        "Skipped MV: Poisson regression: unsupported extended table type MultipleVariables; its grouping or variable semantics cannot be imported as ordinary column or XY data.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/Poisson Tutorial Dataset.pzfx",
+      "sha256": "a8302e00d5740449d2cc4927d7520747ee6214979aa0ebc7fe9a3f78d823879e",
+      "tables": 0,
+      "warnings": [
+        "Imports raw numeric table data only; saved analyses, formatting, notes, and graphs are not imported.",
+        "Skipped MV: Poisson regression: unsupported extended table type MultipleVariables; its grouping or variable semantics cannot be imported as ordinary column or XY data.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/Nested/nested one-way ANOVA.xml",
+      "sha256": "731546f01d6f4a1ad759cc11fffaaf173a2aab12f8709aed9827ff5fdc9b8773",
+      "tables": 0,
+      "warnings": [
+        "Imports raw numeric table data only; saved analyses, formatting, notes, and graphs are not imported.",
+        "Skipped Nested: One-way ANOVA: unsupported extended table type Nested; its grouping or variable semantics cannot be imported as ordinary column or XY data.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/Nested/nested t test.xml",
+      "sha256": "c9c415ea23506dbaabf7fd7fe66bb25a96aab623ed6f57226758f521f0fa17b7",
+      "tables": 0,
+      "warnings": [
+        "Imports raw numeric table data only; saved analyses, formatting, notes, and graphs are not imported.",
+        "Skipped Nested: t test: unsupported extended table type Nested; its grouping or variable semantics cannot be imported as ordinary column or XY data.",
+        "No supported raw column or XY tables were found."
+      ]
+    }
+  ],
+  "zip": [
+    {
+      "source": "Contents/SharedSupport/Portfolio/Graphs to explore/Geometric mean.pzt",
+      "sha256": "ea28cc2fb2c2db0886a6338c97db2e1c5b77573a04757140d09bf4634556eb67",
+      "tables": [
+        {
+          "id": "00F19FCC-AAE8-4A57-9E90-51C7EC3FDA8E",
+          "title": "Data 1",
+          "columns": [
+            "Control",
+            "Treated"
+          ]
+        }
+      ],
+      "warnings": [
+        "Imports raw numeric tables only; saved analyses, formatting, notes, and graphs are not imported.",
+        "ZIP support is based on bundled Prism templates; legacy PCFFGRA4 binary projects are unsupported.",
+        "Data 1: row labels were omitted; numeric row positions were preserved."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/Portfolio/Graphs to explore/Time line.pzt",
+      "sha256": "6dd21d3a50c9f4a6b3ab572891ab33421bc5557e5ead51fcd865c5e9273e63d6",
+      "tables": [
+        {
+          "id": "A1AD8B56-17C3-41C9-9622-96330034F71A",
+          "title": "Data 1- Column table",
+          "columns": [
+            "Series 1"
+          ]
+        },
+        {
+          "id": "FAAF6E7E-D2F8-4B7B-B429-14035899E644",
+          "title": "Data 2 - XY table",
+          "columns": [
+            "X",
+            "H2N2",
+            "H3N2",
+            "H3N2 (2)",
+            "H1N1",
+            "H5N1",
+            "H5N1 (2)",
+            "H7N2",
+            "H5N1 (3)",
+            "H7N3",
+            "H5N1 (4)",
+            "H5N1 (5)",
+            "H7N7",
+            "H5N1 (6)",
+            "H5N1 (7)"
+          ]
+        }
+      ],
+      "warnings": [
+        "Imports raw numeric tables only; saved analyses, formatting, notes, and graphs are not imported.",
+        "ZIP support is based on bundled Prism templates; legacy PCFFGRA4 binary projects are unsupported.",
+        "Data 1- Column table: row labels were omitted; numeric row positions were preserved.",
+        "Data 2 - XY table: row labels were omitted; numeric row positions were preserved."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/Portfolio/Graphs with tutorials/Dose-response curves.pzt",
+      "sha256": "0723d1563d5ddbc33d66c9d535fcb3923bd135ca8f2abf77e3fcc129583a9a90",
+      "tables": [],
+      "warnings": [
+        "Imports raw numeric tables only; saved analyses, formatting, notes, and graphs are not imported.",
+        "ZIP support is based on bundled Prism templates; legacy PCFFGRA4 binary projects are unsupported.",
+        "Skipped Data 1: replicate or preaveraged subcolumns are unsupported; observations were not flattened or averaged.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/Gene Expression.prismt",
+      "sha256": "988a6cf6bc2721601e99b6c2f2176c21b6eb3123b4d76ca1e2e2befbf035721f",
+      "tables": [],
+      "warnings": [
+        "Imports raw numeric tables only; saved analyses, formatting, notes, and graphs are not imported.",
+        "ZIP support is based on bundled Prism templates; legacy PCFFGRA4 binary projects are unsupported.",
+        "Skipped Gene Expression: unsupported table type 'multivariable'; categorical/multivariable tables require explicit variable mapping.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/Hierarchical Clustering (Cities).prismt",
+      "sha256": "c9406e8b0a10acdebc61c28078f3812cfa18dcd8256ce6dc9b962350fdc17294",
+      "tables": [],
+      "warnings": [
+        "Imports raw numeric tables only; saved analyses, formatting, notes, and graphs are not imported.",
+        "ZIP support is based on bundled Prism templates; legacy PCFFGRA4 binary projects are unsupported.",
+        "Skipped Cities: unsupported table type 'multivariable'; categorical/multivariable tables require explicit variable mapping.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/MV- Created Variables from In-table Formulas.prismt",
+      "sha256": "7c28817b67adb78297ac640d84f53e68be3dde800050c3e868648a83973008a7",
+      "tables": [],
+      "warnings": [
+        "Imports raw numeric tables only; saved analyses, formatting, notes, and graphs are not imported.",
+        "ZIP support is based on bundled Prism templates; legacy PCFFGRA4 binary projects are unsupported.",
+        "Skipped MV: Created Variables from In-table Formulas: unsupported table type 'multivariable'; categorical/multivariable tables require explicit variable mapping.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/MV- Effect Sizes for ANOVA.prismt",
+      "sha256": "877c3c764b8cd7572cbb4354781cf95e54462f62d59f5f6323417721ba7fba73",
+      "tables": [],
+      "warnings": [
+        "Imports raw numeric tables only; saved analyses, formatting, notes, and graphs are not imported.",
+        "ZIP support is based on bundled Prism templates; legacy PCFFGRA4 binary projects are unsupported.",
+        "Skipped MV: Effect Sizes for ANOVA: unsupported table type 'multivariable'; categorical/multivariable tables require explicit variable mapping.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/MV- Extract and Rearrange.prismt",
+      "sha256": "e4f469a36577507fdaa9ec37f6a1a036899735010bac5fd453392f2a8649439f",
+      "tables": [],
+      "warnings": [
+        "Imports raw numeric tables only; saved analyses, formatting, notes, and graphs are not imported.",
+        "ZIP support is based on bundled Prism templates; legacy PCFFGRA4 binary projects are unsupported.",
+        "Skipped MV: Extract and Rearrange: unsupported table type 'multivariable'; categorical/multivariable tables require explicit variable mapping.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/MV- Multifactor ANOVA.prismt",
+      "sha256": "33833e63a4b380f587a66ed03f67ff12511f84b15502656fc571e747d82fd423",
+      "tables": [],
+      "warnings": [
+        "Imports raw numeric tables only; saved analyses, formatting, notes, and graphs are not imported.",
+        "ZIP support is based on bundled Prism templates; legacy PCFFGRA4 binary projects are unsupported.",
+        "Skipped MV: Multifactor ANOVA: unsupported table type 'multivariable'; categorical/multivariable tables require explicit variable mapping.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/MV- Paired t test.prismt",
+      "sha256": "892ad7ba6c7f1be7b2b519b68172a935c4eae35add91184323c9b0312f28baee",
+      "tables": [],
+      "warnings": [
+        "Imports raw numeric tables only; saved analyses, formatting, notes, and graphs are not imported.",
+        "ZIP support is based on bundled Prism templates; legacy PCFFGRA4 binary projects are unsupported.",
+        "Skipped MV: Paired t test: unsupported table type 'multivariable'; categorical/multivariable tables require explicit variable mapping.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/MV- Select and Transform.prismt",
+      "sha256": "eb8e94d7c5ef764e053b5600359a18bfa5d1e1e2ef2cad9c7b2272d1fadd7cb2",
+      "tables": [],
+      "warnings": [
+        "Imports raw numeric tables only; saved analyses, formatting, notes, and graphs are not imported.",
+        "ZIP support is based on bundled Prism templates; legacy PCFFGRA4 binary projects are unsupported.",
+        "Skipped MV: Select and Transform: unsupported table type 'multivariable'; categorical/multivariable tables require explicit variable mapping.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/MV- Simple Nonlinear Regression.prismt",
+      "sha256": "e6324c49de8ecaade197b9d04efd09a6e29c23327b364ad9bc9723700a93dc99",
+      "tables": [],
+      "warnings": [
+        "Imports raw numeric tables only; saved analyses, formatting, notes, and graphs are not imported.",
+        "ZIP support is based on bundled Prism templates; legacy PCFFGRA4 binary projects are unsupported.",
+        "Skipped MV: Simple Nonlinear Regression: unsupported table type 'multivariable'; categorical/multivariable tables require explicit variable mapping.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/MV- Simple survival (Kaplan-Meier) analysis.prismt",
+      "sha256": "208271bc14960f9ebc4b0c4eb13765efc07629b1d3c096eafbe560c42b25823a",
+      "tables": [],
+      "warnings": [
+        "Imports raw numeric tables only; saved analyses, formatting, notes, and graphs are not imported.",
+        "ZIP support is based on bundled Prism templates; legacy PCFFGRA4 binary projects are unsupported.",
+        "Skipped MV: Simple survival (Kaplan-Meier) analysis: unsupported table type 'multivariable'; categorical/multivariable tables require explicit variable mapping.",
+        "No supported raw column or XY tables were found."
+      ]
+    },
+    {
+      "source": "Contents/SharedSupport/SampleData/MultipleVariables/Wine.prismt",
+      "sha256": "00fcbbe23870f5528eae1e8d2c8b9fa2cf3151afabe2d30f6ecc9a7979a30afa",
+      "tables": [],
+      "warnings": [
+        "Imports raw numeric tables only; saved analyses, formatting, notes, and graphs are not imported.",
+        "ZIP support is based on bundled Prism templates; legacy PCFFGRA4 binary projects are unsupported.",
+        "Skipped Wine: unsupported table type 'multivariable'; categorical/multivariable tables require explicit variable mapping.",
+        "No supported raw column or XY tables were found."
+      ]
+    }
+  ]
+}

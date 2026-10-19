@@ -3188,8 +3188,8 @@
       "reader": "statistics_backend"
     },
     {
-      "title": "3.11.3\nTwo-way ANOVA with Šídák multiple comparisons (steps per GraphPad docs;\ndialog not opened this session)",
-      "anchor": "3113-two-way-anova-with-šídák-multiple-comparisons-steps-per-graphpad-docs-dialog-not-opened-this-session",
+      "title": "3.11.3\nTwo-way ANOVA with \u0160\u00edd\u00e1k multiple comparisons (steps per GraphPad docs;\ndialog not opened this session)",
+      "anchor": "3113-two-way-anova-with-\u0161\u00edd\u00e1k-multiple-comparisons-steps-per-graphpad-docs-dialog-not-opened-this-session",
       "section_key": "3.11.3",
       "requirement_ids": [
         "R004",
@@ -4456,7 +4456,7 @@
       "reader": "advanced_ui"
     },
     {
-      "title": "R1. Per-animal\nscatter dot plot with mean ± SEM",
+      "title": "R1. Per-animal\nscatter dot plot with mean \u00b1 SEM",
       "anchor": "r1-per-animal-scatter-dot-plot-with-mean--sem",
       "section_key": "intro",
       "requirement_ids": [
@@ -4496,8 +4496,8 @@
       "reader": "advanced_ui"
     },
     {
-      "title": "R5.\nAxis title with mixed fonts: \"log₂ fold change\" or \"−log₁₀ P\"",
-      "anchor": "r5-axis-title-with-mixed-fonts-log₂-fold-change-or-log₁₀-p",
+      "title": "R5.\nAxis title with mixed fonts: \"log\u2082 fold change\" or \"\u2212log\u2081\u2080 P\"",
+      "anchor": "r5-axis-title-with-mixed-fonts-log\u2082-fold-change-or-log\u2081\u2080-p",
       "section_key": "intro",
       "requirement_ids": [
         "R001"
@@ -6350,7 +6350,7 @@
       "reader": "prism_formats"
     },
     {
-      "title": "7.4.6 Axes:\ngroups, segments and the snap1 → snap2 diff",
+      "title": "7.4.6 Axes:\ngroups, segments and the snap1 \u2192 snap2 diff",
       "anchor": "746-axes-groups-segments-and-the-snap1--snap2-diff",
       "section_key": "7.4.6",
       "requirement_ids": [
@@ -18547,9 +18547,10 @@
     "graphs-layouts.json",
     "formats-scripting.json",
     "formula-functions.json",
-    "prism11-deltas.json"
+    "prism11-deltas.json",
+    "break-test-report.json"
   ],
-  "requirement_count": 1051,
+  "requirement_count": 1087,
   "requirement_index": {
     "R001": "core.json",
     "R002": "core.json",
@@ -19601,6 +19602,149 @@
     "V11-052": "prism11-deltas.json",
     "V11-053": "prism11-deltas.json",
     "V11-054": "prism11-deltas.json",
-    "V11-055": "prism11-deltas.json"
+    "V11-055": "prism11-deltas.json",
+    "B001": "break-test-report.json",
+    "B002": "break-test-report.json",
+    "B003": "break-test-report.json",
+    "B004": "break-test-report.json",
+    "B005": "break-test-report.json",
+    "B006": "break-test-report.json",
+    "B007": "break-test-report.json",
+    "B008": "break-test-report.json",
+    "B009": "break-test-report.json",
+    "B010": "break-test-report.json",
+    "B011": "break-test-report.json",
+    "B012": "break-test-report.json",
+    "B013": "break-test-report.json",
+    "B014": "break-test-report.json",
+    "B015": "break-test-report.json",
+    "B016": "break-test-report.json",
+    "B017": "break-test-report.json",
+    "B018": "break-test-report.json",
+    "B019": "break-test-report.json",
+    "B020": "break-test-report.json",
+    "B021": "break-test-report.json",
+    "B022": "break-test-report.json",
+    "B023": "break-test-report.json",
+    "B024": "break-test-report.json",
+    "B025": "break-test-report.json",
+    "B026": "break-test-report.json",
+    "B027": "break-test-report.json",
+    "B028": "break-test-report.json",
+    "B029": "break-test-report.json",
+    "B030": "break-test-report.json",
+    "B031": "break-test-report.json",
+    "B032": "break-test-report.json",
+    "B033": "break-test-report.json",
+    "B034": "break-test-report.json",
+    "B035": "break-test-report.json",
+    "B036": "break-test-report.json"
+  },
+  "prism11_embedded_images": {
+    "source": "/workspace/attachments/0131e4ad-fbe7-416c-90eb-7376c620992a/PRISM11_DIFFERENCES.html",
+    "source_sha256": "4d38e42eaae0e78d2913b8e0f0e3b8d21145a80dc7e1d6fc28daef6d82bf952e",
+    "images": [
+      {
+        "index": 1,
+        "section": "Welcome dialog",
+        "alt": "Prism 11 Welcome dialog",
+        "path": "/workspace/gp-evidence/prism11-guide-images/image-01.jpg",
+        "bytes": 147971,
+        "sha256": "2752d6969b435dc226c6034d7df666a5526d72701deac79d0d20b8de3ffeec20",
+        "mime": "image/jpeg",
+        "inspected_by": "primary"
+      },
+      {
+        "index": 2,
+        "section": "Welcome dialog",
+        "alt": "Collaborate pane",
+        "path": "/workspace/gp-evidence/prism11-guide-images/image-02.jpg",
+        "bytes": 118435,
+        "sha256": "5ad3a90fa55a1ce597eee0b59a2832d6c84f56e7cd14e29f5dd7772d3903ebd5",
+        "mime": "image/jpeg",
+        "inspected_by": "primary"
+      },
+      {
+        "index": 3,
+        "section": "Toolbar",
+        "alt": "Prism 11 data sheet",
+        "path": "/workspace/gp-evidence/prism11-guide-images/image-03.jpg",
+        "bytes": 119380,
+        "sha256": "4f1239041660f356d584c17017d45dc24daee769af071470aab70ecd23195c69",
+        "mime": "image/jpeg",
+        "inspected_by": "advanced_ui"
+      },
+      {
+        "index": 4,
+        "section": "2.1 In-table\nformulas (calculated variables), 11.0.0, Pro",
+        "alt": "qPCR \u0394\u0394Ct sample with formulas",
+        "path": "/workspace/gp-evidence/prism11-guide-images/image-04.jpg",
+        "bytes": 153861,
+        "sha256": "771954f611e05d27d898446cf9001aa1d3eace4b11ee0c04208e2d789cb880f2",
+        "mime": "image/jpeg",
+        "inspected_by": "primary"
+      },
+      {
+        "index": 5,
+        "section": "2.1 In-table\nformulas (calculated variables), 11.0.0, Pro",
+        "alt": "Formula editor in the Inspector",
+        "path": "/workspace/gp-evidence/prism11-guide-images/image-05.jpg",
+        "bytes": 72379,
+        "sha256": "15dd2f411ce77fdb390eccee588c0e15e1fe1d983fe9eb037662d786ed941b6e",
+        "mime": "image/jpeg",
+        "inspected_by": "primary"
+      },
+      {
+        "index": 6,
+        "section": "2.3 Multifactor ANOVA, 11.0.0,\nPro",
+        "alt": "Multifactor ANOVA data",
+        "path": "/workspace/gp-evidence/prism11-guide-images/image-06.jpg",
+        "bytes": 165240,
+        "sha256": "b01825e6de795350bc1e8340ad1fddb07fdfc3a1a592f6e89c7156c494fe4faa",
+        "mime": "image/jpeg",
+        "inspected_by": "primary"
+      },
+      {
+        "index": 7,
+        "section": "2.3 Multifactor ANOVA, 11.0.0,\nPro",
+        "alt": "Multifactor ANOVA results",
+        "path": "/workspace/gp-evidence/prism11-guide-images/image-07.jpg",
+        "bytes": 177180,
+        "sha256": "f62f45c155ada9ae076a6a2e6be668055acc5fb19f69d86c7a1277baac47357e",
+        "mime": "image/jpeg",
+        "inspected_by": "advanced_ui"
+      },
+      {
+        "index": 8,
+        "section": "2.3 Multifactor ANOVA, 11.0.0,\nPro",
+        "alt": "Multiple-comparisons CI plot",
+        "path": "/workspace/gp-evidence/prism11-guide-images/image-08.jpg",
+        "bytes": 86143,
+        "sha256": "5310af512fb4a9806b1ff39b2941fdb5d3f80c20e35477c3527377aa3d541d18",
+        "mime": "image/jpeg",
+        "inspected_by": "advanced_ui"
+      },
+      {
+        "index": 9,
+        "section": "3. Statistics changes since\n10.3.1",
+        "alt": "Kaplan-Meier with number-at-risk table",
+        "path": "/workspace/gp-evidence/prism11-guide-images/image-09.jpg",
+        "bytes": 125443,
+        "sha256": "e9a340206e8952df5fbc0c0bbb5ec2484f7e4fcaae9605e555ece0e29caf715a",
+        "mime": "image/jpeg",
+        "inspected_by": "advanced_ui"
+      },
+      {
+        "index": 10,
+        "section": "4. Graphs: what changed\nand what did not",
+        "alt": "Prism 11 Format Axes, X axis tab",
+        "path": "/workspace/gp-evidence/prism11-guide-images/image-10.jpg",
+        "bytes": 53041,
+        "sha256": "c585169e3340f5cc8a56669423bd25efedeeab9b4620f3dd77f5c6de89428e83",
+        "mime": "image/jpeg",
+        "inspected_by": "advanced_ui"
+      }
+    ],
+    "inspection_note": "All10embedded screenshots visually inspected: advanced_ui images3,7,8,9,10; primary images1,2,4,5,6. Static screenshots establish displayed states only, not interactive behavior."
   }
 }

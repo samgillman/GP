@@ -158,7 +158,7 @@ MODEL_REGISTRY = {
     "normalized_dose_inhibition": {
         "name": "[Inhibitor] vs. normalized response -- Variable slope ",
         "parameters": ["IC50", "HillSlope"],
-        "x_domain": "positive",
+        "x_domain": "nonnegative",
         "x_interpretation": "concentration (not log transformed)",
         "source": {
             "relative_path": "SharedSupport/Equations/Cache/Dose-response - Inhibition",
@@ -211,10 +211,34 @@ def _model(model_id):
     return MODEL_REGISTRY[model_id]
 
 
+def _concentration_fraction(x, log_midpoint, hill):
+    """Logistic fraction on nonnegative concentrations, including the X=0 limit.
+
+    Positive Hill reaches the lower plateau at zero; negative Hill reaches
+    the upper plateau. Hill=0 is the constant halfway curve, defined by
+    continuation from positive concentrations (its midpoint is unidentified).
+    Evaluate logs only on positive doses, never log(0) or 0 * infinity.
+    """
+    x = np.asarray(x, dtype=float)
+    zero_value = 0.5 if hill == 0 else float(hill < 0)
+    fraction = np.full_like(x, zero_value)
+    positive = x > 0
+    fraction[positive] = special.expit(hill * (np.log(x[positive]) - log_midpoint))
+    return fraction
+
+
+def _concentration_grid(x, count=200):
+    """Keep the zero endpoint separate from logarithmically spaced positive doses."""
+    positive = x[x > 0]
+    has_zero = bool(np.any(x == 0))
+    grid = np.geomspace(np.min(positive), np.max(positive), count - int(has_zero))
+    return np.concatenate(([0.0], grid)) if has_zero else grid
+
+
 def _calculate(model_id, x, p):
     if model_id == "normalized_dose_inhibition":
         midpoint, hill = p
-        return 100 * special.expit(hill * (np.log(x) - np.log(midpoint)))
+        return 100 * _concentration_fraction(x, np.log(midpoint), hill)
     if model_id == "normalized_log_dose_inhibition":
         midpoint, hill = p
         return 100 * special.expit(np.log(10) * hill * (x - midpoint))
@@ -352,8 +376,20 @@ def _fit_normalized_inhibition(model_id, x, y):
     Raw-concentration IC50 positivity is enforced by fitting its logarithm.
     """
     raw_dose = model_id == "normalized_dose_inhibition"
-    logx = np.log10(x) if raw_dose else x
-    offset, scale = float(np.min(logx) + np.ptp(logx) / 2), float(np.ptp(logx))
+    positive = x > 0 if raw_dose else np.ones(len(x), dtype=bool)
+    has_zero = raw_dose and bool(np.any(~positive))
+    if raw_dose and len(np.unique(x[positive])) < 2:
+        raise ModelFitError(
+            "The normalized dose fit needs at least two distinct positive concentrations; "
+            "zero controls do not identify the midpoint or Hill slope."
+        )
+    # Zero controls have a fixed model endpoint; they enter the residual vector
+    # and SSE/df, but never logarithmic scaling or initial midpoint estimates.
+    observed_logx = np.log10(x[positive]) if raw_dose else x
+    offset = float(np.min(observed_logx) + np.ptp(observed_logx) / 2)
+    scale = float(np.ptp(observed_logx))
+    logx = np.full_like(x, offset)
+    logx[positive] = observed_logx
     if scale == 0:
         raise ModelFitError(
             "Concentrations are indistinguishable at logarithmic numerical precision."
@@ -361,7 +397,10 @@ def _fit_normalized_inhibition(model_id, x, y):
     normalized_x, normalized_y = (logx - offset) / scale, y / 100
 
     def residual(p):
-        return special.expit(np.log(10) * p[1] * (normalized_x - p[0])) - normalized_y
+        predicted = special.expit(np.log(10) * p[1] * (normalized_x - p[0]))
+        if has_zero:
+            predicted[~positive] = float(p[1] < 0)
+        return predicted - normalized_y
 
     candidates = []
     for midpoint in (-0.25, 0.0, 0.25):
@@ -370,7 +409,12 @@ def _fit_normalized_inhibition(model_id, x, y):
                 fit = optimize.least_squares(
                     residual,
                     [midpoint, hill],
-                    bounds=([-5.0, -100.0], [5.0, 100.0]),
+                    # With zero controls the endpoint changes discontinuously
+                    # across Hill=0; optimize each direction separately.
+                    bounds=(
+                        [-5.0, 1e-8 if has_zero and hill > 0 else -100.0],
+                        [5.0, -1e-8 if has_zero and hill < 0 else 100.0],
+                    ),
                     max_nfev=4000,
                     ftol=1e-12,
                     xtol=1e-12,
@@ -407,7 +451,11 @@ def _fit_normalized_inhibition(model_id, x, y):
         notices.append(
             "The fit reached a GP search bound; parameters may be unreliable."
         )
-    if not np.min(logx) <= midpoint <= np.max(logx):
+    if has_zero:
+        notices.append(
+            "Zero-dose observations are included in the fit. A logarithmic X axis cannot display X=0."
+        )
+    if not np.min(observed_logx) <= midpoint <= np.max(observed_logx):
         notices.append(
             "The fitted midpoint lies outside the measured concentration range."
         )
@@ -416,7 +464,7 @@ def _fit_normalized_inhibition(model_id, x, y):
             "The fitted direction increases with concentration, opposite to the inhibition label."
         )
     grid = (
-        np.geomspace(np.min(x), np.max(x), 200)
+        _concentration_grid(x)
         if raw_dose
         else np.linspace(np.min(x), np.max(x), 200)
     )

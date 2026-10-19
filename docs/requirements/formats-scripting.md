@@ -1,3 +1,5 @@
+> Planning audit snapshot. Current execution status and evidence are maintained in the companion JSON register and [execution log](../completion-progress.md).
+
 # Format and scripting requirements audit
 
 Exhaustive requirement extraction for guide sections6/7 and AppendicesA–C; not an inventory of all Prism features or other guide chapters.

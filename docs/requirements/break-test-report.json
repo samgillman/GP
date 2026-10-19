@@ -1,0 +1,778 @@
+{
+  "schema_version": 1,
+  "source": {
+    "filename": "Pasted text.txt",
+    "sha256": "43b148b726f6508e1679bc2bb3c2b3a9ad5513e4262213bbff8d37ba472fd3d8",
+    "bytes": 9172,
+    "read": "Entire uploaded UX audit plus both inline stress/scroll reports. Author findings treated as hypotheses to reproduce, not agent runtime evidence. Some cases already partly addressed in unreleased work."
+  },
+  "requirements": [
+    {
+      "id": "B001",
+      "title": "Large imports within advertised limits never overflow the JS argument stack",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "Q001"
+      ],
+      "acceptance": [
+        "Import10000x20 and10000x30 numeric tables, navigate/edit/plot/save/reopen without blank page or stack overflow; calculate bounds by iteration."
+      ],
+      "implementation_evidence": [
+        "gp/models.py: AnalysisRequest accepts at most 30 columns, 10,000 values per column and 300,000 total cells, matching the advertised table dimensions.",
+        "web/src/plot-geometry.ts computes bounds by iteration; dense graphs use a full-observation canvas and inactive graphs unmount."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_table_capacity.py: server API fully analyzes 10,000x30 column and XY tables and verifies n, mean, sample SD and sum; rejects 10,000x31, 10,001x30 and individual dimension overflows.",
+        "2026-10-19: capacity, API and edge subset passed 38 tests. Native 300,000-cell descriptive probe: validation 0.147 s, analysis 0.236 s, whole-process peak RSS 93.4 MiB including Python/SciPy imports; not a browser performance guarantee.",
+        "2026-10-19 parent integration report: full backend suite passed 266 tests. Unit/server validation only; no native Prism equivalence or static/browser completion inferred.",
+        "plot-geometry.test.ts exercises 200,000 and 300,000 observations; standalone Chromium rendered all 200,000 observations with 82 Plot DOM nodes and no page errors.",
+        "Server Chromium completed200k/300k import/full drawing and zoom isolation; evidence in /workspace/gp-evidence/large-workbook-capacity.json, with explicit two-run scope and timing limitations."
+      ],
+      "limitations": [
+        "Server Chromium import, navigation and full drawing passed for 200,000/300,000 observations. Full-capacity static-worker calculation and complete edit/save/reopen acceptance remain open; smaller static integration tests do not prove these cases.",
+        "Server graph export retains its separately declared 20,000-cell rendering limit.",
+        "Large-table editing still incurs whole-workbook serialization/history costs, tracked in B005."
+      ]
+    },
+    {
+      "id": "B002",
+      "title": "Render recovery preserves downloadable current work",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "W006"
+      ],
+      "acceptance": [
+        "Unexpected render errors show recovery actions and meaningful diagnostics; download latest in-memory workbook; never clear or overwrite saved original during recovery."
+      ],
+      "implementation_evidence": [
+        "Global React boundary retains latest immutable workbook reference, offers download and retry, and leaves saved storage unchanged."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "Server and static Chromium injected a render error after an unsaved edit; download and Retry preserved latest values/name, and previous browser save remained unchanged."
+      ]
+    },
+    {
+      "id": "B003",
+      "title": "Numeric-domain limits and useful Python errors",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "D001",
+        "Q002"
+      ],
+      "acceptance": [
+        "Frontend/server/static enforce finite absolute values\u22641e100; reject1e200 with field/row reason; no bare Pydantic URL or module prefix."
+      ],
+      "implementation_evidence": [
+        "gp/models.py and gp/server.py: finite absolute observation limit is inclusively 1e100; validation returns concise JSON messages without raw input or Pydantic URL/context echoes.",
+        "web/src/data.ts: numeric(), importCsv(), requestData() and project validation enforce the same numeric bound with row/column context where available.",
+        "web/src/error-message.ts and web/src/compute.worker.ts: structured or traceback errors retain meaningful constraints and strip module/URL noise; worker uses the shared error formatter."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_analysis_edges.py: analyze/export reject both signs of 1e101, 1e200 and 1e308; exactly +/-1e100 is accepted with known sample SD; hostile names remain literal JSON data and escaped SVG text.",
+        "web/src/data.test.ts and web/src/error-message.test.ts: cap boundaries, row/column locations, Pydantic footer removal, structured errors and hostile React text tested. Combined Node test command passed all 19 tests on 2026-10-19.",
+        "2026-10-19 parent integration report: full backend suite passed 266 tests. Unit/server validation only; no native Prism equivalence or static/browser completion inferred.",
+        "Server and static Chromium checks displayed meaningful constant-data and 1e200 errors without module prefixes or Pydantic footer text; scripts/check_large_workbook.py and /workspace/gp-evidence/large-workbook-static-integration.json."
+      ],
+      "limitations": [
+        "The 1e100 bound is a GP resource/numerical policy, not an inferred Prism numeric-domain limit."
+      ]
+    },
+    {
+      "id": "B004",
+      "title": "Independent imported-table defaults",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "E006"
+      ],
+      "acceptance": [
+        "CSV/native imports start with own name/title, neutral labels and descriptive analysis; unrelated current sheet settings never leak."
+      ],
+      "implementation_evidence": [
+        "CSV and native imports use importedProject with independent labels, title, analysis and graph defaults."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "data.test.ts fresh-import isolation and semicolon cases; integrated200k/300k import checks confirmed neutral own settings."
+      ]
+    },
+    {
+      "id": "B005",
+      "title": "Virtualized large grid",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "Q001",
+        "E001"
+      ],
+      "acceptance": [
+        "Only visible rows/columns plus overscan mounted; editing row10000 in30columns retains data and focus; measure mounted node count and edit latency."
+      ],
+      "implementation_evidence": [
+        "DataGrid.tsx virtualizes rows and columns, retaining a maximum of 80 data rows including offscreen focus."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "19 Chromium grid workflows passed; 42 mounted rows on a 10,000-row table. Last cell AD10000 persisted through reload."
+      ],
+      "limitations": [
+        "Editing still incurs whole-workbook serialization/history costs. Measured production latency under host contention was 429\u2013678ms for typical 8-column edits and 829\u20132543ms for 30 columns; virtualization alone does not resolve end-to-end lag."
+      ]
+    },
+    {
+      "id": "B006",
+      "title": "Dense graph rendering without one DOM node per point",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "Q001"
+      ],
+      "acceptance": [
+        "Render all observations with bounded DOM/canvas, no silent statistical/data subsampling; preserve full bounds, summaries and exports."
+      ],
+      "implementation_evidence": [
+        "All dense observations draw on high-resolution canvas; summary/fit/axes remain SVG."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "13 geometry/selection regressions; actual painted canvas and 200,000-point spatial hit testing verified in Chromium."
+      ],
+      "limitations": [
+        "Native visual fidelity and dense graph exports remain separate requirements."
+      ]
+    },
+    {
+      "id": "B007",
+      "title": "Spreadsheet keyboard and replacement editing",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "E001"
+      ],
+      "acceptance": [
+        "Click selects cell; typing replaces; F2/doubleclick edits; Enter/ShiftEnter and arrows move rows, Tab/ShiftTab columns with correct boundaries."
+      ],
+      "implementation_evidence": [
+        "Selected-cell and caret editing modes; Enter/ShiftEnter/Tab/arrows/F2 navigation."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "Chromium replacement typing, keyboard movement, F2, missing cells and offscreen focus checks passed.",
+        "Final review: selected-mode Ctrl/Cmd+Z reverses range clear/paste, while caret editing retains native text history; six focused browser regressions passed with zero page errors."
+      ],
+      "limitations": [
+        "Subcolumn/replicate-specific Prism navigation remains pending typed-table work."
+      ]
+    },
+    {
+      "id": "B008",
+      "title": "Samples and table-format changes do not silently overwrite",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "D011",
+        "P001"
+      ],
+      "acceptance": [
+        "Sample workflows add a new table or explicitly confirm replacement; format changes are deliberate, undoable and describe reinterpretation."
+      ],
+      "implementation_evidence": [
+        "Choosing a sample adds a new data table instead of overwriting the current one."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "Shared addData workbook helper is tested; sample-specific browser workflow and explicit table-format dialog remain open."
+      ]
+    },
+    {
+      "id": "B009",
+      "title": "Stable analysis identity and isolated parameters",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "W009",
+        "A005"
+      ],
+      "acceptance": [
+        "Repeat identical analysis reuses the appropriate result; explicit new creates unique name; parameter changes affect result only and update generated titles without overwriting custom names."
+      ],
+      "implementation_evidence": [
+        "Ordinary Run reuses matching result identity; explicit Create analysis remains independent; result parameter changes preserve source settings and rename default labels."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "Server and static Chromium verified reuse, explicit new identity, unchanged sibling/source settings, and default result renaming."
+      ]
+    },
+    {
+      "id": "B010",
+      "title": "Scientific number and label formatting",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "P007"
+      ],
+      "acceptance": [
+        "Large/small magnitudes use readable scientific notation;0.99997 never displays as1; EC50 casing correct; stored/full-precision values unchanged."
+      ],
+      "implementation_evidence": [
+        "gp/statistics.py: standalone 4PL parameter result label is explicitly EC50.",
+        "web/src/data.ts: fmt() uses scientific notation for |x|>=1e6 or 0<|x|<0.001; preserves near-integer distinctions such as 0.99997; formatting returns text without mutating stored values."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_analysis_edges.py: known 4PL fixture verifies the EC50 label and value and rejects the old Ec50 label.",
+        "web/src/data.test.ts: checks positive/negative 1e100, large/small notation boundaries, null/nonfinite formatting and near-one values down to 0.9999999999999999. Included in the 19 passing Node tests on 2026-10-19.",
+        "2026-10-19 parent integration report: full backend suite passed 266 tests. Unit/server validation only; no native Prism equivalence or static/browser completion inferred."
+      ],
+      "limitations": [
+        "Rendered browser/static result presentation and persistence/full-precision export roundtrips for these cases remain to be exercised.",
+        "Numeric presentation thresholds are explicit GP choices; no Prism visual equivalence is claimed."
+      ]
+    },
+    {
+      "id": "B011",
+      "title": "XY descriptive statistics exclude X by default",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "D003"
+      ],
+      "acceptance": [
+        "Y series alone appear in descriptive summary; X missingness does not drop independent Y observations unless paired analysis requires it."
+      ],
+      "implementation_evidence": [
+        "gp/statistics.py: descriptive XY analysis summarizes Y columns only, independently retains Y observations when X is missing, and reports that missing-X rule in method notes."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_analysis_edges.py: synthetic missing-X/missing-Y fixture checks Y-only names, independent counts, known means and sum; an XY table with only X observations fails explicitly.",
+        "tests/test_table_capacity.py: 10,000x30 XY input returns exactly 29 Y summaries with analytically known descriptive outputs.",
+        "2026-10-19 parent integration report: full backend suite passed 266 tests. Unit/server validation only; no native Prism equivalence or static/browser completion inferred."
+      ],
+      "limitations": [
+        "Static-worker/browser rendering and saved result roundtrip verification are pending; native Prism behavior has not been exercised for this edge case."
+      ]
+    },
+    {
+      "id": "B012",
+      "title": "Paired Hedges correction undefined for two pairs",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "A025"
+      ],
+      "acceptance": [
+        "For n2, g is null with explicit df\u22641 reason; valid paired inference remains unchanged and no false zero effect reported."
+      ],
+      "implementation_evidence": [
+        "gp/statistics.py: paired Hedges g is null for two complete pairs (residual df=1), with an explicit fewer-than-three-pairs bias-correction reason; paired t, Cohen d, direction and valid inference remain available."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_analysis_edges.py: two-pair differences [1,3] give df=1, t=2 and Cohen d=sqrt(2), while Hedges g is null with an explanatory warning.",
+        "tests/test_prism_reference.py: existing larger-sample paired saved-output regression remains passing; it is not a Prism reference for n=2.",
+        "2026-10-19 parent integration report: full backend suite passed 266 tests. Unit/server validation only; no native Prism equivalence or static/browser completion inferred."
+      ],
+      "limitations": [
+        "Static-worker/browser visibility and serialization of the undefined result remain pending.",
+        "Existing df>1 approximation is unchanged; this correction does not add an exact gamma-function Hedges correction or infer Prism n=2 behavior."
+      ]
+    },
+    {
+      "id": "B013",
+      "title": "Per-series dose-response failures",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "A026"
+      ],
+      "acceptance": [
+        "One constant-Y series produces named failure while valid series still fit; all-invalid inputs give a clear overall failure; no series silently disappears."
+      ],
+      "implementation_evidence": [
+        "gp/statistics.py: standalone dose_response 4PL skips an unidentifiable constant-Y series only after recording its named Fit status and warning; valid series still fit. If every Y series is constant, an aggregate AnalysisError names each failed series."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_analysis_edges.py: constant series before/after a known valid curve retains the valid EC50=5 fit, named failure status and warning; one/all-constant series return explicit overall failure, including a 422 API response.",
+        "2026-10-19 parent integration report: full backend suite passed 266 tests. Unit/server validation only; no native Prism equivalence or static/browser completion inferred."
+      ],
+      "limitations": [
+        "Bounded implementation handles constant-Y failure in standalone 4PL only. Invalid X, insufficient pairs, optimizer nonconvergence and nonlinear-registry failures retain prior whole-request error behavior; no universal per-series recovery is claimed.",
+        "Static-worker/browser presentation and result persistence for mixed/all-invalid series remain pending."
+      ]
+    },
+    {
+      "id": "B014",
+      "title": "No-event logrank undefined explanation",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "A026"
+      ],
+      "acceptance": [
+        "No observed events produce explicit undefined result/reason visible in UI; never imply df0 is a successful test."
+      ],
+      "implementation_evidence": [
+        "gp/survival.py: logrank returns status=undefined, null statistic/p value and an explicit no-events undefined_reason; warnings propagate at both comparison and overall survival response levels. df=0 remains the covariance rank, not a successful test."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "tests/test_analysis_edges.py and tests/test_survival.py: all-censored synthetic groups produce no-event reason, null inference, rank zero and warnings at both levels; saved Prism event-bearing logrank regression remains passing.",
+        "2026-10-19 parent integration report: full backend suite passed 266 tests. Unit/server validation only; no native Prism equivalence or static/browser completion inferred."
+      ],
+      "limitations": [
+        "Explicit UI visibility and static-worker runtime acceptance remain pending; current frontend source renders warnings but still displays rank zero, so source inspection alone does not close this obligation.",
+        "No native Prism runtime no-event reference has been obtained; event-bearing saved-output agreement does not verify this undefined edge."
+      ]
+    },
+    {
+      "id": "B015",
+      "title": "Prominent browser-storage failure and recovery",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "W006"
+      ],
+      "acceptance": [
+        "Quota failure immediately exposes persistent warning, download and retry; later edits remain downloadable; saved original preserved; recovery re-enables save visibly."
+      ],
+      "implementation_evidence": [
+        "Persistent storage-failure alert offers current-workbook download/retry; unsaved changes warn before page exit."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "Server and static Chromium injected quota failure, confirmed saved bytes unchanged and latest value17 in downloaded workbook."
+      ]
+    },
+    {
+      "id": "B016",
+      "title": "Semicolon CSV with quoting/BOM/CRLF",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "E006"
+      ],
+      "acceptance": [
+        "Detect comma/semicolon outside quotes; numeric values and hostile titles roundtrip; mixed delimiters fail clearly."
+      ],
+      "implementation_evidence": [
+        "Main CSV import autodetects semicolon or comma outside quotes; export preserves quoted/missing cells."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "14 data unit cases and server and static Chromium semicolon hostile-name fixture passed."
+      ]
+    },
+    {
+      "id": "B017",
+      "title": "Messages do not shift grid; transient notices expire",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "P003"
+      ],
+      "acceptance": [
+        "Errors/storage warnings remain accessible in fixed overlay/slot; opening/closing messages cannot move clicked cell; copy success expires, real failures persist."
+      ],
+      "implementation_evidence": [
+        "Success notices expire after5seconds; errors and persistent save warnings overlay rather than shift the grid."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "Server and static Chromium constant-input and overflow failures kept identical grid top coordinates; timing-specific notice expiry remains to verify."
+      ]
+    },
+    {
+      "id": "B018",
+      "title": "Sticky row headers",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "E001"
+      ],
+      "acceptance": [
+        "Horizontal scrolling keeps numbered row header visible with opaque background and correct stacking under fixed column headers."
+      ],
+      "implementation_evidence": [
+        "Row numbers and corner stay pinned during horizontal scrolling."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "Chromium checks row-number left edge matches viewport after horizontal scroll."
+      ],
+      "limitations": [
+        "Native reference comparison remains open."
+      ]
+    },
+    {
+      "id": "B019",
+      "title": "Per-sheet scroll memory",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "W007",
+        "E001"
+      ],
+      "acceptance": [
+        "Each sheet restores own horizontal/vertical offsets; newly created/imported sheet begins top-left; deleting a sheet cleans its view state."
+      ],
+      "implementation_evidence": [
+        "Each sheet caches scroll axes and resized widths; Go to cell focus tokens are consumed once."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "Chromium graph/data unmount/remount restores both scroll axes and widths.",
+        "Final review regression: per-sheet active cell, anchor and rectangular selection now survive graph/data and other-sheet navigation independently of viewport position."
+      ],
+      "limitations": [
+        "Session cache intentionally resets on page reload; persistence across application sessions is not implemented."
+      ]
+    },
+    {
+      "id": "B020",
+      "title": "Scroll into empty cells",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "E001"
+      ],
+      "acceptance": [
+        "Continue into blank rows/columns within10000x30limits and type to materialize values; no need repeated Add row; bounds remain explicit."
+      ],
+      "implementation_evidence": [
+        "Scrollable blank canvas extends to row10000 and columnAD; editing materializes cells."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "Chromium edited AD10000, saved, reloaded and checked exact value."
+      ],
+      "limitations": [
+        "Advertised finite limits remain 10000 rows and30columns."
+      ]
+    },
+    {
+      "id": "B021",
+      "title": "Fixed resizable column widths",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "E001"
+      ],
+      "acceptance": [
+        "Fixed default width does not stretch with window; drag handles resize specific columns without moving others unexpectedly; retain widths per sheet with declared persistence scope."
+      ],
+      "implementation_evidence": [
+        "Columns start at112px and resize by header handles independently of viewport."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "Chromium resize changed actual width and restored it after switching sheets."
+      ],
+      "limitations": [
+        "Widths are session view state, not saved workbook metadata."
+      ]
+    },
+    {
+      "id": "B022",
+      "title": "Graph viewport zoom and pan",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "G034"
+      ],
+      "acceptance": [
+        "Zoom graph without changing scientific coordinates or exports; pan/scroll at high zoom; reset and accessible controls work in small windows."
+      ],
+      "implementation_evidence": [
+        "Graph-only25\u2013400% zoom controls, shortcuts, Ctrl-wheel, fit width and empty-space hand panning.",
+        "REA menu presets50/75/100/150/200/400/600/800/1000% implemented in plot-view.ts; zoom now reaches1000% without enlarging canvas backing above4x."
+      ],
+      "prism_reference_evidence": [
+        "REA decode_interface_builder ev_212198e3cb25470fb0235238305c0f50a540af50328dc6518b90657015019b68 and ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f; docs/prism-ui-rea-evidence.md records source NIB hashes, recognized controls, unresolved connectors and scope limits."
+      ],
+      "validation_evidence": [
+        "Chromium standalone zoom/pan passed with unchanged scientific coordinates.",
+        "scripts/check_graph_zoom.py passed against server and static production builds: all recovered presets50\u20131000%, bounded controls, reset/shortcut and unchanged saved graph settings. Canvas resolution is capped independently of view magnification."
+      ],
+      "limitations": [
+        "25% minimum,25-point increments and Fit width remain GP choices pending native zoom code evidence; smart-zoom page/graph/content modes not implemented."
+      ]
+    },
+    {
+      "id": "B023",
+      "title": "Rectangular grid selection",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "E001",
+        "E004"
+      ],
+      "acceptance": [
+        "Shiftclick/drag/shiftarrows select rectangle; CmdA selects table; Delete clears atomically with undo; CmdC yields correctly quoted TSV; paste starts at selection anchor."
+      ],
+      "implementation_evidence": [
+        "Rectangular shift/drag selection, native copy handler, Delete and Cmd/Ctrl+A."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "Chromium range copy checked exact TSV; clear, pointer drag and300000-cell select-all checks passed.",
+        "Return-to-sheet range copy/delete and reverse-anchor Shift selection passed the focused browser regression after restoring session selection state."
+      ],
+      "limitations": [
+        "Fill-handle behavior and replicate/subcolumn conventions remain open."
+      ]
+    },
+    {
+      "id": "B024",
+      "title": "Cell context menu and reversible exclusions",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "E002",
+        "E007"
+      ],
+      "acceptance": [
+        "Insert/delete row/column and clear use shared transactions; exclude preserves original value, blue italic asterisk and affects analyses/graphs; unsupported actions never masquerade as implemented."
+      ],
+      "implementation_evidence": [
+        "Row/column/cell context menus insert, delete or clear using one workbook change."
+      ],
+      "prism_reference_evidence": [
+        "REA decode_interface_builder ev_212198e3cb25470fb0235238305c0f50a540af50328dc6518b90657015019b68 and ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f; docs/prism-ui-rea-evidence.md records source NIB hashes, recognized controls, unresolved connectors and scope limits."
+      ],
+      "validation_evidence": [
+        "Chromium last-row delete and paste/header context checks passed."
+      ],
+      "limitations": [
+        "Persistent exclusions and Format Points are not implemented."
+      ]
+    },
+    {
+      "id": "B025",
+      "title": "Sheet context lifecycle with undo",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "W004",
+        "W009"
+      ],
+      "acceptance": [
+        "Rename/duplicate/delete/freeze/highlight act on selected sheet; dependency-aware deletion is undoable; duplicate identities/links remapped; last data sheet protected."
+      ],
+      "implementation_evidence": [
+        "Sheet menus and navigator context actions duplicate/delete/rename; data deletion warns about dependent sheets; history supports undo."
+      ],
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "Three workbook-action tests verify dependency cleanup, last-table protection and duplicate independence."
+      ],
+      "limitations": [
+        "Freeze/unfreeze, color highlight and full browser lifecycle checks remain open."
+      ]
+    },
+    {
+      "id": "B026",
+      "title": "Graph element editing",
+      "status": "partial",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "G034"
+      ],
+      "acceptance": [
+        "Axis doubleclick opens axis controls; labels/titles edit text; dataset click selects correct series; context menu targets actual element."
+      ],
+      "implementation_evidence": [
+        "Graph axis and axis-label double-clicks open existing formatting dialog; points expose details and Go to cell."
+      ],
+      "prism_reference_evidence": [
+        "REA decode_interface_builder ev_212198e3cb25470fb0235238305c0f50a540af50328dc6518b90657015019b68 and ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f; docs/prism-ui-rea-evidence.md records source NIB hashes, recognized controls, unresolved connectors and scope limits."
+      ],
+      "validation_evidence": [
+        "Plot Chromium hit testing and source index callbacks passed."
+      ],
+      "limitations": [
+        "No in-place text editing or saved per-point formatting; existing formatting dialog is not full native axes UI."
+      ]
+    },
+    {
+      "id": "B027",
+      "title": "Menus and keyboard share commands",
+      "status": "not_started",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "P002"
+      ],
+      "acceptance": [
+        "Edit cut/copy/paste/clear/selectall/insert/delete and Change formatting/exclusion match toolbar/context behavior; show supported shortcut labels."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "B028",
+      "title": "Analysis options workflow",
+      "status": "not_started",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "A005",
+        "A007"
+      ],
+      "acceptance": [
+        "Analyze picker\u2192typed parameter dialog\u2192result; Change parameters on result; remove irrelevant persistent analysis bar and offer dataset selection for two-group tests."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "B029",
+      "title": "Readable results and subtabs",
+      "status": "not_started",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "A023",
+        "A025"
+      ],
+      "acceptance": [
+        "Results before routine method notes; notes collapsed, real warnings distinct; inference displays significance/threshold/tails where supported; native result subtab requirements remain open."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "B030",
+      "title": "Scientific graph defaults and controls",
+      "status": "not_started",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "G034",
+        "P006"
+      ],
+      "acceptance": [
+        "Readable round ticks, zero bar baseline, error bars visible, no redundant legend; complete axis/font/symbol/border/fill/dimensions/comparison controls tracked in G register."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "B031",
+      "title": "Replicates, row titles and consistent data headers",
+      "status": "not_started",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "D004",
+        "D012"
+      ],
+      "acceptance": [
+        "Native row-title and replicate formats remain explicit; consistent column naming and header semantics, no decorative labels mistaken for data."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "B032",
+      "title": "Navigator and integrated table-family workflow",
+      "status": "not_started",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "W007",
+        "W008",
+        "D005",
+        "D007"
+      ],
+      "acceptance": [
+        "Info/layouts/family indentation/gallery/grouped/survival integration complete according to existing registers; no disconnected replacement page counted as native workflow."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "B033",
+      "title": "Appearance, typography and icon fidelity",
+      "status": "not_started",
+      "source": "2026-10-19 user stress/scroll report and pasted UX audit",
+      "dependencies": [
+        "P004"
+      ],
+      "acceptance": [
+        "Keep graph white in all themes; shared readable font/tabular numerals; compare toolbar silhouettes and theme behavior with supplied actual screenshots, respecting saved user preference."
+      ],
+      "implementation_evidence": [],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "B034",
+      "title": "Immediate point details and source-cell navigation",
+      "status": "partial",
+      "source": "2026-10-19 user graph-tooltip/selection/zoom report",
+      "dependencies": [
+        "B022",
+        "B023"
+      ],
+      "acceptance": [
+        "Hover hit areas exceed the drawn symbol; show table, group, original row and value; clicking table link focuses correct original cell, including graph subsets."
+      ],
+      "implementation_evidence": [
+        "Plot spatial hit index and App source-column mapping are integrated; browser integration is under test.",
+        "Immediate custom tooltip and larger spatial hit targets identify original row/group; source link maps displayed graph subset to original table column."
+      ],
+      "validation_evidence": [
+        "Standalone200k point hit test and integrated subsetB\u2192originalB,row2 navigation passed.",
+        "Subset source-column/row navigation passed in both server and static Chromium integration checks."
+      ],
+      "prism_reference_evidence": [
+        "REA decode_interface_builder ev_212198e3cb25470fb0235238305c0f50a540af50328dc6518b90657015019b68 and ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f; docs/prism-ui-rea-evidence.md records source NIB hashes, recognized controls, unresolved connectors and scope limits."
+      ],
+      "limitations": [
+        "The decoded DataTableToolTipView is a linked-data-region tooltip; it does not establish graph-hover contents, delay or hit tolerance. Source-row navigation is separately supported by the point-inspector action."
+      ]
+    },
+    {
+      "id": "B035",
+      "title": "Linked graph and data-table selection",
+      "status": "partial",
+      "source": "2026-10-19 user graph-tooltip/selection/zoom report",
+      "dependencies": [
+        "B022",
+        "B023"
+      ],
+      "acceptance": [
+        "Click point selects its source cell; rectangular data selection highlights all matching points without creating unbounded DOM."
+      ],
+      "implementation_evidence": [
+        "Point-selection ring and selected-range canvas implemented; 300,000 selected-point helper test passes.",
+        "Single-point selection ring and separate full-range selection canvas connect table selections to plotted series."
+      ],
+      "validation_evidence": [
+        "13 geometry tests include300k selected marks; browser source-cell navigation passed. Integrated rectangle-to-graph visual assertion remains open."
+      ],
+      "prism_reference_evidence": []
+    },
+    {
+      "id": "B036",
+      "title": "Persistent point formatting and exclusion",
+      "status": "not_started",
+      "source": "2026-10-19 user graph-tooltip/selection/zoom report",
+      "dependencies": [
+        "B022",
+        "B023"
+      ],
+      "acceptance": [
+        "Point and cell context actions save point color, size, symbol, border and exclusions; analysis and graph respect exclusions; save/open/undo preserve them.",
+        "Per-point overrides inherit dataset styling when reset; implement reset-individual-formatting separately from editing dataset defaults."
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": [],
+      "prism_reference_evidence": [
+        "REA decode_interface_builder ev_212198e3cb25470fb0235238305c0f50a540af50328dc6518b90657015019b68 and ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f; docs/prism-ui-rea-evidence.md records source NIB hashes, recognized controls, unresolved connectors and scope limits."
+      ]
+    }
+  ]
+}

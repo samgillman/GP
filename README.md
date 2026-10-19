@@ -43,7 +43,7 @@ For frontend development, run the backend and `npm --prefix web run dev` in sepa
 ## Workflow
 
 1. Use **New Data Table and Graph**, an example, a pasted spreadsheet block, or **Import data** to add a table. The navigator separates Data Tables, Results, and Graphs; Family lists related sheets.
-2. Open **Analyze Data…**, choose the analysis and datasets, and create a separate result sheet. Multiple analyses remain in the workbook. Editing source observations marks linked results stale; **Recalculate analysis** updates them. Missing cells are omitted; paired and XY analyses use complete row pairs.
+2. Open **Analyze Data…**, choose the analysis and datasets, and create a separate result sheet. Multiple analyses remain in the workbook. Editing source observations automatically recalculates eligible linked results. Incomplete cells pause the affected analysis; failures stay visible, and **Recalculate analysis** retries. Background updates preserve sheet selection and undo/redo. Missing cells are omitted; paired and XY analyses use complete row pairs.
 3. From a result sheet, use **New graph of existing data** to create a linked graph with its fitted curves. **Format Graph…** controls appearance, dataset selection/order, and the linked result. Apply keeps the dialog open; Cancel discards changes made since the last Apply.
 4. Export a graph as SVG, PNG, or PDF. **Save workbook** preserves all tables, results, graph settings, and links in GP JSON. **Open workbook** also accepts earlier single-project GP files. Export individual tables as CSV.
 
@@ -51,7 +51,7 @@ Use **Undo**/**Redo** for workbook edits, sheet creation and graph-format change
 
 Only Column and XY tables participate in this workbook model currently. Grouped and survival analyses have a separate workspace and input document. Recalculation timing and dialog transaction rules are independently implemented; their full equivalence to Prism remains unverified.
 
-GP also imports supported raw data tables from Prism XML (`.pzfx` or `.xml`) and observed ZIP-based Prism project/template containers (`.prism`, `.prismt`, or `.pzt`, identified by content). Choose the desired table when a file contains several. This importer handles raw Column/OneWay and XY tables with one subcolumn per series. It preserves missing/excluded cells and reports unsupported layouts; it does not import Prism graphs, analyses, formatting, or legacy `PCFFGRA4` binary projects. Replicate subcolumns, preaveraged data, and other table families require future work.
+GP also imports supported raw data tables from Prism XML (`.pzfx` or `.xml`) and observed ZIP-based Prism project/template containers (`.prism`, `.prismt`, or `.pzt`, identified by content). Choose the desired table when a file contains several. This importer handles raw Column/OneWay and XY tables with one subcolumn per series. It preserves missing-cell positions and reports unsupported layouts. Excluded XML observations become missing cells with a warning; their original values and exclusion state are not retained. Unsupported ZIP cell flags reject the table. The importer does not import Prism graphs, analyses, formatting, or legacy `PCFFGRA4` binary projects. Replicate subcolumns, preaveraged data, and other table families require future work.
 
 ## Analyses
 
@@ -61,7 +61,7 @@ GP also imports supported raw data tables from Prism XML (`.pzfx` or `.xml`) and
 - Independent unweighted linear regressions with fitted lines and slope intervals.
 - Ten recovered equation choices: one-/two-phase exponential decay, exponential association, Michaelis–Menten, Gaussian, straight line, log-dose stimulation/inhibition, and normalized inhibition with concentration or log-concentration input. X values for log-dose models must already be log10-transformed. Normalized models fix the response plateaus at 0 and 100.
 - **Grouped & survival** workspace: right-censored Kaplan–Meier curves with log-log Greenwood intervals and global logrank; balanced ordinary two-way ANOVA with interaction. Paste/import long-format CSV and explicitly map factor, response, time, and event columns. Unsupported designs are rejected.
-- Four-parameter logistic dose-response fits for strictly positive doses. Parameter confidence intervals and global/shared-parameter fitting are not implemented.
+- Four-parameter logistic dose-response fits for nonnegative concentrations, including zero-dose controls in fitting. Zero cannot be displayed on a logarithmic axis. Parameter confidence intervals and global/shared-parameter fitting are not implemented.
 
 Assumptions and fit limitations appear with the results. These routines use standard scientific Python libraries. Source-hashed saved Prism examples now verify paired-test results, two four-parameter and three normalized dose-response fits, a balanced two-way ANOVA, and 714 populated survival-table values. This is bounded reference-case validation, not complete functional or numerical parity with the commercial runtime. See [the investigation record](docs/prism-investigation.md) for observed evidence and implementation boundaries.
 
@@ -82,3 +82,5 @@ npm --prefix web run build
 ## Repository and evidence
 
 Application source is in `gp/` and `web/`. REA is maintained separately at `/workspace/rea` in the prepared cloud environment. The supplied installer, extracted application, and full investigation output live outside this repository in `/workspace/gp-inputs` and `/workspace/gp-evidence`. GP does not bundle Prism binaries or graphical assets.
+
+Prism reconstruction uses the [REA skill and tools](https://github.com/morluto/rea) through the repository launcher and MCP interface. [AGENTS.md](AGENTS.md) requires source hashes, REA Evidence IDs and explicit separation of static findings, runtime observations and GP implementation choices. The latest [compiled UI evidence](docs/prism-ui-rea-evidence.md) covers selected original menus, point inspectors and formatting dialogs; [native-code observations](docs/prism-native-code.md) record bounded decompilation findings. Ordinary development tests verify GP behavior; they do not establish Prism equivalence.

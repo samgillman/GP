@@ -11,15 +11,15 @@ class Column(BaseModel):
 class AnalysisRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     table_type: Literal["column", "xy"] = "column"
-    columns: list[Column] = Field(min_length=1, max_length=32)
+    columns: list[Column] = Field(min_length=1, max_length=30)
     analysis: Literal["descriptive", "welch_t", "paired_t", "anova", "linear_regression", "dose_response", "nonlinear_regression"] = "descriptive"
     regression_model: str = Field(default="one_phase_decay", min_length=1, max_length=100)
     confidence: float = Field(default=0.95, ge=0.5, le=0.999)
 
     @model_validator(mode="after")
     def check_data(self):
-        if sum(len(c.values) for c in self.columns) > 100000:
-            raise ValueError("At most 100,000 cells are supported per request.")
+        if sum(len(c.values) for c in self.columns) > 300000:
+            raise ValueError("At most 300,000 cells are supported per request.")
         if len({c.name for c in self.columns}) != len(self.columns):
             raise ValueError("Column names must be unique.")
         if any(abs(v) > 1e100 for c in self.columns for v in c.values if v is not None):

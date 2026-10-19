@@ -498,8 +498,19 @@
         "Cross-family conversion reports loss",
         "Family-specific calculations retain design"
       ],
-      "implementation_evidence": [],
-      "prism_reference_evidence": []
+      "implementation_evidence": [
+        "gp/import_prism.py",
+        "gp/import_prism_zip.py",
+        "web/src/App.tsx"
+      ],
+      "prism_reference_evidence": [],
+      "latest_progress": "Extended numeric XML tables are rejected explicitly instead of flattened; full rich-table model still missing.",
+      "validation_evidence": [
+        "tests/test_import_prism.py",
+        "tests/test_import_prism_zip.py",
+        "scripts/check_import_diagnostics.py",
+        "docs/import-safeguards-evidence.json"
+      ]
     },
     {
       "id": "F012",
@@ -675,8 +686,19 @@
         "Row labels/subcolumn title order preserved",
         "Duplicate titles do not overwrite objects"
       ],
-      "implementation_evidence": [],
-      "prism_reference_evidence": []
+      "implementation_evidence": [
+        "gp/import_prism.py",
+        "gp/import_prism_zip.py",
+        "web/src/App.tsx"
+      ],
+      "prism_reference_evidence": [],
+      "latest_progress": "ZIP string/structured-string titles preserve plain text; unsupported representations reject. Rich formatting and subcolumn-title roundtrip still missing.",
+      "validation_evidence": [
+        "tests/test_import_prism.py",
+        "tests/test_import_prism_zip.py",
+        "scripts/check_import_diagnostics.py",
+        "docs/import-safeguards-evidence.json"
+      ]
     },
     {
       "id": "F017",
@@ -685,7 +707,7 @@
         "7.2.3",
         "7.5.1"
       ],
-      "status": "not_started",
+      "status": "partial",
       "current_state": "ZIP skips multivariable; XML does not guard ExtTableType.",
       "requirements": "Handle currentType/isManual/category IDs/order/counts, CellType/UserText, MVType/statDecimals and text/numeric mixtures; preserve categorical design.",
       "acceptance_tests": [
@@ -710,8 +732,19 @@
         "Newer-schema extensions retained",
         "Multi-variable XML cannot silently run as ordinary Column"
       ],
-      "implementation_evidence": [],
-      "prism_reference_evidence": []
+      "implementation_evidence": [
+        "gp/import_prism.py",
+        "gp/import_prism_zip.py",
+        "web/src/App.tsx"
+      ],
+      "prism_reference_evidence": [],
+      "latest_progress": "MultipleVariables XML extension is detected and rejected; typed import/edit/persistence remains unimplemented.",
+      "validation_evidence": [
+        "tests/test_import_prism.py",
+        "tests/test_import_prism_zip.py",
+        "scripts/check_import_diagnostics.py",
+        "docs/import-safeguards-evidence.json"
+      ]
     },
     {
       "id": "F018",
@@ -1689,8 +1722,19 @@
         "Report HugeTable support explicitly.",
         "Confirm stylesheet code is inert."
       ],
-      "implementation_evidence": [],
-      "prism_reference_evidence": []
+      "implementation_evidence": [
+        "gp/import_prism.py",
+        "gp/import_prism_zip.py",
+        "web/src/App.tsx"
+      ],
+      "prism_reference_evidence": [],
+      "latest_progress": "XML TableSequence order respected; invalid/duplicate/unlisted references diagnosed. Full native order/selection equivalence remains open.",
+      "validation_evidence": [
+        "tests/test_import_prism.py",
+        "tests/test_import_prism_zip.py",
+        "scripts/check_import_diagnostics.py",
+        "docs/import-safeguards-evidence.json"
+      ]
     },
     {
       "id": "F046",
@@ -1729,8 +1773,19 @@
         "Test date/time/error/series X.",
         "Preserve rich cells and replicate alignment."
       ],
-      "implementation_evidence": [],
-      "prism_reference_evidence": []
+      "implementation_evidence": [
+        "gp/import_prism.py",
+        "gp/import_prism_zip.py",
+        "web/src/App.tsx"
+      ],
+      "prism_reference_evidence": [],
+      "latest_progress": "Nested XML extension is detected and rejected; nested hierarchy support remains unimplemented.",
+      "validation_evidence": [
+        "tests/test_import_prism.py",
+        "tests/test_import_prism_zip.py",
+        "scripts/check_import_diagnostics.py",
+        "docs/import-safeguards-evidence.json"
+      ]
     },
     {
       "id": "F047",
@@ -2059,8 +2114,19 @@
         "Preserve multi-table order.",
         "Do not mislabel rich names or exclusions as fully supported."
       ],
-      "implementation_evidence": [],
-      "prism_reference_evidence": []
+      "implementation_evidence": [
+        "gp/import_prism.py",
+        "gp/import_prism_zip.py",
+        "web/src/App.tsx"
+      ],
+      "prism_reference_evidence": [],
+      "latest_progress": "Specific empty-import diagnostics reach UI and preserve workbook; full native-fidelity warning coverage remains open.",
+      "validation_evidence": [
+        "tests/test_import_prism.py",
+        "tests/test_import_prism_zip.py",
+        "scripts/check_import_diagnostics.py",
+        "docs/import-safeguards-evidence.json"
+      ]
     },
     {
       "id": "F056",

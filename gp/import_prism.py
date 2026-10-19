@@ -25,6 +25,37 @@ def title(element, default):
     return " ".join("".join(titles[0].itertext()).split()) if titles else default
 
 
+def ordered_tables(document, notices):
+    """Use explicit sheet order, retaining unlisted tables with a diagnostic."""
+    tables = children(document, "Table")
+    by_id = {}
+    for table in tables:
+        uid = table.get("ID")
+        if uid:
+            if uid in by_id:
+                raise AnalysisError(f"Duplicate XML table ID {uid!r}; table references are ambiguous.")
+            by_id[uid] = table
+    sequences = children(document, "TableSequence")
+    if not sequences:
+        return tables
+    if len(sequences) != 1:
+        raise AnalysisError("Multiple XML TableSequence elements are ambiguous.")
+    ordered, seen = [], set()
+    for ref in children(sequences[0], "Ref"):
+        uid = ref.get("ID")
+        if uid not in by_id:
+            notices.append(f"TableSequence reference {uid!r} does not identify an available Table; it was not imported.")
+        elif uid in seen:
+            notices.append(f"Duplicate TableSequence reference {uid!r} was ignored.")
+        else:
+            ordered.append(by_id[uid])
+            seen.add(uid)
+    unlisted = [table for table in tables if table.get("ID") not in seen]
+    if unlisted:
+        notices.append(f"{len(unlisted)} tables were absent from TableSequence; appended in document order.")
+    return ordered + unlisted
+
+
 def import_prism(content):
     if len(content.encode("utf-8")) > 8*1024*1024:
         raise AnalysisError("Prism XML import is limited to 8 MiB.")
@@ -39,9 +70,12 @@ def import_prism(content):
     table_elements = [element for document in documents for element in document if tag(element) == "Table"]
     if len(table_elements) > 100:
         raise AnalysisError("At most 100 tables can be imported per file.")
+    table_elements = [table for document in documents for table in ordered_tables(document, notices)]
     for index, table in enumerate(table_elements):
         table_title = title(table, f"Table {index+1}")
         try:
+            if "ExtTableType" in table.attrib:
+                raise AnalysisError(f"unsupported extended table type {table.get('ExtTableType') or 'unknown'}; its grouping or variable semantics cannot be imported as ordinary column or XY data")
             kind = table.get("TableType")
             if kind not in {"OneWay", "XY"}:
                 raise AnalysisError(f"unsupported table type {kind or 'unknown'}")

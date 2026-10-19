@@ -21,6 +21,10 @@ The latest **PRISM11_DIFFERENCES.md/HTML** takes precedence over the Prism 10 ba
 
 The JSON/Markdown registers together are part of this plan; they enumerate option-level work that would be lost in a high-level milestone list. Run `python3 scripts/check_requirements.py` to check identities, dependency references, source coverage and evidence gates. Section mappings identify owning requirements and include grouping headings; they do not assert those requirements are implemented. All requirement IDs remain stable. Parent requirements are not closed until every required child is closed.
 
+## Immediate defect queue from the user’s break test
+
+The [stress, scroll and UX register](requirements/break-test-report.json) adds33explicit obligations. Fix the advertised-limit10000×20crash and render recovery first, then numeric errors, independent import defaults, virtualization/selection/scroll, analysis lifecycle, edge-case scientific reporting and storage recovery. Reproduce reported behavior against current code; preserve already verified work and never alter the user’s actual workbook for tests. Broader UI requests map to the original data/analysis/graph/menu requirements and remain open until implemented.
+
 ## Status and closure rules
 
 Each requirement has a source, implementation status, dependencies, acceptance checks and evidence links. Use these states:
