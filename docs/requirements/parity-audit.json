@@ -6287,7 +6287,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -6328,7 +6328,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -6438,7 +6438,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -6513,7 +6513,7 @@
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
         "Exact-P rule differs from the guide (see AUD-P0199).",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -6587,7 +6587,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -6735,7 +6735,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -6775,7 +6775,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -8243,7 +8243,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -8286,7 +8286,7 @@
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
         "Normal and nonparametric only; lognormal is not offered.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -8327,7 +8327,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -8369,7 +8369,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -8410,7 +8410,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -8450,7 +8450,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -8491,7 +8491,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -8531,7 +8531,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -8571,7 +8571,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -8648,7 +8648,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -8759,7 +8759,7 @@
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
         "Matching F, P and summary are reported; the matching R squared row is not.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -9044,7 +9044,7 @@
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
         "P is always approximate and labelled so; no exact small-sample P.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -9085,7 +9085,7 @@
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
         "P is always approximate; the (T!)^S ≤ 10^9 exact rule is not implemented.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -9548,7 +9548,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -9589,7 +9589,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -9732,7 +9732,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -9772,7 +9772,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -9948,7 +9948,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -10232,7 +10232,7 @@
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
         "All pairs or vs control; selected pairs are not offered.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -10342,7 +10342,7 @@
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
         "Adjusted P values are always reported; there is no option to hide them.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -10488,7 +10488,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -14119,7 +14119,7 @@
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
         "Applies to t test and one-way ANOVA results only; other analyses keep their earlier number formatting.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -14261,7 +14261,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -14335,7 +14335,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -14376,7 +14376,7 @@
       "prism_reference_evidence": [],
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -14525,7 +14525,7 @@
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
         "Two-way results are not sources.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -14567,7 +14567,7 @@
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
         "P value or asterisks and a non-significant filter only; no prefix text, bracket styles or size controls.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -44709,7 +44709,7 @@
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
         "Opens a dialog rather than adding on one click.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -44751,7 +44751,7 @@
       "limitations": [
         "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
         "'P=' prefix is fixed; custom prefixes are not offered.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {

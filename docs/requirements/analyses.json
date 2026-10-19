@@ -701,7 +701,7 @@
         "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export); the t test on two of three columns reports df 8"
       ],
       "limitations": [
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -2091,7 +2091,7 @@
       ],
       "limitations": [
         "n=2 and one-zero-variance outputs are not compared with Prism; both-zero variance is refused with an explanation.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -2134,7 +2134,7 @@
       ],
       "limitations": [
         "Effect sizes and asymmetric-missing-row comparisons with Prism remain open.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -2173,7 +2173,7 @@
       ],
       "limitations": [
         "The guide's Male/Female example data were not available, so its rounded values were not reproduced.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -2298,7 +2298,7 @@
       ],
       "limitations": [
         "GP uses exact P only without ties and with at most 50 values per group; the guide states exact P even with ties up to 100 values in the smaller group (audit P0199). No CI of the location difference (A073).",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -2365,7 +2365,7 @@
       ],
       "limitations": [
         "Exact P only without ties for up to 50 nonzero pairs; Prism's exact rule is not compared.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -2403,7 +2403,7 @@
       ],
       "limitations": [
         "Only discarding zero differences is implemented; the Pratt choice is not offered.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -2470,7 +2470,7 @@
       ],
       "limitations": [
         "One-tailed P is reported as half the two-tailed P without a predeclared direction field, a GP decision.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -2509,7 +2509,7 @@
       ],
       "limitations": [
         "Graph annotations show P values or asterisks only, so direction does not affect them.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -2547,7 +2547,7 @@
       ],
       "limitations": [
         "Larger-to-smaller variance ratio with a two-tailed P capped at 1; the guide example values were not reproduced.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -3198,7 +3198,7 @@
       ],
       "limitations": [
         "Effect sizes beyond R squared, residual diagnostics and saved Prism one-way cases remain open.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -3239,7 +3239,7 @@
       ],
       "limitations": [
         "Games-Howell is the only follow-up; Dunnett T3 and Tamhane T2 are not offered.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -3279,7 +3279,7 @@
       ],
       "limitations": [
         "Brown-Forsythe F* is checked by its two-group identity only; no saved Prism case.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -3351,7 +3351,7 @@
       ],
       "limitations": [
         "P is always the chi-square approximation; the guide describes exact small-sample P.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -3392,7 +3392,7 @@
       ],
       "limitations": [
         "Rows with any missing value are dropped (complete blocks); P is always the chi-square approximation; the guide describes exact P for small tables (audit P0257).",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -3432,7 +3432,7 @@
       ],
       "limitations": [
         "Complete rows only; no mixed-effects model for missing values (A108).",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -3471,7 +3471,7 @@
         "tests/test_column_tests.py::test_repeated_measures_reduces_to_paired_t_and_epsilon_matches_contrast_formula"
       ],
       "limitations": [
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -3511,7 +3511,7 @@
       ],
       "limitations": [
         "Epsilon uses the double-centred covariance (Greenhouse-Geisser); its lower bound and Prism's displayed values are not compared.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -3676,7 +3676,7 @@
       ],
       "limitations": [
         "Only the Brown-Forsythe and Bartlett SD tests and R squared are reported; residual normality, QQ/residual plots and AICc are absent.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -4251,7 +4251,7 @@
       ],
       "limitations": [
         "Repeated-measures Tukey uses each pair's differences, a GP decision; no saved Prism family compared.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -4292,7 +4292,7 @@
       ],
       "limitations": [
         "Ordinary designs only; no saved Prism family compared.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -4332,7 +4332,7 @@
       ],
       "limitations": [
         "No saved Prism family compared.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -4403,7 +4403,7 @@
       ],
       "limitations": [
         "No saved Prism family compared.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -4443,7 +4443,7 @@
       ],
       "limitations": [
         "Labelled 'no correction for multiple comparisons'; not gated on the omnibus test.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -4514,7 +4514,7 @@
       ],
       "limitations": [
         "Games-Howell P values are not compared with an independent reference beyond the Welch ANOVA path; no saved Prism family.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -4616,7 +4616,7 @@
       ],
       "limitations": [
         "Bonferroni-adjusted Dunn's test after Kruskal-Wallis and rank-sum Dunn's after Friedman; selected-pair families are not offered.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -5169,7 +5169,7 @@
       ],
       "limitations": [
         "One analysis at a time with show/hide non-significant; no per-comparison selection, formatting controls or compact letter display.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -10871,7 +10871,7 @@
       ],
       "limitations": [
         "Tabs have no close controls and are not keyboard-arrow navigable, so Prism 11's closable tabs are not reproduced.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {

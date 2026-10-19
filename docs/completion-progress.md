@@ -153,6 +153,6 @@ Validation actually run in this container:
 - 163 frontend tests and TypeScript passed.
 - Requirement checker passed (2,661 identities; all 1,574 parity rows preserved). 66 rows moved to or stayed at **partial** with implementation and validation evidence; none is marked equivalent.
 - Packaged server build: the new `scripts/check_column_analysis.py` passed 10 scenarios with zero page errors. Recalculation, desktop UI, grid UI, graph zoom, exclusions, workbook foundations and the large-workbook integration checks also passed against this build; the large-workbook check now selects Welch through the parameters dialog.
-- **Not run:** the static (Pyodide) build, which the container cannot assemble (cdn.jsdelivr.net denied). CI runs the new check against both builds; no hosted result has been observed yet. Production deployment was not checked.
+- **Not run in the container:** the static (Pyodide) build, which the container cannot assemble (cdn.jsdelivr.net denied). Hosted CI covered it: Validate GP run 39335578778 on main (commit 1fec4e1) passed `scripts/check_column_analysis.py` on both the static and server builds, along with every other browser suite. Production deployment was not checked.
 
 Still open: lognormal and mixed-effects designs, Holm–Šídák/Newman–Keuls/Dunnett T3/Tamhane T2/FDR, selected-pair families, effect sizes and residual diagnostics, guide exact-P rules, closable result tabs, pairwise formatting/selection and one-click add, one-sample and multiple t tests, and every saved/native family comparison.

@@ -4260,7 +4260,7 @@
       ],
       "limitations": [
         "Sources are limited to GP t tests and one-way ANOVA results on the graph's own table; XY graphs never show brackets. Multiple t tests, one-sample tests and two-way cell means are not offered.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
@@ -4315,7 +4315,7 @@
       ],
       "limitations": [
         "Change menu and toolbar open a dialog (no first-click-adds-all), one analysis at a time, no per-comparison selection; Insert menu route absent.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. Hosted CI (Validate GP run 39335578778 on main, commit 1fec4e1) passed the browser check against both the static and server builds."
       ]
     },
     {
