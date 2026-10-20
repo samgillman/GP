@@ -48,7 +48,8 @@ with sync_playwright() as p:
         print(f'{n*10000} values imported and drawn in {elapsed:.2f}s; no JS errors',flush=True)
         graph_state='()=>{const b=JSON.parse(localStorage.getItem("gp.workbook.v2"));return b.sheets.find(s=>s.id===b.activeSheetId).graph}'
         original_graph=page.evaluate(graph_state)
-        page.get_by_role('button',name='Zoom in graph',exact=True).click()
+        page.locator('.desktop-menu > summary').filter(has_text='View').first.click()
+        page.get_by_role('menuitem',name='Zoom in graph',exact=True).click()
         expect(page.get_by_label('Graph zoom',exact=True)).to_have_value('125')
         print('Zoom button confirmed; checking keyboard zoom',flush=True)
         page.get_by_label('Graph viewport',exact=True).focus()

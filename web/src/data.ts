@@ -1,6 +1,8 @@
 import type { ComparisonOptions } from "./column-analysis.ts";
 import { validGraphAxes, axesSettingsProblem } from "./axes.ts";
 import type { GraphAxes } from "./axes.ts";
+import { validDatasetStyles } from "./graph-style.ts";
+import type { DatasetStyle } from "./graph-style.ts";
 export type { AxisSettings, GraphAxes, AxisNumberFormat } from "./axes.ts";
 export type TableType = "column" | "xy";
 export type Analysis =
@@ -29,6 +31,10 @@ export type Graph = {
   axes?: GraphAxes;
   // Brackets from the graph's linked t test or one-way ANOVA.
   pairwise?: { style: "asterisks" | "p"; show_ns: boolean };
+  /** Format Graph > Appearance overrides, keyed by stable source data-set ID. */
+  dataset_styles?: Record<string, DatasetStyle>;
+  /** Unset keeps the earlier rule: XY graphs show a legend, column graphs do not. */
+  show_legend?: boolean;
 };
 export type Project = {
   version: 1;
@@ -387,7 +393,9 @@ export function parseProject(text: string): Project {
         typeof g.pairwise !== "object" ||
         !["asterisks", "p"].includes(g.pairwise.style) ||
         typeof g.pairwise.show_ns !== "boolean" ||
-        Object.keys(g.pairwise).length !== 2))
+        Object.keys(g.pairwise).length !== 2)) ||
+    (g.dataset_styles !== undefined && !validDatasetStyles(g.dataset_styles)) ||
+    (g.show_legend !== undefined && typeof g.show_legend !== "boolean")
   )
     throw new Error("Invalid project graph settings.");
   return p as Project;

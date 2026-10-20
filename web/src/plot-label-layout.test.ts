@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { sample } from "./data.ts";
 import { defaultGraphAxes } from "./axes.ts";
-import { plotLabelLayout } from "./plot-label-layout.ts";
+import { COLUMN_PLOT_HEIGHT, COLUMN_SLOT, columnPageLayout, plotLabelLayout } from "./plot-label-layout.ts";
 import { buildPlotGeometry, drawDensePoints, drawSelectedPoints, plotFrame, pointHitIndex, reframePlotGeometry } from "./plot-geometry.ts";
 
 test("formatted units reserve a separate title band without changing page dimensions", () => {
@@ -63,4 +63,36 @@ test("reprojection shares observations and statistics, keeps clipping and hit ta
   drawSelectedPoints(context, geometry, [{ seriesIndex: 0, startRow: point.row, endRow: point.row }]);
   assert.deepEqual(rectangles, Array(2).fill([frame.left, frame.top, frame.width - frame.left - frame.right, frame.height - frame.top - frame.bottom]));
   assert.deepEqual(points.at(-1)?.slice(0, 2), [geometry.x(point.x), geometry.y(point.y)]);
+});
+
+test("column page gives each data set a fixed slot on a 220 px plotting area", () => {
+  const short = columnPageLayout({ count: 3, xWidths: [40, 41, 42], yWidth: 27, tickHeight: 14, titleHeight: 16, hasYTitle: true, hasXTitle: true });
+  assert.equal(short.slanted, false);
+  assert.equal(short.frame.width - short.frame.left - short.frame.right, COLUMN_SLOT * 3.2);
+  assert.equal(short.frame.height - short.frame.top - short.frame.bottom, COLUMN_PLOT_HEIGHT);
+  const wide = columnPageLayout({ count: 6, xWidths: [40, 41, 42, 43, 44, 45], yWidth: 27, tickHeight: 14, titleHeight: 16, hasYTitle: true, hasXTitle: true });
+  assert.equal(wide.frame.width - wide.frame.left - wide.frame.right, COLUMN_SLOT * 6.2);
+});
+
+test("column labels wider than a slot slant and get room below and to the left", () => {
+  const layout = columnPageLayout({ count: 3, xWidths: [55, 88, 88], yWidth: 27, tickHeight: 14, titleHeight: 16, hasYTitle: true, hasXTitle: true });
+  assert.equal(layout.slanted, true);
+  // The slanted labels drop by about their diagonal extent; the title sits below them.
+  assert.ok(layout.frame.bottom >= Math.SQRT1_2 * (88 + 14) + 14 + 16);
+  assert.ok(layout.xTitleOffset < layout.frame.bottom);
+  // Room for the Y tick labels plus the rotated Y title.
+  assert.ok(layout.frame.left >= 27 + 12 + 16 + 34);
+  assert.ok(layout.yTitleX > 0 && layout.yTitleX < layout.frame.left - 27);
+  const long = columnPageLayout({ count: 1, xWidths: [400], yWidth: 10, tickHeight: 14, titleHeight: 16, hasYTitle: false, hasXTitle: false });
+  // Label widths are capped, so a pathological name cannot grow the page without bound.
+  assert.ok(long.frame.bottom < 160);
+  // The first slanted label still starts inside the page.
+  assert.ok(long.frame.left + COLUMN_SLOT * 0.6 - (Math.SQRT1_2 * (160 + 7) - 5) >= 8);
+});
+
+test("a legend widens the right margin by its width", () => {
+  const base = { count: 3, xWidths: [40, 40, 40], yWidth: 27, tickHeight: 14, titleHeight: 16, hasYTitle: true, hasXTitle: true };
+  const without = columnPageLayout(base), withLegend = columnPageLayout({ ...base, legendWidth: 90 });
+  assert.equal(withLegend.frame.right - without.frame.right, 108);
+  assert.equal(withLegend.frame.left, without.frame.left);
 });

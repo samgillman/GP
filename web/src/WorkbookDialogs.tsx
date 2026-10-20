@@ -1,6 +1,22 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { palette } from "./data";
 import type { Analysis, Graph, Project, TableType } from "./data";
+import {
+  ERROR_CAPS,
+  ERROR_DIRECTIONS,
+  LINE_WEIGHTS,
+  SYMBOL_SHAPES,
+  SYMBOL_SIZES,
+  resolveDatasetStyle,
+} from "./graph-style";
+import type {
+  DatasetStyle,
+  ErrorCap,
+  ErrorDirection,
+  ResolvedDatasetStyle,
+  SymbolShape,
+} from "./graph-style";
 import type { GraphSheet, ResultSheet } from "./workbook";
 import { dataIndices } from "./workbook";
 import {
@@ -1181,6 +1197,131 @@ function GraphDatasetList({ project, indices, onChange }: {
   </div>;
 }
 
+/** A non-modal dialog window docked beside the graph page, so the graph stays
+ * visible while it is formatted. Escape closes it; focus is not trapped. */
+export function DockedDialog({
+  title,
+  titleId,
+  className = "",
+  onClose,
+  children,
+}: {
+  title: string;
+  titleId: string;
+  className?: string;
+  onClose: () => void;
+  children: ReactNode;
+}) {
+  const panel = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
+    const element = panel.current!;
+    (element.querySelector<HTMLElement>("[data-autofocus]") ?? element).focus();
+    return () => {
+      if (previous?.isConnected && element.contains(document.activeElement))
+        previous.focus();
+    };
+  }, []);
+  return (
+    <section
+      ref={panel}
+      className={`docked-dialog ${className}`}
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby={titleId}
+      tabIndex={-1}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          onClose();
+        }
+      }}
+    >
+      <header className="docked-dialog-head">
+        <h2 id={titleId}>{title}</h2>
+        <button type="button" aria-label={`Close ${title}`} onClick={onClose}>
+          ✕
+        </button>
+      </header>
+      {children}
+    </section>
+  );
+}
+
+const weightLabel = (points: number) =>
+  `${{ 0.25: "¼", 0.5: "½", 1.5: "1½" }[points] ?? points} pt`;
+const shapeLabels: Record<SymbolShape, string> = {
+  circle: "● Circle",
+  square: "■ Square",
+  triangle: "▲ Triangle",
+  diamond: "◆ Diamond",
+};
+const FORMAT_TABS = ["Appearance", "Data Sets on Graph", "Graph Settings", "Annotations"] as const;
+type FormatTab = (typeof FORMAT_TABS)[number];
+
+function Swatch({
+  label,
+  value,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  disabled?: boolean;
+  onChange: (color: string) => void;
+}) {
+  return (
+    <span className={`fg-swatch${disabled ? " is-disabled" : ""}`}>
+      <input
+        type="color"
+        aria-label={label}
+        value={value}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.value)}
+      />
+      <svg width="7" height="7" viewBox="0 0 8 8" aria-hidden="true">
+        <path d="M1 2.5h6L4 6z" fill="currentColor" />
+      </svg>
+    </span>
+  );
+}
+
+function FormatSection({
+  title,
+  checkbox,
+  disabled,
+  children,
+}: {
+  title: string;
+  checkbox?: { checked: boolean; onChange: (checked: boolean) => void; label: string };
+  disabled?: boolean;
+  children?: ReactNode;
+}) {
+  return (
+    <fieldset className={`fg-section${disabled ? " is-disabled" : ""}`} disabled={disabled}>
+      <legend className="fg-heading">
+        {checkbox ? (
+          <label>
+            <input
+              type="checkbox"
+              aria-label={checkbox.label}
+              disabled={disabled}
+              checked={checkbox.checked && !disabled}
+              onChange={(event) => checkbox.onChange(event.target.checked)}
+            />
+            {title}
+          </label>
+        ) : (
+          title
+        )}
+        <span className="fg-rule" aria-hidden="true" />
+      </legend>
+      {children}
+    </fieldset>
+  );
+}
+
 export function FormatGraphDialog({
   sheet,
   project,
@@ -1188,19 +1329,33 @@ export function FormatGraphDialog({
   initialAppearanceDataset,
   onClose,
   onApply,
+  onChangeGraphType,
+  tableNumber = 1,
+  initialTab = "Appearance",
 }: {
   sheet: GraphSheet;
   project: Project;
   results: ResultSheet[];
   initialAppearanceDataset?: number | null;
+  /** Position of the source among the workbook's data tables, as in "Data 1:A:Control". */
+  tableNumber?: number;
+  initialTab?: FormatTab;
   onClose: () => void;
   onApply: (next: GraphSheet) => void;
+  /** Applies the current choices, closes this dialog and opens Change Graph Type. */
+  onChangeGraphType?: () => void;
 }) {
   const [draft, setGraphDraft] = useState(() => ({
     ...structuredClone(sheet),
     datasetColors: seedDatasetColors(project, sheet.columnIndices, sheet.graph.colors, sheet.datasetColors),
   }));
-  const [tab, setTab] = useState("Appearance");
+  const [tab, setTab] = useState<FormatTab>(initialTab);
+  const [help, setHelp] = useState(false);
+  // Opening on a double-clicked data set formats that data set; otherwise
+  // changes start out Global, applying to every data set on the graph.
+  const [scope, setScope] = useState<"global" | "dataset">(
+    initialAppearanceDataset === null || initialAppearanceDataset === undefined ? "global" : "dataset",
+  );
   // Keep the Appearance selection attached to the source column, even when the
   // Data Sets tab changes the graph's drawing order or membership.
   const [selectedAppearanceDataset, setSelectedAppearanceDataset] = useState<number | null>(
@@ -1243,309 +1398,427 @@ export function FormatGraphDialog({
   function g(p: Partial<Graph>) {
     setDraft((v) => ({ ...v, graph: { ...v.graph, ...p } }));
   }
-  // Dataset membership and ordering are handled by GraphDatasetList.
+  const xy = project.table_type === "xy";
+  const graph = draft.graph;
+  const targets = () =>
+    scope === "global" ? draft.columnIndices.map((_, position) => position) : [appearancePosition];
+  const columnId = (position: number) => project.columns[draft.columnIndices[position]].id!;
+  const colorAt = (graphValue: Graph, position: number) =>
+    graphValue.colors[position % graphValue.colors.length] || palette[position % palette.length];
+  /** Set style fields on the data sets in scope. */
+  function setStyle(patch: DatasetStyle) {
+    setDraft((v) => {
+      const styles = { ...(v.graph.dataset_styles ?? {}) };
+      for (const position of targets()) {
+        const id = columnId(position);
+        styles[id] = { ...styles[id], ...patch };
+      }
+      return { ...v, graph: { ...v.graph, dataset_styles: styles } };
+    });
+  }
+  /** Set the data set's own color, which its border, line and default
+   * symbol, fill and error bar colors follow. */
+  function setMainColor(color: string, clear: (keyof DatasetStyle)[] = []) {
+    setDraft((v) => {
+      const colors = [...v.graph.colors];
+      const styles = { ...(v.graph.dataset_styles ?? {}) };
+      for (const position of targets()) {
+        while (colors.length <= position) colors.push(colorAt(v.graph, colors.length));
+        colors[position] = color;
+        const id = columnId(position);
+        if (clear.length && styles[id]) {
+          const kept = { ...styles[id] };
+          for (const key of clear) delete kept[key];
+          styles[id] = kept;
+        }
+      }
+      return { ...v, graph: { ...v.graph, colors, dataset_styles: styles } };
+    });
+  }
+  const style: ResolvedDatasetStyle | null = appearanceIndex === null
+    ? null
+    : resolveDatasetStyle(graph, colorAt(graph, appearancePosition), graph.dataset_styles?.[project.columns[appearanceIndex].id!]);
+  const name = appearanceIndex === null ? "" : project.columns[appearanceIndex].name;
+  const filled = !xy && (graph.type === "bar" || graph.type === "box");
+  const errorsApply = !xy && graph.type !== "box" && graph.error !== "none";
+  const datasetLabel = (index: number) =>
+    `Data ${tableNumber}:${datasetLetter(index)}:${project.columns[index].name}`;
+  const appearanceChoices: [Graph["type"], string][] = xy
+    ? [["scatter", "Points only"], ["line", "Points and connecting line"]]
+    : [["bar", "Bar (one bar per column)"], ["scatter", "Scatter dot plot"], ["box", "Box and whiskers"]];
+
   return (
-    <DesktopDialog
+    <DockedDialog
       title="Format Graph"
       titleId="format-title"
-      className="desktop-format"
+      className="format-graph-dialog"
       onClose={onClose}
     >
-      <div className="desktop-dialog-body">
-        <div
-          className="desktop-dialog-tabs"
-          role="tablist"
-          aria-label="Graph format options"
-        >
-          {["Appearance", "Data Sets on Graph", "Graph Settings"].map((t) => (
-            <button
-              data-autofocus={t === "Appearance" ? true : undefined}
-              role="tab"
-              id={`graph-format-tab-${t.replaceAll(" ", "-")}`}
-              aria-selected={tab === t}
-              aria-controls="graph-format-panel"
-              tabIndex={tab === t ? 0 : -1}
-              className={tab === t ? "active" : ""}
-              key={t}
-              onClick={() => setTab(t)}
-              onKeyDown={(event) => {
-                const tabs = [
-                  "Appearance",
-                  "Data Sets on Graph",
-                  "Graph Settings",
-                ];
-                if (
-                  !["ArrowLeft", "ArrowRight", "Home", "End"].includes(
-                    event.key,
-                  )
-                )
-                  return;
-                event.preventDefault();
-                const index =
-                  event.key === "Home"
-                    ? 0
-                    : event.key === "End"
-                      ? 2
-                      : (tabs.indexOf(t) +
-                          (event.key === "ArrowRight" ? 1 : 2)) %
-                        3;
-                setTab(tabs[index]);
-                document
-                  .getElementById(
-                    `graph-format-tab-${tabs[index].replaceAll(" ", "-")}`,
-                  )
-                  ?.focus();
-              }}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-        <div
-          id="graph-format-panel"
-          className="desktop-format-panel"
-          role="tabpanel"
-          aria-labelledby={`graph-format-tab-${tab.replaceAll(" ", "-")}`}
-        >
-          {tab === "Appearance" ? (
-            <div className="desktop-appearance-options">
-              <fieldset>
-                <legend>Plot</legend>
-                <label className="desktop-form-row">
-                  <span>Graph type</span>
-                  <select
-                    value={draft.graph.type}
-                    onChange={(e) =>
-                      g({ type: e.target.value as Graph["type"] })
-                    }
-                  >
-                    {(project.table_type === "xy"
-                      ? ["scatter", "line"]
-                      : ["scatter", "bar", "box"]
-                    ).map((t) => (
-                      <option key={t} value={t}>
-                        {
-                          (
-                            {
-                              scatter: "Scatter",
-                              line: "Connecting lines",
-                              bar: "Bars",
-                              box: "Box and whiskers",
-                            } as Record<string, string>
-                          )[t]
-                        }
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="desktop-form-row">
-                  <span>Error bars</span>
-                  <select
-                    disabled={
-                      project.table_type === "xy" || draft.graph.type === "box"
-                    }
-                    value={draft.graph.error}
-                    onChange={(e) =>
-                      g({ error: e.target.value as Graph["error"] })
-                    }
-                  >
-                    <option value="none">None</option>
-                    <option value="sd">SD</option>
-                    <option value="sem">SEM</option>
-                    <option value="ci">95% CI</option>
-                  </select>
-                </label>
-                <label className="desktop-checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={draft.graph.show_points}
-                    onChange={(e) => g({ show_points: e.target.checked })}
-                  />
-                  Show individual points
-                </label>
-                {(project.table_type === "xy" ||
-                  draft.graph.type === "box") && (
-                  <p className="desktop-help-text">
-                    {draft.graph.type === "box"
-                      ? "Box plots display their distribution; separate error bars do not apply."
-                      : "Error bars are not available for single-value XY observations."}
-                  </p>
-                )}
-              </fieldset>
-              <fieldset>
-                <legend>Titles and axis labels</legend>
-                <label className="desktop-form-row">
-                  <span>Title</span>
-                  <input
-                    value={draft.graph.title}
-                    onChange={(e) => g({ title: e.target.value })}
-                  />
-                </label>
-                <label className="desktop-form-row">
-                  <span>X axis</span>
-                  <input
-                    value={draft.graph.x_label}
-                    onChange={(e) => g({ x_label: e.target.value })}
-                  />
-                </label>
-                <label className="desktop-form-row">
-                  <span>Y axis</span>
-                  <input
-                    value={draft.graph.y_label}
-                    onChange={(e) => g({ y_label: e.target.value })}
-                  />
-                </label>
-              </fieldset>
-              <fieldset className="desktop-colors">
-                <legend>Data set appearance</legend>
-                {appearanceIndex === null ? (
-                  <p className="desktop-help-text">Include a data set to edit its appearance.</p>
-                ) : (
-                  <>
-                    <div className="desktop-appearance-dataset-selector">
-                      <label htmlFor="graph-appearance-dataset">Data set</label>
-                      <select
-                        id="graph-appearance-dataset"
-                        aria-label="Appearance data set"
-                        value={appearanceIndex}
-                        onChange={(event) =>
-                          setSelectedAppearanceDataset(Number(event.target.value))
-                        }
-                      >
-                        {draft.columnIndices.map(index => (
-                          <option key={project.columns[index].id ?? index} value={index}>
-                            {project.columns[index].name}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        type="button"
-                        aria-label="Previous appearance data set"
-                        disabled={appearancePosition <= 0}
-                        onClick={() =>
-                          setSelectedAppearanceDataset(draft.columnIndices[appearancePosition - 1] ?? null)
-                        }
-                      >
-                        ‹
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="Next appearance data set"
-                        disabled={appearancePosition >= draft.columnIndices.length - 1}
-                        onClick={() =>
-                          setSelectedAppearanceDataset(draft.columnIndices[appearancePosition + 1] ?? null)
-                        }
-                      >
-                        ›
-                      </button>
-                    </div>
-                    <label className="desktop-form-row">
-                      <span>Color</span>
-                      <input
-                        type="color"
-                        aria-label={`${project.columns[appearanceIndex].name} color`}
-                        value={
-                          draft.graph.colors[appearancePosition % draft.graph.colors.length] ??
-                          "#20867e"
-                        }
-                        onChange={(event) => {
-                          const colors = [...draft.graph.colors];
-                          while (colors.length <= appearancePosition) colors.push("#20867e");
-                          colors[appearancePosition] = event.target.value;
-                          g({ colors });
-                        }}
-                      />
-                    </label>
-                    <p className="desktop-help-text">
-                      The selected color belongs to this data set. Plot and title options
-                      above apply to the whole graph.
-                    </p>
-                  </>
-                )}
-              </fieldset>
-            </div>
-          ) : tab === "Data Sets on Graph" ? (
-            <GraphDatasetList
-              project={project}
-              indices={draft.columnIndices}
-              onChange={columnIndices => setDraft(previous => ({ ...previous, columnIndices }))}
-            />
+      <div className="fg-tabs" role="tablist" aria-label="Graph format options">
+        {FORMAT_TABS.map((t, index) => (
+          <button
+            data-autofocus={t === initialTab && initialTab !== "Graph Settings" ? true : undefined}
+            role="tab"
+            type="button"
+            id={`graph-format-tab-${t.replaceAll(" ", "-")}`}
+            aria-selected={tab === t}
+            aria-controls="graph-format-panel"
+            tabIndex={tab === t ? 0 : -1}
+            className={tab === t ? "active" : ""}
+            key={t}
+            onClick={() => setTab(t)}
+            onKeyDown={(event) => {
+              if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+              event.preventDefault();
+              const next =
+                event.key === "Home" ? 0
+                : event.key === "End" ? FORMAT_TABS.length - 1
+                : (index + (event.key === "ArrowRight" ? 1 : FORMAT_TABS.length - 1)) % FORMAT_TABS.length;
+              setTab(FORMAT_TABS[next]);
+              document.getElementById(`graph-format-tab-${FORMAT_TABS[next].replaceAll(" ", "-")}`)?.focus();
+            }}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+      <div
+        id="graph-format-panel"
+        className="fg-panel"
+        role="tabpanel"
+        aria-labelledby={`graph-format-tab-${tab.replaceAll(" ", "-")}`}
+      >
+        {tab === "Appearance" ? (
+          appearanceIndex === null || !style ? (
+            <p className="fg-note">Include a data set on the Data Sets on Graph tab to format its appearance.</p>
           ) : (
             <>
-              {project.table_type === "xy" && draft.graph.type === "line" && (
-                <fieldset>
-                  <legend>Connecting lines</legend>
-                  <p className="desktop-help-text">At a missing Y value with an entered X value:</p>
-                  <label className="desktop-checkbox-label">
-                    <input
-                      type="radio"
-                      name="missing-y-connection"
-                      checked={Boolean(draft.graph.gap_at_missing_y)}
-                      onChange={() => g({ gap_at_missing_y: true })}
-                    />
+              <div className="fg-row fg-dataset">
+                <label htmlFor="graph-appearance-dataset">Data set:</label>
+                <select
+                  id="graph-appearance-dataset"
+                  aria-label="Appearance data set"
+                  value={appearanceIndex}
+                  onChange={(event) => {
+                    setSelectedAppearanceDataset(Number(event.target.value));
+                    setScope("dataset");
+                  }}
+                >
+                  {draft.columnIndices.map(index => (
+                    <option key={project.columns[index].id ?? index} value={index}>
+                      {datasetLabel(index)}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  className="fg-nav"
+                  aria-label="Previous appearance data set"
+                  disabled={appearancePosition <= 0}
+                  onClick={() => {
+                    setSelectedAppearanceDataset(draft.columnIndices[appearancePosition - 1] ?? null);
+                    setScope("dataset");
+                  }}
+                >
+                  &lt;
+                </button>
+                <button
+                  type="button"
+                  className="fg-nav"
+                  aria-label="Next appearance data set"
+                  disabled={appearancePosition >= draft.columnIndices.length - 1}
+                  onClick={() => {
+                    setSelectedAppearanceDataset(draft.columnIndices[appearancePosition + 1] ?? null);
+                    setScope("dataset");
+                  }}
+                >
+                  &gt;
+                </button>
+                <select
+                  aria-label="Apply scope"
+                  title="Global applies each change to every data set on the graph; Data set changes only the selected one"
+                  value={scope}
+                  onChange={(event) => setScope(event.target.value as "global" | "dataset")}
+                >
+                  <option value="global">Global</option>
+                  <option value="dataset">Data set</option>
+                </select>
+              </div>
+              <FormatSection title="Style">
+                <div className="fg-row">
+                  <label htmlFor="fg-appearance">Appearance:</label>
+                  <select
+                    id="fg-appearance"
+                    value={graph.type}
+                    onChange={(event) => g({ type: event.target.value as Graph["type"] })}
+                  >
+                    {appearanceChoices.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                  </select>
+                  <label htmlFor="fg-plot">Plot:</label>
+                  <select
+                    id="fg-plot"
+                    disabled={xy || graph.type === "box"}
+                    value={xy || graph.type === "box" ? "fixed" : graph.error}
+                    onChange={(event) => g({ error: event.target.value as Graph["error"] })}
+                  >
+                    {xy ? <option value="fixed">Individual values</option>
+                      : graph.type === "box" ? <option value="fixed">Median, quartiles and range</option>
+                      : <>
+                          <option value="none">Mean only</option>
+                          <option value="sd">Mean with SD</option>
+                          <option value="sem">Mean with SEM</option>
+                          <option value="ci">Mean with 95% CI</option>
+                        </>}
+                  </select>
+                </div>
+              </FormatSection>
+              <FormatSection title="Bars and boxes" disabled={!filled}>
+                <div className="fg-row">
+                  <span>Fill:</span>
+                  <Swatch label={`${name} fill color`} value={style.fill} disabled={!filled} onChange={(fill) => setStyle({ fill })} />
+                  <label htmlFor="fg-border">Border:</label>
+                  <select id="fg-border" value={style.border_width} onChange={(event) => setStyle({ border_width: Number(event.target.value) })}>
+                    {LINE_WEIGHTS.map((w) => <option key={w} value={w}>{weightLabel(w)}</option>)}
+                  </select>
+                  <span>Border color:</span>
+                  <Swatch label={`${name} border color`} value={style.color} disabled={!filled} onChange={(color) => setMainColor(color)} />
+                </div>
+                <div className="fg-row">
+                  <label className="fg-check">
+                    <input type="checkbox" checked={style.pattern} onChange={(event) => setStyle({ pattern: event.target.checked })} />
+                    Fill pattern
+                  </label>
+                </div>
+              </FormatSection>
+              <FormatSection
+                title="Symbols"
+                checkbox={{
+                  label: "Symbols",
+                  checked: style.symbols,
+                  onChange: (symbols) => {
+                    if (scope === "global") {
+                      // Global symbols follow the graph-wide choice again.
+                      setDraft((v) => {
+                        const styles = Object.fromEntries(Object.entries(v.graph.dataset_styles ?? {}).map(
+                          ([id, value]) => { const { symbols: _symbols, ...rest } = value; return [id, rest]; }));
+                        return { ...v, graph: { ...v.graph, show_points: symbols, dataset_styles: styles } };
+                      });
+                    } else setStyle({ symbols });
+                  },
+                }}
+              >
+                <div className="fg-row">
+                  <span>Color:</span>
+                  {filled ? (
+                    <Swatch label={`${name} symbol color`} value={style.symbol_color} disabled={!style.symbols} onChange={(symbol_color) => setStyle({ symbol_color })} />
+                  ) : (
+                    <Swatch label={`${name} color`} value={style.symbol_color} disabled={!style.symbols} onChange={(color) => setMainColor(color, ["symbol_color"])} />
+                  )}
+                  <label htmlFor="fg-shape">Shape:</label>
+                  <select id="fg-shape" disabled={!style.symbols} value={style.symbol_shape} onChange={(event) => setStyle({ symbol_shape: event.target.value as SymbolShape })}>
+                    {SYMBOL_SHAPES.map((shape) => <option key={shape} value={shape}>{shapeLabels[shape]}</option>)}
+                  </select>
+                  <label htmlFor="fg-size">Size:</label>
+                  <select id="fg-size" disabled={!style.symbols} value={style.symbol_size} onChange={(event) => setStyle({ symbol_size: Number(event.target.value) })}>
+                    {SYMBOL_SIZES.map((size) => <option key={size} value={size}>{size}</option>)}
+                  </select>
+                </div>
+              </FormatSection>
+              <FormatSection
+                title="Error bars"
+                disabled={!errorsApply}
+                checkbox={{ label: "Error bars", checked: style.error_bars, onChange: (error_bars) => setStyle({ error_bars }) }}
+              >
+                <div className="fg-row">
+                  <span>Color:</span>
+                  <Swatch label={`${name} error bar color`} value={style.error_color} disabled={!errorsApply || !style.error_bars} onChange={(error_color) => setStyle({ error_color })} />
+                  <label htmlFor="fg-cap">Cap style:</label>
+                  <select id="fg-cap" disabled={!style.error_bars} value={style.error_cap} title="T draws a cap; I draws the line only"
+                    onChange={(event) => setStyle({ error_cap: event.target.value as ErrorCap })}>
+                    {ERROR_CAPS.map((cap) => <option key={cap} value={cap}>{cap}</option>)}
+                  </select>
+                  <label htmlFor="fg-direction">Dir.:</label>
+                  <select id="fg-direction" disabled={!style.error_bars} value={style.error_direction}
+                    onChange={(event) => setStyle({ error_direction: event.target.value as ErrorDirection })}>
+                    {ERROR_DIRECTIONS.map((direction) => <option key={direction} value={direction}>{direction[0].toUpperCase() + direction.slice(1)}</option>)}
+                  </select>
+                  <label htmlFor="fg-thickness">Thickness:</label>
+                  <select id="fg-thickness" disabled={!style.error_bars} value={style.error_width}
+                    onChange={(event) => setStyle({ error_width: Number(event.target.value) })}>
+                    {LINE_WEIGHTS.map((w) => <option key={w} value={w}>{weightLabel(w)}</option>)}
+                  </select>
+                </div>
+                {!xy && graph.type !== "box" && graph.error === "none" && (
+                  <p className="fg-note">Choose a Plot with SD, SEM or CI to show error bars.</p>
+                )}
+              </FormatSection>
+              <FormatSection
+                title="Lines"
+                disabled={!xy}
+                checkbox={{ label: "Lines", checked: xy && graph.type === "line", onChange: (on) => g({ type: on ? "line" : "scatter" }) }}
+              >
+                {xy && (
+                  <div className="fg-row">
+                    <span>Color:</span>
+                    <Swatch label={`${name} line color`} value={style.color} disabled={graph.type !== "line"} onChange={(color) => setMainColor(color)} />
+                    <label htmlFor="fg-line">Thickness:</label>
+                    <select id="fg-line" disabled={graph.type !== "line"} value={style.line_width} onChange={(event) => setStyle({ line_width: Number(event.target.value) })}>
+                      {LINE_WEIGHTS.map((w) => <option key={w} value={w}>{weightLabel(w)}</option>)}
+                    </select>
+                  </div>
+                )}
+              </FormatSection>
+              <FormatSection title="Additional options">
+                <div className="fg-row">
+                  <span>Plot data on:</span>
+                  <label className="fg-check">
+                    <input type="radio" name="fg-axis" checked readOnly />
+                    Left Y axis
+                  </label>
+                  <label className="fg-check" title="GP graphs have a single Y axis">
+                    <input type="radio" name="fg-axis" disabled />
+                    Right Y axis
+                  </label>
+                  <label className="fg-check">
+                    <input type="checkbox" checked={graph.show_legend ?? xy} onChange={(event) => g({ show_legend: event.target.checked })} />
+                    Show legend
+                  </label>
+                </div>
+              </FormatSection>
+            </>
+          )
+        ) : tab === "Data Sets on Graph" ? (
+          <GraphDatasetList
+            project={project}
+            indices={draft.columnIndices}
+            onChange={columnIndices => setDraft(previous => ({ ...previous, columnIndices }))}
+          />
+        ) : tab === "Graph Settings" ? (
+          <>
+            <FormatSection title="Titles">
+              <div className="fg-grid">
+                <label htmlFor="fg-title">Graph title:</label>
+                <input id="fg-title" data-autofocus={initialTab === "Graph Settings" ? true : undefined} value={graph.title} onChange={(e) => g({ title: e.target.value })} />
+                <label htmlFor="fg-x-title">X axis title:</label>
+                <input id="fg-x-title" value={graph.x_label} onChange={(e) => g({ x_label: e.target.value })} />
+                <label htmlFor="fg-y-title">Y axis title:</label>
+                <input id="fg-y-title" value={graph.y_label} onChange={(e) => g({ y_label: e.target.value })} />
+              </div>
+            </FormatSection>
+            {xy && graph.type === "line" && (
+              <FormatSection title="Connecting lines">
+                <p className="fg-note">At a missing Y value with an entered X value:</p>
+                <div className="fg-row">
+                  <label className="fg-check">
+                    <input type="radio" name="missing-y-connection" checked={Boolean(graph.gap_at_missing_y)} onChange={() => g({ gap_at_missing_y: true })} />
                     Leave a gap
                   </label>
-                  <label className="desktop-checkbox-label">
-                    <input
-                      type="radio"
-                      name="missing-y-connection"
-                      checked={!draft.graph.gap_at_missing_y}
-                      onChange={() => g({ gap_at_missing_y: false })}
-                    />
+                  <label className="fg-check">
+                    <input type="radio" name="missing-y-connection" checked={!graph.gap_at_missing_y} onChange={() => g({ gap_at_missing_y: false })} />
                     Connect adjacent points
                   </label>
-                  <p className="desktop-help-text">This affects drawing only. Missing cells remain omitted from numerical analyses.</p>
-                </fieldset>
-              )}
-              <fieldset>
-                <legend>Analysis results on graph</legend>
-                <label className="desktop-form-row">
-                  <span>Linked analysis result</span>
+                </div>
+                <p className="fg-note">This affects drawing only. Missing cells remain omitted from numerical analyses.</p>
+              </FormatSection>
+            )}
+            <FormatSection title="Analysis results on graph">
+              <div className="fg-grid">
+                <label htmlFor="fg-result">Linked analysis result:</label>
+                <select
+                  id="fg-result"
+                  value={draft.resultId ?? ""}
+                  onChange={(e) => setDraft((v) => ({ ...v, resultId: e.target.value || null }))}
+                >
+                  <option value="">None — raw observations</option>
+                  {results.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name}
+                      {r.status === "stale" ? " (needs recalculation)" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <p className="fg-note">
+                A current linked result supplies fitted curves and confidence
+                intervals. After editing source data, recalculate the linked
+                result to update its curves and intervals.
+              </p>
+            </FormatSection>
+          </>
+        ) : (
+          <FormatSection title="Pairwise comparisons">
+            {graph.pairwise ? (
+              <>
+                <div className="fg-row">
+                  <label htmlFor="fg-pairwise-style">Show significance as:</label>
                   <select
-                    value={draft.resultId ?? ""}
-                    onChange={(e) =>
-                      setDraft((v) => ({
-                        ...v,
-                        resultId: e.target.value || null,
-                      }))
-                    }
+                    id="fg-pairwise-style"
+                    value={graph.pairwise.style}
+                    onChange={(e) => g({ pairwise: { ...graph.pairwise!, style: e.target.value as "asterisks" | "p" } })}
                   >
-                    <option value="">None — raw observations</option>
-                    {results.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.name}
-                        {r.status === "stale" ? " (needs recalculation)" : ""}
-                      </option>
-                    ))}
+                    <option value="asterisks">Asterisks (ns, *, **, ***, ****)</option>
+                    <option value="p">P values</option>
                   </select>
-                </label>
-                <p>
-                  A current linked result supplies fitted curves and confidence
-                  intervals. After editing source data, recalculate the linked
-                  result to update its curves and intervals.
-                </p>
-              </fieldset>
-            </>
-          )}
-        </div>
-        <p className="desktop-help-text desktop-apply-help">
-          Apply updates the graph without closing this dialog. Cancel discards
-          changes since the last Apply.
-        </p>
+                </div>
+                <div className="fg-row">
+                  <label className="fg-check">
+                    <input
+                      type="checkbox"
+                      checked={graph.pairwise.show_ns}
+                      onChange={(e) => g({ pairwise: { ...graph.pairwise!, show_ns: e.target.checked } })}
+                    />
+                    Show nonsignificant (ns) comparisons
+                  </label>
+                </div>
+              </>
+            ) : (
+              <p className="fg-note">
+                No pairwise comparisons are drawn. Use Change › Add Pairwise
+                Comparisons to add brackets from a linked t test or one-way ANOVA.
+              </p>
+            )}
+          </FormatSection>
+        )}
       </div>
-      <footer className="desktop-dialog-actions">
-        <button className="button" onClick={onClose}>
+      {help && (
+        <p className="fg-help" role="note">
+          Choose a data set, then change its appearance. With Global selected,
+          each change applies to every data set on the graph. Apply updates the
+          graph without closing this dialog; Cancel discards changes since the
+          last Apply.
+        </p>
+      )}
+      <footer className="fg-footer">
+        <button
+          type="button"
+          className="fg-button fg-wide"
+          disabled={!onChangeGraphType || !draft.columnIndices.length}
+          onClick={() => {
+            onApply(draft);
+            onClose();
+            onChangeGraphType?.();
+          }}
+        >
+          Change Graph Type...
+        </button>
+        <span className="fg-spacer" />
+        <button type="button" className="fg-button" aria-pressed={help} onClick={() => setHelp((v) => !v)}>
+          Help
+        </button>
+        <button type="button" className="fg-button" onClick={onClose}>
           Cancel
         </button>
         <button
-          className="button"
+          type="button"
+          className="fg-button"
           disabled={!draft.columnIndices.length}
           onClick={() => onApply(draft)}
         >
           Apply
         </button>
         <button
-          className="button primary"
+          type="button"
+          className="fg-button fg-default"
           disabled={!draft.columnIndices.length}
           onClick={() => {
             onApply(draft);
@@ -1555,6 +1828,6 @@ export function FormatGraphDialog({
           OK
         </button>
       </footer>
-    </DesktopDialog>
+    </DockedDialog>
   );
 }
