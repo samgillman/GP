@@ -196,3 +196,15 @@ test("excluded values export as numbers, asterisked numbers or blanks and round-
   assert.throws(() => importCsvWithExclusions("A\n1 2*"), /not a valid number/);
   assert.deepEqual(importCsvWithExclusions("A;B\n1 *;2\n").excluded, [{ column: 0, row: 0 }]);
 });
+
+test("missing-Y line rule is optional, boolean-validated, and round-trips without changing numeric data", () => {
+  const legacy = sample("xy");
+  assert.equal(parseProject(JSON.stringify(legacy)).graph.gap_at_missing_y, undefined);
+  const edited = structuredClone(legacy);
+  edited.graph.gap_at_missing_y = true;
+  assert.deepEqual(parseProject(JSON.stringify(edited)), edited);
+  assert.deepEqual(edited.columns, legacy.columns);
+  const malformed = structuredClone(edited);
+  (malformed.graph as { gap_at_missing_y?: unknown }).gap_at_missing_y = "true";
+  assert.throws(() => parseProject(JSON.stringify(malformed)), /Invalid project graph settings/);
+});

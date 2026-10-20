@@ -509,3 +509,33 @@ test("line segments clip at manual boundaries and do not connect through invalid
   assert.equal(log.linePath([{x: 1, y: 1}, {x: 2, y: 0}, {x: 3, y: 100}]), "");
   assert.match(log.linePath([{x: 1, y: 1}, {x: 3, y: 100}]), /^M.+L/);
 });
+
+test("XY line Graph Settings preserve missing Y rows as path breaks without changing observations", () => {
+  const p = sample("xy");
+  p.graph.type = "line";
+  p.columns = [
+    { name: "X", values: ["1", "2", "3", "4"] },
+    { name: "Y", values: ["10", "", "30", "40"] },
+  ];
+  const original = structuredClone(p);
+  const connected = buildPlotGeometry(p, null)!;
+  assert.deepEqual(connected.series[0].values, [10, 30, 40]);
+  assert.equal(connected.series[0].points.length, 3);
+  assert.equal(connected.series[0].linePoints.length, 3);
+  assert.equal((connected.linePath(connected.series[0].linePoints).match(/M/g) ?? []).length, 2);
+
+  p.graph.gap_at_missing_y = true;
+  const gap = buildPlotGeometry(p, null)!;
+  const s = gap.series[0];
+  assert.equal(s.linePoints.length, 4);
+  assert(Number.isNaN(s.linePoints[1].y));
+  assert.deepEqual(s.values, [10, 30, 40]);
+  assert.equal(s.points.length, 3);
+  assert.equal((gap.linePath(s.linePoints).match(/M/g) ?? []).length, 1);
+  assert.deepEqual(p.columns, original.columns);
+  assert.deepEqual(gap.count, connected.count);
+  // A missing X has no place on the axis and cannot create a ghost point.
+  p.columns[0].values[1] = "";
+  const noX = buildPlotGeometry(p, null)!;
+  assert.equal(noX.series[0].linePoints.length, 3);
+});
