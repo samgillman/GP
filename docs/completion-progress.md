@@ -514,3 +514,39 @@ macOS undo key; it passes in Linux CI. `check_format_graph.py` was updated for
 the Prism groups, the letter page and the sheet position. A fresh static visit
 reached "Analysis engine ready" and exported a PDF in 7.6 s, with every stage
 shown. Hosted CI for this branch has not yet been observed.
+
+## Prism behaviors and toolbar commands, batch 1 (2026-10-20)
+
+The user asked for GP to work like their Prism, with the most-used toolbar
+commands and Prism behaviors first. This batch follows what was observed in the
+user's Prism 11.1 for Mac. It is not REA evidence, and no parity status changes.
+
+- New Data Table and Graph uses the Welcome-window layout: a CREATE list, an
+  OPEN › Open a File… entry, and the table family's description as the heading.
+- A graph the user has just created asks for its type the first time it is
+  viewed, as in Prism. Change Graph Type now has the family, Prism's tabs
+  (Individual values, Mean/median & error, Box and violin for Column), picture
+  tiles and a live preview of the graph. Keeping the current type does not
+  create an undo step.
+- Sheet › Highlight colors a sheet's navigator row (seven colors or none). It
+  is saved as optional, validated `highlight` sheet metadata and is also offered
+  in the navigator context menu.
+- Clipboard Cut, Copy and Paste work on the selected data-table cells through
+  the system clipboard. Copy without a selection copies the table as CSV.
+- Change › Color Scheme applies one of seven palettes to every data set and
+  clears per-data-set color overrides.
+- Change › Magic (make graphs consistent) copies another graph's type, plot,
+  per-data-set appearance, colors and/or axis settings. Data sets are matched
+  by position; data, titles and linked analyses are untouched, and one undo
+  reverses it.
+- GP's dialogs follow the dark appearance, like Prism's. Toolbar drop-down
+  menus are no longer clipped by the toolbar: Export ▾ and New sheet ▾ from the
+  previous change were affected.
+
+Validation on macOS: 274 frontend tests (5 new for Magic, color schemes and
+highlights), 485 backend tests, both builds, and 28 of 29 browser checks,
+including the new `scripts/check_prism_behaviors.py` (added to CI). Five
+existing checks now accept the first-view Change Graph Type prompt.
+`check_grid_ui.py` stops on this host at its Control+Z step, before its prompt
+change; it passes in Linux CI. Hosted CI for this branch has not yet been
+observed.

@@ -90,6 +90,7 @@ with sync_playwright() as p:
     assert next(s for s in workbook()['sheets'] if s['kind'] == 'graph')['graph']['title'] != 'Directly formatted graph title'
     # Graph type changes through Change Graph Type, not on-page buttons.
     page.get_by_role('button', name='Change Graph Type…', exact=True).click()
+    page.get_by_role('dialog', name='Change Graph Type').get_by_role('tab', name='Individual values', exact=True).click()
     page.get_by_role('dialog', name='Change Graph Type').get_by_role('radio', name='Scatter dot plot').check()
     page.get_by_role('dialog', name='Change Graph Type').get_by_role('button', name='OK', exact=True).click()
     assert next(s for s in workbook()['sheets'] if s['kind'] == 'graph')['graph']['type'] == 'scatter'

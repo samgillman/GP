@@ -64,7 +64,7 @@ with sync_playwright() as p:
  page.locator('.sheet-navigator').get_by_title('Treatment response study',exact=True).click()
  page.get_by_role('button',name='New Data Table and Graph',exact=True).click();nt=page.get_by_role('dialog',name='New Data Table and Graph',exact=True);nt.get_by_role('button',name='XY',exact=True).click();nt.get_by_role('radio',name='Start with sample data',exact=True).check();nt.get_by_role('button',name='Create table and graph',exact=True).click()
  gc(0,1).click();gc(1,2).click(modifiers=['Shift'])
- reset_graph_probe();page.locator('.sheet-navigator').get_by_title('Dose response study graph',exact=True).click();assert len(graph_selection())==4
+ reset_graph_probe();page.locator('.sheet-navigator').get_by_title('Dose response study graph',exact=True).click();page.get_by_role('dialog',name='Change Graph Type',exact=True).get_by_role('button',name='OK',exact=True).click();assert len(graph_selection())==4
  page.wait_for_function("JSON.parse(localStorage.getItem('gp.workbook.v2')).sheets.filter(s=>s.kind==='data').length===2")
  sheets_before=page.evaluate("JSON.stringify(JSON.parse(localStorage.getItem('gp.workbook.v2')).sheets)")
  page.locator('.sheet-navigator').get_by_title('Treatment response study',exact=True).click()

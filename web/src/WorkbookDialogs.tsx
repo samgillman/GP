@@ -238,17 +238,61 @@ const graphTypeChoices = {
     ["line", true, "Points and connecting line"],
   ],
 } as const satisfies Record<TableType, readonly (readonly [Graph["type"], boolean, string])[]>;
-/** Change > Change Graph Type…: GP's subset of the graph families. */
+/** Prism groups graph types into tabs within a family. */
+const graphTypeTabs: Record<TableType, readonly (readonly [string, readonly number[]])[]> = {
+  column: [
+    ["Individual values", [0]],
+    ["Mean/median & error", [1, 2]],
+    ["Box and violin", [3]],
+  ],
+  xy: [["Points & lines", [0, 1]]],
+};
+function GraphTypeTile({ type, points }: { type: Graph["type"]; points: boolean }) {
+  const dots = (cx: number, base: number) =>
+    [0, 1, 2, 3].map((i) => <circle key={i} cx={cx + ((i * 7) % 5) - 2} cy={base - i * 3} r="1.6" fill="currentColor" />);
+  return (
+    <svg viewBox="0 0 60 44" aria-hidden="true">
+      <path d="M6 4v34h50" fill="none" stroke="currentColor" strokeWidth="1.2" />
+      {type === "bar" && (
+        <>
+          <rect x="14" y="20" width="10" height="18" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          <rect x="34" y="12" width="10" height="26" fill="none" stroke="currentColor" strokeWidth="1.2" />
+          {points && <>{dots(19, 30)}{dots(39, 22)}</>}
+        </>
+      )}
+      {type === "scatter" && (
+        <>
+          {dots(19, 30)}{dots(39, 22)}
+          <path d="M13 26h12M33 18h12" stroke="currentColor" strokeWidth="1.2" />
+        </>
+      )}
+      {type === "box" && (
+        <>
+          <path d="M19 10v28M39 6v26" stroke="currentColor" strokeWidth="1.2" />
+          <rect x="14" y="16" width="10" height="14" fill="currentColor" fillOpacity=".25" stroke="currentColor" strokeWidth="1.2" />
+          <rect x="34" y="12" width="10" height="12" fill="currentColor" fillOpacity=".25" stroke="currentColor" strokeWidth="1.2" />
+        </>
+      )}
+      {type === "line" && <path d="M10 32L22 22 34 26 50 10" fill="none" stroke="currentColor" strokeWidth="1.2" />}
+      {type === "line" && [10, 22, 34, 50].map((x, i) => <circle key={x} cx={x} cy={[32, 22, 26, 10][i]} r="1.8" fill="currentColor" />)}
+    </svg>
+  );
+}
+/** Change > Change Graph Type…: GP's subset of Prism's graph families, with
+ * Prism's tabs and a live preview of this graph in each choice. */
 export function ChangeGraphTypeDialog({
   tableType,
   graph,
   onClose,
   onApply,
+  preview,
 }: {
   tableType: TableType;
   graph: Graph;
   onClose: () => void;
   onApply: (type: Graph["type"], showPoints: boolean) => void;
+  /** Draws this graph as the chosen type. */
+  preview?: (type: Graph["type"], showPoints: boolean) => ReactNode;
 }) {
   const choices = graphTypeChoices[tableType];
   const current = Math.max(
@@ -260,33 +304,61 @@ export function ChangeGraphTypeDialog({
     ),
   );
   const [choice, setChoice] = useState(current);
+  const tabs = graphTypeTabs[tableType];
+  const [tab, setTab] = useState(() => Math.max(0, tabs.findIndex(([, items]) => items.includes(current))));
   return (
     <DesktopDialog
       title="Change Graph Type"
       titleId="graph-type-title"
-      className="desktop-format-table"
+      className="desktop-graph-type"
       onClose={onClose}
     >
       <div className="desktop-dialog-body">
-        <fieldset>
-          <legend>{tableType === "xy" ? "XY" : "Column"}</legend>
-          {choices.map(([type, points, label], index) => (
-            <label className="desktop-choice" key={label}>
-              <input
-                type="radio"
-                name="graph-type-choice"
-                data-autofocus={index === choice || undefined}
-                checked={index === choice}
-                onChange={() => setChoice(index)}
-              />
-              <span
-                aria-hidden="true"
-                className={`desktop-graph-icon ${type}${points ? " points" : ""}`}
-              />
+        <label className="graph-type-family">
+          <span>Graph family:</span>
+          <select aria-label="Graph family" value={tableType} disabled>
+            <option value="column">Column</option>
+            <option value="xy">XY</option>
+          </select>
+        </label>
+        <div className="graph-type-tabs" role="tablist" aria-label="Kinds of graph">
+          {tabs.map(([label, items], index) => (
+            <button
+              key={label}
+              role="tab"
+              type="button"
+              aria-selected={tab === index}
+              className={tab === index ? "active" : ""}
+              onClick={() => {
+                setTab(index);
+                if (!items.includes(choice)) setChoice(items[0]);
+              }}
+            >
               {label}
-            </label>
+            </button>
           ))}
+        </div>
+        <fieldset className="graph-type-tiles">
+          <legend className="visually-hidden">{tabs[tab][0]}</legend>
+          {tabs[tab][1].map((index) => {
+            const [type, points, label] = choices[index];
+            return (
+              <label key={label} className={`graph-type-tile${index === choice ? " selected" : ""}`} title={label}>
+                <input
+                  type="radio"
+                  name="graph-type-choice"
+                  aria-label={label}
+                  data-autofocus={index === choice || undefined}
+                  checked={index === choice}
+                  onChange={() => setChoice(index)}
+                />
+                <GraphTypeTile type={type} points={points} />
+              </label>
+            );
+          })}
         </fieldset>
+        <p className="graph-type-name">{choices[choice][2]}</p>
+        {preview && <div className="graph-type-preview">{preview(choices[choice][0], choices[choice][1])}</div>}
         <p className="desktop-help-text">
           Data sets, colors and titles are kept when the graph type changes.
         </p>
@@ -308,9 +380,12 @@ export function ChangeGraphTypeDialog({
 export function NewTableDialog({
   onClose,
   onCreate,
+  onOpenFile,
 }: {
   onClose: () => void;
   onCreate: (type: TableType, name: string, sampleData: boolean) => void;
+  /** Prism's Welcome window also offers Open a File. */
+  onOpenFile?: () => void;
 }) {
   const [type, setType] = useState<TableType>("column"),
     [name, setName] = useState("New data table"),
@@ -324,7 +399,11 @@ export function NewTableDialog({
     >
       <div className="desktop-new-content">
         <nav className="desktop-family-list" aria-label="Table families">
-          <h3>New table & graph</h3>
+          <div className="welcome-brand" aria-hidden="true">
+            <span className="welcome-logo" />
+            <span className="welcome-name"><small>GP</small>Workbook</span>
+          </div>
+          <h3>Create</h3>
           {(
             [
               ["xy", "XY"],
@@ -362,9 +441,19 @@ export function NewTableDialog({
             </button>
           ))}
           <p>Additional table families are not yet available in this editor.</p>
+          {onOpenFile && (
+            <>
+              <h3>Open</h3>
+              <button onClick={onOpenFile}>Open a File…</button>
+            </>
+          )}
         </nav>
         <div className="desktop-new-settings">
-          <h3>{type === "column" ? "Column" : "XY"} data table</h3>
+          <h3>
+            {type === "column"
+              ? "Column tables have one grouping variable, with each group defined by a column"
+              : "XY tables: each point is defined by an X and a Y coordinate"}
+          </h3>
           <p>
             {type === "column"
               ? "Enter each group in a separate column. Stack independent or matched observations down the rows."
@@ -1858,5 +1947,62 @@ export function FormatGraphDialog({
         </button>
       </footer>
     </DockedDialog>
+  );
+}
+
+/** Change > Magic (make graphs consistent): copy another graph's formatting. */
+export function MagicDialog({
+  graphs,
+  onClose,
+  onApply,
+}: {
+  graphs: { id: string; name: string }[];
+  onClose: () => void;
+  onApply: (sourceId: string, parts: { appearance: boolean; colors: boolean; axes: boolean }) => void;
+}) {
+  const [sourceId, setSourceId] = useState(graphs[0]?.id ?? "");
+  const [appearance, setAppearance] = useState(true);
+  const [colors, setColors] = useState(true);
+  const [axes, setAxes] = useState(true);
+  return (
+    <DesktopDialog title="Make Graphs Consistent" titleId="magic-title" className="desktop-magic" onClose={onClose}>
+      <div className="desktop-dialog-body">
+        <label className="desktop-form-row">
+          <span>Make this graph look like:</span>
+          <select data-autofocus aria-label="Graph to copy formatting from" value={sourceId} onChange={(e) => setSourceId(e.target.value)}>
+            {graphs.map((graph) => <option key={graph.id} value={graph.id}>{graph.name}</option>)}
+          </select>
+        </label>
+        <fieldset>
+          <legend>Apply from that graph</legend>
+          <label className="desktop-checkbox-label">
+            <input type="checkbox" checked={appearance} onChange={(e) => setAppearance(e.target.checked)} />
+            Graph type, plot and the appearance of each data set
+          </label>
+          <label className="desktop-checkbox-label">
+            <input type="checkbox" checked={colors} onChange={(e) => setColors(e.target.checked)} />
+            Colors
+          </label>
+          <label className="desktop-checkbox-label">
+            <input type="checkbox" checked={axes} onChange={(e) => setAxes(e.target.checked)} />
+            Axis settings (scale, range, ticks and numbering)
+          </label>
+        </fieldset>
+        <p className="desktop-help-text">
+          Data sets are matched by their position on each graph. Data, titles and
+          linked analyses are not changed. Undo reverses the whole change.
+        </p>
+      </div>
+      <footer className="desktop-dialog-actions">
+        <button className="button" onClick={onClose}>Cancel</button>
+        <button
+          className="button primary"
+          disabled={!sourceId || !(appearance || colors || axes)}
+          onClick={() => onApply(sourceId, { appearance, colors, axes })}
+        >
+          OK
+        </button>
+      </footer>
+    </DesktopDialog>
   );
 }

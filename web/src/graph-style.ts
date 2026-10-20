@@ -160,3 +160,35 @@ export function symbolPath(shape: SymbolShape, radius: number): string {
   }
   return `M${-r},0A${r},${r} 0 1 0 ${r},0A${r},${r} 0 1 0 ${-r},0Z`;
 }
+
+/** Change > Color Scheme: whole-graph palettes applied by data set position. */
+export const COLOR_SCHEMES = {
+  "GP default": ["#20867e", "#df9b51", "#7186b3", "#b57d9e", "#87a365", "#aa845a"],
+  "Prism colors": ["#1f77b4", "#d62728", "#2ca02c", "#9467bd", "#ff7f0e", "#8c564b"],
+  "Colorblind safe": ["#0072b2", "#e69f00", "#009e73", "#cc79a7", "#56b4e9", "#d55e00"],
+  Grays: ["#000000", "#9a9a9a", "#5c5c5c", "#c8c8c8", "#333333", "#7a7a7a"],
+  Pastels: ["#8ecae6", "#ffb5a7", "#b5e48c", "#cdb4db", "#ffd166", "#a8dadc"],
+  Bright: ["#e63946", "#1d3557", "#2a9d8f", "#f4a261", "#9b5de5", "#00bbf9"],
+  Earth: ["#7f5539", "#606c38", "#bc6c25", "#283618", "#dda15e", "#9c6644"],
+} as const;
+export type ColorSchemeName = keyof typeof COLOR_SCHEMES;
+
+/** Recolor every plotted data set. Color overrides from Format Graph are
+ * cleared so fills, symbols and error bars follow the new colors again. */
+export function applyColorScheme(
+  graph: Graph,
+  plotted: number,
+  scheme: ColorSchemeName,
+): Graph {
+  const palette = COLOR_SCHEMES[scheme];
+  const colors = Array.from({ length: Math.max(1, plotted) }, (_, i) => palette[i % palette.length]);
+  const dataset_styles = graph.dataset_styles
+    ? Object.fromEntries(
+        Object.entries(graph.dataset_styles).map(([id, style]) => {
+          const { fill: _fill, symbol_color: _symbol, error_color: _error, ...rest } = style;
+          return [id, rest];
+        }),
+      )
+    : undefined;
+  return { ...graph, colors, ...(dataset_styles ? { dataset_styles } : {}) };
+}

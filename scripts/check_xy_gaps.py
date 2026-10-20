@@ -26,6 +26,8 @@ with sync_playwright() as p:
     graph_id = next(s["id"] for s in before["sheets"] if s["kind"] == "graph" and s["dataId"] == before["activeSheetId"])
     source_before = next(s for s in before["sheets"] if s["kind"] == "data" and s["id"] == before["activeSheetId"])
     page.get_by_role("button", name="Show graph", exact=True).click()
+    # Like Prism, a new graph asks for its type when first viewed; keep it.
+    page.get_by_role("dialog", name="Change Graph Type", exact=True).get_by_role("button", name="OK", exact=True).click()
     def graph():
         return next(s for s in book()["sheets"] if s["id"] == graph_id)
     # No fit is included in the sample; the first XY series owns the first line path.
