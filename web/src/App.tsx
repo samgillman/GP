@@ -28,7 +28,12 @@ import type {
   TableType,
 } from "./data";
 import Plot from "./Plot";
-import { plottedDatasetStyles } from "./graph-style";
+import { applyColorScheme, COLOR_SCHEMES, plottedDatasetStyles } from "./graph-style";
+import type { ColorSchemeName } from "./graph-style";
+import { makeGraphConsistent } from "./graph-magic";
+import type { MagicParts } from "./graph-magic";
+import { seedDatasetColors } from "./graph-dataset-order";
+import { selectionTSV } from "./data-grid";
 import {
   clampGraphZoom,
   GRAPH_ZOOM_PRESETS,
@@ -88,7 +93,8 @@ import {
   toggleExcludedValues,
   updateData,
 } from "./workbook";
-import type { Workbook, Sheet, GraphSheet, ResultSheet } from "./workbook";
+import { SHEET_HIGHLIGHTS } from "./workbook";
+import type { Workbook, Sheet, GraphSheet, ResultSheet, SheetHighlight } from "./workbook";
 import {
   NewTableDialog,
   AnalyzeDialog,
@@ -97,6 +103,7 @@ import {
   ChangeGraphTypeDialog,
   ParametersDialog,
   PairwiseDialog,
+  MagicDialog,
   analysisLabels,
 } from "./WorkbookDialogs";
 import {
@@ -559,9 +566,14 @@ export default function App() {
     // The window's graph zoom (percent of the page's natural size) and Hand Pan tool.
     [graphZoom, setGraphZoom] = useState(100),
     [graphPan, setGraphPan] = useState(false),
-    [navigatorHidden, setNavigatorHidden] = useState(false);
+    [navigatorHidden, setNavigatorHidden] = useState(false),
+    [magicDialog, setMagicDialog] = useState(false);
   // Whether the graph's category labels are slanted, so exports match the page.
   const slantedLabels = useRef(false);
+  // Like Prism, a graph the user just created asks for its type when first viewed.
+  const promptGraphType = useRef(false);
+  const knownGraphs = useRef<Set<string> | null>(null);
+  const [graphsToType, setGraphsToType] = useState<string[]>([]);
   const selectedSheet = workbook.sheets.find(
     (s) => s.id === workbook.activeSheetId,
   )!;
@@ -574,6 +586,22 @@ export default function App() {
   useEffect(() => {
     document.title = `${workbook.name} - GP`;
   }, [workbook.name]);
+  useEffect(() => {
+    const ids = workbook.sheets.filter((s) => s.kind === "graph").map((s) => s.id);
+    if (!knownGraphs.current) {
+      knownGraphs.current = new Set(ids);
+      return;
+    }
+    const fresh = ids.filter((id) => !knownGraphs.current!.has(id));
+    ids.forEach((id) => knownGraphs.current!.add(id));
+    if (fresh.length && promptGraphType.current) setGraphsToType((list) => [...list, ...fresh]);
+    promptGraphType.current = false;
+  }, [workbook.sheets]);
+  useEffect(() => {
+    if (selectedSheet.kind !== "graph" || !graphsToType.includes(selectedSheet.id)) return;
+    setGraphsToType((list) => list.filter((id) => id !== selectedSheet.id));
+    if (!selectedSheet.frozen) setGraphTypeDialog(true);
+  }, [selectedSheet.id, graphsToType]);
   const dependencyGraph = useMemo(
     () => workbookDependencies(workbook),
     [workbook.sheets],
@@ -1006,6 +1034,14 @@ export default function App() {
     const text = e.clipboardData.getData("text");
     if (!/[\t\n\r]/.test(text)) return;
     e.preventDefault();
+    pasteText(text, col, row);
+  }
+  /** Paste tab-separated text with its upper-left cell at (col, row). */
+  function pasteText(text: string, col: number, row: number) {
+    if (!/[\t\n\r]/.test(text.replace(/[\r\n]+$/, ""))) {
+      updateCell(col, row, text.trim());
+      return;
+    }
     try {
       const cells = parseDelimited(text, "\t");
       if (
@@ -1639,6 +1675,7 @@ export default function App() {
     );
   }
   function createLinkedGraph() {
+    promptGraphType.current = true;
     setWorkbook((w) =>
       addGraph(
         w,
@@ -1646,6 +1683,97 @@ export default function App() {
         selectedSheet.kind === "results" ? selectedSheet.id : null,
       ),
     );
+  }
+  /** Edit > Copy for the selected cells, or the whole table as CSV. */
+  async function copySelection() {
+    if (active !== "data" || !gridRange) return copyData();
+    try {
+      await navigator.clipboard.writeText(selectionTSV(source.project.columns, gridRange));
+      setNotice("Copied the selected cells.");
+    } catch {
+      setError("Clipboard access is unavailable here. Use ⌘C / Ctrl+C in the table.");
+    }
+  }
+  async function cutSelection() {
+    if (active !== "data" || !gridRange || source.frozen) return;
+    try {
+      await navigator.clipboard.writeText(selectionTSV(source.project.columns, gridRange));
+      clearRange(gridRange);
+      setNotice("Cut the selected cells.");
+    } catch {
+      setError("Clipboard access is unavailable here. Use ⌘X / Ctrl+X in the table.");
+    }
+  }
+  async function pasteFromClipboard() {
+    if (active !== "data" || !gridRange || source.frozen) return;
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) pasteText(text, gridRange.startColumn, gridRange.startRow);
+    } catch {
+      setError("GP was not allowed to read the clipboard. Use ⌘V / Ctrl+V in the table.");
+    }
+  }
+  /** Sheet > Highlight: color a sheet's row in the navigator. */
+  function highlightSheet(color: SheetHighlight | null, id = selectedSheet.id) {
+    setWorkbook(
+      (w) => ({
+        ...w,
+        sheets: w.sheets.map((s) => {
+          if (s.id !== id) return s;
+          if (color) return { ...s, highlight: color };
+          const { highlight: _highlight, ...rest } = s;
+          return rest as Sheet;
+        }),
+      }),
+      { label: color ? "Highlight sheet" : "Remove sheet highlight" },
+    );
+  }
+  /** Change > Color Scheme for the current graph. */
+  function applyScheme(scheme: ColorSchemeName) {
+    if (!graphSheet || graphSheet.frozen) return;
+    const next = applyColorScheme(graphSheet.graph, graphSheet.columnIndices.length, scheme);
+    setWorkbook(
+      (w) => ({
+        ...w,
+        sheets: w.sheets.map((s) =>
+          s.id === graphSheet.id && s.kind === "graph"
+            ? {
+                ...s,
+                graph: next,
+                datasetColors: seedDatasetColors(source.project, s.columnIndices, next.colors, s.datasetColors),
+              }
+            : s,
+        ),
+      }),
+      { label: `Color scheme: ${scheme}` },
+    );
+  }
+  /** Change > Magic: copy formatting from another graph onto this one. */
+  function applyMagic(sourceId: string, parts: MagicParts) {
+    const from = workbook.sheets.find((s): s is GraphSheet => s.kind === "graph" && s.id === sourceId);
+    if (!graphSheet || graphSheet.frozen || !from) return;
+    const kindOf = (sheet: GraphSheet) =>
+      (workbook.sheets.find((s) => s.id === sheet.dataId && s.kind === "data") as { project: Project } | undefined)
+        ?.project.table_type;
+    const next = makeGraphConsistent(
+      graphSheet.graph, from.graph, graphSheet.datasetIds, from.datasetIds, parts, kindOf(from) === kindOf(graphSheet),
+    );
+    setWorkbook(
+      (w) => ({
+        ...w,
+        sheets: w.sheets.map((s) =>
+          s.id === graphSheet.id && s.kind === "graph"
+            ? {
+                ...s,
+                graph: next,
+                datasetColors: seedDatasetColors(source.project, s.columnIndices, next.colors, s.datasetColors),
+              }
+            : s,
+        ),
+      }),
+      { label: `Make consistent with ${from.name}` },
+    );
+    setNotice(`Applied the formatting of "${from.name}".`);
   }
   function stepSheet(step: number) {
     const next = workbook.sheets[sheetPosition + step];
@@ -2033,7 +2161,21 @@ export default function App() {
           </RibbonGroup>
           <RibbonGroup label="Sheet">
             <div className="rb-row">
-              <Tool label="Highlight sheet" icon={ribbonIcons.highlight} menu unavailable />
+              <DesktopMenu
+                label="Highlight"
+                className="rb-menu"
+                summary={<span className="rb-tool" aria-label="Highlight sheet" title="Highlight this sheet in the navigator">{ribbonIcons.highlight}{dropArrow}</span>}
+              >
+                {SHEET_HIGHLIGHTS.map((color) => (
+                  <button role="menuitemradio" aria-checked={selectedSheet.highlight === color} key={color} onClick={() => highlightSheet(color)}>
+                    <span className="hl-choice"><span className={`hl-swatch hl-${color}`} aria-hidden="true" />{color[0].toUpperCase() + color.slice(1)}</span>
+                  </button>
+                ))}
+                <hr />
+                <button role="menuitem" disabled={!selectedSheet.highlight} onClick={() => highlightSheet(null)}>
+                  No highlight
+                </button>
+              </DesktopMenu>
               <Tool
                 label={selectedSheet.frozen ? "Unfreeze sheet" : "Freeze sheet"}
                 title={selectedSheet.frozen ? "Unfreeze sheet" : "Freeze sheet so it will not automatically update"}
@@ -2089,12 +2231,29 @@ export default function App() {
           </RibbonGroup>
           <RibbonGroup label="Clipboard">
             <div className="rb-row">
-              <Tool label="Cut" title="Cut: use ⌘X / Ctrl+X in the data table" icon={ribbonIcons.cut} unavailable />
-              <Tool label="Copy data as CSV" icon={ribbonIcons.copy} onClick={() => void copyData()} />
+              <Tool
+                label="Cut"
+                title="Cut the selected cells"
+                icon={ribbonIcons.cut}
+                disabled={active !== "data" || !!source.frozen || !gridRange}
+                onClick={() => void cutSelection()}
+              />
+              <Tool
+                label="Copy"
+                title={active === "data" && gridRange ? "Copy the selected cells" : "Copy the data table as CSV"}
+                icon={ribbonIcons.copy}
+                onClick={() => void copySelection()}
+              />
               <Tool label="Copy as picture" icon={ribbonIcons.copyPicture} unavailable />
             </div>
             <div className="rb-row">
-              <Tool label="Paste" title="Paste: use ⌘V / Ctrl+V in the data table" icon={ribbonIcons.paste} unavailable />
+              <Tool
+                label="Paste"
+                title="Paste into the table at the selected cell"
+                icon={ribbonIcons.paste}
+                disabled={active !== "data" || !!source.frozen || !gridRange}
+                onClick={() => void pasteFromClipboard()}
+              />
               <Tool label="Paste special" icon={ribbonIcons.paste} menu unavailable />
             </div>
           </RibbonGroup>
@@ -2158,7 +2317,13 @@ export default function App() {
                 <Tool label="Sort" icon={ribbonIcons.sort} menu unavailable />
               </div>
               <div className="rb-row">
-                <Tool label="Magic: make graphs consistent" icon={ribbonIcons.magic} unavailable />
+                <Tool
+                  label="Magic: make graphs consistent"
+                  title="Make this graph look like another graph"
+                  icon={ribbonIcons.magic}
+                  disabled={!!graphSheet?.frozen || workbook.sheets.filter((s) => s.kind === "graph").length < 2}
+                  onClick={() => setMagicDialog(true)}
+                />
                 <Tool
                   label="Add or remove data sets…"
                   title="Choose the data sets on this graph"
@@ -2173,7 +2338,22 @@ export default function App() {
                   disabled={!!graphSheet?.frozen || xy}
                   onClick={() => setPairwiseDialog(true)}
                 />
-                <Tool label="Color scheme" icon={ribbonIcons.colorScheme} menu unavailable />
+                <DesktopMenu
+                  label="Color scheme"
+                  className="rb-menu"
+                  summary={<span className="rb-tool" aria-label="Color scheme" title="Color scheme">{ribbonIcons.colorScheme}{dropArrow}</span>}
+                >
+                  {(Object.keys(COLOR_SCHEMES) as ColorSchemeName[]).map((scheme) => (
+                    <button role="menuitem" key={scheme} disabled={!graphSheet || !!graphSheet.frozen} onClick={() => applyScheme(scheme)}>
+                      <span className="scheme-choice">
+                        <span className="scheme-strip" aria-hidden="true">
+                          {COLOR_SCHEMES[scheme].map((c) => <i key={c} style={{ background: c }} />)}
+                        </span>
+                        {scheme}
+                      </span>
+                    </button>
+                  ))}
+                </DesktopMenu>
               </div>
             </RibbonGroup>
           ) : (
@@ -2358,6 +2538,19 @@ export default function App() {
           <button role="menuitem" onClick={() => removeSheet(sheetMenu.id)}>
             Delete sheet
           </button>
+          <div className="sheet-menu-highlights" role="group" aria-label="Highlight">
+            {SHEET_HIGHLIGHTS.map((color) => (
+              <button
+                key={color}
+                role="menuitem"
+                aria-label={`Highlight ${color}`}
+                title={`Highlight ${color}`}
+                className={`hl-swatch hl-${color}`}
+                onClick={() => highlightSheet(color, sheetMenu.id)}
+              />
+            ))}
+            <button role="menuitem" aria-label="No highlight" title="No highlight" className="hl-swatch hl-none" onClick={() => highlightSheet(null, sheetMenu.id)} />
+          </div>
           <button role="menuitem" onClick={() => freezeSheet(sheetMenu.id)}>
             {workbook.sheets.find((sheet) => sheet.id === sheetMenu.id)?.frozen
               ? "Unfreeze sheet"
@@ -2419,7 +2612,7 @@ export default function App() {
                     .map((s) => (
                       <button
                         key={s.id}
-                        className={`sheet-link ${s.id === selectedSheet.id ? "selected" : ""}${familyIds.has(s.id) ? " in-family" : ""}${s.frozen ? " is-frozen" : ""}`}
+                        className={`sheet-link ${s.id === selectedSheet.id ? "selected" : ""}${familyIds.has(s.id) ? " in-family" : ""}${s.frozen ? " is-frozen" : ""}${s.highlight ? ` hl-${s.highlight}` : ""}`}
                         aria-current={s.id === selectedSheet.id ? "page" : undefined}
                         onClick={() => selectSheet(s.id)}
                         onContextMenu={(event) => {
@@ -2501,7 +2694,7 @@ export default function App() {
               <button
                 key={s.id}
                 onClick={() => selectSheet(s.id)}
-                className={`${s.id === selectedSheet.id ? "selected" : ""}${s.kind === "results" ? " sub" : ""}`}
+                className={`${s.id === selectedSheet.id ? "selected" : ""}${s.kind === "results" ? " sub" : ""}${s.highlight ? ` hl-${s.highlight}` : ""}`}
                 title={s.name}
               >
                 {s.kind === "data"
@@ -3328,7 +3521,12 @@ export default function App() {
       {newTable && (
         <NewTableDialog
           onClose={() => setNewTable(false)}
+          onOpenFile={() => {
+            setNewTable(false);
+            projectRef.current?.click();
+          }}
           onCreate={(type, name, sampleData) => {
+            promptGraphType.current = true;
             setWorkbook((w) =>
               addData(w, sampleData ? sample(type) : blankProject(type, name)),
             );
@@ -3392,14 +3590,40 @@ export default function App() {
           }}
         />
       )}
+      {magicDialog && graphSheet && (
+        <MagicDialog
+          graphs={workbook.sheets
+            .filter((s) => s.kind === "graph" && s.id !== graphSheet.id)
+            .map((s) => ({ id: s.id, name: s.name }))}
+          onClose={() => setMagicDialog(false)}
+          onApply={(sourceId, parts) => {
+            setMagicDialog(false);
+            applyMagic(sourceId, parts);
+          }}
+        />
+      )}
       {graphTypeDialog && graphSheet && (
         <ChangeGraphTypeDialog
           tableType={project.table_type}
           graph={graphSheet.graph}
+          preview={(type, showPoints) => (
+            <Plot
+              project={{ ...plotProject, graph: { ...plotProject.graph, type, show_points: showPoints } }}
+              result={plotResult}
+              zoom={60}
+              onZoom={() => {}}
+              pan={false}
+              onPan={() => {}}
+              page={false}
+              annotations={pairwiseAnnotations}
+            />
+          )}
           onClose={() => setGraphTypeDialog(false)}
           onApply={(type, showPoints) => {
             setGraphTypeDialog(false);
-            graph({ type, show_points: showPoints });
+            // Keeping the current type is not an edit.
+            if (type !== graphSheet.graph.type || showPoints !== graphSheet.graph.show_points)
+              graph({ type, show_points: showPoints });
           }}
         />
       )}

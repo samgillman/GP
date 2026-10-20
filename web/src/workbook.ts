@@ -14,6 +14,9 @@ export const WORKBOOK_STORAGE = "gp.workbook.v2";
  * The entered text stays in the project; analyses and graphs treat it as missing.
  */
 export type Exclusions = Record<string, string[]>;
+/** Sheet > Highlight: a navigator background color, as in Prism. */
+export const SHEET_HIGHLIGHTS = ["yellow", "green", "blue", "pink", "purple", "orange", "gray"] as const;
+export type SheetHighlight = (typeof SHEET_HIGHLIGHTS)[number];
 export type DataSheet = {
   kind: "data";
   id: string;
@@ -23,6 +26,7 @@ export type DataSheet = {
   project: Project;
   excluded?: Exclusions;
   frozen?: boolean;
+  highlight?: SheetHighlight;
 };
 export type ResultSheet = {
   kind: "results";
@@ -41,6 +45,7 @@ export type ResultSheet = {
   selectionInvalid?: boolean;
   frozen?: boolean;
   frozenSource?: DataSheet;
+  highlight?: SheetHighlight;
 };
 export type FrozenResultSnapshot = Omit<ResultSheet, "frozen" | "frozenSource">;
 export type GraphSheet = {
@@ -59,6 +64,7 @@ export type GraphSheet = {
   frozen?: boolean;
   frozenSource?: DataSheet;
   frozenResult?: FrozenResultSnapshot;
+  highlight?: SheetHighlight;
 };
 export type Sheet = DataSheet | ResultSheet | GraphSheet;
 export type Workbook = {
@@ -986,7 +992,8 @@ export function parseWorkbook(text: string): Workbook {
       !s.id ||
       ids.has(s.id) ||
       typeof s.name !== "string" ||
-      !["data", "graph", "results"].includes(s.kind)
+      !["data", "graph", "results"].includes(s.kind) ||
+      (s.highlight !== undefined && !SHEET_HIGHLIGHTS.includes(s.highlight))
     )
       throw new Error("Invalid or duplicate workbook sheet.");
     if (

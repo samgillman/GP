@@ -264,18 +264,20 @@
 }
 
 /* Toolbar: labelled groups of two icon rows, as in Prism's unified toolbar. */
+/* The toolbar must not clip: its drop-down menus open below it. Groups wrap
+   to a second line on narrow windows instead of scrolling. */
 .pw-ribbon {
+  position: relative;
   display: flex;
+  flex-wrap: wrap;
   align-items: stretch;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: visible;
   padding: 0 6px 6px;
   background: var(--mac-chrome);
   border-bottom: 1px solid rgba(0, 0, 0, 0.35);
-  scrollbar-width: none;
 }
-.pw-ribbon::-webkit-scrollbar {
-  display: none;
+.pw-ribbon .desktop-menu > div {
+  z-index: 60;
 }
 .rb-group {
   flex: 0 0 auto;

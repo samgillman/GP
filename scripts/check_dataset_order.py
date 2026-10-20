@@ -18,6 +18,8 @@ with sync_playwright() as p:
     new.get_by_role("radio", name="Start with sample data", exact=True).check()
     new.get_by_role("button", name="Create table and graph", exact=True).click()
     page.get_by_role("button", name="Show graph", exact=True).click()
+    # Like Prism, a new graph asks for its type when first viewed; keep it.
+    page.get_by_role("dialog", name="Change Graph Type", exact=True).get_by_role("button", name="OK", exact=True).click()
     page.locator("svg.plot").wait_for()
 
     def book():

@@ -197,6 +197,8 @@ def main():
             page.get_by_role("menuitem", name="New graph of existing data", exact=True).click()
             ready = wait_book(lambda w: any(s["kind"] == "graph" and s["resultId"] == result_id for s in w["sheets"]), "linked fitted graph created")
             graph_id = ready["activeSheetId"]
+            # Like Prism, a new graph asks for its type when first viewed; keep it.
+            page.get_by_role("dialog", name="Change Graph Type", exact=True).get_by_role("button", name="OK", exact=True).click()
             page.get_by_role("button", name="Format Graph…", exact=True).first.click()
             dialog = page.get_by_role("dialog", name="Format Graph", exact=True)
             dialog.get_by_role("tab", name="Graph Settings", exact=True).click()

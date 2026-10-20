@@ -1,0 +1,343 @@
+/* Prism-for-Mac details for GP's dialogs and menus: dark-appearance dialogs
+   (Prism's dialogs follow the system appearance), the Welcome window's
+   sidebar, Change Graph Type tiles, sheet highlight colors and color schemes.
+   Loaded after the dialog and window stylesheets. */
+
+/* Dark dialogs */
+.app[data-theme="dark"] .desktop-dialog {
+  color-scheme: dark;
+  background: #323232;
+  color: #e6e6e6;
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 18px 65px #000a, inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.app[data-theme="dark"] .desktop-dialog-backdrop {
+  background: rgb(0 0 0 / 35%);
+}
+.app[data-theme="dark"] .desktop-dialog-titlebar {
+  background: #2c2c2c;
+  border-bottom-color: #1e1e1e;
+}
+.app[data-theme="dark"] .desktop-dialog-titlebar h2,
+.app[data-theme="dark"] .desktop-dialog :is(h3, legend, label, p, span, strong) {
+  color: inherit;
+}
+.app[data-theme="dark"] .desktop-dialog :is(.desktop-help-text, .desktop-dialog p) {
+  color: #b5b5b5;
+}
+.app[data-theme="dark"] .desktop-dialog fieldset {
+  border-color: #4a4a4a;
+  background: rgba(255, 255, 255, 0.025);
+}
+.app[data-theme="dark"] .desktop-dialog button:not(.desktop-dialog-close):not(.hl-swatch),
+.app[data-theme="dark"] .desktop-dialog select,
+.app[data-theme="dark"] .desktop-dialog input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+.app[data-theme="dark"] .desktop-dialog textarea {
+  background: #5f5f5f;
+  color: #f0f0f0;
+  border-color: transparent;
+  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.4);
+}
+.app[data-theme="dark"] .desktop-dialog button:not(:disabled):hover {
+  filter: brightness(1.12);
+}
+.app[data-theme="dark"] .desktop-dialog button:disabled {
+  opacity: 0.45;
+}
+.app[data-theme="dark"] .desktop-dialog-actions {
+  border-top-color: #1e1e1e;
+  background: #2f2f2f;
+}
+.app[data-theme="dark"] .desktop-dialog-actions .primary,
+.app[data-theme="dark"] .desktop-dialog button.primary {
+  background: #2f7cf6;
+  color: #fff;
+}
+.app[data-theme="dark"] .desktop-dialog :is(.desktop-dialog-tabs, [role="tablist"]) button[aria-selected="true"],
+.app[data-theme="dark"] .desktop-dialog :is(.desktop-dialog-tabs, [role="tablist"]) button.active {
+  background: #7a7a7a;
+  color: #fff;
+}
+.app[data-theme="dark"] .desktop-dialog :is(.desktop-dataset-list, .desktop-method-list, .desktop-table-preview, .desktop-analysis-description, [role="listbox"]) {
+  background: #262626;
+  color: #e6e6e6;
+  border-color: #4a4a4a;
+}
+.app[data-theme="dark"] .desktop-dialog .desktop-method-list label.selected,
+.app[data-theme="dark"] .desktop-dialog [role="option"][aria-selected="true"] {
+  background: #2f5fb3;
+  color: #fff;
+}
+.app[data-theme="dark"] .desktop-dialog .desktop-method-list label:hover {
+  background: #3a3a3a;
+}
+.app[data-theme="dark"] .desktop-dialog .desktop-analysis-category {
+  color: #9c9c9c;
+}
+.app[data-theme="dark"] .desktop-dialog .desktop-table-preview :is(th, td) {
+  border-color: #4a4a4a;
+  background: #2e2e2e;
+  color: #cfcfcf;
+}
+.app[data-theme="dark"] .desktop-dialog .desktop-table-preview td {
+  background: #fcfcfc;
+}
+
+/* Welcome window sidebar (Prism's navy sidebar in both appearances). */
+.app .desktop-new-table .desktop-family-list {
+  background: #1d1a33;
+  color: #e9e8f2;
+  border-right: 0;
+}
+.app .desktop-new-table .desktop-family-list h3 {
+  margin: 14px 0 4px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #6fb2ff;
+}
+.app .desktop-new-table .desktop-family-list button {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  color: #e9e8f2;
+  border-radius: 0;
+  padding-left: 18px;
+}
+.app .desktop-new-table .desktop-family-list button:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.app .desktop-new-table .desktop-family-list button.selected,
+.app .desktop-new-table .desktop-family-list button[aria-pressed="true"] {
+  background: #403c5e;
+  color: #fff;
+}
+.app .desktop-new-table .desktop-family-list button:disabled {
+  color: #8f8ca8;
+  opacity: 1;
+}
+.app .desktop-new-table .desktop-family-list p {
+  padding: 0 10px 0 18px;
+  color: #8f8ca8;
+}
+.app .desktop-new-table .desktop-family-list .desktop-table-icon {
+  display: none;
+}
+.welcome-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 10px 6px;
+}
+.welcome-logo {
+  width: 34px;
+  height: 22px;
+  background:
+    linear-gradient(135deg, #6f5cff 0 33%, #ff4fa1 33% 66%, #ffcd3c 66%);
+  clip-path: polygon(0 100%, 30% 0, 60% 100%, 100% 0, 100% 100%);
+}
+.welcome-name {
+  display: flex;
+  flex-direction: column;
+  font: 700 18px/1 "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #fff;
+}
+.welcome-name small {
+  font-size: 10px;
+  font-weight: 600;
+  color: #b9b6d6;
+}
+.app .desktop-new-table .desktop-new-settings > h3 {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* Change Graph Type */
+.app .desktop-graph-type {
+  width: 600px;
+}
+.graph-type-family {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.graph-type-family select {
+  min-width: 180px;
+}
+.graph-type-tabs {
+  display: flex;
+  justify-content: center;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto 10px;
+  padding: 2px;
+  border-radius: 7px;
+  background: rgba(127, 127, 127, 0.18);
+}
+.app .desktop-dialog .graph-type-tabs button {
+  padding: 2px 11px;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+}
+.app .desktop-dialog .graph-type-tabs button.active {
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+.app[data-theme="dark"] .desktop-dialog .graph-type-tabs button.active {
+  background: #6b6b6b;
+}
+.app .desktop-dialog fieldset.graph-type-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 10px;
+  border-radius: 8px;
+}
+.graph-type-tile {
+  position: relative;
+  display: flex;
+  width: 76px;
+  height: 58px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  color: inherit;
+  cursor: default;
+}
+.graph-type-tile svg {
+  width: 60px;
+  height: 44px;
+}
+.graph-type-tile input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+}
+.graph-type-tile.selected {
+  background: rgba(127, 127, 127, 0.28);
+  border-color: rgba(127, 127, 127, 0.6);
+}
+.graph-type-tile:focus-within {
+  outline: 2px solid #2f7cf6;
+}
+.graph-type-name {
+  margin: 8px 0 6px;
+  font-weight: 700;
+}
+.graph-type-preview {
+  display: flex;
+  justify-content: center;
+  max-height: 300px;
+  overflow: hidden;
+  padding: 8px;
+  border-radius: 4px;
+  background: #fff;
+}
+.graph-type-preview .plot-workspace,
+.graph-type-preview .plot-viewport {
+  overflow: hidden;
+}
+.graph-type-preview .plot text {
+  font-family: Arial, Helvetica, sans-serif;
+  fill: #000;
+}
+.graph-type-preview .plot .tick {
+  font: 700 14px Arial, Helvetica, sans-serif;
+}
+.graph-type-preview .plot :is(.axis-label, .pairwise-label) {
+  font: 700 16px Arial, Helvetica, sans-serif;
+}
+.graph-type-preview .plot .graph-title {
+  font: 700 18px Arial, Helvetica, sans-serif;
+}
+.graph-type-preview .plot .axis-line {
+  stroke: #000;
+  fill: none;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Sheet highlight colors (light tints with dark text, as in Prism). */
+.app {
+  --hl-yellow: #fff1a8;
+  --hl-green: #d3f5c4;
+  --hl-blue: #cfe4ff;
+  --hl-pink: #ffd5e5;
+  --hl-purple: #e3d9ff;
+  --hl-orange: #ffdfbd;
+  --hl-gray: #dedede;
+}
+.hl-yellow { --hl: var(--hl-yellow); }
+.hl-green { --hl: var(--hl-green); }
+.hl-blue { --hl: var(--hl-blue); }
+.hl-pink { --hl: var(--hl-pink); }
+.hl-purple { --hl: var(--hl-purple); }
+.hl-orange { --hl: var(--hl-orange); }
+.hl-gray { --hl: var(--hl-gray); }
+.app[data-theme] .pw-nav :is(.sheet-link, .family-navigator > button)[class*="hl-"]:not(.selected) {
+  background: var(--hl);
+  color: #1d1d1f;
+}
+.hl-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.hl-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--hl, transparent);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+.sheet-menu-highlights {
+  display: flex;
+  gap: 5px;
+  padding: 5px 12px 6px;
+}
+.app .sheet-menu-highlights button.hl-swatch {
+  width: 16px;
+  height: 16px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+}
+.app .sheet-menu-highlights button.hl-none {
+  background: linear-gradient(135deg, transparent 45%, #d33 45% 55%, transparent 55%), #fff;
+}
+.scheme-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.scheme-strip {
+  display: inline-flex;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+.scheme-strip i {
+  display: block;
+  width: 9px;
+  height: 12px;
+}

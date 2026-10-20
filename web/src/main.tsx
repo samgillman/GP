@@ -9,6 +9,7 @@ import "./desktop-dark.css";
 // The workbook window and Format Graph follow the GP graph-sheet design reference.
 import "./prism-shell.css";
 import "./format-graph.css";
+import "./mac-dialogs.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <WorkbookErrorBoundary>

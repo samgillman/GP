@@ -123,6 +123,7 @@ export default function Plot({
   selectedPointRanges,
   annotations,
   children,
+  page = true,
 }: {
   project: Project;
   result: Response | null;
@@ -152,6 +153,8 @@ export default function Plot({
   annotations?: PlotAnnotation[];
   /** Notes shown on the page below the graph. */
   children?: React.ReactNode;
+  /** Draw the graph on a letter page (graph sheet) or on its own (previews). */
+  page?: boolean;
 }) {
   const [localSelection, setLocalSelection] = useState<PointReference | null>(
     null,
@@ -438,12 +441,12 @@ export default function Plot({
         }}
       >
         <div
-          className="graph-page"
-          style={{
+          className={page ? "graph-page" : "graph-bare"}
+          style={page ? {
             width: (Math.max(PAGE_WIDTH, W + 48) * zoom) / 100,
             minHeight: (PAGE_HEIGHT * zoom) / 100,
             paddingTop: (PAGE_TOP * zoom) / 100,
-          }}
+          } : undefined}
         >
         <div className="graph-on-page" style={{ width: (W * zoom) / 100 }}>
           <svg
@@ -687,7 +690,7 @@ export default function Plot({
             )}
           </svg>
         </div>
-        <div className="graph-page-notes">
+        {page && <div className="graph-page-notes">
           {geometry.logOmittedCount > 0 && <p role="note" className="plot-note">{geometry.logOmittedCount.toLocaleString()} observations have nonpositive coordinates on a logarithmic axis and cannot be displayed. Data and statistical summaries still include these values.</p>}
           {geometry.logOmittedSummary && <p role="note" className="plot-note">Nonpositive summary marks and interval caps cannot be displayed on a logarithmic Y axis. Intervals crossing zero are clipped at the lower displayed limit; summaries still use all values.</p>}
           {geometry.logY && graph.type === "bar" && <p role="note" className="plot-note">Logarithmic bars start at the lower displayed Y limit, not zero. Nonpositive means and interval caps cannot be displayed.</p>}
@@ -697,7 +700,7 @@ export default function Plot({
             </p>
           )}
           {children}
-        </div>
+        </div>}
         </div>
       </div>
       {hover && series[hover.hit.seriesIndex] && (
