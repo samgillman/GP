@@ -1,5 +1,38 @@
 # Completion execution log
 
+## 2026-10-20 continuation: persistent dataset colors
+
+GraphSheet now optionally stores `datasetColors`, keyed by stable source-column
+ID, including columns temporarily omitted from the graph. Existing positional
+`graph.colors` remains the browser/export authority and seeds or refreshes active
+metadata. Both Column and XY dialogs preserve colors across committed removal,
+close, save/import and later re-addition. Source deletion prunes removed IDs;
+source reordering/renaming retains identity. Frozen graphs use captured source
+IDs; unfreezing remaps/prunes against live data. Duplicate and undo/redo paths
+preserve independent maps. Existing v4 files without metadata remain supported.
+Editing this newer metadata with older builds is not guaranteed compatible.
+
+This closes the previously recorded removed-color persistence defect for the
+supported same-source workflows. It does not implement other per-dataset style
+properties, cross-table Add/Replace or native file/storage parity. Reused REA
+XY/Column control evidence is in the graph-format report; the stable-ID storage
+scheme is a GP design, not a recovered Prism serialization algorithm.
+
+Validation: **254 frontend tests passed**, plus typecheck and both production
+builds. The static assembler verified **19** locked runtime packages. Current
+packaged-server and static Chromium checks passed actual workbook download,
+reload/file import, omitted-dataset color restoration, active colors, ordering,
+Apply/Cancel, undo/redo, keyboard/narrow-layout checks and SVG export with the
+restored color, with unchanged source data and zero page errors. Evidence lives
+under `/workspace/gp-evidence/dataset-colors-{model,server,static}`. Static export
+used the existing diagnostic 900000ms allowance. A development check pointed
+at the historical backend on port8000 and was stopped; it is not counted as a
+current-build pass. The verified current backend runs from this checkout on8012.
+
+The onboarding startup instructions were saved as a draft using the setup skill;
+this does not establish publication/restoration of that environment or app
+site deployment. Original Prism artifacts remain outside Git.
+
 ## 2026-10-20 continuation: XY dataset membership and ordering
 
 Using the retained REA XY graph-dialog contract, the next unit replaces its

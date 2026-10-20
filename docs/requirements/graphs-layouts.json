@@ -1696,13 +1696,17 @@
         "Global Select Data Sets",
         "Return to one dataset for per-group overrides"
       ],
-      "current_status": "partial: colors per positional dataset, other styles global only",
+      "current_status": "partial: persistent source-ID dataset colors for Column and XY survive reordering, committed graph removal/re-addition, save/import, source edits and frozen/thaw workflows. Other per-dataset styles and global/subset appearance controls remain open.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
-        "web/src/WorkbookDialogs.tsx"
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/workbook-graph-colors.ts",
+        "web/src/workbook-graph-colors.test.ts",
+        "web/src/graph-dataset-order.ts",
+        "scripts/check_dataset_order.py"
       ],
       "dependencies": [
         "G030",
@@ -2368,7 +2372,7 @@
         "Add/replace/remove",
         "Top/up/reverse/down/bottom"
       ],
-      "current_status": "partial: XY selected front-first list with same-source Add/Remove and Top/Up/Reverse/Down/Bottom; stored order unchanged, graph colors preserved on reordering and same-dialog remove/re-add. Column retains left-to-right behavior. Cross-table Add/Replace, persistent removed-style ownership and whole-artist/native layering parity remain open.",
+      "current_status": "partial: XY front-first selected list and same-source Add/Remove/Top/Up/Reverse/Down/Bottom; Column left-to-right order; stable-ID colors persist across removal/reopen/re-addition. Cross-table Add/Replace and whole-artist/native layering parity remain open.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
@@ -2378,7 +2382,9 @@
         "web/src/graph-dataset-order.ts",
         "web/src/graph-dataset-order.test.ts",
         "scripts/check_dataset_order.py",
-        "docs/prism-graph-format-evidence.md"
+        "docs/prism-graph-format-evidence.md",
+        "web/src/workbook-graph-colors.ts",
+        "web/src/workbook-graph-colors.test.ts"
       ],
       "dependencies": [
         "G019",

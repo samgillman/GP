@@ -2,6 +2,23 @@
 
 Prepared 2026-10-19, America/Chicago. This is a continuation checkpoint, **not completion of Prism parity**.
 
+## Persistent colors continuation (2026-10-20)
+
+The removed-color limitation in the earlier entry below is superseded for
+same-source datasets: optional `GraphSheet.datasetColors` retains source-ID colors
+through committed removal, save/import and re-addition. Active positional colors
+remain authoritative; strict metadata validation, source deletion/reorder,
+frozen/thaw, duplication and history are covered. Full frontend254, both builds,
+server/static browser persistence+SVG checks passed. See the newest execution
+log entry. Next: native-informed selected-dataset Appearance controls; other
+styles, cross-table membership and full native parity remain unfinished.
+
+Current backend8012 belongs to `/workspace/gp-status-main`; port8000 belongs to
+the historical `/workspace/GP` checkout. Do not mistake a Vite default proxy to
+8000 for the current backend. Use verified packaged-server/static tests on8012/
+8013 or deliberately align the development proxy. Startup instructions are saved
+as an environment draft; activation/restoration is not verified.
+
 ## XY dataset-order follow-up (2026-10-20)
 
 After the published axes increments, work continued into G045. The XY Format

@@ -19,7 +19,7 @@ import type {
 } from "./column-analysis";
 import "./dialog-desktop.css";
 import "./graph-datasets-dialog.css";
-import { colorsForDatasetOrder, frontToBackDatasets, rememberDatasetColors, reorderGraphDatasets } from "./graph-dataset-order";
+import { colorsForDatasetIds, frontToBackDatasets, seedDatasetColors, reorderGraphDatasets } from "./graph-dataset-order";
 import type { DatasetOrderAction } from "./graph-dataset-order";
 
 function datasetLetter(index: number) {
@@ -1190,31 +1190,30 @@ export function FormatGraphDialog({
   onClose: () => void;
   onApply: (next: GraphSheet) => void;
 }) {
-  const [formatState, setFormatState] = useState(() => ({
-    draft: structuredClone(sheet),
-    datasetColors: rememberDatasetColors(new Map(), sheet.columnIndices, sheet.graph.colors),
+  const [draft, setGraphDraft] = useState(() => ({
+    ...structuredClone(sheet),
+    datasetColors: seedDatasetColors(project, sheet.columnIndices, sheet.graph.colors, sheet.datasetColors),
   }));
-  const draft = formatState.draft;
   const [tab, setTab] = useState("Appearance");
   function setDraft(update: (previous: GraphSheet) => GraphSheet) {
-    setFormatState(previous => {
-      const next = update(previous.draft);
-      if (project.table_type !== "xy") return { ...previous, draft: next };
-      const remembered = rememberDatasetColors(
-        previous.datasetColors, previous.draft.columnIndices, previous.draft.graph.colors,
+    setGraphDraft(previous => {
+      const next = update(previous);
+      const remembered = seedDatasetColors(
+        project, previous.columnIndices, previous.graph.colors, previous.datasetColors,
       );
-      const reordered = next.columnIndices.length !== previous.draft.columnIndices.length ||
-        next.columnIndices.some((source, i) => source !== previous.draft.columnIndices[i]);
+      const reordered = next.columnIndices.length !== previous.columnIndices.length ||
+        next.columnIndices.some((source, i) => source !== previous.columnIndices[i]);
       if (reordered) {
-        const result = colorsForDatasetOrder(remembered, next.columnIndices);
+        const result = colorsForDatasetIds(project, next.columnIndices, remembered);
         return {
-          draft: { ...next, graph: { ...next.graph, colors: result.colors } },
-          datasetColors: result.remembered,
+          ...next,
+          graph: { ...next.graph, colors: result.colors },
+          datasetColors: result.datasetColors,
         };
       }
       return {
-        draft: next,
-        datasetColors: rememberDatasetColors(remembered, next.columnIndices, next.graph.colors),
+        ...next,
+        datasetColors: seedDatasetColors(project, next.columnIndices, next.graph.colors, remembered),
       };
     });
   }

@@ -8,6 +8,7 @@ import {
 } from "./column-analysis.ts";
 import type { ComparisonOptions } from "./column-analysis.ts";
 import { isHistoricalColumnOutput } from "./analysis-version.ts";
+import { normalizeGraphDatasetColors, remapGraphDatasetColors } from "./workbook-graph-colors.ts";
 export const WORKBOOK_STORAGE = "gp.workbook.v2";
 /** Excluded observations by dataset ID, each listing row IDs in table order.
  * The entered text stays in the project; analyses and graphs treat it as missing.
@@ -50,6 +51,9 @@ export type GraphSheet = {
   graph: Graph;
   columnIndices: number[];
   datasetIds: string[];
+  /** Graph-local colors for source-column IDs, including omitted datasets and
+   * a former Y column currently serving as X after a table-type change. */
+  datasetColors?: Record<string, string>;
   resultId: string | null;
   selectionInvalid?: boolean;
   frozen?: boolean;
@@ -478,8 +482,10 @@ export function updateData(
           status: "stale" as const,
           result: null,
         };
+      const colorState = remapGraphDatasetColors(source.project, next, s, selection.columnIndices);
       return {
         ...s,
+        ...colorState,
         ...selection,
         selectionInvalid:
           s.selectionInvalid ||
@@ -487,7 +493,7 @@ export function updateData(
           xChanged ||
           source.project.table_type !== next.table_type,
         graph: {
-          ...s.graph,
+          ...colorState.graph,
           ...(s.graph.axes && source.project.table_type !== next.table_type
             ? { axes: axesForTableType(s.graph.axes, next.table_type === "xy") } : {}),
           type:
@@ -1047,6 +1053,8 @@ export function parseWorkbook(text: string): Workbook {
     validateSavedSelection(source, s);
     if (s.kind === "graph") {
       validateDraftProject({ ...source.project, graph: s.graph });
+      if (s.datasetColors !== undefined)
+        s.datasetColors = normalizeGraphDatasetColors(source.project, s).datasetColors;
       if (s.frozen && (s.selectionInvalid || !s.datasetIds.length))
         throw new Error(
           "Frozen graphs must have a valid captured dataset selection.",

@@ -113,6 +113,60 @@ with sync_playwright() as p:
     expect(ordered.get_by_role("option").last).to_have_attribute("aria-selected", "true")
     dialog.get_by_role("button", name="Cancel", exact=True).click()
     assert book() == applied
+    # Persist a custom style while its dataset is absent from the graph.
+    print("Checking saved omitted-dataset styles", flush=True)
+    page.set_viewport_size({"width": 1280, "height": 900})
+    target_index = original["columnIndices"][0]
+    target = source_before["project"]["columns"][target_index]
+    custom_color = "#7b2cbf"
+    page.get_by_role("button", name="Format Graph…", exact=True).first.click()
+    dialog.get_by_label(f'{target["name"]} color', exact=True).fill(custom_color)
+    dialog.get_by_role("tab", name="Data Sets on Graph", exact=True).click()
+    ordered.locator(f'[data-source-index="{target_index}"]').click()
+    dialog.get_by_role("button", name="Remove", exact=True).click()
+    dialog.get_by_role("button", name="OK", exact=True).click()
+    removed = book()
+    assert target["id"] not in graph(removed)["datasetIds"]
+    assert graph(removed)["datasetColors"][target["id"]] == custom_color
+    with page.expect_download() as pending:
+        page.get_by_role("button", name="Save workbook", exact=True).click()
+    saved = pending.value
+    saved_bytes = Path(saved.path()).read_bytes()
+    assert json.loads(saved_bytes) == removed
+    page.reload()
+    page.locator("svg.plot").wait_for()
+    assert book() == removed
+    # Use the real file importer, including its metadata validation.
+    print("Checking workbook file import and dataset re-addition", flush=True)
+    page.locator('input[type=file][accept=".json"]').set_input_files({
+        "name": "persistent-dataset-styles.json",
+        "mimeType": "application/json",
+        "buffer": saved_bytes,
+    })
+    expect(page.get_by_text("Workbook opened. Legacy single-table projects are migrated automatically.", exact=True)).to_be_visible()
+    assert book() == removed
+    page.get_by_role("button", name="Format Graph…", exact=True).first.click()
+    dialog.get_by_role("tab", name="Data Sets on Graph", exact=True).click()
+    dialog.get_by_role("button", name="Add…", exact=True).click()
+    dialog.get_by_label("Available data sets", exact=True).select_option(str(target_index))
+    dialog.get_by_role("button", name="Add data set", exact=True).click()
+    dialog.get_by_role("button", name="OK", exact=True).click()
+    restored = book()
+    assert {s["name"]: s["color"] for s in rendered_series()}[target["name"]] == custom_color
+    selected_position = graph(restored)["datasetIds"].index(target["id"])
+    assert graph(restored)["graph"]["colors"][selected_position] == custom_color
+    page.get_by_role("button", name="Undo", exact=True).click()
+    assert book() == removed
+    page.get_by_role("button", name="Redo", exact=True).click()
+    assert book() == restored
+    assert next(s for s in restored["sheets"] if s["id"] == source_id) == source_before
+    page.locator(".desktop-menu > summary").filter(has_text="File").first.click()
+    print("Checking SVG export with restored dataset color", flush=True)
+    with page.expect_download(timeout=int(os.environ.get("GP_DATASET_EXPORT_TIMEOUT", "300000"))) as pending:
+        page.get_by_role("menuitem", name="Export graph as SVG…", exact=True).click()
+    exported = pending.value
+    assert exported.failure() is None
+    assert custom_color.encode() in Path(exported.path()).read_bytes()
     assert errors == [], errors
     browser.close()
-    print("PASS: XY order, Apply/Cancel, undo/redo, add/remove, empty guard, reload, keyboard and source preservation")
+    print("PASS: XY order/colors, Apply/Cancel, undo/redo, membership, reload, keyboard, saved removed styles, file import, SVG export and source preservation")

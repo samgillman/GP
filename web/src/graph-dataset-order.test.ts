@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { colorsForDatasetOrder, frontToBackDatasets, rememberDatasetColors, reorderGraphDatasets } from "./graph-dataset-order.ts";
+import { colorsForDatasetIds, frontToBackDatasets, seedDatasetColors, reorderGraphDatasets } from "./graph-dataset-order.ts";
 import type { DatasetOrderAction } from "./graph-dataset-order.ts";
-import { sample } from "./data.ts";
+import { palette, sample } from "./data.ts";
+import type { Project, TableType } from "./data.ts";
 import { buildPlotGeometry, pointHitIndex } from "./plot-geometry.ts";
 
 test("front-to-back presentation reverses storage without mutating it", () => {
@@ -74,37 +75,120 @@ test("the first displayed dataset is the renderer's frontmost overlapping observ
   }
 });
 
-test("dataset colors follow source identities through every reorder action", () => {
-  const indices = [1, 2, 3], colors = ["#112233", "#445566", "#778899"];
-  const remembered = rememberDatasetColors(new Map(), indices, colors);
+function colorProject(type: TableType = "xy"): Project {
+  const project = sample(type);
+  const datasets = ["a", "b", "c"].map((id, i) => ({id: `id-${id}`, name: id.toUpperCase(), values: [String(i + 1)]}));
+  project.columns = type === "xy" ? [{id: "id-x", name: "X", values: ["1"]}, ...datasets] : datasets;
+  return project;
+}
+
+test("dataset colors follow stable identities through every reorder action", () => {
+  const project = colorProject(), indices = [1, 2, 3], colors = ["#112233", "#445566", "#778899"];
+  const remembered = Object.freeze(seedDatasetColors(project, indices, colors));
   for (const action of ["top", "up", "down", "bottom", "reverse"] as const) {
     const order = reorderGraphDatasets(indices, 2, action);
-    const result = colorsForDatasetOrder(remembered, order);
+    const result = colorsForDatasetIds(project, order, remembered);
     assert.deepEqual(result.colors, order.map(source => colors[source - 1]), action);
-    assert.deepEqual([...remembered], [[1, "#112233"], [2, "#445566"], [3, "#778899"]]);
-    assert.notEqual(result.remembered, remembered);
+    assert.deepEqual(remembered, {"id-a": "#112233", "id-b": "#445566", "id-c": "#778899"});
+    assert.notEqual(result.datasetColors, remembered);
   }
 });
 
-test("remove and re-add preserve colors within the dialog, including later Appearance edits", () => {
-  let remembered = rememberDatasetColors(new Map(), [1, 2, 3], ["#112233", "#445566", "#778899"]);
-  const removed = colorsForDatasetOrder(remembered, [1, 3]);
+test("serialized remove, close, reopen and re-add retain colors and later Appearance edits", () => {
+  const project = colorProject();
+  const original = seedDatasetColors(project, [1, 2, 3], ["#112233", "#445566", "#778899"]);
+  const removed = colorsForDatasetIds(project, [1, 3], original);
   assert.deepEqual(removed.colors, ["#112233", "#778899"]);
-  remembered = rememberDatasetColors(removed.remembered, [1, 3], ["#abcdef", "#123456"]);
-  const restored = colorsForDatasetOrder(remembered, [3, 2, 1]);
+  // This data survives without the old component instance or any Map cache.
+  const persisted = JSON.parse(JSON.stringify({columnIndices: [1, 3], ...removed}));
+  const reopened = seedDatasetColors(project, persisted.columnIndices, persisted.colors, persisted.datasetColors);
+  const edited = seedDatasetColors(project, [1, 3], ["#abcdef", "#123456"], reopened);
+  const restored = colorsForDatasetIds(project, [3, 2, 1], edited);
   assert.deepEqual(restored.colors, ["#123456", "#445566", "#abcdef"]);
-  const empty = colorsForDatasetOrder(restored.remembered, []);
+  const empty = colorsForDatasetIds(project, [], restored.datasetColors);
   assert.deepEqual(empty.colors, []);
-  assert.deepEqual(colorsForDatasetOrder(empty.remembered, [2]).colors, ["#445566"]);
+  assert.deepEqual(colorsForDatasetIds(project, [2], empty.datasetColors).colors, ["#445566"]);
 });
 
-test("new datasets use deterministic source palette colors and remember them", () => {
-  const empty = new Map<number, string>();
-  const initial = colorsForDatasetOrder(empty, [8, 2]);
-  const opposite = colorsForDatasetOrder(empty, [2, 8]);
-  assert.deepEqual(initial.colors, [...opposite.colors].reverse());
-  assert.equal(empty.size, 0);
-  assert.deepEqual(colorsForDatasetOrder(initial.remembered, [2, 8]).colors, opposite.colors);
-  const repeated = rememberDatasetColors(empty, [1, 2, 3], ["#abcdef"]);
-  assert.deepEqual(colorsForDatasetOrder(repeated, [3, 1, 2]).colors, ["#abcdef", "#abcdef", "#abcdef"]);
+test("legacy seeding captures rendered cyclic positional colors, not source palette positions", () => {
+  const project = colorProject();
+  const colors = ["#123456", "#abcdef"];
+  const seeded = seedDatasetColors(project, [3, 1, 2], colors);
+  assert.deepEqual(seeded, {"id-c": "#123456", "id-a": "#abcdef", "id-b": "#123456"});
+  assert.deepEqual(colorsForDatasetIds(project, [1, 2, 3], seeded).colors, ["#abcdef", "#123456", "#123456"]);
+  assert.deepEqual(colors, ["#123456", "#abcdef"]);
+  assert.deepEqual(seedDatasetColors(project, [3, 2], []), {"id-c": palette[0], "id-b": palette[1]});
+});
+
+test("active positional colors win conflicts without discarding unplotted dataset colors", () => {
+  const project = colorProject();
+  const previous = Object.freeze({"id-a": "#111111", "id-b": "#222222", "id-c": "#333333"});
+  const next = seedDatasetColors(project, [1, 3], ["#aaaaaa", "#cccccc"], previous);
+  assert.deepEqual(next, {"id-a": "#aaaaaa", "id-b": "#222222", "id-c": "#cccccc"});
+  assert.deepEqual(previous, {"id-a": "#111111", "id-b": "#222222", "id-c": "#333333"});
+});
+
+test("source-column moves and renames preserve colors by ID", () => {
+  const project = colorProject();
+  const colors = seedDatasetColors(project, [1, 2, 3], ["#112233", "#445566", "#778899"]);
+  const moved = {...project, columns: [project.columns[0], {...project.columns[3], name: "Renamed C"}, {...project.columns[1], name: "Renamed A"}, project.columns[2]]};
+  assert.deepEqual(colorsForDatasetIds(moved, [1, 2, 3], colors).colors, ["#778899", "#112233", "#445566"]);
+  assert.equal(project.columns[1].name, "A");
+});
+
+test("a replacement ID cannot inherit an old dataset's custom color just by reusing its column or name", () => {
+  const project = colorProject();
+  const previous = seedDatasetColors(project, [1], ["#abcdef"]);
+  const replacement = {...project, columns: project.columns.map((column, i) => i === 1 ? {...column, id: "new-a"} : column)};
+  const result = colorsForDatasetIds(replacement, [1], previous);
+  assert.deepEqual(result.colors, [palette[0]]);
+  assert.equal(result.datasetColors["new-a"], palette[0]);
+  // Source deletion/pruning belongs to the workbook lifecycle, not projection.
+  assert.equal(result.datasetColors["id-a"], "#abcdef");
+});
+
+test("Column membership and reordering use the same identity ownership with zero-based palette defaults", () => {
+  const project = colorProject("column");
+  const saved = seedDatasetColors(project, [0, 2], ["#112233", "#778899"]);
+  const added = colorsForDatasetIds(project, [2, 1, 0], saved);
+  assert.deepEqual(added.colors, ["#778899", palette[1], "#112233"]);
+  const removed = colorsForDatasetIds(project, [1], added.datasetColors);
+  const reopened = JSON.parse(JSON.stringify(removed));
+  assert.deepEqual(colorsForDatasetIds(project, [0, 1, 2], reopened.datasetColors).colors, ["#112233", palette[1], "#778899"]);
+  assert.deepEqual(colorsForDatasetIds(project, [0], {}).colors, [palette[0]]);
+});
+
+test("new dataset defaults are deterministic across addition orders and become persistent assignments", () => {
+  const project = colorProject(), empty = Object.freeze({});
+  const first = colorsForDatasetIds(project, [3, 1], empty);
+  const opposite = colorsForDatasetIds(project, [1, 3], empty);
+  assert.deepEqual(first.colors, [...opposite.colors].reverse());
+  assert.deepEqual(empty, {});
+  const moved = {...project, columns: [project.columns[0], project.columns[3], project.columns[2], project.columns[1]]};
+  assert.deepEqual(colorsForDatasetIds(moved, [1, 3], first.datasetColors).colors, first.colors);
+});
+
+test("prototype-like IDs and duplicate names are handled as literal stable identities", () => {
+  const project = colorProject("column");
+  project.columns = ["__proto__", "constructor", "toString"].map(id => ({id, name: "Same name", values: ["1"]}));
+  const seeded = seedDatasetColors(project, [0, 1], ["#112233", "#445566"]);
+  assert.equal(Object.getPrototypeOf(seeded), Object.prototype);
+  assert.equal(Object.hasOwn(seeded, "__proto__"), true);
+  assert.equal(seeded["__proto__"], "#112233");
+  const restored = JSON.parse(JSON.stringify(seeded));
+  assert.deepEqual(colorsForDatasetIds(project, [2, 1, 0], restored).colors, [palette[2], "#445566", "#112233"]);
+});
+
+test("invalid selections cannot create positional keys or invented stable IDs", () => {
+  const project = colorProject();
+  for (const indices of [[0], [-1], [4], [1.5], [1, 1]]) {
+    assert.throws(() => seedDatasetColors(project, indices, ["#112233"]), /selection|dataset IDs/);
+    assert.throws(() => colorsForDatasetIds(project, indices, {}), /selection|dataset IDs/);
+  }
+  for (const id of [undefined, "", "x".repeat(201)]) {
+    const invalid = {...project, columns: project.columns.map((column, i) => i === 1 ? {...column, id} : column)};
+    assert.throws(() => seedDatasetColors(invalid, [1], ["#112233"]), /dataset IDs/);
+  }
+  const duplicate = {...project, columns: project.columns.map((column, i) => i === 2 ? {...column, id: "id-a"} : column)};
+  assert.throws(() => colorsForDatasetIds(duplicate, [1, 2], {}), /dataset IDs/);
 });

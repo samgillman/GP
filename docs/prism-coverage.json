@@ -4599,5 +4599,46 @@
       "Unified browser/export whole-artist ordering",
       "Complete native Appearance/Graph Settings/Column Annotations"
     ]
+  },
+  "persistent_dataset_colors_checkpoint": {
+    "scope": "Same-source stable-ID colors; GP persistence contract, not native serialization parity",
+    "source_files": [
+      {
+        "path": "web/src/workbook.ts",
+        "sha256": "1dc3d8dd4f720ddaef3bee9cabad0c6b00017112f3f1894f57a9500fcb79a6a7"
+      },
+      {
+        "path": "web/src/workbook-freeze.ts",
+        "sha256": "f68bd90a075c9e90c8ea11fc01318e959f92403f3cdf27649eb36f640516886a"
+      },
+      {
+        "path": "web/src/workbook-graph-colors.ts",
+        "sha256": "f39738781a5dfc803529bbd680ea54c468703f6edac9fd96ded5d9127f37c6c2"
+      },
+      {
+        "path": "web/src/graph-dataset-order.ts",
+        "sha256": "e7f13f8e47de9404bc3e866911c26a4540c8e0a0e1dfa79946a58fdb2fb8e281"
+      },
+      {
+        "path": "web/src/WorkbookDialogs.tsx",
+        "sha256": "8ee064d78a657122aaf85d1b12e4e954a6b47d85ad709622880cf191aa37d5bb"
+      }
+    ],
+    "validation": {
+      "frontend_tests_passed": 254,
+      "builds": [
+        "server",
+        "static"
+      ],
+      "runtime_packages_verified": 19,
+      "browser": [
+        "server persistence/import/export passed",
+        "static persistence/import/export passed"
+      ],
+      "page_errors": 0,
+      "static_export_timeout_ms": 900000,
+      "native_equivalence": false,
+      "deployment_verified": false
+    }
   }
 }
