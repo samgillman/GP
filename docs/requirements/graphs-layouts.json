@@ -116,7 +116,7 @@
       "acceptance_tests": [
         "Render every offered icon against a small matched and unmatched dataset; round-trip graph subtype and orientation; retain identity when switching."
       ],
-      "source_mark": "guide: resource catalogue \u2020",
+      "source_mark": "guide: resource catalogue †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted.",
         "Exact allowed orientation combinations and before-after matching defaults require fixtures."
@@ -171,7 +171,7 @@
       "acceptance_tests": [
         "Exercise all five choices and verify independent visibility of symbols and lines."
       ],
-      "source_mark": "guide: resource catalogue \u2020",
+      "source_mark": "guide: resource catalogue †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -230,7 +230,7 @@
       "acceptance_tests": [
         "Render each subtype with side-by-side replicates and precomputed errors; enforce >=4-replicate eligibility for specified types."
       ],
-      "source_mark": "guide: resource catalogue \u2020",
+      "source_mark": "guide: resource catalogue †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted.",
         "Replicate identity and missing-pair rules need reference fixtures."
@@ -284,7 +284,7 @@
       "acceptance_tests": [
         "Render asymmetric 2x3 designs to distinguish grouping, stacking and orientation; verify labels and legends."
       ],
-      "source_mark": "guide: resource catalogue \u2020",
+      "source_mark": "guide: resource catalogue †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -337,7 +337,7 @@
       "acceptance_tests": [
         "Render each subtype; reject three/five-dataset three-way inputs and correctly map A-D."
       ],
-      "source_mark": "guide: resource catalogue \u2020",
+      "source_mark": "guide: resource catalogue †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -398,7 +398,7 @@
       "acceptance_tests": [
         "Each named map has correct ordered colors and reversible scales, with reference sample grid."
       ],
-      "source_mark": "guide: resource catalogue \u2020",
+      "source_mark": "guide: resource catalogue †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -451,7 +451,7 @@
       "acceptance_tests": [
         "Render 2x3 counts without normalizing unless chosen; compare category orientation and stacking."
       ],
-      "source_mark": "guide: resource catalogue \u2020",
+      "source_mark": "guide: resource catalogue †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -517,7 +517,7 @@
       "acceptance_tests": [
         "Use tied event/censor times and all-censored group; compare 0-1 vs 0-100, ascending transform, symbol placement, CI rendering/export."
       ],
-      "source_mark": "guide: resource catalogue \u2020; separate independent GP KM implemented",
+      "source_mark": "guide: resource catalogue †; separate independent GP KM implemented",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted.",
         "Native ascending semantics and undefined boundary CI rendering need runtime cases."
@@ -593,7 +593,7 @@
       "acceptance_tests": [
         "Render all types from percentages summing to 100 and raw totals; determine rounding/dot allocation from oracle."
       ],
-      "source_mark": "guide: resource catalogue \u2020",
+      "source_mark": "guide: resource catalogue †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted.",
         "Negative/zero and 100-dot rounding behavior unresolved."
@@ -651,7 +651,7 @@
       "acceptance_tests": [
         "Round-trip variable mappings and render continuous/categorical mixtures."
       ],
-      "source_mark": "guide: resource catalogue \u2020",
+      "source_mark": "guide: resource catalogue †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -670,7 +670,7 @@
           "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
           "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
           "section": "2.5",
-          "finding": "Multiple-variable catalogue has eleven types, including nine new types plus existing Bubble Plot and Heat Map. Detailed target obligations are G140\u2013G144."
+          "finding": "Multiple-variable catalogue has eleven types, including nine new types plus existing Bubble Plot and Heat Map. Detailed target obligations are G140–G144."
         }
       ],
       "audit_status": "unimplemented",
@@ -708,7 +708,7 @@
       "acceptance_tests": [
         "Preserve biological/technical replicate nesting and verify which units are plotted and summarized."
       ],
-      "source_mark": "guide: resource catalogue \u2020",
+      "source_mark": "guide: resource catalogue †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted.",
         "Group-level summary rules need native references."
@@ -1066,7 +1066,7 @@
         "gp/models.py",
         "gp/plotting.py",
         "web/src/WorkbookDialogs.tsx",
-        "web/src/WorkbookDialogs.tsx ChangeGraphTypeDialog: Change \u2192 Change Graph Type\u2026 and a toolbar button replace on-page type buttons (column: scatter dot plot, bars with points, bars, box and whiskers; XY: points, points and line)"
+        "web/src/WorkbookDialogs.tsx ChangeGraphTypeDialog: Change → Change Graph Type… and a toolbar button replace on-page type buttons (column: scatter dot plot, bars with points, bars, box and whiskers; XY: points, points and line)"
       ],
       "dependencies": [
         "G017",
@@ -1076,7 +1076,7 @@
       "acceptance_tests": [
         "Changing type previews actual data and keeps source IDs; cancel restores original; defaults scope is verified."
       ],
-      "source_mark": "guide: observed dialog; default buttons \u2020",
+      "source_mark": "guide: observed dialog; default buttons †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted.",
         "Revert semantics vs persisted user defaults unresolved for Prism11."
@@ -1128,7 +1128,7 @@
       "acceptance_tests": [
         "Add data from second table without copying; replace source while preserving appropriate style; remove one series; compare drop and dialog actions."
       ],
-      "source_mark": "guide: observed routes plus dialog-resource options \u2020",
+      "source_mark": "guide: observed routes plus dialog-resource options †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -1175,7 +1175,7 @@
       "acceptance_tests": [
         "Start valid comparisons then add second-table series; verify explicit disabled state and no stale misleading brackets."
       ],
-      "source_mark": "guide: native alert \u2020 and documentation",
+      "source_mark": "guide: native alert † and documentation",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -1613,7 +1613,7 @@
       "acceptance_tests": [
         "Inspector availability follows graph kind; selected object property changes update immediately and are undoable."
       ],
-      "source_mark": "guide: GraphPad docs scope; panel labels \u2020",
+      "source_mark": "guide: GraphPad docs scope; panel labels †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted.",
         "Inspector availability in Prism11 may differ from guide Prism10."
@@ -1661,7 +1661,7 @@
       "acceptance_tests": [
         "Test edit/cancel, edit/apply/edit/cancel, multiple apply then undo; correct tabs by family."
       ],
-      "source_mark": "guide: tab-family distinction \u2020; observed dialog",
+      "source_mark": "guide: tab-family distinction †; observed dialog",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted.",
         "Exact original Apply/Cancel/undo grouping needs version-specific dynamic tests."
@@ -1762,7 +1762,7 @@
       "acceptance_tests": [
         "Switch styles preserving dataset identity; verify no unsupported toggle silently ignored."
       ],
-      "source_mark": "guide: style options \u2020",
+      "source_mark": "guide: style options †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -1807,7 +1807,7 @@
       "acceptance_tests": [
         "Set conflicting colors for bar/symbol/error/line; hide bar but retain points; verify z order and physical widths in SVG/PDF."
       ],
-      "source_mark": "guide: observed controls, some choices \u2020",
+      "source_mark": "guide: observed controls, some choices †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -1863,7 +1863,7 @@
       "acceptance_tests": [
         "Reference fixtures distinguish all centers/intervals including skewed/lognormal data; no center hidden merely because error=None."
       ],
-      "source_mark": "guide: option names \u2020",
+      "source_mark": "guide: option names †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted.",
         "Median CI, geometric SD and grand-summary weighting need native numerical oracles."
@@ -1920,7 +1920,7 @@
       "acceptance_tests": [
         "Set global Above and one-point Both; export matches plot and saved preference applies only to new graphs."
       ],
-      "source_mark": "guide: defaults \u2020; per-point direction docs",
+      "source_mark": "guide: defaults †; per-point direction docs",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -2012,7 +2012,7 @@
       "acceptance_tests": [
         "Compare quartile methods on small n/ties and each smoothing level; export/preview use same algorithm."
       ],
-      "source_mark": "guide: resource choices \u2020",
+      "source_mark": "guide: resource choices †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted.",
         "Kernel, bandwidth, truncation and exact quartile options need resource/native fixtures."
@@ -2060,7 +2060,7 @@
       "acceptance_tests": [
         "All meaningful combinations render consistently with independent styles."
       ],
-      "source_mark": "guide: resource choices \u2020",
+      "source_mark": "guide: resource choices †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -2108,7 +2108,7 @@
       "acceptance_tests": [
         "Use unsorted X and missing replicate cells; test origin/gaps/arrows/bands and discontinuity clipping."
       ],
-      "source_mark": "guide: resource choices \u2020",
+      "source_mark": "guide: resource choices †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted.",
         "Native ordering and gap geometry need reference cases."
@@ -2154,7 +2154,7 @@
       "acceptance_tests": [
         "Missing middle Y leaves gap in selected mode; identity obeys transforms/clipping; duplicate source representations stay linked."
       ],
-      "source_mark": "guide: options \u2020; duplicate-data recipe docs",
+      "source_mark": "guide: options †; duplicate-data recipe docs",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -2294,7 +2294,7 @@
       "acceptance_tests": [
         "Rename column updates linked legend, manual legend edit breaks link, revert restores; one-series defaults compared."
       ],
-      "source_mark": "guide: key choices \u2020; text-link/default rules docs",
+      "source_mark": "guide: key choices †; text-link/default rules docs",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -2469,7 +2469,7 @@
       "acceptance_tests": [
         "Offsets do not mutate source data; distinguish display-coordinate/log-scale effects; deterministic thinning and fitting remains full-data."
       ],
-      "source_mark": "guide: resource choices \u2020",
+      "source_mark": "guide: resource choices †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted.",
         "Whether shifted fits/labels and row count affect all objects requires oracle."
@@ -2516,7 +2516,7 @@
       "acceptance_tests": [
         "Mixed relation configuration matches group labels, legend and stacking baseline."
       ],
-      "source_mark": "guide: resource choices \u2020",
+      "source_mark": "guide: resource choices †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -2737,7 +2737,7 @@
       "acceptance_tests": [
         "Group with missing middle cell distinguishes retained blank slot from collapsed spacing."
       ],
-      "source_mark": "guide: resource choices \u2020",
+      "source_mark": "guide: resource choices †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted.",
         "Exact missing-cell option labels/semantics unresolved."
@@ -2822,13 +2822,18 @@
         "Titles & Fonts",
         "Axis double-click targets appropriate tab"
       ],
-      "current_status": "unimplemented",
+      "current_status": "Partial: dedicated X/Left Y dialog, axis/tick double-click, Apply/OK/Cancel. Right Y, Frame and Origin, Titles & Fonts pages remain open.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
-        "web/src/WorkbookDialogs.tsx"
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/axes.ts",
+        "web/src/FormatAxesDialog.tsx",
+        "web/src/plot-geometry.ts",
+        "scripts/check_axes.py",
+        "tests/test_axes_export.py"
       ],
       "dependencies": [
         "G023",
@@ -2845,12 +2850,14 @@
       "guide_sections": [
         "4.4"
       ],
-      "status": "not_started",
+      "status": "partial",
       "acceptance": [
         "All tabs address persistent shared axis model; apply/cancel/OK preserve graph-format state."
       ],
       "audit_status": "unimplemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [
+        "docs/prism-axes-rea-evidence.md"
+      ]
     },
     {
       "id": "G061",
@@ -2915,14 +2922,19 @@
         "Scale bar",
         "Major/minor grid color/thickness/style"
       ],
-      "current_status": "partial: fixed bottom-left axes/grid; no controls",
+      "current_status": "Partial: independent X/Y spine/tick visibility and major grids. Titles remain independent. Frame styles, minor grids, colors/thickness and scale bars remain open.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
         "web/src/WorkbookDialogs.tsx",
-        "web/src/Plot.tsx and gp/plotting.py: black 1.5 pt axes with outward major ticks, no gridlines, outlined bars, black error bars/mean lines, solid fitted curves; screen and export share these settings"
+        "web/src/Plot.tsx and gp/plotting.py: black 1.5 pt axes with outward major ticks, no gridlines, outlined bars, black error bars/mean lines, solid fitted curves; screen and export share these settings",
+        "web/src/axes.ts",
+        "web/src/FormatAxesDialog.tsx",
+        "web/src/plot-geometry.ts",
+        "scripts/check_axes.py",
+        "tests/test_axes_export.py"
       ],
       "dependencies": [
         "G060",
@@ -2932,7 +2944,7 @@
       "acceptance_tests": [
         "Render every frame style; offset axes do not touch; clear background preserved in vector/raster."
       ],
-      "source_mark": "guide: observed controls; transparency menu \u2020; offset docs",
+      "source_mark": "guide: observed controls; transparency menu †; offset docs",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted.",
         "Scale-bar enablement and behavior was not tested in guide; requires runtime."
@@ -2946,7 +2958,9 @@
         "Render every frame style; offset axes do not touch; clear background preserved in vector/raster."
       ],
       "audit_status": "partial",
-      "prism_reference_evidence": [],
+      "prism_reference_evidence": [
+        "docs/prism-axes-rea-evidence.md"
+      ],
       "validation_evidence": [
         "scripts/check_desktop_ui.py, check_workbook_foundations.py, check_large_workbook.py, check_grid_ui.py, check_exclusions.py, check_recalculation.py, check_graph_zoom.py and check_import_diagnostics.py passed on the packaged server build after the 2026-10-19 Prism-style sheet correction (docs/ui-macos-correction.md); static build not run in that container."
       ],
@@ -3015,13 +3029,18 @@
         "Persist manual-vs-auto flag separately from numeric bounds",
         "Column categorical X cannot set numeric range"
       ],
-      "current_status": "partial: hardcoded auto ranges only",
+      "current_status": "Partial: persisted optional bounds and zero-anchored linear interval, reset-to-auto, categorical X constraints. Per-bound blank=auto is a GP choice; separate native auto flag, disabled-fields semantics and arbitrary tick starting point remain open.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
-        "web/src/WorkbookDialogs.tsx"
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/axes.ts",
+        "web/src/FormatAxesDialog.tsx",
+        "web/src/plot-geometry.ts",
+        "scripts/check_axes.py",
+        "tests/test_axes_export.py"
       ],
       "dependencies": [
         "G060",
@@ -3046,7 +3065,9 @@
       "version_delta_reference": "V11 one-row reopen autoscaling fix",
       "target_version_override": "Regression test automatic Y range after saving/reopening a one-row table graph.",
       "audit_status": "partial",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [
+        "docs/prism-axes-rea-evidence.md"
+      ]
     },
     {
       "id": "G065",
@@ -3131,13 +3152,18 @@
         "Probability0..100%",
         "Probability0..1"
       ],
-      "current_status": "partial: logX automatically tied to dose_response result only",
+      "current_status": "Partial: linear/log10 axis choices in browser/export, including full-population summaries and omission notes. Log2, natural log and probability scales remain open.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
-        "web/src/WorkbookDialogs.tsx"
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/axes.ts",
+        "web/src/FormatAxesDialog.tsx",
+        "web/src/plot-geometry.ts",
+        "scripts/check_axes.py",
+        "tests/test_axes_export.py"
       ],
       "dependencies": [
         "G064",
@@ -3162,7 +3188,9 @@
       "version_delta_reference": "V11 log-Y geometric summary default",
       "target_version_override": "Axis-scale changes and summary/error defaults interact; do not implement log scaling as geometry alone.",
       "audit_status": "partial",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [
+        "docs/prism-axes-rea-evidence.md"
+      ]
     },
     {
       "id": "G067",
@@ -3180,13 +3208,18 @@
         "Per-segment ranges and axis-length percentages",
         "Per-segment numbering fonts"
       ],
-      "current_status": "unimplemented",
+      "current_status": "Partial: persistent reversal in browser/export. Segmentation, break glyphs and segment-specific controls remain open.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
-        "web/src/WorkbookDialogs.tsx"
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/axes.ts",
+        "web/src/FormatAxesDialog.tsx",
+        "web/src/plot-geometry.ts",
+        "scripts/check_axes.py",
+        "tests/test_axes_export.py"
       ],
       "dependencies": [
         "G066",
@@ -3196,7 +3229,7 @@
       "acceptance_tests": [
         "All glyph/orientation combinations; preserve ordering and hit-testing; validate segment overlap/length and zero control on log graph."
       ],
-      "source_mark": "guide: segmented options \u2020",
+      "source_mark": "guide: segmented options †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -3204,12 +3237,14 @@
       "guide_sections": [
         "4.4.3"
       ],
-      "status": "not_started",
+      "status": "partial",
       "acceptance": [
         "All glyph/orientation combinations; preserve ordering and hit-testing; validate segment overlap/length and zero control on log graph."
       ],
       "audit_status": "unimplemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [
+        "docs/prism-axes-rea-evidence.md"
+      ]
     },
     {
       "id": "G068",
@@ -3242,7 +3277,7 @@
       "acceptance_tests": [
         "Test start offset, minor counts, log minors; native units/thickness under zoom/export stable."
       ],
-      "source_mark": "guide: observed controls plus length options \u2020",
+      "source_mark": "guide: observed controls plus length options †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -3592,7 +3627,7 @@
       "acceptance_tests": [
         "Place short Y title horizontally above center; verify print distances and no collisions."
       ],
-      "source_mark": "guide: observed controls plus locations/rotations \u2020",
+      "source_mark": "guide: observed controls plus locations/rotations †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -3688,7 +3723,7 @@
       "acceptance_tests": [
         "Scale plot2x with font-proportional off/on and inspect PDF point sizes; equal heights+ranges give equal physical unit scales."
       ],
-      "source_mark": "guide: observed sizing; resize options \u2020",
+      "source_mark": "guide: observed sizing; resize options †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -3828,7 +3863,7 @@
       "acceptance_tests": [
         "Insert delta/mu/alpha and math symbols at caret; recent list persists; fallback fonts do not change meaning."
       ],
-      "source_mark": "guide: resource menu labels \u2020",
+      "source_mark": "guide: resource menu labels †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -3874,7 +3909,7 @@
       "acceptance_tests": [
         "Create manual significance bracket/span; resize/rotate without losing attached label; page vs data coordinate policy explicit."
       ],
-      "source_mark": "guide: resource tool choices \u2020; time-scale recipe docs",
+      "source_mark": "guide: resource tool choices †; time-scale recipe docs",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -3919,7 +3954,7 @@
         "fonts:metrics"
       ],
       "acceptance_tests": [
-        "Construct log\u2082 and \u2212log\u2081\u2080 italicP with mixed runs; save/open/export preserve individual runs and Unicode meaning."
+        "Construct log₂ and −log₁₀ italicP with mixed runs; save/open/export preserve individual runs and Unicode meaning."
       ],
       "source_mark": "guide: unmarked live observation or saved-file measurement unless individual option is marked",
       "unknown_evidence": [
@@ -3931,7 +3966,7 @@
       ],
       "status": "not_started",
       "acceptance": [
-        "Construct log\u2082 and \u2212log\u2081\u2080 italicP with mixed runs; save/open/export preserve individual runs and Unicode meaning."
+        "Construct log₂ and −log₁₀ italicP with mixed runs; save/open/export preserve individual runs and Unicode meaning."
       ],
       "audit_status": "unimplemented",
       "prism_reference_evidence": []
@@ -4063,7 +4098,7 @@
       "acceptance_tests": [
         "Hook EC50/P/n and edit inputs; values update atomically, deleted sources show explicit unresolved state, unrelated results unavailable."
       ],
-      "source_mark": "guide: resource text \u2020 and GraphPad docs",
+      "source_mark": "guide: resource text † and GraphPad docs",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -4151,7 +4186,7 @@
       "acceptance_tests": [
         "Save downgraded copy with hooked text; compatibility report lists each lost hook and original remains intact."
       ],
-      "source_mark": "guide: native resource warning \u2020",
+      "source_mark": "guide: native resource warning †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -4242,7 +4277,7 @@
       "acceptance_tests": [
         "Eligibility matrix tests all supported/unsupported families and analyses; no invented stars from global ANOVA P."
       ],
-      "source_mark": "guide: GraphPad docs; one-table native alert \u2020",
+      "source_mark": "guide: GraphPad docs; one-table native alert †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -4359,7 +4394,7 @@
       "acceptance_tests": [
         "Boundary P values at cutoff and significance thresholds; q labeled correctly; references stay correct after reorder."
       ],
-      "source_mark": "guide: dialog resource \u2020",
+      "source_mark": "guide: dialog resource †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -4457,7 +4492,7 @@
       "acceptance_tests": [
         "Threshold equality cases and tiny p; numeric q with FDR; analysis style change propagates without rerunning statistic."
       ],
-      "source_mark": "guide: styles \u2020; FDR guidance docs",
+      "source_mark": "guide: styles †; FDR guidance docs",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -4549,7 +4584,7 @@
       "acceptance_tests": [
         "Dense multi-letter groups render above/below/outside without clipping; style persists."
       ],
-      "source_mark": "guide: resource choices \u2020",
+      "source_mark": "guide: resource choices †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -4644,7 +4679,7 @@
       "acceptance_tests": [
         "Apply-only leaves registry unchanged; named scheme roundtrips and repeats across more datasets than palette length."
       ],
-      "source_mark": "guide: resource choices \u2020",
+      "source_mark": "guide: resource choices †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -4693,7 +4728,7 @@
       "acceptance_tests": [
         "Copy selected properties only; compare preview/commit; cancel no changes; external example imports no accidental data."
       ],
-      "source_mark": "guide: observed workflow; property list \u2020",
+      "source_mark": "guide: observed workflow; property list †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -4844,7 +4879,7 @@
       "acceptance_tests": [
         "Duplicate dependency diamond with new IDs, preserve original; optional layout inclusion; delete confirms cascade and undo restores all links."
       ],
-      "source_mark": "guide: observed family menu; duplicate options \u2020",
+      "source_mark": "guide: observed family menu; duplicate options †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -4989,7 +5024,7 @@
       "acceptance_tests": [
         "Preferences affect newly created graphs only; restore defaults reversible; per-kind defaults coexist."
       ],
-      "source_mark": "guide: resource settings \u2020",
+      "source_mark": "guide: resource settings †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -5036,7 +5071,7 @@
       "acceptance_tests": [
         "Known 2x3replicate matrix yields expected selected summary; exclusions and out-of-range values use distinct colors."
       ],
-      "source_mark": "guide: resources \u2020",
+      "source_mark": "guide: resources †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -5084,7 +5119,7 @@
       "acceptance_tests": [
         "Transpose twice restores matrix and labels; physical gap/export sizes correct; legend tracks selected range."
       ],
-      "source_mark": "guide: resources \u2020",
+      "source_mark": "guide: resources †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -5129,7 +5164,7 @@
       "acceptance_tests": [
         "Value4 vs1 has4xarea, not4xradius; categorical groups retain legend colors; missing mappings explicitly handled."
       ],
-      "source_mark": "guide: resources \u2020 and GraphPad docs",
+      "source_mark": "guide: resources † and GraphPad docs",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted."
       ],
@@ -5183,7 +5218,7 @@
       "acceptance_tests": [
         "Duplicate X/Y combinations require verified aggregation policy; metadata/missingness never silently discarded."
       ],
-      "source_mark": "guide: resource mappings \u2020",
+      "source_mark": "guide: resource mappings †",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted.",
         "Duplicate-cell aggregation not specified in guide."
@@ -5232,7 +5267,7 @@
       "acceptance_tests": [
         "Hide/explode without changing numeric total unless verified; label/percentage/total correct after edits; duplicate graph switches source."
       ],
-      "source_mark": "guide: resources \u2020 and docs",
+      "source_mark": "guide: resources † and docs",
       "unknown_evidence": [
         "The base guide describes Prism 10.3.1 on macOS. The supplied Prism 11 differences report confirms ordinary graph/axes/layout/export workflows remain substantially unchanged, but its marked deltas supersede older behavior. No GP runtime equivalence is asserted.",
         "Hidden wedge denominator behavior needs native oracle."
@@ -5577,7 +5612,7 @@
         "G084"
       ],
       "acceptance_tests": [
-        "Editable log\u2082 fold change and \u2212log\u2081\u2080 P survive reopen/PDF/SVG with correct glyph runs."
+        "Editable log₂ fold change and −log₁₀ P survive reopen/PDF/SVG with correct glyph runs."
       ],
       "source_mark": "guide: unmarked live observation or saved-file measurement unless individual option is marked",
       "unknown_evidence": [
@@ -5590,7 +5625,7 @@
       ],
       "status": "partial",
       "acceptance": [
-        "Editable log\u2082 fold change and \u2212log\u2081\u2080 P survive reopen/PDF/SVG with correct glyph runs."
+        "Editable log₂ fold change and −log₁₀ P survive reopen/PDF/SVG with correct glyph runs."
       ],
       "audit_status": "partial",
       "prism_reference_evidence": []
@@ -6610,7 +6645,7 @@
         {
           "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
           "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
-          "section": "1 \u2014 Smaller interface changes",
+          "section": "1 — Smaller interface changes",
           "finding": "The File & Printer preference \"Paste a Graph from Another Project as\" was removed in Prism11. Do not reproduce that preference solely from the Prism10 guide; actual cross-project clipboard behavior remains to be verified."
         }
       ],
@@ -7395,7 +7430,7 @@
         {
           "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
           "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
-          "section": "1 \u2014 Toolbar",
+          "section": "1 — Toolbar",
           "finding": "Print and LA toolbar panels are gone from every sheet type, not just data/graphs; LabArchives and Luma belong to Send. Data panel fx is named Transform, with Change Row Order/Create Series/Exclude Values/Decimal Format.",
           "screenshots": [
             {
@@ -7814,13 +7849,13 @@
       "title": "Number-at-risk table beneath survival graph",
       "guide": [
         {
-          "section": "Prism11 differences 3 and 1 \u2014 Menus",
+          "section": "Prism11 differences 3 and 1 — Menus",
           "source": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
           "source_sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117"
         }
       ],
       "guide_sections": [
-        "P11 3 and 1 \u2014 Menus"
+        "P11 3 and 1 — Menus"
       ],
       "requirements": [
         "Insert > Number at Risk Table and Change > Number at Risk Table > Add / Format / Remove routes.",
@@ -7862,7 +7897,7 @@
         "The screenshot does not prove before/after-event count timing, whether censored counts are cumulative or interval counts, the formatting dialog choices, or whether display times follow major ticks automatically. Native observations/project files are needed.",
         "The user-supplied document is evidence about original Prism; it does not verify GP implementation."
       ],
-      "version_delta_reference": "Root V11 register; graph-specific expansion from newer Markdown section 3 and 1 \u2014 Menus",
+      "version_delta_reference": "Root V11 register; graph-specific expansion from newer Markdown section 3 and 1 — Menus",
       "screenshots": [
         {
           "index": 9,
@@ -7956,7 +7991,7 @@
   "prism11_delta_source": {
     "path": "/workspace/attachments/883d1c3a-a71f-4057-93fa-9305524ff353/PRISM11_DIFFERENCES.md",
     "sha256": "d35284ad1553cc2ddc244fe6d4e1ba3f3a04478ca94d46737ee33ee269789117",
-    "read": "Entire document including sections 8\u201310; compared all changes against the earlier Markdown version.",
+    "read": "Entire document including sections 8–10; compared all changes against the earlier Markdown version.",
     "supersedes": {
       "path": "/workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md",
       "sha256": "3f89bf9ec98384ca7b3778bd78d12196d1d05fb4ad41971a8ab73141e270ee87"

@@ -2,6 +2,30 @@
 
 Prepared 2026-10-19, America/Chicago. This is a continuation checkpoint, **not completion of Prism parity**.
 
+## Current continuation: persistent axes (2026-10-20)
+
+Active checkout is `/workspace/gp-status-main`, branch `gp-prism-axes`, based on
+GitHub main `948a451`. The old `/workspace/GP` checkout is historical; do not push
+its old `work` branch over main. This section supersedes the old checkout/status
+details below. The local `web/node_modules` symlink reuses `/workspace/GP/web/node_modules`; it is an untracked setup artifact and must not be committed. Activate `/workspace/.gp-tools/activate.sh` for the pinned Node toolchain. The user explicitly objected to stopping at status checkpoints;
+continue implementation after answering steering questions.
+
+Read [axes implementation](axes-implementation.md) and
+[REA axis evidence](prism-axes-rea-evidence.md). The implementation adds optional
+graph axes, a dedicated dialog, matching browser/export bounds and tick rules,
+clipping and log display handling. Reused REA Evidence
+`ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f`
+establishes the native control surface, not runtime defaults or algorithms.
+The requirement register keeps G060/G062/G064/G066/G067 partial.
+
+Validation during this work: typecheck, 190 frontend checks plus two later
+tick/freeze regressions, 81 focused backend checks, initial browser interaction
+check, both builds, 19 checksum-verified static runtime packages, requirement
+audit. Full backend regression passed 374 tests. Production server and static browser
+checks passed all three export formats, undo/redo, reload and Cancel. Static
+startup required a diagnostic 900000ms export allowance after shorter timeouts;
+see the execution log. No live-site deployment verification is established here.
+
 ## Latest update: Column t tests, one-way ANOVA and pairwise brackets (read this first)
 
 The newest unit makes Analyze → t tests / One-way ANOVA → parameters dialog → tabbed results → graph significance brackets work end to end, with the website warming up its Python engine at startup. Read [column comparisons](column-comparisons.md) and the newest section of [completion-progress.md](completion-progress.md) for the evidence boundary (no new REA analysis; only the saved paired-t case is a Prism comparison), three known differences from guide exact-P statements, and open work. `scripts/check_column_analysis.py` is in CI for both builds; the large-workbook check selects Welch through the parameters dialog. Saved results of `t_test`/`one_way_anova` carry an `options` object; graphs may carry `graph.pairwise`.

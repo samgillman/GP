@@ -45,6 +45,8 @@ import type {
   TableType,
 } from "./data";
 import Plot from "./Plot";
+import FormatAxesDialog from "./FormatAxesDialog";
+import { axesForTableType } from "./axes";
 import DataGrid from "./DataGrid";
 import { allExcluded, groupLabel } from "./data-grid";
 import type { GridRange } from "./data-grid";
@@ -470,6 +472,7 @@ export default function App() {
   const [newTable, setNewTable] = useState(false),
     [analyzeDialog, setAnalyzeDialog] = useState(false),
     [formatDialog, setFormatDialog] = useState(false),
+    [axesDialog, setAxesDialog] = useState<"x" | "y" | null>(null),
     [formatTableDialog, setFormatTableDialog] = useState(false),
     [graphTypeDialog, setGraphTypeDialog] = useState(false),
     [parameters, setParameters] = useState<{
@@ -758,6 +761,7 @@ export default function App() {
           newTable ||
           analyzeDialog ||
           formatDialog ||
+          axesDialog !== null ||
           formatTableDialog ||
           graphTypeDialog ||
           parameters !== null ||
@@ -784,6 +788,7 @@ export default function App() {
     newTable,
     analyzeDialog,
     formatDialog,
+    axesDialog,
     formatTableDialog,
     graphTypeDialog,
     parameters,
@@ -1490,6 +1495,7 @@ export default function App() {
         ...p.graph,
         type: type === "xy" ? "scatter" : "bar",
         x_label: type === "xy" ? p.columns[0].name : "Group",
+        ...(p.graph.axes ? { axes: axesForTableType(p.graph.axes, type === "xy") } : {}),
       },
     }));
   }
@@ -1497,6 +1503,11 @@ export default function App() {
     if (graphSheet?.frozen)
       setError("Unfreeze this graph before changing its appearance.");
     else setFormatDialog(true);
+  }
+  function openAxes(axis: "x" | "y" = "y") {
+    if (graphSheet?.frozen)
+      setError("Unfreeze this graph before changing its axes.");
+    else if (graphSheet) setAxesDialog(axis);
   }
   function saveWorkbook() {
     download(
@@ -1770,6 +1781,10 @@ export default function App() {
             >
               Format Graph…
             </button>
+            <button role="menuitem" disabled={active !== "graph" || graphSheet?.frozen}
+              onClick={() => openAxes()}>
+              Format Axes…
+            </button>
           </DesktopMenu>
           <DesktopMenu label="Family">
             <button role="menuitem" onClick={() => selectSheet(source.id)}>
@@ -1965,6 +1980,10 @@ export default function App() {
               >
                 <Settings2 />
                 <small>Format…</small>
+              </button>
+              <button aria-label="Format Axes…" title="Format axis scale, range and ticks"
+                disabled={active !== "graph" || graphSheet?.frozen} onClick={() => openAxes()}>
+                <Settings2 /><small>Axes…</small>
               </button>
             </div>
           </div>
@@ -2552,8 +2571,8 @@ export default function App() {
                       graphSheet?.columnIndices ?? dataIndices(source.project),
                       selection,
                     )}
-                    onFormatAxes={openGraphFormatting}
-                    onEditText={openGraphFormatting}
+                    onFormatAxes={openAxes}
+                    onEditText={field => openAxes(field === "x_label" ? "x" : "y")}
                     annotations={pairwiseAnnotations}
                   />
                   {xy && (
@@ -2985,6 +3004,13 @@ export default function App() {
             );
           }}
         />
+      )}
+      {axesDialog && graphSheet && (
+        <FormatAxesDialog project={plotProject} result={plotResult} initialAxis={axesDialog}
+          onClose={() => setAxesDialog(null)}
+          onApply={graph => setWorkbook(w => ({ ...w, sheets: w.sheets.map(s =>
+            s.id === graphSheet.id && s.kind === "graph" && !s.frozen ? { ...s, graph } : s,
+          ) }), { label: "Format axes" })} />
       )}
       {formatDialog && graphSheet && (
         <FormatGraphDialog

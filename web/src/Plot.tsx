@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { fmt, palette } from "./data";
 import {
   buildPlotGeometry,
@@ -130,10 +130,12 @@ export default function Plot({
   const zoomRef = useRef(zoom);
   zoomRef.current = zoom;
   const { graph } = project;
-  const geometry = useMemo(
-    () => buildPlotGeometry(project, result, annotations),
-    [project, result, annotations],
-  );
+  const clipId = useId().replace(/:/g, "");
+  const computed = useMemo(() => {
+    try { return { geometry: buildPlotGeometry(project, result, annotations), error: null }; }
+    catch (error) { return { geometry: null, error: error instanceof Error ? error.message : "Invalid axis settings." }; }
+  }, [project, result, annotations]);
+  const geometry = computed.geometry;
   const findPoint = useMemo(
     () => (geometry ? pointHitIndex(geometry) : null),
     [geometry],
@@ -217,6 +219,7 @@ export default function Plot({
     view.addEventListener("wheel", wheel, { passive: false });
     return () => view.removeEventListener("wheel", wheel);
   }, [!!geometry]);
+  if (computed.error) return <div className="empty-chart" role="alert">Graph axis settings: {computed.error}</div>;
   if (!geometry)
     return (
       <div className="empty-chart">Enter numeric data to create a graph.</div>
@@ -225,6 +228,7 @@ export default function Plot({
   const { width: W, height: H, left, right, top, bottom } = plotFrame;
   const pw = W - left - right,
     ph = H - top - bottom;
+  const editAxis = (axis: "x" | "y", event: React.MouseEvent) => { event.stopPropagation(); onFormatAxes?.(axis); };
   const showPoints = graph.show_points || graph.type === "scatter";
   const dense = showPoints && count > DENSE_POINT_THRESHOLD;
   return (
@@ -364,72 +368,19 @@ export default function Plot({
                 : ""}
             </desc>
             <rect width={W} height={H} fill="white" />
-            {yTicks.map((v, i) => {
-              return (
-                <g key={i}>
-                  <line
-                    x1={left - 6}
-                    x2={left}
-                    y1={y(v)}
-                    y2={y(v)}
-                    stroke="#000"
-                    strokeWidth="1.5"
-                  />
-                  <text
-                    x={left - 10}
-                    y={y(v) + 4}
-                    textAnchor="end"
-                    className="tick"
-                    onDoubleClick={() => onFormatAxes?.("y")}
-                  >
-                    {fmt(v)}
-                  </text>
-                </g>
-              );
-            })}
-            <path
-              d={`M${left},${top}V${H - bottom}H${W - right}`}
-              fill="none"
-              stroke="#000"
-              strokeWidth="1.5"
-              strokeLinecap="square"
-            />
-            {xy
-              ? xTicks.map((v, i) => {
-                  return (
-                    <g key={i}>
-                      <line
-                        x1={x(v)}
-                        x2={x(v)}
-                        y1={H - bottom}
-                        y2={H - bottom + 6}
-                        stroke="#000"
-                        strokeWidth="1.5"
-                      />
-                      <text
-                        x={x(v)}
-                        y={H - bottom + 22}
-                        textAnchor="middle"
-                        className="tick"
-                        onDoubleClick={() => onFormatAxes?.("x")}
-                      >
-                        {fmt(v)}
-                      </text>
-                    </g>
-                  );
-                })
-              : series.map((s, i) => (
-                  <text
-                    key={i}
-                    x={x(i + 1)}
-                    y={H - bottom + 26}
-                    textAnchor="middle"
-                    className="tick"
-                    onDoubleClick={() => onFormatAxes?.("x")}
-                  >
-                    {s.name.length > 20 ? s.name.slice(0, 19) + "…" : s.name}
-                  </text>
-                ))}
+            <defs><clipPath id={clipId}><rect x={left} y={top} width={pw} height={ph} /></clipPath></defs>
+            {geometry.axes.y.showGrid && yTicks.map((v, i) => <line key={`yg-${i}`} x1={left} x2={W - right} y1={y(v)} y2={y(v)} stroke="#ddd" />)}
+            {geometry.axes.x.showGrid && (xy ? xTicks : series.map((_, i) => i + 1)).map((v, i) => <line key={`xg-${i}`} x1={x(v)} x2={x(v)} y1={top} y2={H - bottom} stroke="#ddd" />)}
+            {geometry.axes.y.showAxis && <g data-axis="y" onDoubleClick={event => editAxis("y", event)}>
+              <line x1={left} x2={left} y1={top} y2={H - bottom} stroke="#000" strokeWidth="1.5" />
+              <line x1={left} x2={left} y1={top} y2={H - bottom} stroke="transparent" strokeWidth="10" />
+              {yTicks.map((v, i) => <g key={i}><line x1={left - 6} x2={left} y1={y(v)} y2={y(v)} stroke="#000" strokeWidth="1.5" /><text x={left - 10} y={y(v) + 4} textAnchor="end" className="tick">{fmt(v)}</text></g>)}
+            </g>}
+            {geometry.axes.x.showAxis && <g data-axis="x" onDoubleClick={event => editAxis("x", event)}>
+              <line x1={left} x2={W - right} y1={H - bottom} y2={H - bottom} stroke="#000" strokeWidth="1.5" />
+              <line x1={left} x2={W - right} y1={H - bottom} y2={H - bottom} stroke="transparent" strokeWidth="10" />
+              {xy ? xTicks.map((v, i) => <g key={i}><line x1={x(v)} x2={x(v)} y1={H - bottom} y2={H - bottom + 6} stroke="#000" strokeWidth="1.5" /><text x={x(v)} y={H - bottom + 22} textAnchor="middle" className="tick">{fmt(v)}</text></g>) : series.map((s, i) => <text key={i} x={x(i + 1)} y={H - bottom + 26} textAnchor="middle" className="tick">{s.name.length > 20 ? s.name.slice(0, 19) + "…" : s.name}</text>)}
+            </g>}
             <text
               x={left + pw / 2}
               y={H - 18}
@@ -447,124 +398,24 @@ export default function Plot({
             >
               {graph.y_label}
             </text>
+            <g clipPath={`url(#${clipId})`}>
             {series.map((s, i) => {
-              const cx = x(i + 1),
-                bw = Math.min(72, (pw / series.length) * 0.46),
-                v = s.values,
-                points =
-                  graph.type === "line" && xy
-                    ? s.points.slice().sort((a, b) => a.x - b.x)
-                    : s.points;
-              return (
-                <g
-                  key={i}
-                  onDoubleClick={(event) => {
-                    event.stopPropagation();
-                    onSelectDataset?.(i);
-                  }}
-                >
-                  {!xy && graph.type === "bar" && v.length > 0 && (
-                    <rect
-                      x={cx - bw / 2}
-                      y={Math.min(y(s.mean), y(0))}
-                      width={bw}
-                      height={Math.abs(y(0) - y(s.mean))}
-                      fill={s.color}
-                      stroke="#000"
-                      strokeWidth="1.5"
-                    />
-                  )}
-                  {!xy && graph.type === "box" && v.length > 0 && (
-                    <g stroke="#000" strokeWidth="1.5">
-                      <line x1={cx} x2={cx} y1={y(s.min)} y2={y(s.max)} />
-                      <line
-                        x1={cx - bw / 4}
-                        x2={cx + bw / 4}
-                        y1={y(s.min)}
-                        y2={y(s.min)}
-                      />
-                      <line
-                        x1={cx - bw / 4}
-                        x2={cx + bw / 4}
-                        y1={y(s.max)}
-                        y2={y(s.max)}
-                      />
-                      <rect
-                        x={cx - bw / 2}
-                        y={y(s.quartiles![2])}
-                        width={bw}
-                        height={Math.max(
-                          1,
-                          y(s.quartiles![0]) - y(s.quartiles![2]),
-                        )}
-                        fill={s.color}
-                        fillOpacity=".35"
-                      />
-                      <line
-                        x1={cx - bw / 2}
-                        x2={cx + bw / 2}
-                        y1={y(s.quartiles![1])}
-                        y2={y(s.quartiles![1])}
-                      />
-                    </g>
-                  )}
-                  {graph.type === "line" && xy && (
-                    <polyline
-                      points={points
-                        .map((p) => `${x(p.x)},${y(p.y)}`)
-                        .join(" ")}
-                      fill="none"
-                      stroke={s.color}
-                      strokeWidth="1.5"
-                    />
-                  )}
-                  {!xy &&
-                    graph.error !== "none" &&
-                    graph.type !== "box" &&
-                    v.length > 0 && (
-                      <g stroke="#000" strokeWidth="1.5">
-                        <line x1={cx} x2={cx} y1={y(s.lo)} y2={y(s.hi)} />
-                        <line
-                          x1={cx - 7}
-                          x2={cx + 7}
-                          y1={y(s.lo)}
-                          y2={y(s.lo)}
-                        />
-                        <line
-                          x1={cx - 7}
-                          x2={cx + 7}
-                          y1={y(s.hi)}
-                          y2={y(s.hi)}
-                        />
-                        <line
-                          x1={cx - 20}
-                          x2={cx + 20}
-                          y1={y(s.mean)}
-                          y2={y(s.mean)}
-                          strokeWidth="2"
-                        />
-                      </g>
-                    )}
-                  {showPoints &&
-                    !dense &&
-                    s.points.map((p, j) => (
-                      <circle
-                        key={j}
-                        cx={x(p.x) + (!xy ? (((j * 17) % 11) - 5) * 2.1 : 0)}
-                        cy={y(p.y)}
-                        r={xy ? 4 : 3.6}
-                        fill={s.color}
-                        stroke="#000"
-                        strokeOpacity=".35"
-                        strokeWidth=".6"
-                      >
-                        <title>
-                          {s.name}, row {p.row + 1}: {fmt(p.y)}
-                        </title>
-                      </circle>
-                    ))}
-                </g>
-              );
+              const cx = x(i + 1), bw = Math.min(72, (pw / series.length) * .46), v = s.values;
+              const yy = geometry.boundedY;
+              const cap = (value: number, half: number, key: string) => geometry.validY(value) && value >= geometry.minY && value <= geometry.maxY ? <line key={key} x1={cx - half} x2={cx + half} y1={y(value)} y2={y(value)} /> : null;
+              const stem = (lo: number, hi: number) => Number.isFinite(lo) && Number.isFinite(hi) && hi >= geometry.minY && lo <= geometry.maxY ? <line x1={cx} x2={cx} y1={yy(lo)} y2={yy(hi)} /> : null;
+              const baseline = geometry.logY ? geometry.minY : 0;
+              return <g key={i} onDoubleClick={event => { event.stopPropagation(); onSelectDataset?.(i); }}>
+                {!xy && graph.type === "bar" && v.length > 0 && geometry.validY(s.mean) && Math.max(s.mean, baseline) >= geometry.minY && Math.min(s.mean, baseline) <= geometry.maxY && <rect x={cx - bw / 2} y={Math.min(yy(s.mean), yy(baseline))} width={bw} height={Math.abs(yy(baseline) - yy(s.mean))} fill={s.color} stroke="#000" strokeWidth="1.5" />}
+                {!xy && graph.type === "box" && v.length > 0 && s.quartiles && <g stroke="#000" strokeWidth="1.5">
+                  {stem(s.min, s.max)}{cap(s.min, bw / 4, "min")}{cap(s.max, bw / 4, "max")}
+                  {s.quartiles[2] >= geometry.minY && s.quartiles[0] <= geometry.maxY && <rect x={cx - bw / 2} y={Math.min(yy(s.quartiles[0]), yy(s.quartiles[2]))} width={bw} height={Math.max(1, Math.abs(yy(s.quartiles[0]) - yy(s.quartiles[2])))} fill={s.color} fillOpacity=".35" />}
+                  {cap(s.quartiles[1], bw / 2, "median")}
+                </g>}
+                {graph.type === "line" && xy && <path d={geometry.linePath(s.linePoints.slice().sort((a, b) => a.x - b.x))} fill="none" stroke={s.color} strokeWidth="1.5" />}
+                {!xy && graph.error !== "none" && graph.type !== "box" && v.length > 0 && <g stroke="#000" strokeWidth="1.5">{stem(s.lo, s.hi)}{cap(s.lo, 7, "lo")}{cap(s.hi, 7, "hi")}<g strokeWidth="2">{cap(s.mean, 20, "mean")}</g></g>}
+                {showPoints && !dense && s.points.map((p, j) => geometry.visible(p) ? <circle key={j} cx={x(p.x) + (!xy ? (((j * 17) % 11) - 5) * 2.1 : 0)} cy={y(p.y)} r={xy ? 4 : 3.6} fill={s.color} stroke="#000" strokeOpacity=".35" strokeWidth=".6"><title>{s.name}, row {p.row + 1}: {fmt(p.y)}</title></circle> : null)}
+              </g>;
             })}
             {dense && <DensePoints geometry={geometry} zoom={zoom} />}
             {!!selectedPointRanges?.length && (
@@ -585,6 +436,7 @@ export default function Plot({
                 ) ?? -1;
               if (index < 0) return null;
               const point = dataset.points[index];
+              if (!geometry.visible(point)) return null;
               return (
                 <circle
                   data-selected-point="true"
@@ -599,8 +451,9 @@ export default function Plot({
               );
             })()}
             {geometry.brackets.map((bracket, i) => {
-              const x1 = x(bracket.x1) + 4,
-                x2 = x(bracket.x2) - 4,
+              if (!geometry.validY(bracket.y) || bracket.y < geometry.minY || bracket.y > geometry.maxY) return null;
+              const x1 = Math.min(x(bracket.x1), x(bracket.x2)) + 4,
+                x2 = Math.max(x(bracket.x1), x(bracket.x2)) - 4,
                 level = y(bracket.y);
               return (
                 <g key={`bracket-${i}`} className="pairwise-bracket">
@@ -622,9 +475,9 @@ export default function Plot({
               );
             })}
             {fits.map((f, i) => (
-              <polyline
+              <path
                 key={i}
-                points={f.points.map((p) => `${x(p.x)},${y(p.y)}`).join(" ")}
+                d={geometry.linePath(f.linePoints)}
                 fill="none"
                 stroke={
                   series.find((s) => s.name === f.series)?.color ??
@@ -633,6 +486,7 @@ export default function Plot({
                 strokeWidth="1.5"
               />
             ))}
+            </g>
           </svg>
         </div>
       </div>
@@ -766,10 +620,12 @@ export default function Plot({
           </div>
         </div>
       )}
+      {geometry.logOmittedCount > 0 && <p role="note" style={{ fontSize: 11, margin: "4px 12px" }}>{geometry.logOmittedCount.toLocaleString()} observations have nonpositive coordinates on a logarithmic axis and cannot be displayed. Data and statistical summaries still include these values.</p>}
+      {geometry.logOmittedSummary && <p role="note" style={{ fontSize: 11, margin: "4px 12px" }}>Nonpositive summary marks and interval caps cannot be displayed on a logarithmic Y axis. Intervals crossing zero are clipped at the lower displayed limit; summaries still use all values.</p>}
+      {geometry.logY && graph.type === "bar" && <p role="note" style={{ fontSize: 11, margin: "4px 12px" }}>Logarithmic bars start at the lower displayed Y limit, not zero. Nonpositive means and interval caps cannot be displayed.</p>}
       {dense && (
         <p style={{ fontSize: 11, margin: "4px 12px" }}>
-          {count.toLocaleString()} points · Canvas display, with every
-          observation retained. Overlapping points may cover one another.
+          {count.toLocaleString()} valid-coordinate points · Canvas display. Only points within the axis limits are drawn; no sampling is used. Overlapping points may cover one another.
         </p>
       )}
     </div>

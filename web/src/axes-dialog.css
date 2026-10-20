@@ -1,0 +1,16 @@
+.axes-dialog { width: 700px; }
+.axes-tabs { display: flex; justify-content: center; margin-bottom: 18px; }
+.axes-tabs button { border-radius: 0; min-width: 100px; }
+.axes-tabs button:first-child { border-radius: 5px 0 0 5px; }
+.axes-tabs button:last-child { border-radius: 0 5px 5px 0; }
+.axes-tabs [aria-selected="true"] { color: #fff; background: #317cdb; border-color: #2468bd; }
+.axes-dialog fieldset { margin: 0 0 16px; padding: 12px 16px; border: 1px solid #bbb; border-radius: 5px; }
+.axes-dialog legend { padding: 0 5px; font-weight: 500; }
+.axes-dialog .desktop-form-row { margin: 9px 0; }
+.axes-dialog .desktop-checkbox-label { margin: 9px 0; }
+.axes-dialog .axes-hint { font-size: 11px; color: #626262; }
+.axes-error { min-height: 32px; color: #a32020; font-size: 12px; }
+@media(max-width: 600px) {
+  .axes-dialog fieldset { padding: 10px; }
+  .axes-dialog .desktop-form-row { flex-wrap: wrap; }
+}

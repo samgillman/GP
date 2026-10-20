@@ -95,7 +95,7 @@
         },
         {
           "path": "gp/models.py",
-          "sha256": "7320f5b64210bfc0929a3a90cbc777e1966f733108c766ee74cbb54a5e8c54c6"
+          "sha256": "ef4c2ad5bfa3ae8f7462cdbe0be73e5f5b0ca8d637fff1d1a631afa155ccdfe0"
         },
         {
           "path": "tests/test_column_tests.py",
@@ -133,7 +133,7 @@
         },
         {
           "path": "gp/models.py",
-          "sha256": "7320f5b64210bfc0929a3a90cbc777e1966f733108c766ee74cbb54a5e8c54c6"
+          "sha256": "ef4c2ad5bfa3ae8f7462cdbe0be73e5f5b0ca8d637fff1d1a631afa155ccdfe0"
         },
         {
           "path": "gp/statistics.py",
@@ -151,8 +151,8 @@
       "remaining_obligations": [
         "Lognormal choices",
         "Effect sizes, AICc and residual diagnostics",
-        "Guide exact-P rule for Mann–Whitney with ties (≤100 in smaller group)",
-        "Saved Prism numerical oracles for Student, Welch, Mann–Whitney and one-tailed choices"
+        "Guide exact-P rule for Mann\u2013Whitney with ties (\u2264100 in smaller group)",
+        "Saved Prism numerical oracles for Student, Welch, Mann\u2013Whitney and one-tailed choices"
       ],
       "priority": "high",
       "latest_progress": "2026-10-20 Column statistical audit: docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes. Baseline CI https://github.com/samgillman/GP/actions/runs/39335578778 verified; no new native Prism outputs. Follow-up backend suite: 330 tests passed; final browser/CI results remain separately scoped."
@@ -176,7 +176,7 @@
         },
         {
           "path": "gp/models.py",
-          "sha256": "7320f5b64210bfc0929a3a90cbc777e1966f733108c766ee74cbb54a5e8c54c6"
+          "sha256": "ef4c2ad5bfa3ae8f7462cdbe0be73e5f5b0ca8d637fff1d1a631afa155ccdfe0"
         },
         {
           "path": "gp/statistics.py",
@@ -215,7 +215,7 @@
       ],
       "implementation_sources": [],
       "remaining_obligations": [
-        "D’Agostino-Pearson, Shapiro-Wilk, Anderson-Darling, KS variant",
+        "D\u2019Agostino-Pearson, Shapiro-Wilk, Anderson-Darling, KS variant",
         "Minimum sample/tie conventions",
         "Numerical oracles"
       ],
@@ -240,7 +240,7 @@
         },
         {
           "path": "gp/models.py",
-          "sha256": "7320f5b64210bfc0929a3a90cbc777e1966f733108c766ee74cbb54a5e8c54c6"
+          "sha256": "ef4c2ad5bfa3ae8f7462cdbe0be73e5f5b0ca8d637fff1d1a631afa155ccdfe0"
         },
         {
           "path": "gp/statistics.py",
@@ -258,7 +258,7 @@
       "remaining_obligations": [
         "Lognormal model",
         "Effect sizes beyond R squared, residual normality and plots",
-        "Exact small-sample Kruskal–Wallis P",
+        "Exact small-sample Kruskal\u2013Wallis P",
         "Saved Prism one-way reference cases"
       ],
       "priority": "high",
@@ -356,7 +356,7 @@
         },
         {
           "path": "gp/models.py",
-          "sha256": "7320f5b64210bfc0929a3a90cbc777e1966f733108c766ee74cbb54a5e8c54c6"
+          "sha256": "ef4c2ad5bfa3ae8f7462cdbe0be73e5f5b0ca8d637fff1d1a631afa155ccdfe0"
         },
         {
           "path": "gp/statistics.py",
@@ -375,7 +375,7 @@
         "Missing values and variance-component (mixed-effects) estimation",
         "Convergence/boundary handling",
         "Exact small-table Friedman P",
-        "Reference results beyond the paired/F = t² identity",
+        "Reference results beyond the paired/F = t\u00b2 identity",
         "Native assumed-sphericity versus Geisser-Greenhouse comparison outputs; GG Tukey remains unsupported; incomplete subjects require an independently chosen missing-data analysis"
       ],
       "priority": "high",
@@ -404,7 +404,7 @@
         },
         {
           "path": "gp/models.py",
-          "sha256": "7320f5b64210bfc0929a3a90cbc777e1966f733108c766ee74cbb54a5e8c54c6"
+          "sha256": "ef4c2ad5bfa3ae8f7462cdbe0be73e5f5b0ca8d637fff1d1a631afa155ccdfe0"
         },
         {
           "path": "gp/statistics.py",
@@ -420,7 +420,7 @@
         }
       ],
       "remaining_obligations": [
-        "Holm–Šídák, Newman–Keuls, Dunnett T3, Tamhane T2 and FDR variants",
+        "Holm\u2013\u0160\u00edd\u00e1k, Newman\u2013Keuls, Dunnett T3, Tamhane T2 and FDR variants",
         "Selected-pair families and swap direction",
         "Two-way and multifactor families",
         "Saved Prism multiple-comparison families"
@@ -588,7 +588,7 @@
     },
     {
       "id": "survival_km",
-      "scope": "Kaplan–Meier curves, risk/event/censor tables, confidence intervals",
+      "scope": "Kaplan\u2013Meier curves, risk/event/censor tables, confidence intervals",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
       "verification_status": "714_populated_saved_values_medians_and_static_browser_verified",
@@ -633,7 +633,7 @@
     },
     {
       "id": "survival_comparisons",
-      "scope": "Logrank, trend, Gehan–Breslow–Wilcoxon and multiplicity",
+      "scope": "Logrank, trend, Gehan\u2013Breslow\u2013Wilcoxon and multiplicity",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
       "verification_status": "saved_global_logrank_and_static_browser_verified",
@@ -667,7 +667,7 @@
       ],
       "remaining_obligations": [
         "Pairwise comparisons and adjustments",
-        "Trend and Gehan–Breslow–Wilcoxon tests",
+        "Trend and Gehan\u2013Breslow\u2013Wilcoxon tests",
         "Hazard ratios and associated intervals",
         "All native comparison settings"
       ],
@@ -846,11 +846,11 @@
       "implementation_sources": [
         {
           "path": "gp/import_prism.py",
-          "sha256": "9fa6c0d12842a813b9cae6d117e9fc428f69afe96c4a5c05c843f433d4cb2731"
+          "sha256": "d39fca69574d8a5458b7c3066d61a5f1bdee38e1e8047eda15c2f7be02b68668"
         },
         {
           "path": "tests/test_import_prism.py",
-          "sha256": "e8cd8a1f5af9d5837ec01dbe0fcfdc31801c1936febb891174af8e7ba5afd4a0"
+          "sha256": "f6898d874165da84a3b1c969b4b14ac1ef535370334cfb8008d1d52a44c3fefa"
         }
       ],
       "remaining_obligations": [
@@ -914,7 +914,7 @@
     },
     {
       "id": "workbook_workflow",
-      "scope": "Multi-sheet data→analysis→graph dependency workflow",
+      "scope": "Multi-sheet data\u2192analysis\u2192graph dependency workflow",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
       "verification_status": "multi_sheet_link_invalidation_recalculation_and_persistence_browser_verified",
@@ -1003,15 +1003,15 @@
       "implementation_sources": [
         {
           "path": "web/src/App.tsx",
-          "sha256": "b59b8fa78393e1118f0831f0c60012ba9fd1a9ecd382a23ecfdba1a431147555"
+          "sha256": "05322799b1038a3a0ea31f686225946959cd029e2067117d1154fe4f7b2d26e4"
         },
         {
           "path": "web/src/data.ts",
-          "sha256": "1dfb93359716b1511a6174e3835265a0057dff23f96e7b0dae1b8167a55179a7"
+          "sha256": "79393f155c108d41a2aa07dc9ab93aea7aa3514b933e9bfc41dc47fbbc6d11cb"
         },
         {
           "path": "web/src/workbook.ts",
-          "sha256": "b0a68817435083ab68439b70f230ef0a3acbeaf546d5b731344e9a606929c929"
+          "sha256": "8dfccaf2f12489351fc0a0b7b141ae1eda8719a3d8c63fd059402d6d198ad264"
         },
         {
           "path": "web/src/workbook.test.ts",
@@ -1019,7 +1019,7 @@
         },
         {
           "path": "web/src/WorkbookDialogs.tsx",
-          "sha256": "a68250830a2519ae105a7dc234e4a2e6733945ff529a3ec197a790323ba3fe80"
+          "sha256": "33eee6e61705dae088da02648c7f7bb91b5bd528a6130486962e45af5a1b2c64"
         },
         {
           "path": "web/src/workbook-storage.ts",
@@ -1027,7 +1027,7 @@
         },
         {
           "path": "web/src/workbook-storage.test.ts",
-          "sha256": "2ed7f61fa0aecccc6191ee16cef1879a33f5ea10448adfa78f369b5c1eeb7d26"
+          "sha256": "ff8f93b34b3429f07690c2aa2bea60c781afc17264f1ff1590e9df5da0703766"
         },
         {
           "path": "web/src/workbook-history.ts",
@@ -1047,7 +1047,7 @@
         },
         {
           "path": "web/src/workbook-freeze.ts",
-          "sha256": "4de0bb6164d91faf213fd1490afe65138b951a729181355f65340d173cfaf4e2"
+          "sha256": "546e75527fdb597f304144d9795086727bcfd5b75549c373958d0d7a3da7377d"
         },
         {
           "path": "web/src/workbook-freeze.test.ts",
@@ -1071,7 +1071,7 @@
         },
         {
           "path": "scripts/check_workbook_foundations.py",
-          "sha256": "88ce75f559815f25aff9caebd1e1356d22ff6898e9c6bd7dad92b857bf60e577"
+          "sha256": "0c755902c96bc3e2efba8410d508906a00095ab74628e695542fef394ae55cff"
         },
         {
           "path": "web/src/column-analysis.ts",
@@ -1151,11 +1151,11 @@
       "implementation_sources": [
         {
           "path": "web/src/Plot.tsx",
-          "sha256": "173a19da430d1f3207f6bb1a3b86bc38d03597578c7f1a1a3d9990d8c1c49a53"
+          "sha256": "2d12505bc765695f12473dd08bc67a52c79481aefec242c1dcb1a999ed42e36d"
         },
         {
           "path": "gp/plotting.py",
-          "sha256": "991d3be9c8238a03fecc018474ee20ffb7a71ba34167c72f1fd5cd524521d99a"
+          "sha256": "797f3a511cfbe31406c68204e71ced7f811253ab8869576fd75389c48ab57a85"
         },
         {
           "path": "web/src/AdvancedAnalyses.tsx",
@@ -1204,7 +1204,7 @@
       "implementation_sources": [
         {
           "path": "gp/plotting.py",
-          "sha256": "991d3be9c8238a03fecc018474ee20ffb7a71ba34167c72f1fd5cd524521d99a"
+          "sha256": "797f3a511cfbe31406c68204e71ced7f811253ab8869576fd75389c48ab57a85"
         }
       ],
       "remaining_obligations": [
@@ -1327,7 +1327,7 @@
       "implementation_sources": [
         {
           "path": "web/src/App.tsx",
-          "sha256": "b59b8fa78393e1118f0831f0c60012ba9fd1a9ecd382a23ecfdba1a431147555"
+          "sha256": "05322799b1038a3a0ea31f686225946959cd029e2067117d1154fe4f7b2d26e4"
         },
         {
           "path": "docs/prism-ui-map.md",
@@ -1339,7 +1339,7 @@
         },
         {
           "path": "web/src/workbook-storage.test.ts",
-          "sha256": "2ed7f61fa0aecccc6191ee16cef1879a33f5ea10448adfa78f369b5c1eeb7d26"
+          "sha256": "ff8f93b34b3429f07690c2aa2bea60c781afc17264f1ff1590e9df5da0703766"
         },
         {
           "path": "web/src/workbook-history.ts",
@@ -1351,11 +1351,11 @@
         },
         {
           "path": "web/src/WorkbookDialogs.tsx",
-          "sha256": "a68250830a2519ae105a7dc234e4a2e6733945ff529a3ec197a790323ba3fe80"
+          "sha256": "33eee6e61705dae088da02648c7f7bb91b5bd528a6130486962e45af5a1b2c64"
         },
         {
           "path": "web/src/desktop.css",
-          "sha256": "d9e53d9e8c31e4c4a180e49b812f0a9731655021f7e324adaa1fdb30a9c57a23"
+          "sha256": "e3e50982a40dda1caefec36e236d3cac6bc30c0097a66ff5e2fda0e082c8d701"
         },
         {
           "path": "web/src/dialog-desktop.css",
@@ -1367,7 +1367,7 @@
         },
         {
           "path": "scripts/check_desktop_ui.py",
-          "sha256": "5f186b08584291d9c55f0012cc189d6a19c1453ac93f32708ef4d25683f548f6"
+          "sha256": "2f81e83dddb5042b75b0c08a13048e1d54215978ddcc842e8452e3ea1f239dc3"
         },
         {
           "path": "web/src/desktop-dark.css",
@@ -1375,7 +1375,7 @@
         },
         {
           "path": "web/src/workbook-freeze.ts",
-          "sha256": "4de0bb6164d91faf213fd1490afe65138b951a729181355f65340d173cfaf4e2"
+          "sha256": "546e75527fdb597f304144d9795086727bcfd5b75549c373958d0d7a3da7377d"
         },
         {
           "path": "web/src/workbook-selection.ts",
@@ -1383,7 +1383,7 @@
         },
         {
           "path": "scripts/check_workbook_foundations.py",
-          "sha256": "88ce75f559815f25aff9caebd1e1356d22ff6898e9c6bd7dad92b857bf60e577"
+          "sha256": "0c755902c96bc3e2efba8410d508906a00095ab74628e695542fef394ae55cff"
         },
         {
           "path": "web/src/column-analysis.ts",
@@ -4404,5 +4404,57 @@
     "followup_local_frontend_test_files": 18,
     "followup_local_builds": "TypeScript, packaged-server build, static Vite build and build_browser.py passed; 19 locked runtime files verified",
     "followup_browser_scenarios": "19 scenarios passed on each build in run 39371008134: ten existing scenarios plus nine audit safeguards; evidence is bound to tested code head dbea1698d117d43aea18fb2108f2f7594cb97081."
+  },
+  "axes_checkpoint": {
+    "scope": "Partial axis formatting; native equivalence not established",
+    "evidence": "docs/prism-axes-rea-evidence.md",
+    "implementation": "docs/axes-implementation.md",
+    "source_files": [
+      {
+        "path": "web/src/axes.ts",
+        "sha256": "7271c609f356932b8f0424e3d0ce5ef508292ef985fe5df4cb5900f6d41b4892"
+      },
+      {
+        "path": "web/src/FormatAxesDialog.tsx",
+        "sha256": "71dfb1dcf38f59ee363eb3840740fc5e9bdba9b360472f428db7b8410924cb9c"
+      },
+      {
+        "path": "web/src/plot-geometry.ts",
+        "sha256": "14a95197cd76087ac30a1f4b3e8b34f5e62bf62052d8a95d359451a3a1cd07d3"
+      },
+      {
+        "path": "web/src/Plot.tsx",
+        "sha256": "2d12505bc765695f12473dd08bc67a52c79481aefec242c1dcb1a999ed42e36d"
+      },
+      {
+        "path": "gp/models.py",
+        "sha256": "ef4c2ad5bfa3ae8f7462cdbe0be73e5f5b0ca8d637fff1d1a631afa155ccdfe0"
+      },
+      {
+        "path": "gp/plotting.py",
+        "sha256": "797f3a511cfbe31406c68204e71ced7f811253ab8869576fd75389c48ab57a85"
+      }
+    ],
+    "validation": {
+      "backend": {
+        "passed": 374
+      },
+      "frontend_full_run": {
+        "passed": 190
+      },
+      "frontend_followup_axes": {
+        "passed": 6,
+        "note": "includes two added regressions; overlaps four tests from full run"
+      },
+      "builds": [
+        "server",
+        "static"
+      ],
+      "static_runtime_packages_verified": 19,
+      "server_browser_evidence": "/workspace/gp-evidence/axes-server/browser-check.json",
+      "native_equivalence": false,
+      "static_browser_evidence": "/workspace/gp-evidence/axes-static/browser-check.json",
+      "static_export_timeout_ms": 900000
+    }
   }
 }

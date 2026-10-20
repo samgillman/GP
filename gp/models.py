@@ -57,6 +57,36 @@ class GraphAnnotation(BaseModel):
     label: str = Field(min_length=1, max_length=40)
 
 
+class AxisSettings(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    scale: Literal["auto", "linear", "log10"] = "auto"
+    minimum: FiniteFloat | None = None
+    maximum: FiniteFloat | None = None
+    majorInterval: FiniteFloat | None = Field(default=None, gt=0)
+    reverse: bool = False
+    showAxis: bool = True
+    showGrid: bool = False
+
+    @model_validator(mode="after")
+    def check_axis(self):
+        if any(abs(v) > 1e100 for v in (self.minimum, self.maximum, self.majorInterval) if v is not None):
+            raise ValueError("Axis values must have magnitude no greater than 1e100.")
+        if self.minimum is not None and self.maximum is not None and self.minimum >= self.maximum:
+            raise ValueError("Axis minimum must be less than maximum.")
+        if self.scale == "log10":
+            if any(v <= 0 for v in (self.minimum, self.maximum) if v is not None):
+                raise ValueError("Logarithmic axis limits must be positive.")
+            if self.majorInterval is not None:
+                raise ValueError("Major intervals are supported only on linear axes.")
+        return self
+
+
+class GraphAxes(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    x: AxisSettings = Field(default_factory=AxisSettings)
+    y: AxisSettings = Field(default_factory=AxisSettings)
+
+
 class GraphOptions(BaseModel):
     model_config = ConfigDict(extra="forbid")
     type: Literal["scatter", "bar", "box", "line"] = "scatter"
@@ -67,6 +97,7 @@ class GraphOptions(BaseModel):
     colors: list[str] = Field(default_factory=list, max_length=32)
     show_points: bool = True
     annotations: list[GraphAnnotation] = Field(default_factory=list, max_length=435)
+    axes: GraphAxes | None = None
 
 
 class ExportRequest(BaseModel):
@@ -74,3 +105,18 @@ class ExportRequest(BaseModel):
     data: AnalysisRequest
     graph: GraphOptions = Field(default_factory=GraphOptions)
     format: Literal["svg", "png", "pdf"] = "svg"
+
+    @model_validator(mode="after")
+    def check_axes(self):
+        if self.graph.axes is None:
+            return self
+        x = self.graph.axes.x
+        if self.data.table_type == "column":
+            if x.scale != "auto" or any(v is not None for v in (x.minimum, x.maximum, x.majorInterval)):
+                raise ValueError("Categorical X supports only reverse, axis visibility and grid settings.")
+        elif x.scale == "auto" and self.data.analysis == "dose_response":
+            if any(v <= 0 for v in (x.minimum, x.maximum) if v is not None):
+                raise ValueError("Automatic dose-response X uses log scale; axis limits must be positive.")
+            if x.majorInterval is not None:
+                raise ValueError("Major intervals are supported only on linear axes.")
+        return self

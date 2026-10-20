@@ -1,5 +1,35 @@
 # Completion execution log
 
+## 2026-10-20 continuation: persistent axes
+
+Resumed from GitHub main `948a451` in `/workspace/gp-status-main`. Reused actual
+REA interface decoding Evidence
+`ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f`,
+reverified original NIB hashes, and recorded the bounded controls/unknowns in
+[axes evidence](prism-axes-rea-evidence.md). No native Prism execution occurred.
+
+[The implementation](axes-implementation.md) adds a dedicated axis dialog,
+persistent ranges/scales/ticks/reversal/visibility/grids, clipping and matching
+export interpretation. G060/G062/G064/G066/G067 remain partial. The next evidence
+appendix maps decimal precision/separators and additional scales without
+inventing Antilog or probability transforms.
+
+Validation: full backend **374 passed** (one existing Starlette deprecation
+warning); full frontend **190 passed**, followed by **6 focused axes tests**
+including two added tick-count/frozen-conversion regressions; typecheck and both
+production builds passed; static assembler verified all **19** runtime packages.
+The requirement checker preserved all **2,661** identities and **1,574** original
+parity audit rows. Initial Chromium axes editing/persistence checks passed.
+Production server and static Chromium checks both passed, including undo/redo,
+reload, Cancel and real SVG/PNG/PDF downloads with configured axes. Static cold
+startup exceeded the initial 180-second and 300-second download allowances with
+no page exception or application error banner. The successful diagnostic run
+used `GP_AXES_EXPORT_TIMEOUT=900000`; that override is recorded in the external
+evidence at `/workspace/gp-evidence/axes-static/browser-check.json`. The server
+evidence is `/workspace/gp-evidence/axes-server/browser-check.json`. CI runs the
+same script with its default 300-second export allowance.
+These GP checks do not establish native equivalence or deployment.
+
 Checkpoint entries below retain the evidence available when they were written.
 The final Column audit section records later inspection of the merged PR #3 CI
 run and distinguishes it from validation of the follow-up safeguards.

@@ -89,6 +89,7 @@ for (const [columns, rows] of [
       foundLow = false,
       foundHigh = false;
     const context = {
+      save() {}, restore() {}, rect() {}, clip() {},
       beginPath() {},
       arc(x: number, y: number) {
         assert.ok(Number.isFinite(x) && Number.isFinite(y));
@@ -299,6 +300,7 @@ test("300000-point selection draws every selected observation without DOM marks"
   const g = buildPlotGeometry(p, null)!;
   let arcs = 0;
   const context = {
+    save() {}, restore() {}, rect() {}, clip() {},
     beginPath() {},
     arc() {
       arcs++;
@@ -322,6 +324,7 @@ test("selection ranges preserve missing-cell row identities and tolerate reverse
   p.columns = [{ name: "A", values: ["1", "", "3", "4"] }];
   const g = buildPlotGeometry(p, null)!;
   const context = {
+    save() {}, restore() {}, rect() {}, clip() {},
     beginPath() {},
     arc() {},
     stroke() {},
@@ -365,4 +368,144 @@ test("pairwise brackets stack like the export and raise the axis to fit", () => 
   );
   assert.ok(annotated.maxY >= plain.maxY);
   assert.ok(annotated.maxY > annotated.brackets[0].y);
+});
+
+// Axis formatting is a display transformation. These tests assert GP's explicit
+// contract; they are not evidence of native Prism defaults or algorithms.
+import { defaultGraphAxes } from "./axes.ts";
+function axisProject() {
+  const p = sample("xy");
+  p.columns = [
+    { name: "X", values: ["-1", "0", "1", "2", "10"] },
+    { name: "Y", values: ["-10", "0", "1", "10", "100"] },
+  ];
+  p.graph.error = "none";
+  p.graph.axes = defaultGraphAxes();
+  return p;
+}
+test("explicit defaults preserve pre-axis automatic domains, ticks and source identities", () => {
+  for (const type of ["column", "xy"] as const) {
+    const p = sample(type), original = buildPlotGeometry(p, null)!;
+    p.graph.axes = defaultGraphAxes();
+    const configured = buildPlotGeometry(p, null)!;
+    const expected = type === "column" ? {minX: .4, maxX: 3.6, minY: 0, maxY: 100, xTicks: [], yTicks: [0, 20, 40, 60, 80, 100]} : {minX: -25, maxX: 125, minY: -25, maxY: 125, xTicks: [-25, 0, 25, 50, 75, 100, 125], yTicks: [-25, 0, 25, 50, 75, 100, 125]};
+    for (const key of ["minX", "maxX", "minY", "maxY", "xTicks", "yTicks"] as const) assert.deepEqual(configured[key], expected[key], `legacy default ${type} ${key}`);
+    for (const key of ["minX", "maxX", "minY", "maxY", "xTicks", "yTicks", "series"] as const)
+      assert.deepEqual(configured[key], original[key]);
+  }
+});
+test("manual bounds are exact, ticks zero-anchored, and both directions reverse independently", () => {
+  const p = axisProject();
+  Object.assign(p.graph.axes!.x, {minimum: -.25, maximum: 2.75, majorInterval: .5});
+  Object.assign(p.graph.axes!.y, {minimum: -5, maximum: 20, majorInterval: 5});
+  const normal = buildPlotGeometry(p, null)!;
+  assert.equal(normal.minX, -.25); assert.equal(normal.maxX, 2.75);
+  assert.equal(normal.minY, -5); assert.equal(normal.maxY, 20);
+  assert.deepEqual(normal.xTicks, [0, .5, 1, 1.5, 2, 2.5]);
+  assert.deepEqual(normal.yTicks, [-5, 0, 5, 10, 15, 20]);
+  p.graph.axes!.x.reverse = p.graph.axes!.y.reverse = true;
+  const reversed = buildPlotGeometry(p, null)!;
+  assert.equal(reversed.x(-.25), plotFrame.width - plotFrame.right);
+  assert.equal(reversed.x(2.75), plotFrame.left);
+  assert.equal(reversed.y(-5), plotFrame.top);
+  assert.equal(reversed.y(20), plotFrame.height - plotFrame.bottom);
+  assert.deepEqual(reversed.series, normal.series);
+});
+test("log Y omits only visual points, keeping all-data mean, CI and box quantiles", () => {
+  const p = sample("column");
+  p.columns = [{name: "A", values: ["-10", "0", "2", "4"]}];
+  p.graph.axes = defaultGraphAxes(); p.graph.axes.y.scale = "log10";
+  p.graph.type = "bar"; p.graph.error = "sd";
+  const g = buildPlotGeometry(p, null)!;
+  assert.equal(g.totalCount, 4); assert.equal(g.count, 2); assert.equal(g.logOmittedCount, 2);
+  assert.deepEqual(g.series[0].values, [-10, 0, 2, 4]);
+  assert.equal(g.series[0].mean, -1);
+  assert.ok(g.series[0].lo < 0 && g.series[0].hi > 0);
+  assert.deepEqual(g.series[0].points.map(point => point.row), [2, 3]);
+  assert.equal(g.validY(g.series[0].mean), false);
+  assert.ok(Number.isFinite(g.boundedY(g.series[0].lo)));
+  p.graph.type = "box";
+  assert.deepEqual(buildPlotGeometry(p, null)!.series[0].quartiles, [-2.5, 1, 2.5]);
+});
+test("log axes retain exact manual limits and geometric midpoints in either direction", () => {
+  const p = axisProject();
+  Object.assign(p.graph.axes!.x, {scale: "log10", minimum: 1, maximum: 100});
+  Object.assign(p.graph.axes!.y, {scale: "log10", minimum: 1, maximum: 100});
+  for (const reverse of [false, true]) {
+    p.graph.axes!.x.reverse = p.graph.axes!.y.reverse = reverse;
+    const g = buildPlotGeometry(p, null)!;
+    assert.equal(g.minY, 1); assert.equal(g.maxY, 100);
+    assert.equal(g.x(10), (plotFrame.left + plotFrame.width - plotFrame.right) / 2);
+    assert.equal(g.y(10), (plotFrame.top + plotFrame.height - plotFrame.bottom) / 2);
+    assert.ok(g.yTicks.every(tick => tick >= 1 && tick <= 100));
+  }
+});
+test("all nonpositive observations yield honest empty logarithmic fallback axes", () => {
+  const p = axisProject();
+  p.columns[0].values = ["0", "-1"]; p.columns[1].values = ["0", "-2"];
+  p.graph.axes!.x.scale = p.graph.axes!.y.scale = "log10";
+  const g = buildPlotGeometry(p, null)!;
+  assert.equal(g.count, 0); assert.equal(g.totalCount, 2); assert.equal(g.logOmittedCount, 2);
+  assert.deepEqual([g.minX, g.maxX, g.minY, g.maxY], [1, 10, 1, 10]);
+  assert.equal(pointHitIndex(g)(g.x(1), g.y(1)), null);
+});
+test("categorical axes support reversing and visibility but reject numeric controls", () => {
+  const p = sample("column"); p.graph.axes = defaultGraphAxes();
+  Object.assign(p.graph.axes.x, {reverse: true, showAxis: false, showGrid: true});
+  const g = buildPlotGeometry(p, null)!;
+  assert.ok(g.x(1) > g.x(2)); assert.equal(g.axes.x.showAxis, false);
+  p.graph.axes.x.minimum = 0;
+  assert.throws(() => buildPlotGeometry(p, null), /categorical/i);
+});
+test("invalid settings and resolved one-sided ranges fail explicitly", () => {
+  for (const change of [{minimum: NaN}, {maximum: Infinity}, {minimum: 2, maximum: 1}, {minimum: -1, scale: "log10"}, {majorInterval: 0}, {maximum: 1e101}]) {
+    const p = axisProject(); Object.assign(p.graph.axes!.y, change);
+    assert.throws(() => buildPlotGeometry(p, null), /axis|limits/i);
+  }
+  const p = axisProject(); p.graph.axes!.y.minimum = 1e8;
+  assert.throws(() => buildPlotGeometry(p, null), /ordered display range/);
+});
+test("major tick count is bounded before allocation, including tiny or huge coordinates", () => {
+  const p = axisProject();
+  Object.assign(p.graph.axes!.y, {minimum: 0, maximum: 199, majorInterval: 1});
+  assert.equal(buildPlotGeometry(p, null)!.yTicks.length, 200);
+  p.graph.axes!.y.maximum = 200;
+  assert.throws(() => buildPlotGeometry(p, null), /200 ticks/);
+  p.graph.axes!.y.majorInterval = Number.MIN_VALUE;
+  assert.throws(() => buildPlotGeometry(p, null), /200 ticks/);
+  Object.assign(p.graph.axes!.y, {minimum: 1e99, maximum: 1e99 + 1e85, majorInterval: 1e83});
+  assert.throws(() => buildPlotGeometry(p, null), /represent|200 ticks/);
+  const tiny = linearTicks(1e99, 1e99 + 1e84);
+  assert.ok(tiny.min < tiny.max && tiny.ticks.every(Number.isFinite));
+});
+test("dense drawing, selection, and hits honor exact limits without changing original row identities", () => {
+  const p = axisProject();
+  p.columns = [{name: "X", values: Array.from({length: 300000}, (_, i) => String(i))}, {name: "Y", values: Array.from({length: 300000}, (_, i) => String(i))}];
+  Object.assign(p.graph.axes!.x, {minimum: 123456, maximum: 123458});
+  Object.assign(p.graph.axes!.y, {minimum: 123456, maximum: 123458});
+  const g = buildPlotGeometry(p, null)!;
+  let arcs = 0, saves = 0, restores = 0, clips = 0;
+  const context = {save() {saves++;}, restore() {restores++;}, clip() {clips++;}, rect(x: number, y: number, w: number, h: number) {assert.deepEqual([x, y, w, h], [72, 35, 580, 307]);}, beginPath() {}, fill() {}, stroke() {}, arc(x: number, y: number) { assert.ok(Number.isFinite(x) && Number.isFinite(y)); assert.ok(x >= 72 && x <= 652 && y >= 35 && y <= 342); arcs++; }} as unknown as CanvasRenderingContext2D;
+  drawDensePoints(context, g); assert.equal(arcs, 3);
+  assert.equal(drawSelectedPoints(context, g, [{seriesIndex: 0, startRow: 0, endRow: 299999}]), 3);
+  assert.deepEqual([saves, restores, clips], [2, 2, 2]);
+  assert.equal(g.count, 300000); assert.equal(g.series[0].values.length, 300000);
+  const hit = pointHitIndex(g);
+  assert.equal(hit(g.x(123457), g.y(123457))!.row, 123457);
+  assert.equal(hit(g.x(123456) - 1, g.y(123456)), null);
+  assert.equal(hit(g.x(123455), g.y(123455)), null);
+});
+test("line segments clip at manual boundaries and do not connect through invalid log values", () => {
+  const p = axisProject();
+  Object.assign(p.graph.axes!.x, {minimum: 0, maximum: 10});
+  Object.assign(p.graph.axes!.y, {minimum: 0, maximum: 10});
+  const g = buildPlotGeometry(p, null)!;
+  assert.equal(g.linePath([{x: -10, y: 5}, {x: 20, y: 5}]), `M${g.x(0)},${g.y(5)}L${g.x(10)},${g.y(5)}`);
+  assert.equal(g.linePath([{x: -10, y: -1}, {x: 20, y: -1}]), "");
+  assert.equal(g.linePath([{x: -1e100, y: 5}, {x: 1e100, y: 5}]), `M${g.x(0)},${g.y(5)}L${g.x(10)},${g.y(5)}`);
+  assert.equal(g.linePath([{x: -1e100, y: -2e100}, {x: 1e100, y: 2e100}]), `M${g.x(0)},${g.y(0)}L${g.x(5)},${g.y(10)}`);
+  Object.assign(p.graph.axes!.y, {scale: "log10", minimum: 1, maximum: 100});
+  const log = buildPlotGeometry(p, null)!;
+  assert.equal(log.linePath([{x: 1, y: 1}, {x: 2, y: 0}, {x: 3, y: 100}]), "");
+  assert.match(log.linePath([{x: 1, y: 1}, {x: 3, y: 100}]), /^M.+L/);
 });

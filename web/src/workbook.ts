@@ -1,3 +1,4 @@
+import { axesForTableType } from "./axes.ts";
 import { numeric, parseProject, sample } from "./data.ts";
 import type { Analysis, Graph, Project, Response, Summary, TableType } from "./data.ts";
 import { assertWorkbookDependencyIntegrity } from "./workbook-dependencies.ts";
@@ -382,7 +383,10 @@ export function updateData(
   const columns = next.columns.map((column) =>
     column.id === undefined ? { ...column, id: id() } : column,
   );
-  next = { ...next, columns };
+  next = { ...next, columns,
+    ...(source.project.table_type !== next.table_type && next.graph.axes
+      ? { graph: { ...next.graph, axes: axesForTableType(next.graph.axes, next.table_type === "xy") } } : {}),
+  };
   const count = representedRowCount(next);
   if (count < source.rowIds.length && options.rowIds === undefined)
     throw new Error("Row deletions require an explicit row ID mapping.");
@@ -484,6 +488,8 @@ export function updateData(
           source.project.table_type !== next.table_type,
         graph: {
           ...s.graph,
+          ...(s.graph.axes && source.project.table_type !== next.table_type
+            ? { axes: axesForTableType(s.graph.axes, next.table_type === "xy") } : {}),
           type:
             next.table_type === "xy"
               ? s.graph.type === "line"

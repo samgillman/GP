@@ -1,4 +1,7 @@
 import type { ComparisonOptions } from "./column-analysis.ts";
+import { validGraphAxes, axesSettingsProblem } from "./axes.ts";
+import type { GraphAxes } from "./axes.ts";
+export type { AxisSettings, GraphAxes } from "./axes.ts";
 export type TableType = "column" | "xy";
 export type Analysis =
   | "descriptive"
@@ -21,6 +24,7 @@ export type Graph = {
   y_label: string;
   colors: string[];
   show_points: boolean;
+  axes?: GraphAxes;
   // Brackets from the graph's linked t test or one-way ANOVA.
   pairwise?: { style: "asterisks" | "p"; show_ns: boolean };
 };
@@ -369,6 +373,8 @@ export function parseProject(text: string): Project {
     !["sd", "sem", "ci", "none"].includes(g.error) ||
     !["title", "x_label", "y_label"].every((k) => typeof g[k] === "string") ||
     typeof g.show_points !== "boolean" ||
+    (g.axes !== undefined && (!validGraphAxes(g.axes) ||
+      axesSettingsProblem(g.axes, p.table_type === "xy") !== null)) ||
     !Array.isArray(g.colors) ||
     !g.colors.every(
       (v: unknown) => typeof v === "string" && /^#[0-9a-f]{6}$/i.test(v),

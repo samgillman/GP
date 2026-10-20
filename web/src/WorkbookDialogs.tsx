@@ -26,7 +26,7 @@ function datasetLetter(index: number) {
   return label;
 }
 
-function DesktopDialog({
+export function DesktopDialog({
   title,
   titleId,
   className = "",
