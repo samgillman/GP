@@ -1379,3 +1379,83 @@
   font-size: 14px;
   fill: #000;
 }
+
+/* Graph inspector: the native document archive includes a right-side inspector
+   split. This implements reachable GP controls without claiming exact geometry. */
+.app > main .sheet-graph-view .graph-document-workspace {
+  display: flex;
+  align-items: flex-start;
+  min-width: 0;
+  min-height: 100%;
+  gap: 16px;
+}
+.app > main .sheet-graph-view .graph-document-workspace > .graph-card {
+  flex: 1 1 650px;
+  min-width: 0;
+  width: auto;
+  max-width: 870px;
+}
+.app > main .sheet-graph-view .graph-document-workspace.with-inspector > .graph-card {
+  max-width: calc(100% - 245px);
+}
+.app > main .graph-inspector {
+  flex: 0 0 229px;
+  width: 229px;
+  background: #f4f4f5;
+  color: #292929;
+  border: 1px solid #b5b5b5;
+  font: 12px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  align-self: stretch;
+  max-height: calc(100vh - 218px);
+  overflow-y: auto;
+}
+.app > main .graph-inspector-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 32px;
+  padding: 6px 10px;
+  border-bottom: 1px solid #c3c3c3;
+  background: #e7e7e8;
+}
+.app > main .graph-inspector-heading button {
+  border: 0;
+  background: transparent;
+  font-size: 19px;
+  padding: 0 3px;
+}
+.app > main .graph-inspector-body section { padding: 11px 10px; border-bottom: 1px solid #d0d0d0; }
+.app > main .graph-inspector-body h3 { font-size: 12px; font-weight: 650; margin: 0 0 10px; }
+.app > main .graph-inspector-row { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 9px; }
+.app > main .graph-inspector-row strong { font-weight: 500; text-align: right; }
+.app > main .graph-inspector-action {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin: 5px 0;
+  padding: 5px 8px;
+  border: 1px solid #bababa;
+  border-radius: 4px;
+  background: linear-gradient(#fff, #ebebeb);
+  font: inherit;
+}
+.app > main .graph-inspector-action:disabled { opacity: .45; }
+.app > main .graph-inspector-checkbox { display: flex; align-items: center; gap: 7px; margin: 8px 0; }
+.app > main .graph-inspector-field { display: flex; flex-direction: column; gap: 4px; margin: 9px 0; }
+.app > main .graph-inspector-field select { width: 100%; }
+.app > main .graph-inspector-body p { font-size: 11px; color: #555; margin: 0 0 8px; }
+.app[data-theme="dark"] > main .graph-inspector { background: #383838; border-color: #666; color: #eee; }
+.app[data-theme="dark"] > main .graph-inspector-heading { background: #444; border-color: #666; }
+.app[data-theme="dark"] > main .graph-inspector-body section { border-color: #606060; }
+.app[data-theme="dark"] > main .graph-inspector-body p { color: #bbb; }
+.app[data-theme="dark"] > main .graph-inspector-action { color: #eee; background: #555; border-color: #777; }
+@media (max-width: 1070px) {
+  .app > main .sheet-graph-view .graph-document-workspace.with-inspector {
+    width: max-content;
+    min-width: 900px;
+  }
+  .app > main .sheet-graph-view .graph-document-workspace.with-inspector > .graph-card {
+    flex: 0 0 650px;
+    max-width: none;
+  }
+}
