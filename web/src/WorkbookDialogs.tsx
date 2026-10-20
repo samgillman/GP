@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import type { Analysis, Graph, Project, TableType } from "./data";
+import type { Analysis, ErrorType, Graph, Project, TableType } from "./data";
 import type { GraphSheet, ResultSheet } from "./workbook";
 import { dataIndices } from "./workbook";
 import {
@@ -18,6 +18,16 @@ import type {
   ComparisonOptions,
 } from "./column-analysis";
 import "./dialog-desktop.css";
+import "./format-graph-dialog.css";
+import {
+  addDatasets,
+  datasetColor,
+  removeDataset,
+  reorderDataset,
+  reverseDatasets,
+  setDatasetColor,
+} from "./graph-datasets";
+import type { DatasetArrangement, ReorderOperation } from "./graph-datasets";
 
 function datasetLetter(index: number) {
   let label = "";
@@ -1068,36 +1078,74 @@ export function PairwiseDialog({
     </DesktopDialog>
   );
 }
+/** Change > Format Graph…: GP's bounded subset of the shipped XY dialog contract.
+ *
+ * The retained REA record (docs/prism-graph-format-evidence.md) establishes a
+ * selected-dataset Appearance editor, one ordered "front to back" dataset list
+ * with an action column, and an Apply/Cancel/OK footer with a separate Change
+ * Graph Type button. Control chrome, widths and the GP-only groups (graph
+ * title, linked analysis) are GP choices; no native runtime comparison exists.
+ */
 export function FormatGraphDialog({
   sheet,
   project,
   results,
+  initialDataset = 0,
   onClose,
   onApply,
+  onChangeGraphType,
 }: {
   sheet: GraphSheet;
   project: Project;
   results: ResultSheet[];
+  initialDataset?: number;
   onClose: () => void;
   onApply: (next: GraphSheet) => void;
+  // Applies pending edits, closes this dialog and opens Change Graph Type.
+  onChangeGraphType?: (next: GraphSheet) => void;
 }) {
   const [draft, setDraft] = useState(() => structuredClone(sheet)),
-    [tab, setTab] = useState("Appearance");
+    [tab, setTab] = useState("Appearance"),
+    [selected, setSelected] = useState(() =>
+      Math.min(Math.max(0, initialDataset), Math.max(0, sheet.columnIndices.length - 1)),
+    ),
+    [adding, setAdding] = useState<number[] | null>(null),
+    [errorType, setErrorType] = useState<Exclude<ErrorType, "none">>(
+      sheet.graph.error === "none" ? "sem" : sheet.graph.error,
+    );
+  const xy = project.table_type === "xy";
+  const count = draft.columnIndices.length;
+  const position = Math.min(selected, Math.max(0, count - 1));
+  const arrangement: DatasetArrangement = {
+    columnIndices: draft.columnIndices,
+    colors: draft.graph.colors,
+  };
+  const available = dataIndices(project).filter(
+    (i) => !draft.columnIndices.includes(i),
+  );
+  const name = (i: number) => project.columns[i]?.name ?? `Data set ${i + 1}`;
+  const errorBarsApply = !xy && draft.graph.type !== "box";
   function g(p: Partial<Graph>) {
     setDraft((v) => ({ ...v, graph: { ...v.graph, ...p } }));
   }
-  function move(i: number, d: number) {
-    setDraft((v) => {
-      const a = [...v.columnIndices];
-      [a[i], a[i + d]] = [a[i + d], a[i]];
-      return { ...v, columnIndices: a };
-    });
+  function arrange(next: DatasetArrangement, nextPosition = position) {
+    setDraft((v) => ({
+      ...v,
+      columnIndices: next.columnIndices,
+      graph: { ...v.graph, colors: next.colors },
+    }));
+    setSelected(Math.max(0, Math.min(nextPosition, next.columnIndices.length - 1)));
   }
+  function reorder(operation: ReorderOperation) {
+    const moved = reorderDataset(arrangement, position, operation);
+    if (moved.arrangement !== arrangement) arrange(moved.arrangement, moved.position);
+  }
+  const tabs = ["Appearance", "Data Sets on Graph", "Graph Settings"];
   return (
     <DesktopDialog
       title="Format Graph"
       titleId="format-title"
-      className="desktop-format"
+      className="desktop-format format-graph-dialog"
       onClose={onClose}
     >
       <div className="desktop-dialog-body">
@@ -1106,7 +1154,7 @@ export function FormatGraphDialog({
           role="tablist"
           aria-label="Graph format options"
         >
-          {["Appearance", "Data Sets on Graph", "Graph Settings"].map((t) => (
+          {tabs.map((t) => (
             <button
               data-autofocus={t === "Appearance" ? true : undefined}
               role="tab"
@@ -1118,11 +1166,6 @@ export function FormatGraphDialog({
               key={t}
               onClick={() => setTab(t)}
               onKeyDown={(event) => {
-                const tabs = [
-                  "Appearance",
-                  "Data Sets on Graph",
-                  "Graph Settings",
-                ];
                 if (
                   !["ArrowLeft", "ArrowRight", "Home", "End"].includes(
                     event.key,
@@ -1157,170 +1200,287 @@ export function FormatGraphDialog({
           aria-labelledby={`graph-format-tab-${tab.replaceAll(" ", "-")}`}
         >
           {tab === "Appearance" ? (
-            <div className="desktop-appearance-options">
+            <div className="format-graph-appearance">
               <fieldset>
-                <legend>Plot</legend>
-                <label className="desktop-form-row">
-                  <span>Graph type</span>
-                  <select
-                    value={draft.graph.type}
-                    onChange={(e) =>
-                      g({ type: e.target.value as Graph["type"] })
-                    }
+                <legend>Data set</legend>
+                <div className="format-graph-scope-row">
+                  <label className="desktop-form-row">
+                    <span>Data set</span>
+                    <select
+                      aria-label="Data set"
+                      value={position}
+                      onChange={(e) => setSelected(Number(e.target.value))}
+                    >
+                      {draft.columnIndices.map((i, pos) => (
+                        <option key={i} value={pos}>
+                          {name(i)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <button
+                    type="button"
+                    aria-label="Previous data set"
+                    disabled={position <= 0}
+                    onClick={() => setSelected(position - 1)}
                   >
-                    {(project.table_type === "xy"
-                      ? ["scatter", "line"]
-                      : ["scatter", "bar", "box"]
-                    ).map((t) => (
-                      <option key={t} value={t}>
-                        {
-                          (
-                            {
-                              scatter: "Scatter",
-                              line: "Connecting lines",
-                              bar: "Bars",
-                              box: "Box and whiskers",
-                            } as Record<string, string>
-                          )[t]
-                        }
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="desktop-form-row">
-                  <span>Error bars</span>
-                  <select
-                    disabled={
-                      project.table_type === "xy" || draft.graph.type === "box"
-                    }
-                    value={draft.graph.error}
-                    onChange={(e) =>
-                      g({ error: e.target.value as Graph["error"] })
-                    }
+                    ◀
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Next data set"
+                    disabled={position >= count - 1}
+                    onClick={() => setSelected(position + 1)}
                   >
-                    <option value="none">None</option>
-                    <option value="sd">SD</option>
-                    <option value="sem">SEM</option>
-                    <option value="ci">95% CI</option>
-                  </select>
-                </label>
-                <label className="desktop-checkbox-label">
+                    ▶
+                  </button>
+                </div>
+                <label className="desktop-form-row">
+                  <span>Color</span>
                   <input
-                    type="checkbox"
-                    checked={draft.graph.show_points}
-                    onChange={(e) => g({ show_points: e.target.checked })}
+                    type="color"
+                    aria-label="Data set color"
+                    value={datasetColor(draft.graph.colors, position)}
+                    onChange={(e) =>
+                      arrange(setDatasetColor(arrangement, position, e.target.value))
+                    }
                   />
-                  Show individual points
                 </label>
-                {(project.table_type === "xy" ||
-                  draft.graph.type === "box") && (
-                  <p className="desktop-help-text">
-                    {draft.graph.type === "box"
-                      ? "Box plots display their distribution; separate error bars do not apply."
-                      : "Error bars are not available for single-value XY observations."}
-                  </p>
-                )}
+                <p className="desktop-help-text">
+                  Color applies to the selected data set only. The style,
+                  symbol and error bar settings below apply to every data set on
+                  this graph.
+                </p>
               </fieldset>
-              <fieldset>
-                <legend>Titles and axis labels</legend>
-                <label className="desktop-form-row">
-                  <span>Title</span>
-                  <input
-                    value={draft.graph.title}
-                    onChange={(e) => g({ title: e.target.value })}
-                  />
-                </label>
-                <label className="desktop-form-row">
-                  <span>X axis</span>
-                  <input
-                    value={draft.graph.x_label}
-                    onChange={(e) => g({ x_label: e.target.value })}
-                  />
-                </label>
-                <label className="desktop-form-row">
-                  <span>Y axis</span>
-                  <input
-                    value={draft.graph.y_label}
-                    onChange={(e) => g({ y_label: e.target.value })}
-                  />
-                </label>
-              </fieldset>
-              <fieldset className="desktop-colors">
-                <legend>Data set appearance</legend>
-                {draft.columnIndices.map((i, pos) => (
-                  <label key={i} className="desktop-form-row">
-                    <span>{project.columns[i].name} color</span>
-                    <input
-                      type="color"
-                      value={
-                        draft.graph.colors[pos % draft.graph.colors.length] ??
-                        "#20867e"
+              <div className="format-graph-columns">
+                <fieldset>
+                  <legend>Style</legend>
+                  <label className="desktop-form-row">
+                    <span>Graph type</span>
+                    <select
+                      aria-label="Graph type"
+                      value={draft.graph.type}
+                      onChange={(e) =>
+                        g({ type: e.target.value as Graph["type"] })
                       }
+                    >
+                      {(xy ? ["scatter", "line"] : ["scatter", "bar", "box"]).map(
+                        (t) => (
+                          <option key={t} value={t}>
+                            {
+                              (
+                                {
+                                  scatter: "Scatter",
+                                  line: "Connecting lines",
+                                  bar: "Bars",
+                                  box: "Box and whiskers",
+                                } as Record<string, string>
+                              )[t]
+                            }
+                          </option>
+                        ),
+                      )}
+                    </select>
+                  </label>
+                </fieldset>
+                <fieldset>
+                  <legend>Symbols</legend>
+                  <label className="desktop-checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={draft.graph.show_points}
+                      onChange={(e) => g({ show_points: e.target.checked })}
+                    />
+                    Show symbols
+                  </label>
+                </fieldset>
+                <fieldset>
+                  <legend>Error bars</legend>
+                  <label className="desktop-checkbox-label">
+                    <input
+                      type="checkbox"
+                      disabled={!errorBarsApply}
+                      checked={errorBarsApply && draft.graph.error !== "none"}
+                      onChange={(e) =>
+                        g({ error: e.target.checked ? errorType : "none" })
+                      }
+                    />
+                    Show error bars
+                  </label>
+                  <label className="desktop-form-row">
+                    <span>Error bar type</span>
+                    <select
+                      aria-label="Error bar type"
+                      disabled={!errorBarsApply || draft.graph.error === "none"}
+                      value={draft.graph.error === "none" ? errorType : draft.graph.error}
                       onChange={(e) => {
-                        const colors = [...draft.graph.colors];
-                        while (colors.length <= pos) colors.push("#20867e");
-                        colors[pos] = e.target.value;
-                        g({ colors });
+                        const next = e.target.value as Exclude<ErrorType, "none">;
+                        setErrorType(next);
+                        g({ error: next });
                       }}
+                    >
+                      <option value="sd">SD</option>
+                      <option value="sem">SEM</option>
+                      <option value="ci">95% CI</option>
+                    </select>
+                  </label>
+                  {!errorBarsApply && (
+                    <p className="desktop-help-text">
+                      {draft.graph.type === "box"
+                        ? "Box plots display their distribution; separate error bars do not apply."
+                        : "Error bars are not available for single-value XY observations."}
+                    </p>
+                  )}
+                </fieldset>
+                <fieldset>
+                  <legend>Graph title</legend>
+                  <label className="desktop-form-row">
+                    <span>Title</span>
+                    <input
+                      value={draft.graph.title}
+                      onChange={(e) => g({ title: e.target.value })}
                     />
                   </label>
-                ))}
-              </fieldset>
+                  <p className="desktop-help-text">
+                    Axis titles are edited in Format Axes. This title field is
+                    a GP location, not part of the shipped Appearance page.
+                  </p>
+                </fieldset>
+              </div>
             </div>
           ) : tab === "Data Sets on Graph" ? (
             <>
-              <div className="desktop-dataset-panes">
+              <div className="format-graph-datasets">
                 <div>
-                  <h3>Include data sets:</h3>
-                  <div className="desktop-dataset-list">
-                    {dataIndices(project).map((i) => (
+                  <h3 id="format-graph-list-heading">
+                    Data sets plotted (front to back)
+                  </h3>
+                  <ul
+                    role="listbox"
+                    aria-labelledby="format-graph-list-heading"
+                    className="format-graph-dataset-list"
+                    tabIndex={0}
+                    onKeyDown={(event) => {
+                      const moves: Record<string, number> = {
+                        ArrowUp: position - 1,
+                        ArrowDown: position + 1,
+                        Home: 0,
+                        End: count - 1,
+                      };
+                      if (!(event.key in moves)) return;
+                      event.preventDefault();
+                      setSelected(Math.max(0, Math.min(count - 1, moves[event.key])));
+                    }}
+                  >
+                    {draft.columnIndices.map((i, pos) => (
+                      <li
+                        key={i}
+                        role="option"
+                        aria-selected={pos === position}
+                        onClick={() => setSelected(pos)}
+                      >
+                        <i
+                          className="format-graph-swatch"
+                          aria-hidden="true"
+                          style={{ background: datasetColor(draft.graph.colors, pos) }}
+                        />
+                        <span>{name(i)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="desktop-help-text">
+                    Higher data sets draw in front of lower data sets.
+                    Membership and order are saved for this graph without
+                    changing the data table.
+                  </p>
+                </div>
+                <div
+                  className="format-graph-actions"
+                  role="group"
+                  aria-label="Data set actions"
+                >
+                  <button
+                    type="button"
+                    disabled={!available.length || adding !== null}
+                    onClick={() => setAdding([])}
+                  >
+                    Add…
+                  </button>
+                  <button
+                    type="button"
+                    disabled={count <= 1}
+                    onClick={() =>
+                      arrange(removeDataset(arrangement, position), position)
+                    }
+                  >
+                    Remove
+                  </button>
+                  <span className="format-graph-actions-gap" aria-hidden="true" />
+                  <button type="button" disabled={position <= 0} onClick={() => reorder("top")}>
+                    Top
+                  </button>
+                  <button type="button" disabled={position <= 0} onClick={() => reorder("up")}>
+                    Up
+                  </button>
+                  <button
+                    type="button"
+                    disabled={count <= 1}
+                    onClick={() => arrange(reverseDatasets(arrangement), count - 1 - position)}
+                  >
+                    Reverse
+                  </button>
+                  <button type="button" disabled={position >= count - 1} onClick={() => reorder("down")}>
+                    Down
+                  </button>
+                  <button type="button" disabled={position >= count - 1} onClick={() => reorder("bottom")}>
+                    Bottom
+                  </button>
+                </div>
+              </div>
+              {adding !== null && (
+                <fieldset className="format-graph-add">
+                  <legend>Add data sets from {project.name}</legend>
+                  <div className="format-graph-add-list">
+                    {available.map((i) => (
                       <label className="desktop-dataset-option" key={i}>
                         <input
                           type="checkbox"
-                          checked={draft.columnIndices.includes(i)}
+                          checked={adding.includes(i)}
                           onChange={(e) =>
-                            setDraft((v) => ({
-                              ...v,
-                              columnIndices: e.target.checked
-                                ? [...v.columnIndices, i]
-                                : v.columnIndices.filter((n) => n !== i),
-                            }))
+                            setAdding(
+                              e.target.checked
+                                ? [...adding, i]
+                                : adding.filter((n) => n !== i),
+                            )
                           }
                         />
-                        {project.columns[i].name}
+                        {name(i)}
                       </label>
                     ))}
                   </div>
-                </div>
-                <div>
-                  <h3>Drawing order:</h3>
-                  <ol className="desktop-graph-dataset-order">
-                    {draft.columnIndices.map((i, pos) => (
-                      <li key={i}>
-                        <span>{project.columns[i].name}</span>
-                        <button
-                          aria-label={`Move ${project.columns[i].name} up`}
-                          disabled={pos === 0}
-                          onClick={() => move(pos, -1)}
-                        >
-                          ↑
-                        </button>
-                        <button
-                          aria-label={`Move ${project.columns[i].name} down`}
-                          disabled={pos === draft.columnIndices.length - 1}
-                          onClick={() => move(pos, 1)}
-                        >
-                          ↓
-                        </button>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              </div>
-              <p className="desktop-help-text">
-                Selection and drawing order are saved for this graph without
-                changing the data table.
-              </p>
+                  <div className="format-graph-add-actions">
+                    <button type="button" className="button" onClick={() => setAdding(null)}>
+                      Cancel adding
+                    </button>
+                    <button
+                      type="button"
+                      className="button primary"
+                      disabled={!adding.length}
+                      onClick={() => {
+                        arrange(addDatasets(arrangement, adding), count);
+                        setAdding(null);
+                      }}
+                    >
+                      Add selected
+                    </button>
+                  </div>
+                  <p className="desktop-help-text">
+                    Added data sets join the back of the list with the next
+                    cycle color. Data sets from other tables are not supported
+                    yet.
+                  </p>
+                </fieldset>
+              )}
             </>
           ) : (
             <>
@@ -1329,6 +1489,7 @@ export function FormatGraphDialog({
                 <label className="desktop-form-row">
                   <span>Linked analysis result</span>
                   <select
+                    aria-label="Linked analysis result"
                     value={draft.resultId ?? ""}
                     onChange={(e) =>
                       setDraft((v) => ({
@@ -1351,6 +1512,11 @@ export function FormatGraphDialog({
                   intervals. After editing source data, recalculate the linked
                   result to update its curves and intervals.
                 </p>
+                <p className="desktop-help-text">
+                  This linked-result choice is a GP capability kept on this page.
+                  The shipped Graph Settings page holds missing-value, point and
+                  line-of-identity options that GP has not implemented.
+                </p>
               </fieldset>
             </>
           )}
@@ -1360,20 +1526,29 @@ export function FormatGraphDialog({
           changes since the last Apply.
         </p>
       </div>
-      <footer className="desktop-dialog-actions">
-        <button className="button" onClick={onClose}>
-          Cancel
-        </button>
+      <footer className="desktop-dialog-actions format-graph-footer">
         <button
           className="button"
-          disabled={!draft.columnIndices.length}
+          disabled={!count || !onChangeGraphType}
+          title="Applies pending changes, then opens Change Graph Type."
+          onClick={() => onChangeGraphType?.(draft)}
+        >
+          Change Graph Type…
+        </button>
+        <span className="format-graph-footer-gap" aria-hidden="true" />
+        <button
+          className="button"
+          disabled={!count}
           onClick={() => onApply(draft)}
         >
           Apply
         </button>
+        <button className="button" onClick={onClose}>
+          Cancel
+        </button>
         <button
           className="button primary"
-          disabled={!draft.columnIndices.length}
+          disabled={!count}
           onClick={() => {
             onApply(draft);
             onClose();

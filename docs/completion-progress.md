@@ -1,5 +1,43 @@
 # Completion execution log
 
+## 2026-10-20 continuation: Format Graph dialog contract and front-to-back drawing
+
+Session context: a fresh cloud container at `/home/user/GP` (Node 22.22,
+Python 3.13) with no Prism installer, extracted image, `/workspace/rea` or
+`/workspace/gp-evidence`, and with cdn.jsdelivr.net and the live site blocked
+by the proxy. No new REA operation ran; the unit reuses the committed
+projection of Evidence
+`ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f`
+in [the Format Graph evidence note](prism-graph-format-evidence.md).
+
+[The implementation](format-graph-implementation.md) restructures Format
+Graph around that record: a selected-data-set Appearance editor with
+previous/next and per-data-set color; one *Data sets plotted (front to back)*
+list with Add…/Remove/Top/Up/Reverse/Down/Bottom; Graph Settings retaining the
+GP linked-analysis choice with an explicit note; and a footer with Change
+Graph Type… beside Apply/Cancel/OK. Colors now travel with their data set
+through every list operation. The browser SVG, dense canvas, selection rings,
+hit-testing and the Matplotlib exporter draw the first listed data set in
+front, following the shipped list wording; column positions are unchanged.
+Double-clicking a data set's marks opens the dialog on that data set, which
+also fixed bar double-clicks being swallowed by viewport pointer capture.
+G018/G030/G031/G045 and audit rows P1163/P1166/P1168/P1169 remain partial
+with refreshed evidence; nothing is marked equivalent.
+
+Validation actually run in this container: requirement checker (2,661
+identities, 1,574 parity rows preserved); backend **459 passed** including
+seven new draw-order export tests (one existing Starlette deprecation
+warning); frontend **233 passed** including six new dataset-arrangement
+tests and the rewritten coincident-point and canvas-order tests; TypeScript;
+server and static Vite builds. On the packaged server build in Chromium the
+new `scripts/check_format_graph.py` passed, and all eleven existing browser
+scripts (desktop, graph zoom, workbook foundations, grid, exclusions, Column
+analysis, axes, axis layout, recalculation, large workbook, import
+diagnostics) passed with zero page errors. **Not run here:** the
+self-contained static build's Pyodide runtime, which the proxy prevents
+assembling; CI runs the new check on both builds. These are GP observations,
+not a native Prism comparison, and deployment remains unverified.
+
 ## 2026-10-20 continuation: axes dialog geometry and label spacing
 
 After publishing numbering as `b1eccbe` (verified against GitHub main), work

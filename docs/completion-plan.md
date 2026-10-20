@@ -27,6 +27,10 @@ The JSON/Markdown registers together are part of this plan; they enumerate optio
 Persistent axes were published in `65faec6`. Explicit decimal numbering is the
 next bounded G070 increment, followed by a compact Format Axes layout informed
 by actual REA-decoded archive frames. See the execution log for verification.
+The Format Graph dialog then follows the retained XY dialog contract
+(selected-data-set editor, front-to-back list with its action column,
+Change Graph Type… footer entry) with first-listed-in-front drawing in the
+browser and exporter; see [format-graph-implementation.md](format-graph-implementation.md).
 Neither increment closes graph parity: scientific/other numbering modes,
 additional scales, complete frame/origin and right-axis behavior, native default
 algorithms, layout equivalence and the remaining graph register stay open.

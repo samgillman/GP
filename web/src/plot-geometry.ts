@@ -286,13 +286,23 @@ function plotProjection(domain: {
   return { x, y, validY, visible, boundedY, linePath };
 }
 
+/** Series indices from back to front: the first listed dataset draws last, in
+ * front of the others. This follows the shipped Format Graph instruction that
+ * higher datasets in "Data sets plotted (front to back)" draw in front; it is a
+ * GP rendering rule from that resource text, not an observed runtime comparison.
+ * Categorical column positions are unaffected because they use the list index. */
+export function drawOrder(count: number): number[] {
+  return Array.from({ length: count }, (_, i) => count - 1 - i);
+}
+
 /** Every observation is drawn, in the same series/row order as the SVG mode. */
 export function drawDensePoints(
   context: CanvasRenderingContext2D,
   geometry: PlotGeometry,
 ) {
   clipCanvas(context, geometry.frame);
-  for (const series of geometry.series) {
+  for (const index of drawOrder(geometry.series.length)) {
+    const series = geometry.series[index];
     context.fillStyle = series.color;
     context.strokeStyle = "white";
     context.lineWidth = 1.1;
@@ -367,12 +377,13 @@ export function pointHitIndex(geometry: PlotGeometry) {
         if (!bin) continue;
         for (const point of bin) {
           const d = (point.px - px) ** 2 + (point.py - py) ** 2;
-          // Equal-distance overlapping marks select the last drawn observation.
+          // Equal-distance overlapping marks select the frontmost drawn mark:
+          // the first listed dataset, then the later row within that dataset.
           if (
             d < distance ||
             (d === distance &&
               (!best ||
-                point.seriesIndex > best.seriesIndex ||
+                point.seriesIndex < best.seriesIndex ||
                 (point.seriesIndex === best.seriesIndex &&
                   point.pointIndex > best.pointIndex)))
           ) {
@@ -407,9 +418,9 @@ export function drawSelectedPoints(
   context.strokeStyle = "#0866db";
   context.lineWidth = 2.5;
   let count = 0;
-  for (const [index, spans] of bySeries) {
-    const series = geometry.series[index];
-    if (!series) continue;
+  for (const index of drawOrder(geometry.series.length)) {
+    const spans = bySeries.get(index), series = geometry.series[index];
+    if (!spans || !series) continue;
     for (let j = 0; j < series.points.length; j++) {
       const point = series.points[j];
       if (!geometry.visible(point)) continue;

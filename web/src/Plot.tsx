@@ -6,6 +6,7 @@ import {
   buildPlotGeometry,
   DENSE_POINT_THRESHOLD,
   drawDensePoints,
+  drawOrder,
   drawSelectedPoints,
   plotFrame,
   pointHitIndex,
@@ -317,7 +318,9 @@ export default function Plot({
             top: e.currentTarget.scrollTop,
             moved: false,
           };
-          e.currentTarget.setPointerCapture(e.pointerId);
+          // Capture only once a drag is under way: capturing on pointerdown
+          // retargets click/dblclick to the viewport, so double-clicking a
+          // bar or box (not a point) never reached the dataset handler.
           e.preventDefault();
         }}
         onPointerMove={(e) => {
@@ -330,6 +333,8 @@ export default function Plot({
             drag.current.moved = true;
             dragged.current = true;
             setHover(null);
+            if (!e.currentTarget.hasPointerCapture(e.pointerId))
+              e.currentTarget.setPointerCapture(e.pointerId);
           }
           e.currentTarget.scrollLeft =
             drag.current.left - (e.clientX - drag.current.x);
@@ -437,13 +442,14 @@ export default function Plot({
               {graph.y_label}
             </text>
             <g clipPath={`url(#${clipId})`}>
-            {series.map((s, i) => {
+            {drawOrder(series.length).map((i) => {
+              const s = series[i];
               const cx = x(i + 1), bw = Math.min(72, (pw / series.length) * .46), v = s.values;
               const yy = geometry.boundedY;
               const cap = (value: number, half: number, key: string) => geometry.validY(value) && value >= geometry.minY && value <= geometry.maxY ? <line key={key} x1={cx - half} x2={cx + half} y1={y(value)} y2={y(value)} /> : null;
               const stem = (lo: number, hi: number) => Number.isFinite(lo) && Number.isFinite(hi) && hi >= geometry.minY && lo <= geometry.maxY ? <line x1={cx} x2={cx} y1={yy(lo)} y2={yy(hi)} /> : null;
               const baseline = geometry.logY ? geometry.minY : 0;
-              return <g key={i} onDoubleClick={event => { event.stopPropagation(); onSelectDataset?.(i); }}>
+              return <g key={i} data-dataset={i} onDoubleClick={event => { event.stopPropagation(); onSelectDataset?.(i); }}>
                 {!xy && graph.type === "bar" && v.length > 0 && geometry.validY(s.mean) && Math.max(s.mean, baseline) >= geometry.minY && Math.min(s.mean, baseline) <= geometry.maxY && <rect x={cx - bw / 2} y={Math.min(yy(s.mean), yy(baseline))} width={bw} height={Math.abs(yy(baseline) - yy(s.mean))} fill={s.color} stroke="#000" strokeWidth="1.5" />}
                 {!xy && graph.type === "box" && v.length > 0 && s.quartiles && <g stroke="#000" strokeWidth="1.5">
                   {stem(s.min, s.max)}{cap(s.min, bw / 4, "min")}{cap(s.max, bw / 4, "max")}
@@ -512,8 +518,9 @@ export default function Plot({
                 </g>
               );
             })}
-            {fits.map((f, i) => (
-              <path
+            {drawOrder(fits.length).map((i) => {
+              const f = fits[i];
+              return <path
                 key={i}
                 d={geometry.linePath(f.linePoints)}
                 fill="none"
@@ -522,8 +529,8 @@ export default function Plot({
                   palette[i % palette.length]
                 }
                 strokeWidth="1.5"
-              />
-            ))}
+              />;
+            })}
             </g>
           </svg>
         </div>

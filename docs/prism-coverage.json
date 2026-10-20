@@ -151,8 +151,8 @@
       "remaining_obligations": [
         "Lognormal choices",
         "Effect sizes, AICc and residual diagnostics",
-        "Guide exact-P rule for Mann\u2013Whitney with ties (\u2264100 in smaller group)",
-        "Saved Prism numerical oracles for Student, Welch, Mann\u2013Whitney and one-tailed choices"
+        "Guide exact-P rule for Mann–Whitney with ties (≤100 in smaller group)",
+        "Saved Prism numerical oracles for Student, Welch, Mann–Whitney and one-tailed choices"
       ],
       "priority": "high",
       "latest_progress": "2026-10-20 Column statistical audit: docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes. Baseline CI https://github.com/samgillman/GP/actions/runs/39335578778 verified; no new native Prism outputs. Follow-up backend suite: 330 tests passed; final browser/CI results remain separately scoped."
@@ -215,7 +215,7 @@
       ],
       "implementation_sources": [],
       "remaining_obligations": [
-        "D\u2019Agostino-Pearson, Shapiro-Wilk, Anderson-Darling, KS variant",
+        "D’Agostino-Pearson, Shapiro-Wilk, Anderson-Darling, KS variant",
         "Minimum sample/tie conventions",
         "Numerical oracles"
       ],
@@ -258,7 +258,7 @@
       "remaining_obligations": [
         "Lognormal model",
         "Effect sizes beyond R squared, residual normality and plots",
-        "Exact small-sample Kruskal\u2013Wallis P",
+        "Exact small-sample Kruskal–Wallis P",
         "Saved Prism one-way reference cases"
       ],
       "priority": "high",
@@ -375,7 +375,7 @@
         "Missing values and variance-component (mixed-effects) estimation",
         "Convergence/boundary handling",
         "Exact small-table Friedman P",
-        "Reference results beyond the paired/F = t\u00b2 identity",
+        "Reference results beyond the paired/F = t² identity",
         "Native assumed-sphericity versus Geisser-Greenhouse comparison outputs; GG Tukey remains unsupported; incomplete subjects require an independently chosen missing-data analysis"
       ],
       "priority": "high",
@@ -420,7 +420,7 @@
         }
       ],
       "remaining_obligations": [
-        "Holm\u2013\u0160\u00edd\u00e1k, Newman\u2013Keuls, Dunnett T3, Tamhane T2 and FDR variants",
+        "Holm–Šídák, Newman–Keuls, Dunnett T3, Tamhane T2 and FDR variants",
         "Selected-pair families and swap direction",
         "Two-way and multifactor families",
         "Saved Prism multiple-comparison families"
@@ -588,7 +588,7 @@
     },
     {
       "id": "survival_km",
-      "scope": "Kaplan\u2013Meier curves, risk/event/censor tables, confidence intervals",
+      "scope": "Kaplan–Meier curves, risk/event/censor tables, confidence intervals",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
       "verification_status": "714_populated_saved_values_medians_and_static_browser_verified",
@@ -633,7 +633,7 @@
     },
     {
       "id": "survival_comparisons",
-      "scope": "Logrank, trend, Gehan\u2013Breslow\u2013Wilcoxon and multiplicity",
+      "scope": "Logrank, trend, Gehan–Breslow–Wilcoxon and multiplicity",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
       "verification_status": "saved_global_logrank_and_static_browser_verified",
@@ -667,7 +667,7 @@
       ],
       "remaining_obligations": [
         "Pairwise comparisons and adjustments",
-        "Trend and Gehan\u2013Breslow\u2013Wilcoxon tests",
+        "Trend and Gehan–Breslow–Wilcoxon tests",
         "Hazard ratios and associated intervals",
         "All native comparison settings"
       ],
@@ -914,7 +914,7 @@
     },
     {
       "id": "workbook_workflow",
-      "scope": "Multi-sheet data\u2192analysis\u2192graph dependency workflow",
+      "scope": "Multi-sheet data→analysis→graph dependency workflow",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
       "verification_status": "multi_sheet_link_invalidation_recalculation_and_persistence_browser_verified",
@@ -4359,7 +4359,7 @@
       "sha256": "88ce75f559815f25aff9caebd1e1356d22ff6898e9c6bd7dad92b857bf60e577"
     }
   ],
-  "refresh_notes": "Refreshed v3 identity/snapshot/dependency/freeze sources and final browser evidence. All1574 supplied audit rows are individually planned, original claims retained. Dev/server/static foundation acceptance and direct recalculation passed; performance and full Prism parity remain open. Eleven completed static REA freeze/zoom records are distinguished from runtime equivalence. 2026-10-20 audit: current implementation_sources hashes refreshed only for changed source files; historical evidence and prior implementation_snapshot hashes retained. Column disclosures, exact-enumeration edge cases and numerical safeguards added; full equivalence remains false.",
+  "refresh_notes": "Refreshed v3 identity/snapshot/dependency/freeze sources and final browser evidence. All1574 supplied audit rows are individually planned, original claims retained. Dev/server/static foundation acceptance and direct recalculation passed; performance and full Prism parity remain open. Eleven completed static REA freeze/zoom records are distinguished from runtime equivalence. 2026-10-20 audit: current implementation_sources hashes refreshed only for changed source files; historical evidence and prior implementation_snapshot hashes retained. Column disclosures, exact-enumeration edge cases and numerical safeguards added; full equivalence remains false. 2026-10-20 Format Graph unit: dialog contract, front-to-back drawing and color ownership recorded in format_graph_checkpoint; full equivalence remains false.",
   "column_audit_checkpoint": {
     "date_utc": "2026-10-20",
     "baseline_commit": "1fec4e165a5b35396e0c675e33e23161526948d2",
@@ -4556,6 +4556,78 @@
           844
         ]
       ],
+      "page_errors": 0,
+      "native_equivalence": false,
+      "deployment_verified": false
+    }
+  },
+  "format_graph_checkpoint": {
+    "scope": "Format Graph follows the retained XY dialog contract; first-listed data set drawn in front; color ownership through list operations; native parity unverified",
+    "evidence": "docs/prism-graph-format-evidence.md",
+    "implementation": "docs/format-graph-implementation.md",
+    "reused_evidence_id": "ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f",
+    "source_files": [
+      {
+        "path": "web/src/graph-datasets.ts",
+        "sha256": "5dd46e6a8879287c4f1cd81ceceb80d129802aedde79f53e92a8ff1651cd9628"
+      },
+      {
+        "path": "web/src/WorkbookDialogs.tsx",
+        "sha256": "ac561757a69db0c8a9cd3ff2fdaede3281344fbd1231706da906ff00f5ba33a9"
+      },
+      {
+        "path": "web/src/format-graph-dialog.css",
+        "sha256": "669c088e153e58c462dc4771148bc6b614525005950cbeaadd5317b6ee2fe562"
+      },
+      {
+        "path": "web/src/plot-geometry.ts",
+        "sha256": "d881b85a295ff1d85793a9e38d79af3c885fb3639ed469b9f8c9135bc8c3f4b9"
+      },
+      {
+        "path": "web/src/Plot.tsx",
+        "sha256": "63fe546acaa8ca256ff0da54fbe0428a9e3c2953e1bc35abc351d75365a32855"
+      },
+      {
+        "path": "web/src/App.tsx",
+        "sha256": "70569d06793be279df55a50f1bce477245e6b86ea8a4d0f2c0e5ec6a3f6ee2a3"
+      },
+      {
+        "path": "gp/plotting.py",
+        "sha256": "5ea1273ecde5029fa91855e9e39f34db373b1e1b39e8ae000c77575a55be8559"
+      },
+      {
+        "path": "scripts/check_format_graph.py",
+        "sha256": "234b5a5de1d8e99ea7aa63ad4e142283fb8379aa26b13ca52901ab66dc5f39b2"
+      },
+      {
+        "path": "tests/test_graph_draw_order.py",
+        "sha256": "e0ab9618a3106dae9f9d11685209a9c987d029fe19b9dd4282da7bde8f6f7b0b"
+      }
+    ],
+    "validation": {
+      "requirement_checker": true,
+      "backend_passed": 459,
+      "frontend_passed": 233,
+      "typecheck": true,
+      "builds": [
+        "server",
+        "static (Vite bundle only; Pyodide assembly blocked by proxy)"
+      ],
+      "browser_server_build": [
+        "check_format_graph",
+        "check_desktop_ui",
+        "check_graph_zoom",
+        "check_workbook_foundations",
+        "check_grid_ui",
+        "check_exclusions",
+        "check_column_analysis",
+        "check_axes",
+        "check_axis_layout",
+        "check_recalculation",
+        "check_large_workbook",
+        "check_import_diagnostics"
+      ],
+      "browser_static_build": "not run in this container; CI",
       "page_errors": 0,
       "native_equivalence": false,
       "deployment_verified": false

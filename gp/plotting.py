@@ -42,6 +42,16 @@ def format_tick_number(value, config):
     return config.prefix+sign+integer+fraction+config.suffix
 
 
+def _series_zorder(index, count, base):
+    """Rank XY datasets so the first listed one draws in front.
+
+    The shipped Format Graph resource says higher datasets in its front-to-back
+    list draw in front. Applying that to Matplotlib z order is a GP rendering
+    rule from that text; lines keep their layer above point marks.
+    """
+    return base + (count-index)/(count+1)
+
+
 def _major_ticks(low, high, interval):
     """Zero-anchored ticks, with validation before allocating or iterating."""
     span = high - low
@@ -181,19 +191,20 @@ def _draw_configured(axis, data, graph, outcome, palette):
     for i, (column, x, y, visible, summary, error, fit) in enumerate(series):
         color = palette[i % len(palette)]
         if xy:
+            front = _series_zorder(i, len(series), 2)
             if graph.type == "line":
                 order = np.argsort(x, kind="stable")
                 # NaNs break paths at invalid log coordinates; filtering the
                 # vectors would incorrectly join across an omitted observation.
                 xx, yy = np.where(visible, x, np.nan), np.where(visible, y, np.nan)
-                axis.plot(xx[order], yy[order], color=color, marker="o" if graph.show_points else None, markersize=4, linewidth=1.5, label=column.name)
+                axis.plot(xx[order], yy[order], color=color, marker="o" if graph.show_points else None, markersize=4, linewidth=1.5, label=column.name, zorder=front)
             else:
-                axis.scatter(x[visible], y[visible], color=color, s=26, edgecolors=(0, 0, 0, .35), linewidths=.6, label=column.name)
+                axis.scatter(x[visible], y[visible], color=color, s=26, edgecolors=(0, 0, 0, .35), linewidths=.6, label=column.name, zorder=_series_zorder(i, len(series), 1))
             if fit:
                 xx = np.array([p["x"] for p in fit["points"]])
                 yy = np.array([p["y"] for p in fit["points"]])
                 valid = ((not logx) | (xx > 0)) & ((not logy) | (yy > 0))
-                axis.plot(np.where(valid, xx, np.nan), np.where(valid, yy, np.nan), color=color, linewidth=1.5)
+                axis.plot(np.where(valid, xx, np.nan), np.where(valid, yy, np.nan), color=color, linewidth=1.5, zorder=front)
             continue
         if not len(y):
             continue
@@ -333,17 +344,19 @@ def export_plot(request):
                     visible = x > 0
                     x, y = x[visible], y[visible]
                 color = palette[i % len(palette)]
+                count = len(data.columns)-1
+                front = _series_zorder(i, count, 2)
                 if graph.type == "line":
                     order = np.argsort(x, kind="stable")
-                    axis.plot(x[order], y[order], color=color, marker="o" if graph.show_points else None, markersize=4, linewidth=1.5, label=column.name)
+                    axis.plot(x[order], y[order], color=color, marker="o" if graph.show_points else None, markersize=4, linewidth=1.5, label=column.name, zorder=front)
                 else:
-                    axis.scatter(x, y, color=color, s=26, edgecolors=(0, 0, 0, .35), linewidths=.6, label=column.name)
+                    axis.scatter(x, y, color=color, s=26, edgecolors=(0, 0, 0, .35), linewidths=.6, label=column.name, zorder=_series_zorder(i, count, 1))
                 fit = next((fit for fit in outcome["fit"] if fit["series"] == column.name), None)
                 if fit:
                     points = fit["points"]
                     if data.analysis == "dose_response":
                         points = [p for p in points if p["x"] > 0]
-                    axis.plot([p["x"] for p in points], [p["y"] for p in points], color=color, linewidth=1.5)
+                    axis.plot([p["x"] for p in points], [p["y"] for p in points], color=color, linewidth=1.5, zorder=front)
             if data.analysis == "dose_response":
                 axis.set_xscale("log")
             axis.set_xlabel(graph.x_label or data.columns[0].name)

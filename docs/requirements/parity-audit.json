@@ -41143,11 +41143,28 @@
       "assessment": "partial",
       "implementation_plan": "Complete family-specific Format Graph tabs, dataset scope and direct graph entry routes; test applicable controls, defaults and state retention across subtype changes.",
       "review_note": "Original audit: Partial. Tabs Appearance, Data Sets on Graph, Graph Settings; opened from Change menu. Source inspection: three compact Format Graph tabs expose a small Graph schema. Native NIBs contain many additional family-specific controls. Native gap: recovered NIB controls and bounded Apply/setGraph REA evidence establish only their stated scope; family defaults, complete rollback and object-specific routing remain open.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
-      "prism_reference_evidence": [],
+      "implementation_evidence": [
+        "web/src/graph-datasets.ts",
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/format-graph-dialog.css",
+        "web/src/plot-geometry.ts",
+        "web/src/Plot.tsx",
+        "web/src/App.tsx",
+        "gp/plotting.py"
+      ],
+      "validation_evidence": [
+        "web/src/graph-datasets.test.ts",
+        "web/src/plot-geometry.test.ts",
+        "tests/test_graph_draw_order.py",
+        "scripts/check_format_graph.py (CI, server and static builds)",
+        "docs/format-graph-implementation.md"
+      ],
+      "prism_reference_evidence": [
+        "docs/prism-graph-format-evidence.md"
+      ],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "2026-10-20: Format Graph restructured to the retained XY contract (selected-data-set Appearance, front-to-back list with action column, Change Graph Type… footer entry, double-click entry). Column reuse of the XY layout is a GP decision; family-specific pages remain open."
       ]
     },
     {
@@ -41247,11 +41264,28 @@
       "assessment": "partial",
       "implementation_plan": "Route symbol/bar double-click to its appearance scope and axis double-click to the corresponding Format Axes tab; test hit targets and avoid redirecting every object to generic graph settings.",
       "review_note": "Original audit: Missing. Double-click does nothing. The original no-double-click report is stale in part: Plot.tsx has point and axis handlers, but App routes axes to generic Format Graph rather than a real Format Axes tab. Native gap: recovered NIB controls and bounded Apply/setGraph REA evidence establish only their stated scope; family defaults, complete rollback and object-specific routing remain open.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
-      "prism_reference_evidence": [],
+      "implementation_evidence": [
+        "web/src/graph-datasets.ts",
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/format-graph-dialog.css",
+        "web/src/plot-geometry.ts",
+        "web/src/Plot.tsx",
+        "web/src/App.tsx",
+        "gp/plotting.py"
+      ],
+      "validation_evidence": [
+        "web/src/graph-datasets.test.ts",
+        "web/src/plot-geometry.test.ts",
+        "tests/test_graph_draw_order.py",
+        "scripts/check_format_graph.py (CI, server and static builds)",
+        "docs/format-graph-implementation.md"
+      ],
+      "prism_reference_evidence": [
+        "docs/prism-graph-format-evidence.md"
+      ],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "2026-10-20: double-clicking a data set's bars, box, line or points opens Format Graph on that data set; pointer capture no longer swallows bar double-clicks. Other object routes remain open."
       ]
     },
     {
@@ -41317,11 +41351,28 @@
       "assessment": "partial",
       "implementation_plan": "Complete add/remove/replace/top/up/reverse/down/bottom source controls using stable IDs; test reorder/deletion, fitted source links, XY X exclusion and exported membership.",
       "review_note": "Original audit: Has. Include/exclude and drawing order. Source inspection and workbook tests show stable membership/order controls. Add/replace/multi-table sources and full native ordering remain incomplete. Native gap: recovered NIB controls and bounded Apply/setGraph REA evidence establish only their stated scope; family defaults, complete rollback and object-specific routing remain open.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
-      "prism_reference_evidence": [],
+      "implementation_evidence": [
+        "web/src/graph-datasets.ts",
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/format-graph-dialog.css",
+        "web/src/plot-geometry.ts",
+        "web/src/Plot.tsx",
+        "web/src/App.tsx",
+        "gp/plotting.py"
+      ],
+      "validation_evidence": [
+        "web/src/graph-datasets.test.ts",
+        "web/src/plot-geometry.test.ts",
+        "tests/test_graph_draw_order.py",
+        "scripts/check_format_graph.py (CI, server and static builds)",
+        "docs/format-graph-implementation.md"
+      ],
+      "prism_reference_evidence": [
+        "docs/prism-graph-format-evidence.md"
+      ],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "2026-10-20: Add…/Remove/Top/Up/Reverse/Down/Bottom implemented for same-table data sets with colors preserved; Replace, offsets, row skipping and cross-table sources remain open."
       ]
     },
     {
@@ -41351,11 +41402,28 @@
       "assessment": "partial",
       "implementation_plan": "Verify and implement first-listed-dataset-in-front semantics from recovered NIB wording; test coincident SVG/canvas/export marks and hit testing together, not array order alone.",
       "review_note": "Original audit: Has. Drawing order control; no Rotate/Flip button. Native FormatGraphXY resource object 180 states higher-list datasets draw in front. Current SVG/canvas iterate series in drawing order and hit tests prefer the last coincident point, so front/back semantics need explicit reconciliation. Native evidence: docs/prism-ui-map.md records FormatGraphXY object 180/offset 15858 first-listed-in-front wording; compare actual overlapping rendered/picked objects before closing parity.",
-      "implementation_evidence": [],
-      "validation_evidence": [],
-      "prism_reference_evidence": [],
+      "implementation_evidence": [
+        "web/src/graph-datasets.ts",
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/format-graph-dialog.css",
+        "web/src/plot-geometry.ts",
+        "web/src/Plot.tsx",
+        "web/src/App.tsx",
+        "gp/plotting.py"
+      ],
+      "validation_evidence": [
+        "web/src/graph-datasets.test.ts",
+        "web/src/plot-geometry.test.ts",
+        "tests/test_graph_draw_order.py",
+        "scripts/check_format_graph.py (CI, server and static builds)",
+        "docs/format-graph-implementation.md"
+      ],
+      "prism_reference_evidence": [
+        "docs/prism-graph-format-evidence.md"
+      ],
       "limitations": [
-        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure."
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "2026-10-20: first-listed data set now draws in front in browser SVG, dense canvas, selection rings, hit-testing and Matplotlib export; tested on coincident marks. Rotate/Flip and native overlap comparison remain open."
       ]
     },
     {

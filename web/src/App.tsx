@@ -471,7 +471,7 @@ export default function App() {
   }
   const [newTable, setNewTable] = useState(false),
     [analyzeDialog, setAnalyzeDialog] = useState(false),
-    [formatDialog, setFormatDialog] = useState(false),
+    [formatDialog, setFormatDialog] = useState<false | { dataset: number }>(false),
     [axesDialog, setAxesDialog] = useState<"x" | "y" | null>(null),
     [formatTableDialog, setFormatTableDialog] = useState(false),
     [graphTypeDialog, setGraphTypeDialog] = useState(false),
@@ -760,7 +760,7 @@ export default function App() {
         advanced ||
           newTable ||
           analyzeDialog ||
-          formatDialog ||
+          formatDialog !== false ||
           axesDialog !== null ||
           formatTableDialog ||
           graphTypeDialog ||
@@ -1499,10 +1499,26 @@ export default function App() {
       },
     }));
   }
-  function openGraphFormatting() {
+  function openGraphFormatting(dataset = 0) {
     if (graphSheet?.frozen)
       setError("Unfreeze this graph before changing its appearance.");
-    else setFormatDialog(true);
+    else setFormatDialog({ dataset });
+  }
+  function applyGraphFormat(next: GraphSheet) {
+    setWorkbook((w) => ({
+      ...w,
+      sheets: w.sheets.map((s) =>
+        s.id === next.id
+          ? s.kind === "graph" && s.frozen
+            ? s
+            : {
+                ...next,
+                selectionInvalid: false,
+                ...datasetSelection(sourceSheet(w, next), next.columnIndices),
+              }
+          : s,
+      ),
+    }));
   }
   function openAxes(axis: "x" | "y" = "y") {
     if (graphSheet?.frozen)
@@ -1777,7 +1793,7 @@ export default function App() {
             <button
               role="menuitem"
               disabled={active !== "graph" || graphSheet?.frozen}
-              onClick={openGraphFormatting}
+              onClick={() => openGraphFormatting()}
             >
               Format Graph…
             </button>
@@ -1976,7 +1992,7 @@ export default function App() {
               <button
                 aria-label="Format Graph…"
                 disabled={active !== "graph" || graphSheet?.frozen}
-                onClick={openGraphFormatting}
+                onClick={() => openGraphFormatting()}
               >
                 <Settings2 />
                 <small>Format…</small>
@@ -2572,6 +2588,7 @@ export default function App() {
                       selection,
                     )}
                     onFormatAxes={openAxes}
+                    onSelectDataset={(index) => openGraphFormatting(index)}
                     onEditText={field => openAxes(field === "x_label" ? "x" : "y")}
                     annotations={pairwiseAnnotations}
                   />
@@ -3020,26 +3037,14 @@ export default function App() {
             (s): s is ResultSheet =>
               s.kind === "results" && s.dataId === source.id,
           )}
+          initialDataset={formatDialog.dataset}
           onClose={() => setFormatDialog(false)}
-          onApply={(next) =>
-            setWorkbook((w) => ({
-              ...w,
-              sheets: w.sheets.map((s) =>
-                s.id === next.id
-                  ? s.kind === "graph" && s.frozen
-                    ? s
-                    : {
-                        ...next,
-                        selectionInvalid: false,
-                        ...datasetSelection(
-                          sourceSheet(w, next),
-                          next.columnIndices,
-                        ),
-                      }
-                  : s,
-              ),
-            }))
-          }
+          onApply={applyGraphFormat}
+          onChangeGraphType={(next) => {
+            applyGraphFormat(next);
+            setFormatDialog(false);
+            setGraphTypeDialog(true);
+          }}
         />
       )}
       {csvExport && (

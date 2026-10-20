@@ -4,6 +4,19 @@ Prepared 2026-10-19, America/Chicago. This is a continuation checkpoint, **not c
 
 ## Current continuation: persistent axes (2026-10-20)
 
+**Format Graph contract (2026-10-20, cloud container):** branch
+`claude/format-graph-contract` restructures Format Graph per
+[prism-graph-format-evidence.md](prism-graph-format-evidence.md) and adds
+first-listed-in-front drawing plus color ownership through dataset
+operations; see [format-graph-implementation.md](format-graph-implementation.md)
+and the newest execution-log entry for what was and was not run (no Prism
+artifacts, no REA tooling, no static Pyodide assembly in that container).
+`scripts/check_format_graph.py` runs in CI on both builds. Next bounded
+graph units: the Graph Settings missing-value gap policy (G040/AUD-P1048),
+per-data-set symbol/line styles with stable style identities (G031), and the
+Column dialog resources (`FormatGraphOneGroupingVariable*.nib`) named in the
+evidence note.
+
 The first axes increment was published as `65faec6a81ec272e8abb9490e45f4bb5edf80020`
 and verified with `git ls-remote`. Work continued immediately into G070 explicit
 decimal numbering, published as `b1eccbe53495164e29ebfec205f282c1aa0deb17`

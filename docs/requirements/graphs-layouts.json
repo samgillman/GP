@@ -1059,14 +1059,18 @@
         "Revert to Prism defaults",
         "Save choices as default for plotting type"
       ],
-      "current_status": "partial: basic graph-type select only",
+      "current_status": "Partial: Change Graph Type dialog from the Change menu, toolbar and the Format Graph footer (pending Format Graph edits are applied first). Previews, default scope and cancel semantics against a reference remain open.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
         "web/src/WorkbookDialogs.tsx",
-        "web/src/WorkbookDialogs.tsx ChangeGraphTypeDialog: Change → Change Graph Type… and a toolbar button replace on-page type buttons (column: scatter dot plot, bars with points, bars, box and whiskers; XY: points, points and line)"
+        "web/src/WorkbookDialogs.tsx ChangeGraphTypeDialog: Change → Change Graph Type… and a toolbar button replace on-page type buttons (column: scatter dot plot, bars with points, bars, box and whiskers; XY: points, points and line)",
+        "web/src/graph-datasets.ts",
+        "web/src/format-graph-dialog.css",
+        "web/src/plot-geometry.ts",
+        "web/src/App.tsx"
       ],
       "dependencies": [
         "G017",
@@ -1090,9 +1094,16 @@
         "Changing type previews actual data and keeps source IDs; cancel restores original; defaults scope is verified."
       ],
       "audit_status": "partial",
-      "prism_reference_evidence": [],
+      "prism_reference_evidence": [
+        "docs/prism-graph-format-evidence.md"
+      ],
       "validation_evidence": [
-        "scripts/check_desktop_ui.py, check_workbook_foundations.py, check_large_workbook.py, check_grid_ui.py, check_exclusions.py, check_recalculation.py, check_graph_zoom.py and check_import_diagnostics.py passed on the packaged server build after the 2026-10-19 Prism-style sheet correction (docs/ui-macos-correction.md); static build not run in that container."
+        "scripts/check_desktop_ui.py, check_workbook_foundations.py, check_large_workbook.py, check_grid_ui.py, check_exclusions.py, check_recalculation.py, check_graph_zoom.py and check_import_diagnostics.py passed on the packaged server build after the 2026-10-19 Prism-style sheet correction (docs/ui-macos-correction.md); static build not run in that container.",
+        "web/src/graph-datasets.test.ts",
+        "web/src/plot-geometry.test.ts",
+        "tests/test_graph_draw_order.py",
+        "scripts/check_format_graph.py (CI, server and static builds)",
+        "docs/format-graph-implementation.md"
       ],
       "limitations": [
         "GP offers only its four renderer types; the native family catalogue, thumbnails and Revert to Prism defaults are absent."
@@ -1646,13 +1657,17 @@
         "Change Graph Type on every tab",
         "Apply previews without closing; OK commits/closes; Cancel transaction semantics"
       ],
-      "current_status": "partial: three-tab dialog for Column/XY subset, Apply/OK/Cancel; no annotations or type-dialog entry",
+      "current_status": "Partial: three-tab dialog follows the retained XY contract (selected-data-set Appearance editor, one front-to-back list with Add…/Remove/Top/Up/Reverse/Down/Bottom, Change Graph Type… beside Apply/Cancel/OK, double-click entry on a data set). Family-specific pages, annotations, native rollback semantics and object routing remain open.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
-        "web/src/WorkbookDialogs.tsx"
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/graph-datasets.ts",
+        "web/src/format-graph-dialog.css",
+        "web/src/plot-geometry.ts",
+        "web/src/App.tsx"
       ],
       "dependencies": [
         "G023",
@@ -1675,7 +1690,16 @@
         "Test edit/cancel, edit/apply/edit/cancel, multiple apply then undo; correct tabs by family."
       ],
       "audit_status": "partial",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [
+        "docs/prism-graph-format-evidence.md"
+      ],
+      "validation_evidence": [
+        "web/src/graph-datasets.test.ts",
+        "web/src/plot-geometry.test.ts",
+        "tests/test_graph_draw_order.py",
+        "scripts/check_format_graph.py (CI, server and static builds)",
+        "docs/format-graph-implementation.md"
+      ]
     },
     {
       "id": "G031",
@@ -1696,13 +1720,17 @@
         "Global Select Data Sets",
         "Return to one dataset for per-group overrides"
       ],
-      "current_status": "partial: colors per positional dataset, other styles global only",
+      "current_status": "Partial: color is edited per selected data set and travels with the data set through reorder/remove/add inside the dialog; type, symbols and error bars stay whole-graph settings. No global/subset scope control, no per-data-set symbol/line/bar styles, no stable style identities in the schema.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
-        "web/src/WorkbookDialogs.tsx"
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/graph-datasets.ts",
+        "web/src/format-graph-dialog.css",
+        "web/src/plot-geometry.ts",
+        "web/src/App.tsx"
       ],
       "dependencies": [
         "G030",
@@ -1725,7 +1753,16 @@
         "Change size on subset then color on one; reorder/remove/add preserves style ownership."
       ],
       "audit_status": "partial",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [
+        "docs/prism-graph-format-evidence.md"
+      ],
+      "validation_evidence": [
+        "web/src/graph-datasets.test.ts",
+        "web/src/plot-geometry.test.ts",
+        "tests/test_graph_draw_order.py",
+        "scripts/check_format_graph.py (CI, server and static builds)",
+        "docs/format-graph-implementation.md"
+      ]
     },
     {
       "id": "G032",
@@ -2368,13 +2405,17 @@
         "Add/replace/remove",
         "Top/up/reverse/down/bottom"
       ],
-      "current_status": "partial: same-table subset/up/down; renderer later series currently foreground, contrary to XY native first-front",
+      "current_status": "Partial: same-table Add…/Remove/Top/Up/Reverse/Down/Bottom with colors preserved; browser SVG/canvas/selection/hit-testing and Matplotlib export now draw the first listed data set in front per the shipped list wording. Cross-table sources, Replace and native z-order comparison remain open.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
-        "web/src/WorkbookDialogs.tsx"
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/graph-datasets.ts",
+        "web/src/format-graph-dialog.css",
+        "web/src/plot-geometry.ts",
+        "web/src/App.tsx"
       ],
       "dependencies": [
         "G019",
@@ -2396,7 +2437,16 @@
         "Two coincident contrasting series reveal z order; all reorder operations preserve colors and source mappings."
       ],
       "audit_status": "partial",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [
+        "docs/prism-graph-format-evidence.md"
+      ],
+      "validation_evidence": [
+        "web/src/graph-datasets.test.ts",
+        "web/src/plot-geometry.test.ts",
+        "tests/test_graph_draw_order.py",
+        "scripts/check_format_graph.py (CI, server and static builds)",
+        "docs/format-graph-implementation.md"
+      ]
     },
     {
       "id": "G046",

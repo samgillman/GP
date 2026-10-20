@@ -6,6 +6,7 @@ import {
   bracketLevels,
   buildPlotGeometry,
   drawDensePoints,
+  drawOrder,
   linearTicks,
   plotFrame,
   pointHitIndex,
@@ -268,17 +269,68 @@ test("spatial hit testing identifies dense observations and expands beyond marke
   assert.equal(found.seriesIndex, 0);
   assert.equal(found.y, 9);
 });
-test("coincident points select the last drawn dataset and original row", () => {
+test("coincident points select the front dataset (first listed) and its later row", () => {
+  // The shipped Format Graph list is "front to back": the first dataset draws
+  // in front, so a hit on overlapping marks belongs to it, not the last array entry.
   const project = sample("xy");
   project.columns = [
     { name: "X", values: ["1", "1"] },
-    { name: "First", values: ["2", "2"] },
-    { name: "Last", values: ["2", "2"] },
+    { name: "Front", values: ["2", "2"] },
+    { name: "Back", values: ["2", "2"] },
   ];
   const g = buildPlotGeometry(project, null)!;
   const hit = pointHitIndex(g)(g.x(1), g.y(2))!;
-  assert.equal(hit.seriesIndex, 1);
+  assert.equal(hit.seriesIndex, 0);
   assert.equal(hit.row, 1);
+  // A strictly closer mark still wins regardless of dataset order.
+  const spread = sample("xy");
+  spread.columns = [
+    { name: "X", values: ["1", "1"] },
+    { name: "Front", values: ["2"] },
+    { name: "Back", values: ["", "2"] },
+  ];
+  spread.columns[0].values = ["1", "1.0000001"];
+  const s = buildPlotGeometry(spread, null)!;
+  const back = s.series[1].points[0];
+  assert.equal(pointHitIndex(s)(s.x(back.x), s.y(back.y), 12)!.seriesIndex, 1);
+});
+
+test("canvas layers draw datasets back to front so the first listed dataset is in front", () => {
+  assert.deepEqual(drawOrder(4), [3, 2, 1, 0]);
+  assert.deepEqual(drawOrder(0), []);
+  const project = sample("xy");
+  project.columns = [
+    { name: "X", values: ["1", "2"] },
+    { name: "Front", values: ["1", "1"] },
+    { name: "Middle", values: ["2", "2"] },
+    { name: "Back", values: ["3", "3"] },
+  ];
+  project.graph.colors = ["#ff0000", "#00ff00", "#0000ff"];
+  const g = buildPlotGeometry(project, null)!;
+  const fills: string[] = [];
+  let fillStyle = "";
+  const context = {
+    save() {}, restore() {}, beginPath() {}, rect() {}, clip() {}, arc() {}, stroke() {},
+    set fillStyle(value: string) { fillStyle = value; },
+    get fillStyle() { return fillStyle; },
+    set strokeStyle(_: string) {}, set lineWidth(_: number) {},
+    fill() { fills.push(fillStyle); },
+  } as unknown as CanvasRenderingContext2D;
+  drawDensePoints(context, g);
+  assert.deepEqual(fills, ["#0000ff", "#0000ff", "#00ff00", "#00ff00", "#ff0000", "#ff0000"]);
+  // Selection rings follow the same layering.
+  const rings: number[] = [];
+  const ringContext = {
+    save() {}, restore() {}, beginPath() {}, rect() {}, clip() {}, stroke() {},
+    set strokeStyle(_: string) {}, set lineWidth(_: number) {},
+    arc(_x: number, y: number) { rings.push(y); },
+  } as unknown as CanvasRenderingContext2D;
+  const count = drawSelectedPoints(ringContext, g, [
+    { seriesIndex: 0, startRow: 0, endRow: 0 },
+    { seriesIndex: 2, startRow: 0, endRow: 0 },
+  ]);
+  assert.equal(count, 2);
+  assert.deepEqual(rings, [g.y(3), g.y(1)]);
 });
 
 test("zero-only bars have a finite zero-based domain", () => {
