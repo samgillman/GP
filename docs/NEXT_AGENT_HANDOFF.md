@@ -2,6 +2,14 @@
 
 Prepared 2026-10-19, America/Chicago. This is a continuation checkpoint, **not completion of Prism parity**.
 
+## 2026-10-20 continuation: direct graph formatting and verified PR #7
+
+[PR #7](https://github.com/samgillman/GP/pull/7) was merged at `c8669a44eda3509bcb5249f358e8ce179cf8d82a`, after [successful hosted CI run 39476194258](https://github.com/samgillman/GP/actions/runs/39476194258). The change makes graph bars/XY marks and blank plotting regions open Format Graph on double-click, scopes data-set Appearance to the hit series, and relocates graph zoom controls to the lower-right status area while preserving axis-double-click behavior. An initial browser failure exposed unconditional pointer capture by the graph viewport; the tested correction allows pointer capture only with the Hand Pan tool selected. This is a bounded user-visible interaction, **not** proof of full native Prism runtime/visual parity. Any site deployment after merge is unverified.
+
+[PR #8](https://github.com/samgillman/GP/pull/8) continues with graph-title double-click and browser testing of title edit/undo. Its CI and merge are independent; consult the actual PR state before claiming either. No fresh REA session has run in this ChatGPT environment: the prior REA MCP and original `/workspace` are unavailable. The actual user-provided Prism 11.1.0 DMG was recovered in the working container outside Git. Reuse committed REA source hashes/Evidence IDs, and resume REA native analysis only with a functioning registered server or supported CLI and analysis provider. Do not substitute shell inspection for REA findings.
+
+The native visual gap remains large. New UI changes must use source-appropriate macOS Column/XY screenshots or REA controls, keep disabled/missing features explicit, and avoid treating the Multiple Variables Graph Inspector as a classic Column graph feature. [PR #6](https://github.com/samgillman/GP/pull/6) was rejected and closed without merge for that reason. Continue implementing; do not claim complete Prism equivalence.
+
 ## Persistent colors continuation (2026-10-20)
 
 The removed-color limitation in the earlier entry below is superseded for
