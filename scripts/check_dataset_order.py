@@ -47,6 +47,12 @@ with sync_playwright() as p:
     assert len(drawn_before) >= 2
     page.get_by_role("button", name="Format Graph…", exact=True).first.click()
     dialog = page.get_by_role("dialog", name="Format Graph", exact=True)
+    appearance = dialog.get_by_label("Appearance data set", exact=True)
+    assert appearance.input_value() == str(original["columnIndices"][0])
+    dialog.get_by_role("button", name="Next appearance data set", exact=True).click()
+    assert appearance.input_value() == str(original["columnIndices"][1])
+    dialog.get_by_role("button", name="Previous appearance data set", exact=True).click()
+    assert appearance.input_value() == str(original["columnIndices"][0])
     dialog.get_by_role("tab", name="Data Sets on Graph", exact=True).click()
     ordered = dialog.get_by_role("listbox", name="Data sets plotted", exact=True)
 
@@ -120,6 +126,7 @@ with sync_playwright() as p:
     target = source_before["project"]["columns"][target_index]
     custom_color = "#7b2cbf"
     page.get_by_role("button", name="Format Graph…", exact=True).first.click()
+    dialog.get_by_label("Appearance data set", exact=True).select_option(str(target_index))
     dialog.get_by_label(f'{target["name"]} color', exact=True).fill(custom_color)
     dialog.get_by_role("tab", name="Data Sets on Graph", exact=True).click()
     ordered.locator(f'[data-source-index="{target_index}"]').click()

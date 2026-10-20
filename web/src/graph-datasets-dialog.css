@@ -93,3 +93,27 @@
     max-height: 300px;
   }
 }
+
+/* Prism's archived Appearance page selects a source dataset before styling it.
+   Keep this compact and usable at narrow viewport widths. */
+.desktop-format .desktop-appearance-dataset-selector {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr) 30px 30px;
+  gap: 6px;
+  align-items: center;
+  margin: 7px 0 12px;
+}
+.desktop-format .desktop-appearance-dataset-selector select { width: 100%; }
+.desktop-format .desktop-appearance-dataset-selector button {
+  min-width: 0;
+  padding: 0;
+  font-size: 18px;
+}
+@media (max-width: 480px) {
+  .desktop-format .desktop-appearance-dataset-selector {
+    grid-template-columns: 1fr 30px 30px;
+  }
+  .desktop-format .desktop-appearance-dataset-selector label {
+    grid-column: 1 / -1;
+  }
+}
