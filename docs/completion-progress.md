@@ -1,5 +1,31 @@
 # Completion execution log
 
+## 2026-10-20 continuation: XY missing-Y connecting-line gaps (PR #9)
+
+Implemented a real XY Format Graph → Graph Settings choice between **Leave a gap**
+and **Connect adjacent points** at a missing Y value with a numeric X.
+The optional graph field `gap_at_missing_y` is validated as a boolean and
+persists through workbook save/import, modification, and undo. Old workbooks
+retain GP's prior connected-line default when the field is absent. Browser
+line geometry and Matplotlib exports both retain absent Y values as NaN gaps
+without changing data-table values, observed-point counts, statistical masks,
+regression fits or other analyses. CSV exports remain unchanged.
+
+Source basis: retained native interface decoding
+`ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f`
+(see `prism-graph-format-evidence.md`) and documented GraphPad controls.
+The native runtime default, off-scale Y behavior, missing X positioning and
+precise rendering are **not** verified. GP only implements missing Y with a
+known X, not the full archived gap/off-scale contract. Keep graph requirements
+partial; do not infer full Prism equivalence from passing tests.
+
+**Verification:** [GitHub Actions 39479595971](https://github.com/samgillman/GP/actions/runs/39479595971)
+passed for head `62fff85b2502268c729373ef5e49dc53c299fa97`:
+462 backend tests, 256 frontend tests, both application builds, requirement
+checks, and packaged-server/static Chromium gap-choice/undo/reload checks.
+This is tested GP code, not an executed Prism 11 native comparison. Publication
+and deployment must be verified independently.
+
 ## 2026-10-20 continuation: persistent dataset colors
 
 GraphSheet now optionally stores `datasetColors`, keyed by stable source-column

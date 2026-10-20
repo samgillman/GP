@@ -158,7 +158,14 @@ export function buildPlotGeometry(project: Project, result: Response | null, ann
     let mean = 0, sumSquares = 0, min = Infinity, max = -Infinity;
     for (let row = 0; row < column.values.length; row++) {
       const y = safe(column.values[row]), x = xy ? safe(columns[0].values[row] ?? "") : index + 1;
-      if (y === null || x === null) continue;
+      if (y === null || x === null) {
+        // Preserve a missing Y position with a numeric X in a connected XY
+        // graph. NaN breaks the drawable path but never enters statistics,
+        // bounds, hits, or visible point arrays.
+        if (xy && graph.gap_at_missing_y && x !== null)
+          linePoints.push({x, y: Number.NaN, row});
+        continue;
+      }
       values.push(y); totalCount++; linePoints.push({x, y, row});
       min = Math.min(min, y); max = Math.max(max, y);
       const delta = y - mean;

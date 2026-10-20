@@ -128,3 +128,17 @@ Column Graph Settings root234 is **640×592** and contains:
 | Legend key shape | Matrix153 `(36,12,180,18)` → `changeLegendKey:`; Rectangle157 and Square161. |
 
 This new evidence supports keeping a shared shell while making Appearance and Graph Settings table-family-specific. For the immediate GP subset, selected-dataset color editing and list/reorder organization can be shared; Column should retain its left-to-right meaning and its supported bar/box/point groups. Baseline, horizontal orientation, spacing, separator, violin, quartile, median and legend controls require working data-model/rendering support before exposure. The Annotations page and injected scatter settings remain explicit UI coverage gaps. The record establishes controls, labels and construction grouping, not numerical behavior or screenshots. No application code or shared requirement registers changed, and no native session remains open.
+
+## 2026-10-20 implemented XY missing-Y line subset
+
+GP now exposes the archived **Leave a gap / Connect adjacent points** choice
+for XY connecting-line graphs in Format Graph → Graph Settings. This is a
+**working GP choice only for blank Y cells with a numeric X value**; the original
+X/Y cells and statistical calculation inputs are not modified. Matplotlib
+exports and browser line paths use NaN gaps, and the setting persists on the
+graph sheet. Source-verified native control evidence remains
+`ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f`.
+The REA resource does not establish the native default, semantics for points
+beyond manual display limits, or the treatment of blank X cells. Old GP
+workbooks intentionally retain their former connect-adjacent default.
+The implementation is bounded and does not close broader XY graph parity.

@@ -2,6 +2,26 @@
 
 Prepared 2026-10-19, America/Chicago. This is a continuation checkpoint, **not completion of Prism parity**.
 
+## 2026-10-20 continuation: native-informed XY line gaps
+
+[PR #9](https://github.com/samgillman/GP/pull/9) implements the currently
+missing, source-backed XY Graph Settings **Leave a gap / Connect adjacent**
+choice for numeric-X/missing-Y rows. Added optional strict boolean graph
+metadata, browser missing-point path handling, Matplotlib export handling for
+configured/default axis paths and cross-runtime unit/Chromium regressions.
+[Hosted CI 39479595971](https://github.com/samgillman/GP/actions/runs/39479595971)
+passed for code commit `62fff85b2502268c729373ef5e49dc53c299fa97`:
+462 backend, 256 frontend, both builds, server/static browser checks.
+Check PR merge state before claiming published. Native runtime parity remains
+partial: unknown native defaults, off-scale Y behavior and missing X rows.
+
+A separate upcoming branch `feat/column-dataset-native-manager` implements
+a Column-specific left-to-right native list and correct color/order control
+semantics; it is independently test-gated and must not be conflated with PR #9.
+Do not stop implementation at status reporting or claim Prism reconstruction
+is complete. No new REA analysis was executed in this environment; reuse the
+source-bound REA IDs in the documentation.
+
 ## 2026-10-20 continuation: direct graph formatting and verified PR #7
 
 [PR #7](https://github.com/samgillman/GP/pull/7) was merged at `c8669a44eda3509bcb5249f358e8ce179cf8d82a`, after [successful hosted CI run 39476194258](https://github.com/samgillman/GP/actions/runs/39476194258). The change makes graph bars/XY marks and blank plotting regions open Format Graph on double-click, scopes data-set Appearance to the hit series, and relocates graph zoom controls to the lower-right status area while preserving axis-double-click behavior. An initial browser failure exposed unconditional pointer capture by the graph viewport; the tested correction allows pointer capture only with the Hand Pan tool selected. This is a bounded user-visible interaction, **not** proof of full native Prism runtime/visual parity. Any site deployment after merge is unverified.
