@@ -166,3 +166,54 @@ also has a successful conclusion for head
 evidence used here. This resolves the historical *unobserved static CI build*
 gap for PR #3. It does not establish current deployment state, validate all
 statistical methods in Pyodide, or add any native Prism numerical comparison.
+
+## Fresh audit CI evidence
+
+The audit code commit `dbea1698d117d43aea18fb2108f2f7594cb97081` in
+[draft PR #4](https://github.com/samgillman/GP/pull/4) passed
+[run 39371008134](https://github.com/samgillman/GP/actions/runs/39371008134)
+and [job 118458637647](https://github.com/samgillman/GP/actions/runs/39371008134/job/118458637647).
+The decoded log was inspected and records:
+
+- Python 3.12.15 and server SciPy 1.17.0; `330 passed, 1 warning in 8.16s`
+  at `2026-10-20T04:43:27Z`. The warning remains the Starlette/httpx deprecation.
+- Frontend `176` tests, `176` passes, `0` failures at `04:43:30Z`.
+- Both application builds passed. Static packaging completed with
+  **19 verified runtime packages** at `04:43:45Z`.
+- Playwright 1.58.0 installed Chromium build 1208 / Chrome 145.0.7632.6.
+- The Column script logged **19 passes on static** during `04:47:10–37Z`
+  and **19 passes on server** during `04:47:39–48Z`. Both completed after
+  the no-page-errors assertion. The new cases include unbalanced Dunnett,
+  pooled RM comparisons, missing-subject refusal, rank-test disclosures,
+  explicit direction, alpha-based bracket filtering and cache invalidation.
+- The complete job succeeded at `04:48:21Z`; existing import, recalculation,
+  graph, exclusion, workbook and large-workbook browser checks also passed.
+- Artifact `browser-evidence`, ID `12241855332`, size `1,721,066` bytes,
+  created at `04:48:17Z`; GitHub SHA-256 digest
+  `4fe1d01fe5bc7f1d9eb6d701ae905074b3d2f93639e2a30d719db25d0466f55a`.
+
+The archive was downloaded and its SHA-256 computed from the retrieved bytes;
+it matches the GitHub digest above. Inspection was scoped to these members:
+
+- `column-static.json` and `column-server.json`: each contains 19 check records
+  and two screenshot references. The static/server unbalanced Dunnett P values
+  are respectively `0.04836123459052499` and `0.048361234590529545`. Both record
+  RM pooled P=`1` and opposite-direction one-tailed P=`0.9655517861960418`.
+- `column-static-mann-whitney-ties-notice.png`: visually reviewed. The method
+  and limitations appear above the results, including the normal approximation,
+  ties, small-sample risk and unverified native equivalence. The table visibly
+  shows P `0.0469`, `Approximate`, a star and a positive threshold decision.
+- `column-static-unsupported-rm-tukey.png`: visually reviewed. Unsupported
+  Tukey remains selected, the alert states that the method was not replaced,
+  the GG pair-specific and native-evidence disclosures are visible, and OK is
+  disabled. Both reviewed screenshots are legible without visible overlap or
+  clipping in the captured area.
+
+Other archive members, including the server screenshot counterparts, were not
+visually reviewed. Local Chromium downloads were incomplete, so the new
+successful browser evidence is the CI run.
+
+This later documentation-only update records the completed run on the named
+code commit, not a completed run on any subsequent documentation commit.
+These are application and independent-calculation checks, not native Prism
+outputs or proof of production deployment.

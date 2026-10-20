@@ -226,11 +226,47 @@ unsupported options, ambiguous legacy one-sided requests and missing RM errors.
 Frontend tests check disclosures, parameter preservation/refusal, full-precision
 bracket filtering, graph summaries and historical result invalidation.
 
-An extended 19-scenario browser script is prepared for both packaged builds.
-**Fresh browser/CI validation remains pending at this writing.** Local Chromium
-downloads returned incomplete archives, so no successful new local browser
-run is claimed. Final publication should record the actual fresh CI commit,
-job and scenario results rather than inheriting the original PR's counts.
+### Fresh CI and packaged browser validation
+
+The audit code at commit dbea1698d117d43aea18fb2108f2f7594cb97081 in
+[draft PR #4](https://github.com/samgillman/GP/pull/4) passed
+[run 39371008134](https://github.com/samgillman/GP/actions/runs/39371008134),
+[job 118458637647](https://github.com/samgillman/GP/actions/runs/39371008134/job/118458637647).
+The decoded job log independently confirms 330 backend passes (one existing
+warning, 8.16 seconds), 176 frontend passes with zero failures, successful
+server/static builds and 19 verified static runtime packages.
+
+The extended Column script logged **19 successful scenarios on each build**:
+static at 04:47:10–37 UTC and server at 04:47:39–48 UTC on October 20.
+Both runs reached the final workflow confirmation after the no-page-errors
+assertion. The additions cover alpha-dependent bracket visibility without
+changing the correction family, explicit one-tailed direction, historical
+cache recalculation, tied Mann–Whitney/small Kruskal–Wallis/tied Friedman
+warnings, the highly unbalanced Dunnett decision, pooled RM comparisons and
+visible refusal of incomplete subjects. The job finished successfully at
+04:48:21 UTC. The other existing application browser checks also passed.
+
+The uploaded browser-evidence artifact has ID 12241855332, size 1,721,066 bytes
+and GitHub SHA-256 digest
+4fe1d01fe5bc7f1d9eb6d701ae905074b3d2f93639e2a30d719db25d0466f55a.
+The downloaded archive's bytes match that digest. Both Column JSON reports
+were inspected and contain 19 checks each. The unbalanced Dunnett P is
+0.04836123459052499 in static and 0.048361234590529545 on server; pooled RM P=1
+and the opposite-direction one-tailed P=0.9655517861960418 in both.
+
+Two static-build screenshots were visually reviewed: the tied Mann–Whitney
+result visibly identifies its approximate P=0.0469, ties and small-sample risk,
+with native-equivalence limitations above the table; the unsupported RM Tukey
+dialog retains the requested method, shows the explanatory alert and disables
+OK. The inspected text is legible without visible overlap or clipping.
+This review covers those two images and the two Column JSON files, not all
+archive members. Local Chromium downloads returned incomplete archives, so
+successful new browser evidence comes from CI, not a local run.
+
+These results apply to the named code commit. This documentation-only update
+records that run; it does not claim that a later documentation commit has
+separately completed CI. None of these browser assertions adds native Prism
+numerical evidence.
 
 ## Original merge CI evidence
 

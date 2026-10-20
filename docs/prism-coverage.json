@@ -4372,13 +4372,37 @@
       "locked_browser_runtime_files": 19
     },
     "followup_local_backend_tests": 330,
-    "followup_hosted_ci": "not yet observed at this checkpoint",
+    "followup_hosted_ci": {
+      "run_url": "https://github.com/samgillman/GP/actions/runs/39371008134",
+      "job_url": "https://github.com/samgillman/GP/actions/runs/39371008134/job/118458637647",
+      "tested_code_head": "dbea1698d117d43aea18fb2108f2f7594cb97081",
+      "status": "completed",
+      "conclusion": "success",
+      "completed_at_utc": "2026-10-20T04:48:21Z",
+      "verified_from_decoded_logs": {
+        "backend_tests_passed": 330,
+        "existing_backend_deprecation_warnings": 1,
+        "frontend_tests_passed": 176,
+        "frontend_tests_failed": 0,
+        "server_build": "passed",
+        "static_build": "passed",
+        "locked_browser_runtime_files_verified": 19,
+        "column_static_scenarios_passed": 19,
+        "column_server_scenarios_passed": 19
+      },
+      "browser_evidence_artifact": {
+        "id": 12241855332,
+        "size_bytes": 1721066,
+        "sha256": "4fe1d01fe5bc7f1d9eb6d701ae905074b3d2f93639e2a30d719db25d0466f55a"
+      },
+      "scope_limit": "Evidence applies to tested code head dbea1698d117d43aea18fb2108f2f7594cb97081. Later commits must be assessed separately. Merge, deployment and native Prism equivalence are separate unverified facts."
+    },
     "native_prism_equivalence": "unverified beyond the existing saved paired-t example",
     "audit": "docs/column-statistical-audit.md",
     "native_capture_plan": "docs/prism-native-validation-matrix.md",
     "followup_local_frontend_tests": 176,
     "followup_local_frontend_test_files": 18,
     "followup_local_builds": "TypeScript, packaged-server build, static Vite build and build_browser.py passed; 19 locked runtime files verified",
-    "followup_browser_scenarios": "19 scenarios implemented; follow-up execution not yet observed at this checkpoint"
+    "followup_browser_scenarios": "19 scenarios passed on each build in run 39371008134: ten existing scenarios plus nine audit safeguards; evidence is bound to tested code head dbea1698d117d43aea18fb2108f2f7594cb97081."
   }
 }

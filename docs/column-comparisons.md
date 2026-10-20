@@ -149,13 +149,26 @@ Inspection of its job log confirms successful server and static builds,
 **each** build. This closes the original uncertainty about whether static CI
 ran successfully; it does not add a native Prism comparison.
 
-For this audit's local changes, the coordinating validation reports **330
-backend tests passed**, with the existing Starlette/httpx deprecation warning,
-and **176 individual frontend tests passed across 18 files**. Server build and
-type checking passed. Static Vite and browser-runtime builds passed with
-19 verified runtime packages. New browser scenarios and fresh CI validation
-are still pending at the time of this update; a local Chromium download
-returned incomplete archives, so no new successful local browser run is claimed.
+For the audit code at commit
+dbea1698d117d43aea18fb2108f2f7594cb97081, the
+[fresh CI run 39371008134](https://github.com/samgillman/GP/actions/runs/39371008134)
+and [job 118458637647](https://github.com/samgillman/GP/actions/runs/39371008134/job/118458637647)
+passed **330 backend tests**, with the existing Starlette/httpx deprecation
+warning, and **176 individual frontend tests**. Both builds and type checking
+passed; static packaging verified 19 runtime packages. The extended Column
+script passed **19 scenarios on the static build and 19 on the server build**,
+including the unbalanced Dunnett calculation and the scientific safeguards.
+Local tests and builds also passed, but the local Chromium download returned
+incomplete archives; the successful new browser evidence comes from CI.
+
+The uploaded browser-evidence archive was downloaded and its SHA-256 verified.
+Both Column JSON reports were inspected, along with two static-build
+screenshots showing the tied Mann–Whitney disclosure and the disabled
+unsupported RM Tukey choice. The [native matrix](prism-native-validation-matrix.md)
+records the artifact ID, size, digest and exact inspection scope. These
+assertions apply to the named code commit. This later
+documentation-only update records that completed run and does not claim a
+separate completed CI run on a subsequent documentation commit.
 
 Numerical regressions are in tests/test_column_audit.py and
 tests/test_column_tests.py; API behavior is covered by

@@ -193,9 +193,8 @@ The frontend passed **176 individual tests across 18 test files**, with direct
 file execution confirming the count. TypeScript and the packaged-server build
 passed. The static Vite build and `scripts/build_browser.py` also passed, with
 all **19 locked browser-runtime files** verified. The expanded browser script
-contains 19 scenarios (ten existing and nine audit scenarios); its follow-up
-execution and hosted CI were pending at this checkpoint. Baseline CI must not
-be substituted for those follow-up browser results.
+contains 19 scenarios (ten existing and nine audit scenarios). Its follow-up
+execution is now verified in the separately scoped CI run below.
 
 Verified historical CI: [run 39335578778](https://github.com/samgillman/GP/actions/runs/39335578778),
 [job 118344131420](https://github.com/samgillman/GP/actions/runs/39335578778/job/118344131420).
@@ -204,6 +203,27 @@ builds, all 19 locked browser-runtime files, and **10 Column browser scenarios
 with zero page errors in each build**. This resolves the earlier missing hosted
 static-build observation for that merge. It does not verify deployment, the
 follow-up changes or Prism equivalence.
+
+Verified follow-up CI: draft PR [#4](https://github.com/samgillman/GP/pull/4),
+[run 39371008134](https://github.com/samgillman/GP/actions/runs/39371008134),
+[job 118458637647](https://github.com/samgillman/GP/actions/runs/39371008134/job/118458637647),
+tested code head `dbea1698d117d43aea18fb2108f2f7594cb97081`. Decoded logs confirm
+**330 backend tests passed**, with one existing Starlette/httpx deprecation
+warning, and **176 frontend tests passed with zero failures**. Both application
+builds passed and all 19 locked browser-runtime files were verified. The Column
+check passed **19 scenarios on the static build and 19 on the packaged-server
+build**, including the nine added audit scenarios for directional inference,
+tied-rank warnings, matched-data refusal, RM error terms, Dunnett integration,
+alpha-aware filtering and invalidation of old results. Static checks ran from
+04:47:10 to 04:47:37 UTC and server checks from 04:47:39 to 04:47:48 UTC; the job
+completed successfully at 04:48:21 UTC on 2026-10-20.
+
+The retained `browser-evidence` artifact is ID `12241855332`, 1,721,066 bytes,
+SHA-256 `4fe1d01fe5bc7f1d9eb6d701ae905074b3d2f93639e2a30d719db25d0466f55a`.
+This CI evidence applies to the tested code head above. It does not claim that
+the subsequent documentation-only evidence update has itself completed CI,
+that the change has been merged or deployed, or that native Prism parity has
+been established.
 
 The original 66 Column requirement rows remain **partial**. Sixteen additional
 directly affected option rows now record bounded implementation/safeguard
