@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { sample } from "./data.ts";
-import type { Response } from "./data.ts";
+import type { Response, Summary } from "./data.ts";
 import {
   bracketLevels,
   buildPlotGeometry,
@@ -11,6 +11,58 @@ import {
   pointHitIndex,
   drawSelectedPoints,
 } from "./plot-geometry.ts";
+
+test("paired-test graphs keep all observed cells and use CIs for the plotted population", () => {
+  const project = sample("column");
+  project.graph.error = "ci";
+  project.columns = [
+    { name: "A", values: ["1", "2", "100"] },
+    { name: "B", values: ["2", "4", ""] },
+  ];
+  // The test uses A=[1,2], B=[2,4]. The graph intentionally retains A=100.
+  // 95% critical values: t(df=1)=12.7062047364321, t(df=2)=4.30265272969614.
+  const completeA: Summary = {
+    name: "A", n: 2, mean: 1.5, sd: Math.sqrt(0.5), sem: 0.5,
+    median: 1.5, min: 1, max: 2,
+    ci_low: 1.5 - 12.7062047364321 / 2,
+    ci_high: 1.5 + 12.7062047364321 / 2,
+  };
+  const completeB: Summary = {
+    name: "B", n: 2, mean: 3, sd: Math.sqrt(2), sem: 1,
+    median: 3, min: 2, max: 4,
+    ci_low: 3 - 12.7062047364321,
+    ci_high: 3 + 12.7062047364321,
+  };
+  const observedA: Summary = {
+    ...completeA, n: 3, mean: 103 / 3, sd: Math.sqrt(9703 / 3),
+    sem: Math.sqrt(9703) / 3, median: 2, max: 100,
+    ci_low: 103 / 3 - 4.30265272969614 * Math.sqrt(9703) / 3,
+    ci_high: 103 / 3 + 4.30265272969614 * Math.sqrt(9703) / 3,
+  };
+  const result: Response = {
+    analysis: "t_test", analysis_revision: 2,
+    summary: [completeA, completeB],
+    graph_summary: [observedA, completeB], results: [], warnings: [], fit: [],
+  };
+  const before = structuredClone({ project, result });
+  const geometry = buildPlotGeometry(project, result)!;
+  const a = geometry.series[0];
+  assert.equal(geometry.count, 5);
+  assert.equal(a.points.length, 3);
+  assert.deepEqual(a.values, [1, 2, 100]);
+  assert.equal(a.mean, 103 / 3);
+  assert.equal(a.lo, observedA.ci_low);
+  assert.equal(a.hi, observedA.ci_high);
+  assert.notEqual(a.lo, completeA.ci_low);
+  assert.equal(geometry.series[1].points.length, 2);
+  assert.equal(geometry.series[1].lo, completeB.ci_low);
+  assert.equal(result.summary[0].n, 2);
+  assert.deepEqual({ project, result }, before, "rendering must not alter data, exclusions, or matched summaries");
+  // Other analyses and older responses still use their ordinary graph population.
+  const { graph_summary, ...ordinary } = result;
+  const fallback = buildPlotGeometry(project, { ...ordinary, analysis: "descriptive", summary: graph_summary! })!;
+  assert.equal(fallback.series[0].lo, observedA.ci_low);
+});
 
 for (const [columns, rows] of [
   [20, 10_000],

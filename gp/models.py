@@ -16,6 +16,10 @@ class ComparisonOptions(BaseModel):
     equal_sd: bool = True
     sphericity: Literal["geisser_greenhouse", "assume"] = "geisser_greenhouse"
     tails: Literal[1, 2] = 2
+    # Direction is a prespecified hypothesis about the named columns, independent
+    # of the display-only reverse_difference setting. Legacy one-tailed requests
+    # without a direction are refused by the analysis engine, never guessed.
+    alternative: Literal["a_greater", "b_greater"] | None = None
     reverse_difference: bool = False
     comparisons: Literal["none", "all_pairs", "vs_control"] = "all_pairs"
     control: int = Field(default=0, ge=0, le=29)

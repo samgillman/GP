@@ -5,8 +5,11 @@ import type { GraphSheet, ResultSheet } from "./workbook";
 import { dataIndices } from "./workbook";
 import {
   comparisonChoices,
+  comparisonDisclosures,
+  comparisonOptionsProblem,
   methodLabels,
   normalizeComparisonOptions,
+  pairwiseMethodDescription,
   testName,
 } from "./column-analysis";
 import type {
@@ -131,7 +134,7 @@ export const analysisLabels: Record<Analysis, string> = {
   paired_t: "Paired t test",
   anova: "One-way ANOVA",
   t_test: "t tests (and nonparametric tests)",
-  one_way_anova: "One-way ANOVA (and nonparametric or mixed)",
+  one_way_anova: "One-way ANOVA (and nonparametric tests)",
   linear_regression: "Linear regression",
   dose_response: "Dose–response (4PL)",
   nonlinear_regression: "Nonlinear regression",
@@ -693,13 +696,8 @@ export function ParametersDialog({
     setDraft((old) => normalizeComparisonOptions({ ...old, ...patch }, names.length));
   const choices = comparisonChoices(draft);
   const [a, b] = names;
-  const problem = tTest
-    ? names.length !== 2
-      ? `t tests compare exactly two data sets; ${names.length} are selected.`
-      : ""
-    : names.length < 2
-      ? "One-way ANOVA needs at least two data sets."
-      : "";
+  const problem = comparisonOptionsProblem(analysis, draft, names.length);
+  const disclosures = comparisonDisclosures(analysis, draft);
   return (
     <DesktopDialog
       title={`Parameters: ${analysisLabels[analysis]}`}
@@ -826,6 +824,9 @@ export function ParametersDialog({
                   value={draft.control}
                   onChange={(e) => set({ control: Number(e.target.value) })}
                 >
+                  {draft.control >= names.length && (
+                    <option value={draft.control} disabled>Selected control is unavailable</option>
+                  )}
                   {names.map((name, index) => (
                     <option key={index} value={index}>
                       {datasetLetter(index)}: {name}
@@ -853,6 +854,11 @@ export function ParametersDialog({
                     value={draft.method ?? ""}
                     onChange={(e) => set({ method: e.target.value as ComparisonMethod })}
                   >
+                    {draft.method && !(choices[draft.comparisons] ?? []).includes(draft.method) && (
+                      <option value={draft.method} disabled>
+                        {methodLabels[draft.method]} — unsupported for this design
+                      </option>
+                    )}
                     {(choices[draft.comparisons] ?? []).map((method) => (
                       <option key={method} value={method}>
                         {methodLabels[method]}
@@ -871,6 +877,20 @@ export function ParametersDialog({
                 <Choice name="tails" checked={draft.tails === 1} onChange={() => set({ tails: 1 })}>
                   One-tailed P value
                 </Choice>
+                {draft.tails === 1 && (
+                  <label className="desktop-form-row">
+                    <span>Prespecified directional hypothesis</span>
+                    <select
+                      aria-label="Prespecified directional hypothesis"
+                      value={draft.alternative ?? ""}
+                      onChange={(e) => set({ alternative: e.target.value as "a_greater" | "b_greater" })}
+                    >
+                      <option value="" disabled>Choose the direction specified before seeing the data</option>
+                      <option value="a_greater">{a ?? "A"} &gt; {b ?? "B"}</option>
+                      <option value="b_greater">{b ?? "B"} &gt; {a ?? "A"}</option>
+                    </select>
+                  </label>
+                )}
                 <label className="desktop-form-row">
                   <span>Report differences as</span>
                   <select
@@ -893,6 +913,9 @@ export function ParametersDialog({
                   value={draft.alpha}
                   onChange={(e) => set({ alpha: Number(e.target.value) })}
                 >
+                  {![0.1, 0.05, 0.01, 0.001].includes(draft.alpha) && (
+                    <option value={draft.alpha}>{draft.alpha}</option>
+                  )}
                   {[0.1, 0.05, 0.01, 0.001].map((alpha) => (
                     <option key={alpha} value={alpha}>
                       {alpha}
@@ -902,13 +925,17 @@ export function ParametersDialog({
               </label>
               <p className="desktop-help-text">
                 P values use the GraphPad style: ns P &gt; 0.05, * P ≤ 0.05, ** P ≤
-                0.01, *** P ≤ 0.001, **** P ≤ 0.0001. Confidence intervals are 95%.
+                0.01, *** P ≤ 0.001, **** P ≤ 0.0001. Confidence intervals are two-sided 95%.
               </p>
             </fieldset>
           </>
         )}
-        {problem && <p className="result-warning">{problem}</p>}
+        {problem && <p className="result-warning" role="alert">{problem}</p>}
         </div>
+        <section className="analysis-method-notes" aria-label="Method and limitations">
+          <h3>Method and limitations</h3>
+          <ul>{disclosures.map((note) => <li key={note}>{note}</li>)}</ul>
+        </section>
       </div>
       <footer className="desktop-dialog-actions">
         <button className="button" onClick={onClose}>
@@ -932,7 +959,14 @@ export function PairwiseDialog({
   onClose,
   onApply,
 }: {
-  analyses: { id: string; name: string }[];
+  analyses: {
+    id: string;
+    name: string;
+    analysis: ComparisonAnalysis;
+    options: ComparisonOptions;
+    datasets: number;
+    historical: boolean;
+  }[];
   initial: { resultId: string | null; style: "asterisks" | "p"; show_ns: boolean } | null;
   onClose: () => void;
   onApply: (
@@ -946,6 +980,7 @@ export function PairwiseDialog({
   );
   const [style, setStyle] = useState(initial?.style ?? "asterisks"),
     [showNs, setShowNs] = useState(initial?.show_ns ?? true);
+  const selected = analyses.find((analysis) => analysis.id === resultId);
   return (
     <DesktopDialog
       title="Add Pairwise Comparisons"
@@ -970,6 +1005,17 @@ export function PairwiseDialog({
                 ))}
               </select>
             </label>
+            {selected && !selected.historical && (
+              <p className="desktop-help-text" role="note">
+                {pairwiseMethodDescription(selected.analysis, selected.options, selected.datasets)}
+              </p>
+            )}
+            {selected?.historical && (
+              <p className="result-warning" role="alert">
+                Historical result from an earlier statistical engine. Unfreeze and recalculate before using the revised methods.
+                Historical bracket visibility retains the earlier fixed star thresholds, which may differ from the selected alpha.
+              </p>
+            )}
             <fieldset>
               <legend>Show</legend>
               <Choice name="pairwise-style" checked={style === "asterisks"} onChange={() => setStyle("asterisks")}>
@@ -984,12 +1030,15 @@ export function PairwiseDialog({
                   checked={showNs}
                   onChange={(e) => setShowNs(e.target.checked)}
                 />
-                Show non-significant comparisons
+                Show comparisons that do not meet the analysis alpha
               </label>
             </fieldset>
             <p className="desktop-help-text">
               Brackets follow the analysis: they update when it recalculates and
-              disappear while it is out of date.
+              disappear while it is out of date. Asterisks use fixed thresholds
+              (0.05, 0.01, 0.001, 0.0001), regardless of alpha. State the test,
+              comparison family and adjustment in the figure legend; bracket
+              labels alone do not identify the method or establish Prism equivalence.
             </p>
           </>
         ) : (

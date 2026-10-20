@@ -22,6 +22,32 @@ The latest **PRISM11_DIFFERENCES.md/HTML** takes precedence over the Prism 10 ba
 
 The JSON/Markdown registers together are part of this plan; they enumerate option-level work that would be lost in a high-level milestone list. Run `python3 scripts/check_requirements.py` to check identities, dependency references, source coverage and evidence gates. Section mappings identify owning requirements and include grouping headings; they do not assert those requirements are implemented. All requirement IDs remain stable. Parent requirements are not closed until every required child is closed.
 
+## Column statistical audit checkpoint — 2026-10-20 UTC
+
+The audit of merged PR #3 adds safeguards and independent numerical regressions;
+it does not close the Column analysis families or establish Prism equivalence.
+The [audit findings](column-statistical-audit.md) distinguish calculation errors
+from correctly evaluated approximations that can change scientific decisions.
+The [native validation matrix](prism-native-validation-matrix.md) specifies the
+data, options, full-precision output fields, provenance and artifact captures
+needed to resolve each remaining native comparison.
+
+The immediate work is to keep method and approximation disclosures visible,
+reject unsupported one-sided and incomplete matched designs, preserve declared
+comparison families, and invalidate unfrozen results computed under the older
+analysis revision. Assumed-sphericity and Geisser–Greenhouse posthoc error terms
+are separate contracts. One saved paired-t dataset remains the only native
+numerical comparison for these new Column methods. Exact tied/small-sample rank
+procedures, missing-data mixed models, additional correction methods and native
+defaults remain open.
+
+The original merge's [CI run 39335578778](https://github.com/samgillman/GP/actions/runs/39335578778)
+has now been inspected: it passed 296 backend tests, 163 frontend tests, the
+server and static builds, ten Column browser scenarios per build, and validation
+of 19 locked browser-runtime files. Those results establish the recorded
+baseline workflow, not acceptance of later changes or native equivalence.
+Follow-up validation is recorded separately in the execution log.
+
 ## Immediate defect queue from the user’s break test
 
 The [stress, scroll and UX register](requirements/break-test-report.json) adds 36 explicit obligations. Fix the advertised-limit10000×20crash and render recovery first, then numeric errors, independent import defaults, virtualization/selection/scroll, analysis lifecycle, edge-case scientific reporting and storage recovery. Reproduce reported behavior against current code; preserve already verified work and never alter the user’s actual workbook for tests. Broader UI requests map to the original data/analysis/graph/menu requirements and remain open until implemented.

@@ -1,5 +1,9 @@
 # Completion execution log
 
+Checkpoint entries below retain the evidence available when they were written.
+The final Column audit section records later inspection of the merged PR #3 CI
+run and distinguishes it from validation of the follow-up safeguards.
+
 ## Baseline
 
 - Starting source: `cd66723` (partial implementation; full equivalence not achieved).
@@ -56,7 +60,7 @@ All 11 bundled extended XML examples were correctly rejected; all 14 bundled ZIP
 - Chromium actual-calculation checks exercise multiple linked analyses, independent tables, invalid drafts, navigation, undo/redo, saved stale reopening, numerical means, zero-dose fitting and finite log plotting.
 - Native-import browser check passed: the specific unsupported-table reason is visible and the workbook is unchanged. Desktop UI/theme/dialog/graph/results/mobile regression checks also passed.
 - `python3 scripts/check_requirements.py` passes identities, dependency references, source coverage and evidence gates.
-- `.github/workflows/ci.yml` runs the same requirements/unit/build/browser checks on pushes and pull requests. The hosted workflow result has not yet been observed.
+- `.github/workflows/ci.yml` runs the same requirements/unit/build/browser checks on pushes and pull requests. No hosted result had been inspected at this checkpoint; the later merged PR #3 run is verified in the Column audit section below.
 
 ## Next work and limits
 
@@ -131,7 +135,7 @@ Validation actually run in this container:
 - 268 backend tests passed (two new XML exclusion tests).
 - Requirement checker passed: 2,661 identities and all 1,574 parity rows preserved.
 - Packaged server build: `scripts/check_exclusions.py` passed 10 scenario groups with zero page errors. Recalculation, import diagnostics, desktop UI, grid UI (26 checks), graph zoom, all 9 workbook-foundation groups and the 200k/300k large-workbook checks also passed against this build.
-- **Not run:** the self-contained static build. The container's network policy denied `cdn.jsdelivr.net`, so `scripts/build_browser.py` could not fetch the locked Pyodide wheels. The Vite static bundle compiled; its browser runtime was not assembled. CI now runs the exclusion check against both builds; no hosted CI result has been observed.
+- **Not run in that container:** the self-contained static build. The container's network policy denied `cdn.jsdelivr.net`, so `scripts/build_browser.py` could not fetch the locked Pyodide wheels. The Vite static bundle compiled; its browser runtime was not assembled. CI runs the exclusion check against both builds; the later merged PR #3 run was inspected during the Column audit below.
 
 Still open: per-point formatting, results-side exclusions, grid range copy/copy preferences for excluded values, TXT/XML export, ZIP exclusion flags, native key equivalent and native handler semantics, typed text/date/censored cells. No Prism equivalence is claimed. Production deployment was not checked.
 
@@ -153,6 +157,80 @@ Validation actually run in this container:
 - 163 frontend tests and TypeScript passed.
 - Requirement checker passed (2,661 identities; all 1,574 parity rows preserved). 66 rows moved to or stayed at **partial** with implementation and validation evidence; none is marked equivalent.
 - Packaged server build: the new `scripts/check_column_analysis.py` passed 10 scenarios with zero page errors. Recalculation, desktop UI, grid UI, graph zoom, exclusions, workbook foundations and the large-workbook integration checks also passed against this build; the large-workbook check now selects Welch through the parameters dialog.
-- **Not run:** the static (Pyodide) build, which the container cannot assemble (cdn.jsdelivr.net denied). CI runs the new check against both builds; no hosted result has been observed yet. Production deployment was not checked.
+- **Not run in that implementation container:** the static (Pyodide) build, which could not be assembled because cdn.jsdelivr.net was denied. The subsequent audit inspected successful server/static builds and both ten-scenario Column checks in the merged PR #3 CI run. Production deployment was not checked.
 
 Still open: lognormal and mixed-effects designs, Holm–Šídák/Newman–Keuls/Dunnett T3/Tamhane T2/FDR, selected-pair families, effect sizes and residual diagnostics, guide exact-P rules, closable result tabs, pairwise formatting/selection and one-click add, one-sample and multiple t tests, and every saved/native family comparison.
+
+## Column statistical audit — 2026-10-20 UTC
+
+Baseline: merged PR [#3](https://github.com/samgillman/GP/pull/3), commit
+`1fec4e165a5b35396e0c675e33e23161526948d2`. See the
+[scientific audit](column-statistical-audit.md) and
+[native capture matrix](prism-native-validation-matrix.md) for complete findings,
+independent references and the still-missing Prism outputs.
+
+The audit corrected assumed-sphericity RM posthoc error terms, directional
+one-tailed inference (including discrete tails), unstable Dunnett quadrature for
+highly unequal group sizes, tiny Šídák probabilities, low-df interval roots and
+RM numerical scaling. Incomplete matched one-way subjects are rejected; paired
+t/Wilcoxon counts and descriptions use their complete pairs. Method-specific
+dialog/results disclosures distinguish exact from approximate P values,
+unsupported models and corrections, Fisher LSD's unadjusted inference,
+confidence level, alpha and fixed star thresholds. Bracket filtering uses the
+selected alpha. The graph preview and bracket dialog show method and comparison
+family context; users must include the method and adjustment in exported figure
+legends because the HTML context caption is not embedded in exported graphs.
+Pre-audit unfrozen result caches are invalidated by the analysis revision;
+frozen historical outputs remain identified as historical snapshots.
+
+Independent exhaustive label/sign/within-subject permutations demonstrate that
+the retained small-sample Mann–Whitney, Wilcoxon, Kruskal–Wallis and Friedman
+approximations can disagree with an exact reference at alpha 0.05. Those exact
+benchmarks are not native Prism outputs. The numerical audit suite contains 26
+passing regressions; the full backend suite passed **330 tests** using the pinned
+dependencies. One existing Starlette/httpx deprecation warning was emitted.
+The frontend passed **176 individual tests across 18 test files**, with direct
+file execution confirming the count. TypeScript and the packaged-server build
+passed. The static Vite build and `scripts/build_browser.py` also passed, with
+all **19 locked browser-runtime files** verified. The expanded browser script
+contains 19 scenarios (ten existing and nine audit scenarios). Its follow-up
+execution is now verified in the separately scoped CI run below.
+
+Verified historical CI: [run 39335578778](https://github.com/samgillman/GP/actions/runs/39335578778),
+[job 118344131420](https://github.com/samgillman/GP/actions/runs/39335578778/job/118344131420).
+The logs establish 296 backend and 163 frontend tests, both server and static
+builds, all 19 locked browser-runtime files, and **10 Column browser scenarios
+with zero page errors in each build**. This resolves the earlier missing hosted
+static-build observation for that merge. It does not verify deployment, the
+follow-up changes or Prism equivalence.
+
+Verified follow-up CI: draft PR [#4](https://github.com/samgillman/GP/pull/4),
+[run 39371008134](https://github.com/samgillman/GP/actions/runs/39371008134),
+[job 118458637647](https://github.com/samgillman/GP/actions/runs/39371008134/job/118458637647),
+tested code head `dbea1698d117d43aea18fb2108f2f7594cb97081`. Decoded logs confirm
+**330 backend tests passed**, with one existing Starlette/httpx deprecation
+warning, and **176 frontend tests passed with zero failures**. Both application
+builds passed and all 19 locked browser-runtime files were verified. The Column
+check passed **19 scenarios on the static build and 19 on the packaged-server
+build**, including the nine added audit scenarios for directional inference,
+tied-rank warnings, matched-data refusal, RM error terms, Dunnett integration,
+alpha-aware filtering and invalidation of old results. Static checks ran from
+04:47:10 to 04:47:37 UTC and server checks from 04:47:39 to 04:47:48 UTC; the job
+completed successfully at 04:48:21 UTC on 2026-10-20.
+
+The retained `browser-evidence` artifact is ID `12241855332`, 1,721,066 bytes,
+SHA-256 `4fe1d01fe5bc7f1d9eb6d701ae905074b3d2f93639e2a30d719db25d0466f55a`.
+This CI evidence applies to the tested code head above. It does not claim that
+the subsequent documentation-only evidence update has itself completed CI,
+that the change has been merged or deployed, or that native Prism parity has
+been established.
+
+The original 66 Column requirement rows remain **partial**. Sixteen additional
+directly affected option rows now record bounded implementation/safeguard
+evidence and remain partial. Original submitted findings, acceptance criteria,
+source hashes, historical evidence hashes and the prior implementation snapshot
+are preserved. Only current implementation-source references are refreshed.
+No new Prism execution, REA Evidence ID or equivalence claim is added. Remaining
+work includes every native case in the matrix, exact small/tied rank procedures,
+mixed-effects estimation, additional comparison methods/families, complete
+formatting controls and the wider reconstruction plan.

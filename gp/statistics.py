@@ -246,7 +246,7 @@ def analyze(request: AnalysisRequest):
 
 def analyze_column_comparison(request: AnalysisRequest):
     """t tests and one-way ANOVA: tabbed tables plus pairwise comparisons for graphs."""
-    from .column_tests import ColumnTestError, analyze_columns
+    from .column_tests import ColumnTestError, analyze_columns, complete_rows
     data = [values(c) for c in request.columns]
     require(any(len(d) for d in data), "Enter at least one numeric observation in the series being analyzed.")
     try:
@@ -254,8 +254,24 @@ def analyze_column_comparison(request: AnalysisRequest):
     except ColumnTestError as exc:
         raise AnalysisError(str(exc)) from exc
     notices = list(report.notices)
-    if any(v is None for c in request.columns for v in c.values) or len({len(c.values) for c in request.columns}) > 1:
-        notices.insert(0, "Missing values are excluded; matched and paired analyses use only rows complete in every analyzed column.")
-    notices.append(f"Confidence intervals use {request.confidence:.0%} confidence; significance uses alpha = {request.options.alpha:g}.")
-    return dict(analysis=request.analysis, summary=[descriptive(c.name, d, request.confidence) for c, d in zip(request.columns, data)],
-                results=report.results, warnings=notices, fit=[], tables=report.tables, comparisons=report.comparisons)
+    graph_summary = None
+    if request.options.paired:
+        # Descriptions must summarize the same subjects as the inferential test.
+        # The engine rejects partial rows for matched one-way designs; paired
+        # t/Wilcoxon deliberately retain complete pairs and report exclusions.
+        # Graphs retain all non-excluded observations from their source table.
+        # Keep their CIs separate from complete-pair inferential descriptions.
+        graph_summary = [descriptive(c.name, d, request.confidence) for c, d in zip(request.columns, data)]
+        matched = complete_rows(request.columns)
+        data = [matched[:, i] for i in range(len(request.columns))]
+        notices.append("Descriptive statistics summarize the complete matched rows used by this analysis.")
+    elif any(v is None for c in request.columns for v in c.values) or len({len(c.values) for c in request.columns}) > 1:
+        notices.insert(0, "Missing observations are excluded separately from each independent column.")
+    # Increment when statistical behavior changes so stored pre-audit results
+    # cannot silently remain current after an application update.
+    output = dict(analysis=request.analysis, analysis_revision=2,
+                  summary=[descriptive(c.name, d, request.confidence) for c, d in zip(request.columns, data)],
+                  results=report.results, warnings=notices, fit=[], tables=report.tables, comparisons=report.comparisons)
+    if graph_summary is not None:
+        output["graph_summary"] = graph_summary
+    return output

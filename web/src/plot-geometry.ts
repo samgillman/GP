@@ -169,7 +169,7 @@ export function buildPlotGeometry(
         lo -= sd / Math.sqrt(n || 1);
         hi += sd / Math.sqrt(n || 1);
       }
-      const summary = result?.summary.find((s) => s.name === column.name);
+      const summary = (result?.graph_summary ?? result?.summary)?.find((s) => s.name === column.name);
       if (
         graph.error === "ci" &&
         summary?.ci_low != null &&

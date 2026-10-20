@@ -109,7 +109,8 @@ def export_plot(request):
                     jitter = np.random.default_rng(i).uniform(-.13, .13, size=len(y))
                     axis.scatter(i+jitter, y, s=22, color=color, edgecolors=(0, 0, 0, .35), linewidths=.6, zorder=3)
             if graph.type == "line":
-                means = [s["mean"] if s["mean"] is not None else np.nan for s in outcome["summary"]]
+                means = [s["mean"] if s["mean"] is not None else np.nan
+                         for s in outcome.get("graph_summary", outcome["summary"])]
                 axis.plot(range(len(means)), means, color=palette[0], linewidth=1.5)
             if tops and graph.annotations:
                 draw_brackets(axis, graph.annotations, tops, min(lows + list(tops.values())))

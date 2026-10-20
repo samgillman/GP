@@ -448,8 +448,12 @@ export type ResultTable = {
 /** Indices refer to the analyzed data sets in request order. */
 export type PairwiseComparison = { a: number; b: number; p: number; summary: string };
 export type Response = {
+  analysis_revision?: number;
   analysis: string;
   summary: Summary[];
+  // Graph points use observed cells. Matched analyses may summarize a smaller
+  // complete-case population in `summary`; these CIs match the plotted cells.
+  graph_summary?: Summary[];
   results: { label: string; value: number | string | null }[];
   tables?: ResultTable[];
   comparisons?: PairwiseComparison[];

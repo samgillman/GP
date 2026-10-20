@@ -4223,7 +4223,7 @@
         "Exclude XY/survival/nested/parts-whole/multiple-variable/heatmap/threeway/stackedbar",
         "All plotted data from one table"
       ],
-      "current_status": "partial: brackets from one linked t test or one-way ANOVA result; see docs/column-comparisons.md",
+      "current_status": "partial: implemented bounded Column workflow with audit safeguards; native equivalence unverified; see docs/column-statistical-audit.md",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
@@ -4231,7 +4231,9 @@
         "gp/plotting.py",
         "web/src/WorkbookDialogs.tsx",
         "web/src/WorkbookDialogs.tsx PairwiseDialog; web/src/App.tsx pairwiseAnnotations (Change menu and Pairwise toolbar); web/src/plot-geometry.ts bracketLevels; web/src/Plot.tsx; gp/plotting.py draw_brackets; gp/models.py GraphAnnotation",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "dependencies": [
         "analysis:comparisons-contract",
@@ -4252,15 +4254,17 @@
       "acceptance": [
         "Eligibility matrix tests all supported/unsupported families and analyses; no invented stars from global ANOVA P."
       ],
-      "audit_status": "partial",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
         "tests/test_column_tests.py::test_export_draws_pairwise_brackets_and_validates_them",
-        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes."
       ],
       "limitations": [
         "Sources are limited to GP t tests and one-way ANOVA results on the graph's own table; XY graphs never show brackets. Multiple t tests, one-sample tests and two-way cell means are not offered.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "Graph brackets use linked comparison P values and the chosen alpha, not star labels, when hiding nonsignificant comparisons. The graph preview and bracket dialog show method, correction, family and alpha context; the HTML context caption is not embedded in exported graphs. Users must include the method and adjustment in exported figure legends. Unsupported source families remain open.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -4279,7 +4283,7 @@
         "One analysis at a time",
         "Select all/deselect/select individual comparisons"
       ],
-      "current_status": "partial: brackets from one linked t test or one-way ANOVA result; see docs/column-comparisons.md",
+      "current_status": "partial: implemented bounded Column workflow with audit safeguards; native equivalence unverified; see docs/column-statistical-audit.md",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
@@ -4287,7 +4291,9 @@
         "gp/plotting.py",
         "web/src/WorkbookDialogs.tsx",
         "web/src/WorkbookDialogs.tsx PairwiseDialog; web/src/App.tsx pairwiseAnnotations (Change menu and Pairwise toolbar); web/src/plot-geometry.ts bracketLevels; web/src/Plot.tsx; gp/plotting.py draw_brackets; gp/models.py GraphAnnotation",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "dependencies": [
         "G100",
@@ -4308,14 +4314,16 @@
       "acceptance": [
         "Add multiple comparison set, switch source analysis, select subset; source comparison IDs survive graph reorder."
       ],
-      "audit_status": "partial",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes."
       ],
       "limitations": [
         "Change menu and toolbar open a dialog (no first-click-adds-all), one analysis at a time, no per-comparison selection; Insert menu route absent.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "Filtering bracket visibility does not change the inference family. The graph preview and bracket dialog show method and family context; users must include the method and adjustment in exported figure legends because the HTML context caption is not exported. Native geometry and complete selection/formatting behavior remain unverified.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {

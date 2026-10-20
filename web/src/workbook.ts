@@ -1,11 +1,12 @@
 import { numeric, parseProject, sample } from "./data.ts";
-import type { Analysis, Graph, Project, Response, TableType } from "./data.ts";
+import type { Analysis, Graph, Project, Response, Summary, TableType } from "./data.ts";
 import { assertWorkbookDependencyIntegrity } from "./workbook-dependencies.ts";
 import {
   isComparisonAnalysis,
   parseComparisonOptions,
 } from "./column-analysis.ts";
 import type { ComparisonOptions } from "./column-analysis.ts";
+import { isHistoricalColumnOutput } from "./analysis-version.ts";
 export const WORKBOOK_STORAGE = "gp.workbook.v2";
 /** Excluded observations by dataset ID, each listing row IDs in table order.
  * The entered text stays in the project; analyses and graphs treat it as missing.
@@ -699,20 +700,11 @@ function comparisonsValid(comparisons: unknown, groups: number): boolean {
     )
   );
 }
-export function responseValid(r: unknown): r is Response {
-  if (!r || typeof r !== "object") return false;
-  const v = r as Response;
+function summariesValid(value: unknown): value is Summary[] {
   return (
-    (v.tables === undefined || tablesValid(v.tables)) &&
-    (v.comparisons === undefined ||
-      comparisonsValid(
-        v.comparisons,
-        Array.isArray(v.summary) ? v.summary.length : 0,
-      )) &&
-    typeof v.analysis === "string" &&
-    Array.isArray(v.summary) &&
-    v.summary.length <= 30 &&
-    v.summary.every(
+    Array.isArray(value) &&
+    value.length <= 30 &&
+    value.every(
       (s) =>
         s &&
         typeof s.name === "string" &&
@@ -746,7 +738,27 @@ export function responseValid(r: unknown): r is Response {
           const n = (s as unknown as Record<string, unknown>)[k];
           return n === null || (typeof n === "number" && Number.isFinite(n));
         }),
-    ) &&
+    )
+  );
+}
+export function responseValid(r: unknown): r is Response {
+  if (!r || typeof r !== "object") return false;
+  const v = r as Response;
+  return (
+    (v.analysis_revision === undefined ||
+      (Number.isInteger(v.analysis_revision) && v.analysis_revision > 0)) &&
+    (v.tables === undefined || tablesValid(v.tables)) &&
+    (v.comparisons === undefined ||
+      comparisonsValid(
+        v.comparisons,
+        Array.isArray(v.summary) ? v.summary.length : 0,
+      )) &&
+    typeof v.analysis === "string" &&
+    summariesValid(v.summary) &&
+    (v.graph_summary === undefined ||
+      (summariesValid(v.graph_summary) &&
+        v.graph_summary.length === v.summary.length &&
+        v.graph_summary.every((summary, i) => summary.name === v.summary[i].name))) &&
     Array.isArray(v.results) &&
     v.results.length <= 1000 &&
     v.results.every(
@@ -927,7 +939,8 @@ function validateSavedResult(
     );
   if (
     !frozen &&
-    (result.sourceRevision !== source.revision || result.status === "stale")
+    (result.sourceRevision !== source.revision || result.status === "stale" ||
+      isHistoricalColumnOutput(result.result))
   ) {
     result.status = "stale";
     result.result = null;

@@ -1,13 +1,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { sample, parseProject } from "./data.ts";
-import type { Response } from "./data.ts";
+import type { Response, Summary } from "./data.ts";
 import {
   addData,
   addGraph,
   fromProject,
   parseWorkbook,
   recordResult,
+  responseValid,
   sourceSheet,
   selectedProject,
   updateData,
@@ -191,6 +192,46 @@ test("malformed optional statistical values are rejected on workbook open", () =
     result: output as unknown as Response,
   });
   assert.throws(() => parseWorkbook(JSON.stringify(b)));
+});
+
+test("matched and graph summaries persist separately and both reject malformed statistics", async () => {
+  const { defaultComparisonOptions } = await import("./column-analysis.ts");
+  const project = sample("column");
+  project.columns = [
+    { name: "A", values: ["1", "2", "100"] },
+    { name: "B", values: ["2", "4", ""] },
+  ];
+  const matched: Summary[] = ["A", "B"].map((name, i) => ({
+    name, n: 2, mean: 1.5 * (i + 1), sd: null, sem: null,
+    median: 1.5 * (i + 1), min: i + 1, max: 2 * (i + 1),
+    ci_low: null, ci_high: null,
+  }));
+  const output: Response = {
+    ...response, analysis: "t_test", analysis_revision: 2,
+    summary: matched,
+    graph_summary: [{ ...matched[0], n: 3, mean: 103 / 3, median: 2, max: 100 }, matched[1]],
+  };
+  assert.equal(responseValid(output), true);
+  let workbook = fromProject(project);
+  workbook = recordResult(workbook, {
+    name: "Paired result", dataId: workbook.sheets[0].id,
+    analysis: "t_test", columnIndices: [0, 1], sourceRevision: 0,
+    options: { ...defaultComparisonOptions, paired: true }, result: output,
+  });
+  const reopened = parseWorkbook(JSON.stringify(workbook));
+  assert.deepEqual(reopened, workbook);
+  const result = reopened.sheets.find((sheet) => sheet.kind === "results");
+  assert.equal(result?.kind === "results" && result.result?.summary[0].n, 2);
+  assert.equal(result?.kind === "results" && result.result?.graph_summary?.[0].n, 3);
+  for (const malformed of [
+    null, {}, ["A"], [],
+    [{ ...matched[0], ci_low: NaN }, matched[1]],
+    [{ ...matched[0], n: 1.5 }, matched[1]],
+    [{ ...matched[0], geometric_mean: { invalid: 1 } }, matched[1]],
+    [{ ...matched[0], name: "Wrong population" }, matched[1]],
+  ])
+    assert.equal(responseValid({ ...output, graph_summary: malformed }), false);
+  assert.equal(responseValid({ ...output, summary: [{ ...matched[0], mean: Infinity }, matched[1]] }), false);
 });
 
 test("v3 assigns one identity per dataset and represented row, not virtual cells", () => {
@@ -385,7 +426,7 @@ test("t test parameters persist with results, are validated, and drive recalcula
     options,
     columnIndices: [0, 1],
     sourceRevision: 0,
-    result: { ...response, analysis: "t_test", summary: ["A", "B"].map((name) => ({ name, n: 8, mean: null, sd: null, sem: null, median: null, min: null, max: null, ci_low: null, ci_high: null })), comparisons: [{ a: 0, b: 1, p: 0.01, summary: "*" }], tables: [{ title: "T", columns: ["T", ""], rows: [["P value", "0.0100"], [], ["Section"]] }] },
+    result: { ...response, analysis: "t_test", analysis_revision: 2, summary: ["A", "B"].map((name) => ({ name, n: 8, mean: null, sd: null, sem: null, median: null, min: null, max: null, ci_low: null, ci_high: null })), comparisons: [{ a: 0, b: 1, p: 0.01, summary: "*" }], tables: [{ title: "T", columns: ["T", ""], rows: [["P value", "0.0100"], [], ["Section"]] }] },
   });
   const resultId = book.activeSheetId;
   assert.deepEqual(parseWorkbook(JSON.stringify(book)), book);

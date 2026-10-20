@@ -690,18 +690,22 @@
       "implementation_evidence": [
         "docs/prism-coverage.json:prism_ui_ux",
         "web/src/App.tsx run(): t tests and one-way ANOVA analyze only the data sets ticked in Analyze Data; results keep their dataset identities",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "docs/prism-coverage.json:prism_ui_ux"
       ],
-      "audit_status": "partial_ui_or_missing_choices",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export); the t test on two of three columns reports df 8"
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export); the t test on two of three columns reports df 8",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -2075,23 +2079,27 @@
         "tests/test_statistics.py",
         "tests/test_prism_reference.py",
         "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "gp/statistics.py",
         "tests/test_statistics.py",
         "tests/test_prism_reference.py"
       ],
-      "audit_status": "partial_backend",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
         "tests/test_column_tests.py::test_welch_one_tailed_and_reversed_difference",
         "tests/test_column_tests.py::test_welch_and_brown_forsythe_anova_reduce_to_welch_t_for_two_groups",
-        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "n=2 and one-zero-variance outputs are not compared with Prism; both-zero variance is refused with an explanation.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -2119,22 +2127,26 @@
         "tests/test_statistics.py",
         "tests/test_prism_reference.py",
         "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "gp/statistics.py",
         "tests/test_statistics.py",
         "tests/test_prism_reference.py"
       ],
-      "audit_status": "partial_backend",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
         "tests/test_column_tests.py::test_paired_t_matches_saved_prism_11_1_with_swapped_direction",
-        "tests/test_column_tests.py::test_repeated_measures_reduces_to_paired_t_and_epsilon_matches_contrast_formula"
+        "tests/test_column_tests.py::test_repeated_measures_reduces_to_paired_t_and_epsilon_matches_contrast_formula",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "Effect sizes and asymmetric-missing-row comparisons with Prism remain open.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -2160,20 +2172,24 @@
       "implementation_evidence": [
         "resources-pass2/feature-map.json:TTests.nib",
         "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:TTests.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
         "tests/test_column_tests.py::test_unpaired_t_matches_scipy_and_reports_prism_rows",
-        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "The guide's Male/Female example data were not available, so its rounded values were not reproduced.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -2286,19 +2302,23 @@
       "implementation_evidence": [
         "resources-pass2/feature-map.json:TTests.nib",
         "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:TTests.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "tests/test_column_tests.py::test_mann_whitney_exact_and_tied_approximate_match_scipy"
+        "tests/test_column_tests.py::test_mann_whitney_exact_and_tied_approximate_match_scipy",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
-        "GP uses exact P only without ties and with at most 50 values per group; the guide states exact P even with ties up to 100 values in the smaller group (audit P0199). No CI of the location difference (A073).",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "Mann-Whitney exact selection remains GP-specific: untied samples with at most 50 observations per column. Tied/small-sample approximations are disclosed; the native 100-observation boundary is unverified.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -2353,19 +2373,23 @@
       "implementation_evidence": [
         "resources-pass2/feature-map.json:TTests.nib",
         "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:TTests.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "tests/test_column_tests.py::test_wilcoxon_excludes_zero_differences_and_matches_scipy"
+        "tests/test_column_tests.py::test_wilcoxon_excludes_zero_differences_and_matches_scipy",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
-        "Exact P only without ties for up to 50 nonzero pairs; Prism's exact rule is not compared.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "Wilcoxon exact selection remains untied nonzero differences up to 50 pairs; tied small-sample approximation and unsupported Pratt handling are disclosed. Native exact thresholds remain unverified.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -2391,19 +2415,24 @@
       "implementation_evidence": [
         "resources-pass2/feature-map.json:TTests.nib",
         "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:TTests.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "tests/test_column_tests.py::test_wilcoxon_excludes_zero_differences_and_matches_scipy"
+        "tests/test_column_tests.py::test_wilcoxon_excludes_zero_differences_and_matches_scipy",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "Only discarding zero differences is implemented; the Pratt choice is not offered.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "Wilcox zero exclusion remains the only supported zero policy; counts and unsupported Pratt/split-zero alternatives are explicit.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -2458,19 +2487,23 @@
       "implementation_evidence": [
         "resources-pass2/feature-map.json:TTests.nib",
         "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:TTests.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "tests/test_column_tests.py::test_welch_one_tailed_and_reversed_difference"
+        "tests/test_column_tests.py::test_welch_one_tailed_and_reversed_difference",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
-        "One-tailed P is reported as half the two-tailed P without a predeclared direction field, a GP decision.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "One-tailed tests require an explicit A>B or B>A hypothesis. Exact discrete one-sided tails are computed directly; no half-of-capped-two-sided shortcut.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -2496,20 +2529,25 @@
       "implementation_evidence": [
         "resources-pass2/feature-map.json:TTests.nib",
         "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:TTests.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
         "tests/test_column_tests.py::test_welch_one_tailed_and_reversed_difference",
-        "tests/test_column_tests.py::test_paired_t_matches_saved_prism_11_1_with_swapped_direction"
+        "tests/test_column_tests.py::test_paired_t_matches_saved_prism_11_1_with_swapped_direction",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "Graph annotations show P values or asterisks only, so direction does not affect them.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "Display reversal changes the signed effect/interval, independently of the prespecified one-sided hypothesis.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -2535,19 +2573,23 @@
       "implementation_evidence": [
         "resources-pass2/feature-map.json:TTests.nib",
         "gp/column_tests.py t_tests/mann_whitney/wilcoxon with gp/models.py ComparisonOptions; web/src/WorkbookDialogs.tsx ParametersDialog; web/src/ResultPages.tsx tabbed result pages",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:TTests.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "tests/test_column_tests.py::test_unpaired_t_matches_scipy_and_reports_prism_rows"
+        "tests/test_column_tests.py::test_unpaired_t_matches_scipy_and_reports_prism_rows",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "Larger-to-smaller variance ratio with a two-tailed P capped at 1; the guide example values were not reproduced.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -3184,21 +3226,25 @@
         "gp/statistics.py",
         "tests/test_statistics.py",
         "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "gp/statistics.py",
         "tests/test_statistics.py"
       ],
-      "audit_status": "partial_backend",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
         "tests/test_column_tests.py::test_ordinary_anova_variance_tests_and_tukey_match_scipy",
-        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "Effect sizes beyond R squared, residual diagnostics and saved Prism one-way cases remain open.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -3226,20 +3272,24 @@
       "implementation_evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
         "tests/test_column_tests.py::test_welch_anova_matches_scipy_for_three_groups",
-        "tests/test_column_tests.py::test_welch_and_brown_forsythe_anova_reduce_to_welch_t_for_two_groups"
+        "tests/test_column_tests.py::test_welch_and_brown_forsythe_anova_reduce_to_welch_t_for_two_groups",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "Games-Howell is the only follow-up; Dunnett T3 and Tamhane T2 are not offered.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -3267,19 +3317,23 @@
       "implementation_evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "tests/test_column_tests.py::test_welch_and_brown_forsythe_anova_reduce_to_welch_t_for_two_groups"
+        "tests/test_column_tests.py::test_welch_and_brown_forsythe_anova_reduce_to_welch_t_for_two_groups",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "Brown-Forsythe F* is checked by its two-group identity only; no saved Prism case.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -3339,19 +3393,24 @@
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
         "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "tests/test_column_tests.py::test_kruskal_wallis_and_dunn_match_scipy_and_two_group_identity"
+        "tests/test_column_tests.py::test_kruskal_wallis_and_dunn_match_scipy_and_two_group_identity",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "P is always the chi-square approximation; the guide describes exact small-sample P.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "Kruskal-Wallis remains a tie-corrected chi-square approximation; small samples are warned and independent exact enumeration demonstrates possible decision reversals.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -3380,19 +3439,24 @@
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
         "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "tests/test_column_tests.py::test_friedman_matches_scipy_with_ties"
+        "tests/test_column_tests.py::test_friedman_matches_scipy_with_ties",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "Rows with any missing value are dropped (complete blocks); P is always the chi-square approximation; the guide describes exact P for small tables (audit P0257).",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "Friedman requires at least three matched columns and rejects incomplete subjects. Its tie-corrected chi-square approximation and small-design limitations are explicit; exact/native outputs remain unimplemented.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -3420,19 +3484,23 @@
       "implementation_evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "tests/test_column_tests.py::test_repeated_measures_reduces_to_paired_t_and_epsilon_matches_contrast_formula"
+        "tests/test_column_tests.py::test_repeated_measures_reduces_to_paired_t_and_epsilon_matches_contrast_formula",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
-        "Complete rows only; no mixed-effects model for missing values (A108).",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "Incomplete matched ANOVA/Friedman subjects are rejected rather than silently discarded or treated as a mixed model; entirely empty padding rows are ignored.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -3460,18 +3528,23 @@
       "implementation_evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "tests/test_column_tests.py::test_repeated_measures_reduces_to_paired_t_and_epsilon_matches_contrast_formula"
+        "tests/test_column_tests.py::test_repeated_measures_reduces_to_paired_t_and_epsilon_matches_contrast_formula",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "Assumed-sphericity RM comparisons now use pooled residual MS and residual df, unlike pair-specific GG comparisons. This agrees with the guide distinction; native numerical equivalence is unverified.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -3499,19 +3572,23 @@
       "implementation_evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "tests/test_column_tests.py::test_repeated_measures_reduces_to_paired_t_and_epsilon_matches_contrast_formula"
+        "tests/test_column_tests.py::test_repeated_measures_reduces_to_paired_t_and_epsilon_matches_contrast_formula",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
-        "Epsilon uses the double-centred covariance (Greenhouse-Geisser); its lower bound and Prism's displayed values are not compared.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "Sphericity assumed uses pooled residual error for comparisons; Geisser-Greenhouse uses pair-specific paired errors. GG Tukey is blocked and Bonferroni is its default comparison method.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -3663,20 +3740,24 @@
       "implementation_evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "gp/column_tests.py one_way/welch_brown_forsythe/repeated_measures/kruskal_wallis/friedman; web/src/WorkbookDialogs.tsx ParametersDialog (Experimental Design, Multiple Comparisons, Options)",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
         "tests/test_column_tests.py::test_ordinary_anova_variance_tests_and_tukey_match_scipy",
-        "tests/test_column_tests.py::test_graphpad_p_style_extremes_and_bartlett_minimum_size"
+        "tests/test_column_tests.py::test_graphpad_p_style_extremes_and_bartlett_minimum_size",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "Only the Brown-Forsythe and Bartlett SD tests and R squared are reported; residual normality, QQ/residual plots and AICc are absent.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -4236,22 +4317,26 @@
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib",
         "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
         "tests/test_column_tests.py::test_ordinary_anova_variance_tests_and_tukey_match_scipy",
         "tests/test_column_tests.py::test_fast_studentized_range_matches_scipy",
-        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
-        "Repeated-measures Tukey uses each pair's differences, a GP decision; no saved Prism family compared.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "RM Tukey is supported only with explicitly assumed sphericity and the pooled residual error. It is refused under Geisser-Greenhouse until justified; no saved Prism family has been compared.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -4278,21 +4363,26 @@
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib",
         "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
         "tests/test_column_tests.py::test_pooled_bonferroni_sidak_fisher_and_dunnett",
-        "tests/test_column_tests.py::test_dunnett_with_one_comparison_equals_the_pooled_t_test"
+        "tests/test_column_tests.py::test_dunnett_with_one_comparison_equals_the_pooled_t_test",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "Ordinary designs only; no saved Prism family compared.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "Ordinary designs only. Highly unbalanced controls use adaptive integration; a single contrast uses the Student-t identity. Tested numerical cases do not establish accuracy over the entire allowed design space or Prism equivalence.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -4319,20 +4409,25 @@
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib",
         "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "tests/test_column_tests.py::test_pooled_bonferroni_sidak_fisher_and_dunnett"
+        "tests/test_column_tests.py::test_pooled_bonferroni_sidak_fisher_and_dunnett",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "No saved Prism family compared.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "Sidak uses stable log1p/expm1 arithmetic for tiny probabilities and the requested family size; native settings/results remain unverified.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -4390,20 +4485,25 @@
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib",
         "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "tests/test_column_tests.py::test_pooled_bonferroni_sidak_fisher_and_dunnett"
+        "tests/test_column_tests.py::test_pooled_bonferroni_sidak_fisher_and_dunnett",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "No saved Prism family compared.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "Bonferroni adjusts over the requested all-pairs or control family. Other family definitions and native output are unverified.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -4430,20 +4530,25 @@
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib",
         "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "tests/test_column_tests.py::test_pooled_bonferroni_sidak_fisher_and_dunnett"
+        "tests/test_column_tests.py::test_pooled_bonferroni_sidak_fisher_and_dunnett",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "Labelled 'no correction for multiple comparisons'; not gated on the omnibus test.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "Fisher LSD is explicitly unadjusted, has individual rather than simultaneous intervals, and is not gated by omnibus significance; it does not control familywise error.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -4501,20 +4606,24 @@
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib",
         "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "tests/test_column_tests.py::test_welch_anova_matches_scipy_for_three_groups"
+        "tests/test_column_tests.py::test_welch_anova_matches_scipy_for_three_groups",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "Games-Howell P values are not compared with an independent reference beyond the Welch ANOVA path; no saved Prism family.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -4603,20 +4712,24 @@
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib",
         "gp/column_tests.py comparison_table, pooled_comparisons, dunnett_rows (Dunnett 1955 integral), dunn_rows and studentized_range_* quadrature; results 'Multiple comparisons' page",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "resources-pass2/feature-map.json:OneWayANOVA.nib",
         "resources-pass2/feature-map.json:MultipleTTests.nib"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "tests/test_column_tests.py::test_kruskal_wallis_and_dunn_match_scipy_and_two_group_identity"
+        "tests/test_column_tests.py::test_kruskal_wallis_and_dunn_match_scipy_and_two_group_identity",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
-        "Bonferroni-adjusted Dunn's test after Kruskal-Wallis and rank-sum Dunn's after Friedman; selected-pair families are not offered.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "Dunn uses Bonferroni over the requested family. Kruskal-Wallis comparisons adjust the rank variance for ties; Friedman comparisons use average within-row ranks and the guide standard-error formula without additional tie reduction. Native validation and selected-pair families remain open.",
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -5156,20 +5269,24 @@
       "unknowns": "Exact defaults, enablement and edge-case behavior require source-bound saved or runtime evidence.",
       "implementation_evidence": [
         "web/src/WorkbookDialogs.tsx PairwiseDialog; web/src/App.tsx pairwiseAnnotations (Change menu and Pairwise toolbar); web/src/plot-geometry.ts bracketLevels; web/src/Plot.tsx; gp/plotting.py draw_brackets; gp/models.py GraphAnnotation",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
         "tests/test_column_tests.py::test_bracket_levels_match_screen_layout",
         "tests/test_column_tests.py::test_export_draws_pairwise_brackets_and_validates_them",
         "web/src/plot-geometry.test.ts: pairwise brackets stack like the export",
-        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "One analysis at a time with show/hide non-significant; no per-comparison selection, formatting controls or compact letter display.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {
@@ -10859,19 +10976,23 @@
       "implementation_evidence": [
         "/workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md",
         "web/src/App.tsx result-tabs tablist and web/src/ResultPages.tsx: one tab per results page plus Descriptive statistics",
-        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions"
+        "docs/column-comparisons.md: evidence classes, GP decisions, known guide differences and open native questions",
+        "docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes",
+        "docs/prism-native-validation-matrix.md: source classes, reproducible native capture cases and required settings/fields"
       ],
       "evidence": [
         "/workspace/attachments/eb5257ae-3f88-4622-ad2f-065dec1dd72d/PRISM11_DIFFERENCES.md"
       ],
-      "audit_status": "not_implemented",
+      "audit_status": "partial_gp_audited_native_unverified",
       "prism_reference_evidence": [],
       "validation_evidence": [
-        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)"
+        "scripts/check_column_analysis.py on the packaged server build (2026-10-19, Chromium 1194): 10 scenarios passed with zero page errors (three-data-set refusal, unpaired and Welch t vs SciPy, ANOVA tabs/F/Tukey vs SciPy, brackets, data-edit recalculation, reload, SVG export)",
+        "Observed merged-baseline CI: https://github.com/samgillman/GP/actions/runs/39335578778 (commit 1fec4e165a5b35396e0c675e33e23161526948d2): 296 backend and 163 frontend tests; packaged server and static Column checks each passed 10 scenarios; all 19 locked browser-runtime files verified. This evidence applies to PR #3, not the follow-up changes.",
+        "tests/test_column_audit.py: independent exact enumeration, one-sided discrete tails, incomplete subjects, sphericity error terms, multiplicity and numerical limits; 26 tests passed in the 2026-10-20 audit"
       ],
       "limitations": [
         "Tabs have no close controls and are not keyboard-arrow navigable, so Prism 11's closable tabs are not reproduced.",
-        "No running Prism reference and no new REA analysis: the 2026-10-19 container held no Prism artifacts. GP values are checked against SciPy or closed forms, not Prism, except the saved paired-t case. CI runs the browser check against the static build; that hosted result was not observed here."
+        "No new native Prism run or REA artifact analysis was available in this audit. The saved paired-t case remains the only native numerical comparison for these Column methods. SciPy agreement, enumeration and passing CI do not establish Prism equivalence; obtain the cases in docs/prism-native-validation-matrix.md."
       ]
     },
     {

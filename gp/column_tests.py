@@ -5,9 +5,9 @@ labels, the P-value style and option names follow Prism's column analyses;
 defaults and conventions not confirmed by saved Prism output are GP choices
 listed in docs/column-comparisons.md.
 """
-from itertools import combinations
+from itertools import combinations, zip_longest
 import numpy as np
-from scipy import optimize, stats
+from scipy import integrate, optimize, special, stats
 
 
 class ColumnTestError(ValueError):
@@ -64,8 +64,23 @@ def observed(column):
 
 
 def complete_rows(columns):
-    rows = [row for row in zip(*(c.values for c in columns)) if all(v is not None for v in row)]
+    rows = [row for row in zip_longest(*(c.values for c in columns)) if all(v is not None for v in row)]
     return np.asarray(rows, dtype=float).reshape(-1, len(columns))
+
+
+def incomplete_row_count(columns):
+    """Count partially observed subjects, including ragged column ends, not empty padding."""
+    return sum(any(v is not None for v in row) and any(v is None for v in row)
+               for row in zip_longest(*(c.values for c in columns)))
+
+
+def paired_sample_notice(columns, report):
+    used = len(complete_rows(columns))
+    omitted = incomplete_row_count(columns)
+    report.add("Complete pairs analyzed", used)
+    report.add("Incomplete pairs excluded", omitted)
+    report.notices.append(f"Paired analysis used {used} complete row pairs and excluded {omitted} incomplete pairs. "
+                          "Rows must identify the same subject in both columns; missing cells are not shifted together.")
 
 
 class Report:
@@ -100,9 +115,21 @@ def direction(options, names):
     return (-1.0, f"{a} - {b}", "A - B") if options.reverse_difference else (1.0, f"{b} - {a}", "B - A")
 
 
-def tails(options, p_two):
-    # Prism does not ask for the predicted direction; its one-tailed P is half the two-tailed P.
-    return (p_two, "Two-tailed") if options.tails == 2 else (p_two / 2, "One-tailed")
+def tail_label(options):
+    if options.tails == 2:
+        return "Two-tailed"
+    require(options.alternative in {"a_greater", "b_greater"},
+            "A one-tailed test requires a prespecified direction: A greater than B or B greater than A.")
+    return "One-tailed: A > B" if options.alternative == "a_greater" else "One-tailed: B > A"
+
+
+def t_probability(options, t_b_minus_a, df):
+    """Directional inference is independent of the displayed difference order."""
+    label = tail_label(options)
+    if options.tails == 2:
+        return float(2 * stats.t.sf(abs(t_b_minus_a), df)), label
+    p = stats.t.sf(t_b_minus_a, df) if options.alternative == "b_greater" else stats.t.cdf(t_b_minus_a, df)
+    return float(p), label
 
 
 def hodges_lehmann(a, b):
@@ -113,9 +140,14 @@ def t_tests(columns, report):
     options, conf = report.options, report.confidence
     require(len(columns) == 2, "t tests compare exactly two data sets. Select two columns in Analyze Data.")
     names = [c.name for c in columns]
+    tail_label(options)  # Refuse ambiguous saved/API one-sided settings before any calculation.
+    if options.tails == 1:
+        report.notices.append("The one-tailed alternative must be chosen before inspecting the observations. "
+                              "Reversing the displayed difference does not change that alternative; confidence intervals remain two-sided.")
     sign, _, short = direction(options, names)
     header = [["Column B", names[1]], ["vs.", "vs."], ["Column A", names[0]], []]
     if options.paired:
+        paired_sample_notice(columns, report)
         data = complete_rows(columns)
         n = len(data)
         a, b = data[:, 0], data[:, 1]
@@ -127,7 +159,7 @@ def t_tests(columns, report):
         require(sd > 0, "The paired t test is undefined because every paired difference is identical.")
         sem, mean, df = sd / np.sqrt(n), float(np.mean(d)), n - 1
         t = mean / sem
-        p, tail = tails(options, float(2 * stats.t.sf(abs(t), df)))
+        p, tail = t_probability(options, sign * t, df)
         half = float(stats.t.ppf((1 + conf) / 2, df) * sem)
         r_squared = t * t / (t * t + df)
         rows = header + [["Paired t test"], *report.significance_rows(p), ["One- or two-tailed P value?", tail],
@@ -153,7 +185,6 @@ def t_tests(columns, report):
             report.notices.append("Pairing effectiveness (correlation) needs at least three pairs with varying values in both columns.")
         report.table("Paired t test", rows)
         report.comparisons.append(dict(a=0, b=1, p=p, summary=p_summary(p)))
-        report.notices.append("Rows with a missing value in either column are excluded from the paired analysis.")
         return
     a, b = observed(columns[0]), observed(columns[1])
     if not options.gaussian:
@@ -175,7 +206,7 @@ def t_tests(columns, report):
         df = float((wa + wb) ** 2 / (wa * wa / (na - 1) + wb * wb / (nb - 1)))
         title, t_label = "Unpaired t test with Welch's correction", "Welch-corrected t, df"
     t = diff / se
-    p, tail = tails(options, float(2 * stats.t.sf(abs(t), df)))
+    p, tail = t_probability(options, sign * t, df)
     half = float(stats.t.ppf((1 + conf) / 2, df) * se)
     r_squared = t * t / (t * t + df)
     rows = header + [[title], *report.significance_rows(p), ["One- or two-tailed P value?", tail],
@@ -213,9 +244,10 @@ def mann_whitney(a, b, names, header, report):
     ranks = stats.rankdata(pooled)
     ties = len(np.unique(pooled)) < len(pooled)
     exact = not ties and max(na, nb) <= 50
-    test = stats.mannwhitneyu(a, b, method="exact" if exact else "asymptotic")
-    u_a, p_two = float(test.statistic), float(test.pvalue)
-    p, tail = tails(options, min(1.0, p_two))
+    alternative = "two-sided" if options.tails == 2 else "greater" if options.alternative == "a_greater" else "less"
+    test = stats.mannwhitneyu(a, b, method="exact" if exact else "asymptotic", alternative=alternative)
+    u_a, p = float(test.statistic), float(test.pvalue)
+    tail = tail_label(options)
     sign, _, short = direction(options, names)
     u = min(u_a, na * nb - u_a)
     median_a, median_b = float(np.median(a)), float(np.median(b))
@@ -233,6 +265,17 @@ def mann_whitney(a, b, names, header, report):
         report.add(label, value)
     report.comparisons.append(dict(a=0, b=1, p=p, summary=p_summary(p)))
     report.notices.append("Exact P values are used without ties when each column has at most 50 values; otherwise a normal approximation with tie and continuity corrections is used.")
+    report.add("P value method", "Exact rank distribution" if exact else "Normal approximation with tie and continuity corrections")
+    report.add("Ties present", yes_no(ties))
+    if ties:
+        report.notices.append("Mann-Whitney ties: GP uses an approximate P value, not a tie-aware exact calculation. "
+                              "This differs from Prism's documented exact handling of small tied samples; native Prism equivalence is unverified.")
+    elif not exact:
+        report.notices.append("Mann-Whitney exact/approximate selection uses GP's 50-values-per-column limit; Prism documents a different threshold.")
+    if not exact and min(na, nb) <= 8:
+        report.notices.append("Small-sample Mann-Whitney warning: the normal approximation can change a significance decision. "
+                              "Confirm inference with a tie-aware exact/permutation calculation before drawing a scientific conclusion.")
+    report.notices.append("Mann-Whitney tests distributions/rank ordering. A difference in medians alone requires additional assumptions about distribution shapes.")
 
 
 def wilcoxon(a, b, d, names, header, report):
@@ -244,8 +287,12 @@ def wilcoxon(a, b, d, names, header, report):
     positive, negative = float(ranks[nonzero > 0].sum()), float(ranks[nonzero < 0].sum())
     ties = len(np.unique(np.abs(nonzero))) < len(nonzero)
     exact = not ties and len(nonzero) <= 50
-    p_two = float(stats.wilcoxon(nonzero, method="exact" if exact else "approx").pvalue)
-    p, tail = tails(options, min(1.0, p_two))
+    # d follows the display order; map the prespecified group alternative back to it.
+    positive_means_b_greater = not options.reverse_difference
+    positive_alternative = (options.alternative == "b_greater") == positive_means_b_greater
+    alternative = "two-sided" if options.tails == 2 else "greater" if positive_alternative else "less"
+    p = float(stats.wilcoxon(nonzero, method="exact" if exact else "approx", alternative=alternative).pvalue)
+    tail = tail_label(options)
     _, _, short = direction(options, names)
     rows = header + [["Wilcoxon matched-pairs signed rank test"], ["P value", p_text(p)],
                      ["Exact or approximate P value?", "Exact" if exact else "Approximate"], ["P value summary", p_summary(p)],
@@ -260,6 +307,18 @@ def wilcoxon(a, b, d, names, header, report):
         report.add(label, value)
     report.comparisons.append(dict(a=0, b=1, p=p, summary=p_summary(p)))
     report.notices.append("Pairs with a zero difference are excluded before ranking. Exact P values are used without ties for up to 50 nonzero pairs; otherwise a normal approximation is used.")
+    report.add("P value method", "Exact signed-rank distribution" if exact else "Normal approximation with tie correction, without continuity correction")
+    report.add("Nonzero pairs analyzed", len(nonzero))
+    report.add("Zero differences excluded", n - len(nonzero))
+    if ties:
+        report.notices.append("Wilcoxon tied absolute differences: GP uses a normal approximation, not the exact signed-rank distribution with ties. "
+                              "The result is not verified equivalent to Prism.")
+    if not exact and len(nonzero) <= 13:
+        report.notices.append("Small-sample Wilcoxon warning: the normal approximation can change a significance decision. "
+                              "An exact sign-permutation calculation may give a materially different P value.")
+    report.notices.append("Wilcoxon uses the Wilcox convention (drop zero differences); Pratt and split-zero methods are unsupported. "
+                          "Inference assumes independent subjects and a symmetric distribution of paired differences. "
+                          "Ties and zeros use exact numeric equality; subtraction roundoff can affect ranks.")
 
 
 def comparison_pairs(options, k, names):
@@ -281,13 +340,18 @@ def t_adjusted(method, p_raw, m, conf):
     if method == "bonferroni":
         return min(1.0, p_raw * m), 1 - alpha / (2 * m)
     if method == "sidak":
-        return min(1.0, 1 - (1 - p_raw) ** m), 1 - (1 - (1 - alpha) ** (1 / m)) / 2
+        # log1p/expm1 preserve tiny nonzero probabilities that 1-(1-p)**m rounds to zero.
+        adjusted = 1.0 if p_raw >= 1 else float(-np.expm1(m * np.log1p(-p_raw)))
+        per_comparison_alpha = -np.expm1(np.log1p(-alpha) / m)
+        return min(1.0, adjusted), 1 - per_comparison_alpha / 2
     return p_raw, 1 - alpha / 2
 
 
 COMPARISON_NOTES = {
     "pooled": "comparisons use the pooled residual variance from the ANOVA.",
     "pair": "each comparison uses only the two columns being compared.",
+    "rm_pooled": "comparisons use the repeated-measures pooled residual variance and residual degrees of freedom; sphericity is assumed.",
+    "rm_pair": "comparisons use paired differences and n - 1 degrees of freedom for each pair; the omnibus Geisser-Greenhouse epsilon is not applied to these paired tests.",
     "dunn": "ranks are computed from all analyzed values with a tie correction; P values are Bonferroni-adjusted.",
     "friedman": "rank sums come from ranks within each row; P values are Bonferroni-adjusted.",
 }
@@ -297,17 +361,28 @@ def comparison_table(report, method, names, pairs, rows, scope, rank_label=None)
     conf, rank = report.confidence, rank_label is not None
     title = f"{METHOD_TITLES[method]} multiple comparisons test"
     columns = [title, rank_label or "Mean Diff.", *([] if rank else [f"{conf * 100:.2f}% CI of diff."]),
-               "Below threshold?", "Summary", "Adjusted P Value"]
+               "Below threshold?", "Summary", "Unadjusted P Value" if method == "fisher" else "Adjusted P Value"]
     body = []
     for (i, j), (diff, low, high, p) in zip(pairs, rows):
-        p = min(1.0, float(p))
+        p = min(1.0, max(0.0, finite(p, "The comparison produced an undefined P value.")))
         body.append([f"{names[i]} vs. {names[j]}", num(diff), *([] if rank else [f"{num(low)} to {num(high)}"]),
                      yes_no(p < report.options.alpha), p_summary(p), p_text(p)])
         report.comparisons.append(dict(a=i, b=j, p=p, summary=p_summary(p)))
-        report.add(f"{names[i]} vs. {names[j]}: adjusted P", p)
+        report.add(f"{names[i]} vs. {names[j]}: {'unadjusted' if method == 'fisher' else 'adjusted'} P", p)
         report.add(f"{names[i]} vs. {names[j]}: difference", diff)
+        if not rank:
+            report.add(f"{names[i]} vs. {names[j]}: CI lower", low)
+            report.add(f"{names[i]} vs. {names[j]}: CI upper", high)
     report.table("Multiple comparisons", body, columns)
     report.notices.append(f"{METHOD_TITLES[method]} test compares {len(pairs)} pair(s); {COMPARISON_NOTES[scope]}")
+    report.add("Comparison family size", len(pairs))
+    report.add("Multiple comparison method", method)
+    if method == "fisher":
+        report.notices.append("Fisher's LSD comparisons are unadjusted and are not gated on the omnibus ANOVA P value. "
+                              "They do not control the familywise error rate; their confidence intervals are individual, not simultaneous.")
+    else:
+        report.notices.append(f"The correction family contains the {len(pairs)} requested comparisons in this analysis. "
+                              "Hiding graph brackets does not change that family. Selecting columns or comparisons after looking at the results invalidates the intended error control.")
 
 
 _HERMITE = np.polynomial.hermite_e.hermegauss(96)
@@ -323,6 +398,11 @@ def studentized_range_cdf(q, k, df):
     against scipy.stats.studentized_range.
     """
     q = np.atleast_1d(np.asarray(q, dtype=float))
+    if k == 2:
+        # Q(2, df) = sqrt(2) * |T(df)|, also at very small df or extreme tails.
+        return np.asarray(1 - 2 * stats.t.sf(q / np.sqrt(2), df))
+    if df < 2 and np.any(q > 100):
+        return np.asarray(stats.studentized_range.cdf(q, k, df))
     nodes, weights = _HERMITE
     weights = weights / np.sqrt(2 * np.pi)
     x, w = _LEGENDRE
@@ -337,12 +417,23 @@ def studentized_range_cdf(q, k, df):
 
 
 def studentized_range_sf(q, k, df):
+    if k == 2:
+        tail = 2 * stats.t.sf(np.asarray(q) / np.sqrt(2), df)
+        return float(tail) if np.ndim(q) == 0 else tail
     tail = 1 - studentized_range_cdf(q, k, df)
     return float(tail[0]) if np.ndim(q) == 0 else tail
 
 
 def studentized_range_ppf(p, k, df):
-    return optimize.brentq(lambda q: studentized_range_cdf(q, k, df)[0] - p, 1e-6, 200, xtol=1e-10)
+    if k == 2:
+        return float(np.sqrt(2) * stats.t.ppf((1 + p) / 2, df))
+    if df < 2 and p > 0.99:
+        return float(stats.studentized_range.ppf(p, k, df))
+    upper = 8.0
+    while studentized_range_cdf(upper, k, df)[0] < p:
+        upper *= 2
+        require(upper <= 1e6, "The studentized-range critical value could not be computed reliably for these degrees of freedom.")
+    return optimize.brentq(lambda q: studentized_range_cdf(q, k, df)[0] - p, 0, upper, xtol=1e-10)
 
 
 def dunnett_coverage(c, lambdas, df):
@@ -353,6 +444,8 @@ def dunnett_coverage(c, lambdas, df):
     reduces to a two-dimensional integral: Gauss-Hermite over the control mean
     and Gauss-Legendre over the pooled-SD ratio u = s / sigma.
     """
+    if len(lambdas) == 1:
+        return float(1 - 2 * stats.t.sf(c, df))
     nodes, weights = _HERMITE
     weights = weights / np.sqrt(2 * np.pi)
     x, w = _LEGENDRE
@@ -360,6 +453,22 @@ def dunnett_coverage(c, lambdas, df):
     low, high = stats.chi.ppf([1e-14, 1 - 1e-14], df) / scale
     u = (high - low) / 2 * x + (high + low) / 2
     density = stats.chi.pdf(u * scale, df) * scale * w * (high - low) / 2
+    if max(lambdas) > 0.9:
+        # A small control and large treatment groups create near-perfectly
+        # correlated contrasts. Fixed Hermite nodes miss the narrow transition
+        # regions. Integrate the control-normal coordinate adaptively instead.
+        lam = np.asarray(lambdas, dtype=float)[:, None]
+        root = np.sqrt(1 - lam * lam)
+        half = c * u[None, :]
+
+        def conditional(z):
+            centre = lam * z
+            inside = np.prod(special.ndtr((centre + half) / root) - special.ndtr((centre - half) / root), axis=0)
+            return inside * np.exp(-z * z / 2) / np.sqrt(2 * np.pi)
+
+        probability, error = integrate.quad_vec(conditional, 0, 10, epsabs=1e-10, epsrel=1e-10)
+        require(np.isfinite(error) and error < 1e-7, "Dunnett integration did not converge for these unequal sample sizes; use Bonferroni instead.")
+        return min(1.0, max(0.0, float(2 * probability @ density)))
     lam = np.asarray(lambdas, dtype=float)[:, None, None]
     root = np.sqrt(1 - lam * lam)
     centre, half = lam * nodes[None, None, :], c * u[None, :, None]
@@ -370,12 +479,20 @@ def dunnett_coverage(c, lambdas, df):
 def dunnett_rows(means, ns, mse, df, control, others, conf):
     """Two-sided Dunnett comparisons of control minus each other column."""
     lambdas = [np.sqrt(ns[j] / (ns[j] + ns[control])) for j in others]
-    critical = optimize.brentq(lambda c: dunnett_coverage(c, lambdas, df) - conf, 1e-6, 100, xtol=1e-10)
+    if len(others) == 1:
+        critical = float(stats.t.ppf((1 + conf) / 2, df))
+    else:
+        upper = 8.0
+        while dunnett_coverage(upper, lambdas, df) < conf:
+            upper *= 2
+            require(upper <= 1e6, "The Dunnett critical value could not be computed reliably for this design.")
+        critical = optimize.brentq(lambda c: dunnett_coverage(c, lambdas, df) - conf, 0, upper, xtol=1e-10)
     rows = []
     for j in others:
         diff = means[control] - means[j]
         se = np.sqrt(mse * (1 / ns[control] + 1 / ns[j]))
-        p = 1 - dunnett_coverage(abs(diff) / se, lambdas, df)
+        p = (float(2 * stats.t.sf(abs(diff) / se, df)) if len(others) == 1
+             else 1 - dunnett_coverage(abs(diff) / se, lambdas, df))
         rows.append((diff, diff - critical * se, diff + critical * se, p))
     return rows
 
@@ -411,10 +528,15 @@ def one_way(columns, report):
     names, k = [c.name for c in columns], len(columns)
     header = [["Data sets analyzed", f"{names[0]} – {names[-1]}" if k > 2 else f"{names[0]}, {names[1]}"], []]
     if options.paired:
+        missing = incomplete_row_count(columns)
+        require(missing == 0,
+                f"The matched analysis contains {missing} incomplete subject row(s). GP does not implement a mixed-effects model "
+                "or automatically discard partially observed subjects. Resolve the missing data with an appropriate analysis plan; "
+                "remove a subject explicitly only when a complete-case analysis is justified.")
         data = complete_rows(columns)
         require(len(data) >= 2, "Matched analyses need at least two rows with values in every selected column.")
-        if any(len(observed(c)) != len(data) for c in columns):
-            report.notices.append("Rows with a missing value are excluded. Prism instead fits a mixed-effects model when matched data have missing values; GP does not yet implement that model.")
+        report.notices.append(f"Matched analysis used {len(data)} complete subject rows. Fully empty padding rows are ignored. "
+                              "Mixed-effects models and missing-data estimation are unsupported.")
         return friedman(data, names, header, report) if not options.gaussian else repeated_measures(data, names, header, report)
     groups = [observed(c) for c in columns]
     if not options.gaussian:
@@ -516,6 +638,9 @@ def welch_brown_forsythe(groups, names, header, report):
     for label, value in [("Brown-Forsythe F*", bf), ("Brown-Forsythe DFd", bf_df), ("Brown-Forsythe P value", p_bf),
                          ("Welch W", welch), ("Welch DFd", welch_df), ("Welch P value", p_welch)]:
         report.add(label, value)
+    report.notices.append("Brown-Forsythe ANOVA uses the original k - 1 numerator degrees of freedom, not the Mehrotra adjustment. "
+                          "It tests means and is distinct from the Brown-Forsythe test of equal SDs reported with ordinary ANOVA. "
+                          "Native Prism numerical equivalence has not been verified.")
     pairs = comparison_pairs(options, k, names)
     if pairs:
         require(options.comparisons == "all_pairs", "With unequal SDs, GP offers Games-Howell comparisons of every pair of columns.")
@@ -553,12 +678,19 @@ def kruskal_wallis(groups, names, header, report):
     edges = np.cumsum([0] + [len(g) for g in groups])
     mean_ranks = [float(np.mean(ranks[edges[i]:edges[i + 1]])) for i in range(k)]
     rows = header + [["Kruskal-Wallis test"], ["P value", p_text(p)], ["Exact or approximate P value?", "Approximate"],
-                     ["P value summary", p_summary(p)], [f"Do the medians vary signif. (P < {report.alpha_text})?", yes_no(p < options.alpha)],
+                     ["P value summary", p_summary(p)], [f"Do the distributions differ (P < {report.alpha_text})?", yes_no(p < options.alpha)],
                      ["Kruskal-Wallis statistic", num(h)], [], ["Data summary"], ["Number of treatments (columns)", str(k)],
                      ["Number of values (total)", str(n_total)]]
     report.table("Kruskal-Wallis test", rows)
     report.add("Kruskal-Wallis statistic", h)
     report.add("P value", p)
+    report.add("P value method", "Tie-corrected chi-square approximation")
+    report.notices.append("Kruskal-Wallis uses a tie-corrected chi-square approximation. GP does not compute exact Kruskal-Wallis P values; "
+                          "Prism documents exact calculations for some small designs. Native Prism equivalence is unverified. "
+                          "Interpreting this as a median test requires comparable distribution shapes.")
+    if any(len(g) < 5 for g in groups):
+        report.notices.append("Small-sample Kruskal-Wallis warning: at least one column has fewer than five observations. "
+                              "The chi-square approximation can change the significance decision compared with an exact permutation test.")
     pairs = comparison_pairs(options, k, names)
     if pairs:
         method = require_method(options, ["dunn"])
@@ -575,15 +707,22 @@ def repeated_measures(data, names, header, report):
     n, k = data.shape
     grand = float(data.mean())
     col_means, row_means = data.mean(axis=0), data.mean(axis=1)
-    ss_treat = float(n * np.sum((col_means - grand) ** 2))
     ss_subjects = float(k * np.sum((row_means - grand) ** 2))
     ss_total = float(np.sum((data - grand) ** 2))
-    ss_resid = ss_total - ss_treat - ss_subjects
-    require(ss_resid > 1e-12 * max(ss_total, 1e-300), "Repeated-measures ANOVA is undefined because the residual variation is zero.")
+    # Direct residuals avoid cancellation when between-subject variability is
+    # much larger than the treatment-by-subject residual variation.
+    within_subject = data - row_means[:, None]
+    ss_treat = float(n * np.sum(within_subject.mean(axis=0) ** 2))
+    residuals = within_subject - within_subject.mean(axis=0)
+    ss_resid = float(np.sum(residuals ** 2))
+    require(ss_resid > 1e-24 * max(float(np.sum(within_subject ** 2)), 1e-300),
+            "Repeated-measures ANOVA is undefined because the residual variation is zero.")
     df_treat, df_subjects, df_resid = k - 1, n - 1, (n - 1) * (k - 1)
     ms_treat, ms_subjects, ms_resid = ss_treat / df_treat, ss_subjects / df_subjects, ss_resid / df_resid
     f_value = ms_treat / ms_resid
-    covariance = np.cov(data, rowvar=False)
+    # Epsilon is invariant to units. Normalize before forming and squaring the
+    # covariance, so supported tiny/large measurements do not under/overflow.
+    covariance = np.cov(within_subject / np.max(np.abs(within_subject)), rowvar=False)
     centered = covariance - covariance.mean(axis=0) - covariance.mean(axis=1)[:, None] + covariance.mean()
     denominator = float((k - 1) * np.sum(centered ** 2))
     epsilon = 1.0 if denominator <= 0 else min(1.0, max(1 / (k - 1), float(np.trace(centered)) ** 2 / denominator))
@@ -607,27 +746,31 @@ def repeated_measures(data, names, header, report):
                                  ["Total", num(ss_total), str(n * k - 1), "", "", ""]],
                  ["ANOVA table", "SS", "DF", "MS", "F (DFn, DFd)", "P value"])
     for label, value in [("F", f_value), ("P value", p), ("Geisser-Greenhouse epsilon", epsilon), ("SS treatment", ss_treat),
-                         ("SS subjects", ss_subjects), ("SS residual", ss_resid), ("Matching F", f_subjects), ("Matching P value", p_subjects)]:
+                         ("SS subjects", ss_subjects), ("SS residual", ss_resid), ("Matching F", f_subjects), ("Matching P value", p_subjects),
+                         ("DFn", e * df_treat), ("DFd", e * df_resid), ("Number of subjects", n)]:
         report.add(label, value)
     pairs = comparison_pairs(options, k, names)
     if pairs:
-        allowed = ["sidak", "bonferroni", "fisher"] if options.comparisons == "vs_control" else ["tukey", "bonferroni", "sidak", "fisher"]
+        allowed = (["bonferroni", "sidak", "fisher"] if correct or options.comparisons == "vs_control"
+                   else ["tukey", "bonferroni", "sidak", "fisher"])
+        if correct:
+            require(options.method != "tukey", "Tukey comparisons without assumed sphericity are not supported in GP. "
+                    "Use paired comparisons with Bonferroni correction, or assume sphericity only when scientifically justified.")
         method = require_method(options, allowed)
+        if not correct:
+            rows_mc = pooled_comparisons(report, col_means, np.full(k, n), ms_resid, df_resid, method, pairs)
+            comparison_table(report, method, names, pairs, rows_mc, "rm_pooled")
+            return
         rows_mc, m = [], len(pairs)
-        q_critical = studentized_range_ppf(conf, k, n - 1) if method == "tukey" else None
         for i, j in pairs:
             d = data[:, i] - data[:, j]
             sd = float(np.std(d, ddof=1))
             require(sd > 0, f"{names[i]} vs. {names[j]}: every paired difference is identical, so the comparison is undefined.")
             se, diff, df = sd / np.sqrt(n), float(d.mean()), n - 1
-            if method == "tukey":
-                p_mc = studentized_range_sf(np.sqrt(2) * abs(diff) / se, k, df)
-                half = q_critical / np.sqrt(2) * se
-            else:
-                p_mc, critical = t_adjusted(method, 2 * stats.t.sf(abs(diff) / se, df), m, conf)
-                half = stats.t.ppf(critical, df) * se
+            p_mc, critical = t_adjusted(method, 2 * stats.t.sf(abs(diff) / se, df), m, conf)
+            half = stats.t.ppf(critical, df) * se
             rows_mc.append((diff, diff - half, diff + half, p_mc))
-        comparison_table(report, method, names, pairs, rows_mc, "pair")
+        comparison_table(report, method, names, pairs, rows_mc, "rm_pair")
     if correct:
         report.notices.append("The Geisser-Greenhouse correction scales both degrees of freedom by epsilon; it does not assume sphericity.")
 
@@ -635,6 +778,7 @@ def repeated_measures(data, names, header, report):
 def friedman(data, names, header, report):
     options = report.options
     n, k = data.shape
+    require(k >= 3, "GP's Friedman analysis requires at least three matched columns. Select a suitable two-column paired test for a two-condition design.")
     ranks = np.apply_along_axis(stats.rankdata, 1, data)
     rank_sums = ranks.sum(axis=0)
     tie_total = 0.0
@@ -646,12 +790,18 @@ def friedman(data, names, header, report):
     q = (12 / (n * k * (k + 1)) * float(np.sum(rank_sums ** 2)) - 3 * n * (k + 1)) / correction
     p = float(stats.chi2.sf(q, k - 1))
     rows = header + [["Friedman test"], ["P value", p_text(p)], ["Exact or approximate P value?", "Approximate"],
-                     ["P value summary", p_summary(p)], [f"Are the medians signif. different? (P < {report.alpha_text})", yes_no(p < options.alpha)],
+                     ["P value summary", p_summary(p)], [f"Do the treatment ranks differ (P < {report.alpha_text})?", yes_no(p < options.alpha)],
                      ["Friedman statistic", num(q)], [], ["Data summary"], ["Number of treatments (columns)", str(k)],
                      ["Number of subjects (rows)", str(n)]]
     report.table("Friedman test", rows)
     report.add("Friedman statistic", q)
     report.add("P value", p)
+    report.add("P value method", "Tie-corrected chi-square approximation")
+    report.notices.append("Friedman uses a tie-corrected chi-square approximation, not an exact within-subject permutation distribution. "
+                          "Prism documents exact P values for small tables, including ties. Native Prism equivalence is unverified.")
+    if n <= 10 or k <= 6:
+        report.notices.append("Small-design Friedman warning: the chi-square approximation is unreliable for small numbers of subjects or conditions "
+                              "and can reverse a significance decision. Confirm with an exact within-subject permutation calculation when feasible.")
     pairs = comparison_pairs(options, k, names)
     if pairs:
         method = require_method(options, ["dunn"])
@@ -659,10 +809,21 @@ def friedman(data, names, header, report):
         rows_mc = [(float(rank_sums[i] - rank_sums[j]), None, None, min(1.0, float(2 * stats.norm.sf(abs(rank_sums[i] - rank_sums[j]) / se)) * len(pairs)))
                    for i, j in pairs]
         comparison_table(report, method, names, pairs, rows_mc, "friedman", "Rank sum diff.")
+        report.notices.append("Friedman/Dunn comparisons use average within-row ranks, the normal approximation, and Bonferroni correction. "
+                              "Their standard error is sqrt(n*k*(k+1)/6) for rank-sum differences; it is not additionally reduced for ties. "
+                              "This follows the published Prism guide formula but has not been compared with native Prism output.")
 
 
 def analyze_columns(request, kind):
     report = Report(request.options, request.confidence)
     require(request.table_type == "column", "Choose a Column table for t tests and one-way ANOVA.")
     (t_tests if kind == "t_test" else one_way)(request.columns, report)
+    report.add("Significance threshold alpha", request.options.alpha)
+    report.add("Confidence level", request.confidence)
+    report.notices.append(f"Confidence intervals use {request.confidence:.1%} confidence; decisions use alpha={request.options.alpha:g}. "
+                          "Asterisks use fixed P-value cutoffs (0.05, 0.01, 0.001, 0.0001), independently of the selected alpha.")
+    if not np.isclose(request.confidence, 1 - request.options.alpha):
+        report.notices.append("The confidence level is not 1 - alpha, so interval exclusion of zero need not agree with the significance decision.")
+    report.notices.append("Numerical reference tests do not establish GraphPad Prism equivalence. "
+                          "Only one saved two-tailed paired-t dataset has been reproduced against native Prism output.")
     return report
