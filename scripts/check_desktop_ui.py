@@ -77,6 +77,15 @@ with sync_playwright() as p:
     page.get_by_role('button', name='Format Graph…', exact=True).first.click()
     page.screenshot(path=str(shots / 'format-graph.png'))
     page.keyboard.press('Escape')
+    # Double-clicking the graph title reaches a real formatting editor.
+    page.locator('.graph-card .chart-title').dblclick()
+    title_dialog = page.get_by_role('dialog', name='Format Graph', exact=True)
+    expect(title_dialog).to_be_visible()
+    title_dialog.get_by_label('Title', exact=True).fill('Directly formatted graph title')
+    title_dialog.get_by_role('button', name='OK', exact=True).click()
+    assert next(s for s in workbook()['sheets'] if s['kind'] == 'graph')['graph']['title'] == 'Directly formatted graph title'
+    page.get_by_role('button', name='Undo', exact=True).click()
+    assert next(s for s in workbook()['sheets'] if s['kind'] == 'graph')['graph']['title'] != 'Directly formatted graph title'
     # Graph type changes through Change Graph Type, not on-page buttons.
     page.get_by_role('button', name='Change Graph Type…', exact=True).click()
     page.get_by_role('dialog', name='Change Graph Type').get_by_role('radio', name='Scatter dot plot').check()
