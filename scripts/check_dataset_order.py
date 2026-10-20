@@ -120,6 +120,7 @@ with sync_playwright() as p:
     target = source_before["project"]["columns"][target_index]
     custom_color = "#7b2cbf"
     page.get_by_role("button", name="Format Graph…", exact=True).first.click()
+    dialog.get_by_label("Appearance data set", exact=True).select_option(str(target_index))
     dialog.get_by_label(f'{target["name"]} color', exact=True).fill(custom_color)
     dialog.get_by_role("tab", name="Data Sets on Graph", exact=True).click()
     ordered.locator(f'[data-source-index="{target_index}"]').click()
