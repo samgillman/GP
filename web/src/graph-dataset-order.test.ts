@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { colorsForDatasetIds, frontToBackDatasets, seedDatasetColors, reorderGraphDatasets } from "./graph-dataset-order.ts";
+import { colorsForDatasetIds, frontToBackDatasets, seedDatasetColors, reorderGraphDatasets, reorderColumnGraphDatasets } from "./graph-dataset-order.ts";
 import type { DatasetOrderAction } from "./graph-dataset-order.ts";
 import { palette, sample } from "./data.ts";
 import type { Project, TableType } from "./data.ts";
@@ -191,4 +191,33 @@ test("invalid selections cannot create positional keys or invented stable IDs", 
   }
   const duplicate = {...project, columns: project.columns.map((column, i) => i === 2 ? {...column, id: "id-a"} : column)};
   assert.throws(() => colorsForDatasetIds(duplicate, [1, 2], {}), /dataset IDs/);
+});
+
+test("Column data-set controls follow left-to-right, not XY stacking", () => {
+  const saved = Object.freeze([0, 1, 2, 3]);
+  const cases: [DatasetOrderAction, number[]][] = [
+    ["top", [1, 0, 2, 3]],
+    ["up", [1, 0, 2, 3]],
+    ["down", [0, 2, 1, 3]],
+    ["bottom", [0, 2, 3, 1]],
+    ["reverse", [3, 2, 1, 0]],
+  ];
+  for (const [action, expected] of cases) {
+    assert.deepEqual(reorderColumnGraphDatasets(saved, 1, action), expected, action);
+    assert.deepEqual(saved, [0, 1, 2, 3]);
+  }
+  assert.deepEqual(reorderColumnGraphDatasets(saved, null, "up"), saved);
+  assert.deepEqual(reorderColumnGraphDatasets(saved, 99, "bottom"), saved);
+  assert.deepEqual(reorderColumnGraphDatasets([0], 0, "top"), [0]);
+  assert.deepEqual(reorderColumnGraphDatasets(reorderColumnGraphDatasets(saved, null, "reverse"), null, "reverse"), saved);
+});
+
+test("Column color ownership follows source IDs when columns move", () => {
+  const project = colorProject("column"), indices = [0, 1, 2];
+  const remembered = seedDatasetColors(project, indices, ["#123456", "#abcdef", "#fedcba"]);
+  const reordered = reorderColumnGraphDatasets(indices, 0, "bottom");
+  assert.deepEqual(reordered, [1, 2, 0]);
+  assert.deepEqual(colorsForDatasetIds(project, reordered, remembered).colors,
+    ["#abcdef", "#fedcba", "#123456"]);
+  assert.deepEqual(indices, [0, 1, 2]);
 });
