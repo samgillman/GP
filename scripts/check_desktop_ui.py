@@ -54,6 +54,24 @@ with sync_playwright() as p:
     expect(page.locator('.data-card')).not_to_be_visible()
     expect(page.locator('svg.plot')).to_be_visible()
     page.screenshot(path=str(shots / 'graph.png'))
+    inspector = page.get_by_label('Graph Inspector', exact=True)
+    expect(inspector).to_be_visible()
+    graph_before = next(s for s in workbook()['sheets'] if s['kind'] == 'graph')['graph']
+    inspector.get_by_label('Show individual points', exact=True).uncheck()
+    graph_changed = next(s for s in workbook()['sheets'] if s['kind'] == 'graph')['graph']
+    assert graph_changed['show_points'] is False
+    page.get_by_role('button', name='Undo', exact=True).click()
+    assert next(s for s in workbook()['sheets'] if s['kind'] == 'graph')['graph'] == graph_before
+    page.locator('.desktop-menu > summary').get_by_text('View', exact=True).click()
+    page.get_by_role('menuitemcheckbox', name='Hide Graph Inspector', exact=True).click()
+    expect(inspector).not_to_be_visible()
+    assert next(s for s in workbook()['sheets'] if s['kind'] == 'graph')['graph'] == graph_before
+    page.locator('.desktop-menu > summary').get_by_text('View', exact=True).click()
+    page.get_by_role('menuitemcheckbox', name='Show Graph Inspector', exact=True).click()
+    expect(inspector).to_be_visible()
+    inspector.get_by_role('button', name='Format Y Axis…', exact=True).click()
+    expect(page.get_by_role('dialog', name='Format Axes', exact=True)).to_be_visible()
+    page.keyboard.press('Escape')
     page.get_by_role('button', name='Format Graph…', exact=True).first.click()
     page.screenshot(path=str(shots / 'format-graph.png'))
     page.keyboard.press('Escape')
