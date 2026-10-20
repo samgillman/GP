@@ -35,10 +35,11 @@ with sync_playwright() as p:
 
     # Window layout from the design reference.
     menus = page.locator(".pw-menubar > .desktop-menu > summary").all_inner_texts()
-    assert menus == ["File", "Edit", "View", "Insert", "Analyze", "Change", "Arrange", "Family", "Window", "Help"], menus
+    assert menus == ["GP", "File", "Edit", "View", "Insert", "Analyze", "Change", "Arrange", "Family", "Window", "Help"], menus
+    # Prism for Mac shows Data and Import groups on data tables, Arrange and Draw on graphs.
     groups = page.locator(".pw-ribbon .rb-label").all_inner_texts()
-    assert groups == ["GP", "File", "Sheet", "Undo", "Clipboard", "Analysis", "Change", "Import",
-                      "Draw", "Write", "Text", "Export", "Print", "Send", "Help"], groups
+    assert groups == ["File", "Sheet", "Undo", "Clipboard", "Analysis", "Change", "Data", "Import",
+                      "Write", "Text", "Export", "Send", "Help"], groups
     sections = page.locator(".sheet-navigator .navigator-section > h2 > button").all_inner_texts()
     assert sections == ["Data Tables", "Info", "Results", "Graphs", "Layouts"], sections
     # Commands GP does not implement stay visible but disabled, and say so.
@@ -52,22 +53,32 @@ with sync_playwright() as p:
     expect(page.get_by_role("button", name="Show data table", exact=True)).to_be_visible()
     expect(page.get_by_role("button", name="Show results", exact=True)).to_be_visible()
     expect(page.get_by_role("toolbar", name="Graph view", exact=True)).to_be_visible()
+    groups = page.locator(".pw-ribbon .rb-label").all_inner_texts()
+    assert groups == ["File", "Sheet", "Undo", "Clipboard", "Analysis", "Change", "Arrange", "Draw",
+                      "Write", "Text", "Export", "Send", "Help"], groups
+    # The graph sits on a white letter-size page inside the sheet area.
+    page_box = page.locator(".graph-page").bounding_box()
+    assert abs(page_box["width"] / page_box["height"] - 612 / 792) < 0.02, page_box
     expect(plot.locator(".graph-title")).to_have_text(graph_sheet()["graph"]["title"])
-    names = [c["name"] for c in next(s for s in book()["sheets"] if s["kind"] == "data")["project"]["columns"]]
+    data_sheet = next(s for s in book()["sheets"] if s["kind"] == "data")
+    table = data_sheet["name"]
+    names = [c["name"] for c in data_sheet["project"]["columns"]]
     ids = [c["id"] for c in next(s for s in book()["sheets"] if s["kind"] == "data")["project"]["columns"]]
     original = graph_sheet()
 
-    # Format Graph docks beside the page and leaves the graph visible.
+    # Format Graph drops from the top of the sheet area like a macOS sheet,
+    # without dimming the window.
     page.get_by_role("button", name="Format Graph…", exact=True).click()
     dialog = page.get_by_role("dialog", name="Format Graph", exact=True)
     expect(dialog).to_have_attribute("aria-modal", "false")
     expect(page.locator(".desktop-dialog-backdrop")).to_have_count(0)
-    page_box, dialog_box = page.locator(".graph-page").bounding_box(), dialog.bounding_box()
-    assert dialog_box["x"] >= page_box["x"] + page_box["width"], "dialog sits beside the graph page"
+    canvas_box, dialog_box = page.locator(".graph-canvas").bounding_box(), dialog.bounding_box()
+    assert abs(dialog_box["y"] - canvas_box["y"]) < 2, "dialog is attached to the top of the sheet area"
+    assert abs((dialog_box["x"] + dialog_box["width"] / 2) - (canvas_box["x"] + canvas_box["width"] / 2)) < 2
     tabs = dialog.get_by_role("tab").all_inner_texts()
     assert tabs == ["Appearance", "Data Sets on Graph", "Graph Settings", "Annotations"], tabs
     dataset = dialog.get_by_label("Appearance data set", exact=True)
-    expect(dataset.locator("option:checked")).to_have_text(f"Data 1:A:{names[0]}")
+    expect(dataset.locator("option:checked")).to_have_text(f"{table}:A:{names[0]}")
     scope = dialog.get_by_label("Apply scope", exact=True)
     expect(scope).to_have_value("global")
     shot("format-graph-open")
@@ -87,7 +98,7 @@ with sync_playwright() as p:
     expect(scope).to_have_value("dataset")
     dialog.get_by_label(f"{names[1]} fill color", exact=True).fill("#ff0000")
     dialog.get_by_text("Fill pattern", exact=True).click()
-    dialog.get_by_label("Cap style:", exact=True).select_option("I")
+    dialog.get_by_label("Style:", exact=True).select_option("I")
     dialog.get_by_label("Dir.:", exact=True).select_option("both")
     dialog.get_by_label("Plot:", exact=True).select_option("sd")
     dialog.get_by_label("Show legend", exact=True).check()
@@ -121,7 +132,7 @@ with sync_playwright() as p:
     # Double-clicking a bar formats that data set.
     page.locator(f'svg.plot g[data-dataset="{names[2]}"] rect').first.dblclick()
     dialog = page.get_by_role("dialog", name="Format Graph", exact=True)
-    expect(dialog.get_by_label("Appearance data set", exact=True).locator("option:checked")).to_have_text(f"Data 1:C:{names[2]}")
+    expect(dialog.get_by_label("Appearance data set", exact=True).locator("option:checked")).to_have_text(f"{table}:C:{names[2]}")
     expect(dialog.get_by_label("Apply scope", exact=True)).to_have_value("dataset")
     dialog.get_by_role("button", name="Cancel", exact=True).click()
 
@@ -143,5 +154,5 @@ with sync_playwright() as p:
 
     assert not errors, errors
     assert original["graph"]["colors"] == graph_sheet()["graph"]["colors"], "colors unchanged by style edits"
-    print("PASS: window layout, docked Format Graph, Global and per-data-set styles, drawing, undo/redo, reload, legend, double-click scope, SVG export, mobile wrapping")
+    print("PASS: Prism window layout, Format Graph sheet, Global and per-data-set styles, drawing, undo/redo, reload, legend, double-click scope, SVG export, mobile wrapping")
     browser.close()

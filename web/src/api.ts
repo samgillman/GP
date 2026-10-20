@@ -4,6 +4,25 @@ type Pending = {
   reject: (error: Error) => void;
 };
 let worker: Worker | null = null;
+
+/** Where the static build's Python engine is: "starting" before the worker
+ * reports, then runtime → packages → code → ready. "graphics" is the one-time
+ * Matplotlib load before the first graph export; "failed" if the worker stops. */
+export type EngineStage = "starting" | "runtime" | "packages" | "code" | "ready" | "graphics" | "failed";
+let stage: EngineStage = browserOnly ? "starting" : "ready";
+const listeners = new Set<(stage: EngineStage) => void>();
+function setStage(next: EngineStage) {
+  stage = next;
+  for (const listener of listeners) listener(next);
+}
+/** Subscribe to engine loading stages; returns an unsubscribe function. */
+export function onEngineProgress(listener: (stage: EngineStage) => void) {
+  listeners.add(listener);
+  listener(stage);
+  return () => {
+    listeners.delete(listener);
+  };
+}
 let nextId = 0;
 const pending = new Map<number, Pending>();
 
@@ -28,8 +47,13 @@ export function apiFetch(
       pending.clear();
       worker?.terminate();
       worker = null;
+      setStage("failed");
     };
     worker.onmessage = ({ data }) => {
+      if (data.type === "progress") {
+        setStage(data.stage);
+        return;
+      }
       const job = pending.get(data.id);
       if (!job) return;
       pending.delete(data.id);

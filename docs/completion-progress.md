@@ -479,3 +479,38 @@ for controls the reference moves or restyles: the zoom-in command is in View,
 Exclude/Include Values in Edit, new graph of existing data in Insert, the graph
 title is edited from Graph Settings, and bars are no longer black-outlined.
 Hosted CI for this branch has not yet been observed.
+
+## Window restyled after Prism for macOS (2026-10-20)
+
+The user compared GP with their installed Prism (11.1.0 on macOS) and asked for
+its look. Reference screenshots came from that app: an unsaved scratch project
+with the Column "Ordinary one-way ANOVA" sample (data table, graph, all four
+Format Graph tabs, toolbar, navigator and bottom bar). The scratch project was
+discarded and the user's own project was not modified. These are visual
+observations, not REA evidence, and no parity status changes.
+
+- Window: macOS-style menu bar with a GP application menu, and a title bar with
+  the workbook name, save state and engine status. The toolbar has Prism's
+  labelled two-row groups. They change with the sheet: Data and Import on data
+  tables, Arrange and Draw on graphs. The navigator uses Prism's dense rows: the
+  first header and the Family header are banded, sheets in the current family
+  are bold, and the current sheet is highlighted. New Info…/New Layout… are shown
+  disabled. The bottom bar spans the window with a navigator toggle,
+  previous/next and find, sheet-type buttons, the sheet field, status, and
+  ⊖ slider ⊕ zoom. Dark values were measured from the user's Prism; light
+  values are macOS equivalents.
+- Sheets: graphs sit on a white US-letter page (612 × 792 px at 100%, graph one
+  inch from the top) inside the sheet surround. Data tables use Prism's banded
+  header rows. Format Graph drops from the top of the sheet area like a macOS
+  sheet, with Prism's tab and row layout, the table-named data set label, and
+  Apply / Cancel / OK.
+- Loading: the browser worker reports runtime, package, code and graph-export
+  stages. The title bar shows the stage and step; a banner appears when an
+  analysis or export is waiting for the engine.
+
+Validation on macOS: 485 backend and 269 frontend tests, both builds, and
+26 of 27 browser checks. `check_grid_ui.py` uses Control+Z, which is not the
+macOS undo key; it passes in Linux CI. `check_format_graph.py` was updated for
+the Prism groups, the letter page and the sheet position. A fresh static visit
+reached "Analysis engine ready" and exported a PDF in 7.6 s, with every stage
+shown. Hosted CI for this branch has not yet been observed.

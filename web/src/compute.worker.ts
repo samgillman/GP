@@ -3,15 +3,20 @@ import { errorMessage } from "./error-message.ts";
 
 let engine: Promise<PyodideInterface> | null = null;
 let renderReady = false;
+/** Loading stages shown in the window; see EngineStage in api.ts. */
+const progress = (stage: string) => self.postMessage({ type: "progress", stage });
 function initialize(base: string) {
   if (!engine) {
     engine = (async () => {
+      progress("runtime");
       const indexURL = new URL("runtime/", base).href;
       const { loadPyodide } = await import(
         /* @vite-ignore */ `${indexURL}pyodide.mjs`
       );
       const py: PyodideInterface = await loadPyodide({ indexURL });
+      progress("packages");
       await py.loadPackage(["numpy", "scipy", "pydantic"]);
+      progress("code");
       const response = await fetch(new URL("gp-python.zip", base));
       if (!response.ok)
         throw new Error(
@@ -82,9 +87,12 @@ self.onmessage = ({ data }) => {
     const { id, path, body, base } = data;
     try {
       const py = await initialize(base);
+      progress("ready");
       if (path === "/api/export" && !renderReady) {
+        progress("graphics");
         await py.loadPackage("matplotlib");
         renderReady = true;
+        progress("ready");
       }
       py.globals.set("gp_path", path);
       py.globals.set("gp_payload", JSON.stringify(body));
@@ -111,6 +119,7 @@ self.onmessage = ({ data }) => {
         self.postMessage({ id, status: 200, body: JSON.parse(value) });
       }
     } catch (error) {
+      if (!renderReady && path === "/api/export") progress("ready");
       self.postMessage({ id, status: 422, body: { detail: errorMessage(error) } });
     }
   });
