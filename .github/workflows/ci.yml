@@ -85,6 +85,8 @@ jobs:
           GP_COLUMN_EVIDENCE=test-results/column-static.json python scripts/check_column_analysis.py http://127.0.0.1:8001
           GP_COLUMN_EVIDENCE=test-results/column-server.json python scripts/check_column_analysis.py http://127.0.0.1:8002
           python scripts/check_large_workbook.py http://127.0.0.1:8002
+          python scripts/check_column_datasets.py http://127.0.0.1:8001
+          python scripts/check_column_datasets.py http://127.0.0.1:8002
       - uses: actions/upload-artifact@v4
         if: always()
         with:

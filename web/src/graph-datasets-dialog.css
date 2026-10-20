@@ -117,3 +117,7 @@
     grid-column: 1 / -1;
   }
 }
+
+/* Column lists are left-to-right, XY lists are front-to-back. */
+.desktop-format .desktop-dataset-order-hint { font-weight: 400; color: #666; }
+.app[data-theme="dark"] .desktop-format .desktop-dataset-order-hint { color: #bbb; }
