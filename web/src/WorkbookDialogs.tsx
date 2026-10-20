@@ -1195,6 +1195,20 @@ export function FormatGraphDialog({
     datasetColors: seedDatasetColors(project, sheet.columnIndices, sheet.graph.colors, sheet.datasetColors),
   }));
   const [tab, setTab] = useState("Appearance");
+  // Keep the Appearance selection attached to the source column, even when the
+  // Data Sets tab changes the graph's drawing order or membership.
+  const [selectedAppearanceDataset, setSelectedAppearanceDataset] = useState<number | null>(
+    sheet.columnIndices[0] ?? null,
+  );
+  const appearanceIndex =
+    selectedAppearanceDataset !== null &&
+    draft.columnIndices.includes(selectedAppearanceDataset)
+      ? selectedAppearanceDataset
+      : (draft.columnIndices[0] ?? null);
+  const appearancePosition = appearanceIndex === null
+    ? -1
+    : draft.columnIndices.indexOf(appearanceIndex);
+
   function setDraft(update: (previous: GraphSheet) => GraphSheet) {
     setGraphDraft(previous => {
       const next = update(previous);
@@ -1381,24 +1395,70 @@ export function FormatGraphDialog({
               </fieldset>
               <fieldset className="desktop-colors">
                 <legend>Data set appearance</legend>
-                {draft.columnIndices.map((i, pos) => (
-                  <label key={i} className="desktop-form-row">
-                    <span>{project.columns[i].name} color</span>
-                    <input
-                      type="color"
-                      value={
-                        draft.graph.colors[pos % draft.graph.colors.length] ??
-                        "#20867e"
-                      }
-                      onChange={(e) => {
-                        const colors = [...draft.graph.colors];
-                        while (colors.length <= pos) colors.push("#20867e");
-                        colors[pos] = e.target.value;
-                        g({ colors });
-                      }}
-                    />
-                  </label>
-                ))}
+                {appearanceIndex === null ? (
+                  <p className="desktop-help-text">Include a data set to edit its appearance.</p>
+                ) : (
+                  <>
+                    <div className="desktop-appearance-dataset-selector">
+                      <label htmlFor="graph-appearance-dataset">Data set</label>
+                      <select
+                        id="graph-appearance-dataset"
+                        aria-label="Appearance data set"
+                        value={appearanceIndex}
+                        onChange={(event) =>
+                          setSelectedAppearanceDataset(Number(event.target.value))
+                        }
+                      >
+                        {draft.columnIndices.map(index => (
+                          <option key={project.columns[index].id ?? index} value={index}>
+                            {project.columns[index].name}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        aria-label="Previous appearance data set"
+                        disabled={appearancePosition <= 0}
+                        onClick={() =>
+                          setSelectedAppearanceDataset(draft.columnIndices[appearancePosition - 1] ?? null)
+                        }
+                      >
+                        ‹
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Next appearance data set"
+                        disabled={appearancePosition >= draft.columnIndices.length - 1}
+                        onClick={() =>
+                          setSelectedAppearanceDataset(draft.columnIndices[appearancePosition + 1] ?? null)
+                        }
+                      >
+                        ›
+                      </button>
+                    </div>
+                    <label className="desktop-form-row">
+                      <span>Color</span>
+                      <input
+                        type="color"
+                        aria-label={`${project.columns[appearanceIndex].name} color`}
+                        value={
+                          draft.graph.colors[appearancePosition % draft.graph.colors.length] ??
+                          "#20867e"
+                        }
+                        onChange={(event) => {
+                          const colors = [...draft.graph.colors];
+                          while (colors.length <= appearancePosition) colors.push("#20867e");
+                          colors[appearancePosition] = event.target.value;
+                          g({ colors });
+                        }}
+                      />
+                    </label>
+                    <p className="desktop-help-text">
+                      The selected color belongs to this data set. Plot and title options
+                      above apply to the whole graph.
+                    </p>
+                  </>
+                )}
               </fieldset>
             </div>
           ) : tab === "Data Sets on Graph" ? (
