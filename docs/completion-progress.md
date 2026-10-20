@@ -15,8 +15,16 @@ overflow and remains editable, and actual transformed SVG bounds show the
 Y title separated from every formatted tick. Screenshots were visually reviewed
 under `/workspace/gp-evidence/axis-layout-dev`. Typecheck passed; four focused
 frontend test files passed including projection/selection/clipping coverage.
-Production builds and packaged-browser verification are in progress. These are
-GP observations, not a native Prism screenshot comparison.
+Both production builds passed and the static assembler verified all 19 locked
+runtime packages. Packaged server and static Chromium layout checks passed
+the same desktop/narrow-screen and title-separation assertions, with zero page
+errors. The packaged-server behavior suite also rechecked editing, separator
+validation, undo/redo, reload, Cancel and SVG/PNG/PDF exports successfully.
+Evidence screenshots are under `/workspace/gp-evidence/axis-layout-server`
+and `/workspace/gp-evidence/axis-layout-static`. These are GP observations, not
+a native Prism screenshot comparison. The application changes were published
+on user request as `42baa61c4d98029a095c5de9aa08a7d1aaa58376`, verified against
+GitHub main; deployment remains unverified.
 
 ## 2026-10-20 continuation: explicit decimal axis numbering
 

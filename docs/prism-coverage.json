@@ -4506,5 +4506,59 @@
       "static_browser_evidence": "/workspace/gp-evidence/axes-numbering-static/browser-check.json",
       "static_export_timeout_ms": 900000
     }
+  },
+  "axis_layout_checkpoint": {
+    "scope": "REA-informed compact dialog grouping and GP label-spacing correction; native visual parity unverified",
+    "application_commit": "42baa61c4d98029a095c5de9aa08a7d1aaa58376",
+    "source_files": [
+      {
+        "path": "web/src/FormatAxesDialog.tsx",
+        "sha256": "8cde0c261cb0f0bd44ae558bc81241d9072281cb3f00c975aeaa1a065c952e15"
+      },
+      {
+        "path": "web/src/axes-dialog.css",
+        "sha256": "1b6ece48adb6d3c4205abe336c142483c543b98b90a3d2c7c338b2e64909c866"
+      },
+      {
+        "path": "web/src/Plot.tsx",
+        "sha256": "d57ee8a17715c1bdcff957e29dde9d882f517d878fffd204214ef7ab5e85eaf3"
+      },
+      {
+        "path": "web/src/plot-geometry.ts",
+        "sha256": "8c891a2f15015c27251bca2896b661c4f5d1dc7a8b264fe253939d67eccf10b2"
+      },
+      {
+        "path": "web/src/plot-label-layout.ts",
+        "sha256": "493e508e56b4f93e5cbfa9d3ce9cc5da3370ab5e6fe3e2aa1bf44f349acf3ac1"
+      }
+    ],
+    "validation": {
+      "typecheck": true,
+      "focused_test_files_passed": 4,
+      "focused_log": "/workspace/gp-evidence/axis-layout-dev/frontend-checks.txt",
+      "builds": [
+        "server",
+        "static"
+      ],
+      "runtime_packages_verified": 19,
+      "browser_layout_checks": [
+        "development",
+        "server",
+        "static"
+      ],
+      "viewports": [
+        [
+          1280,
+          800
+        ],
+        [
+          390,
+          844
+        ]
+      ],
+      "page_errors": 0,
+      "native_equivalence": false,
+      "deployment_verified": false
+    }
   }
 }

@@ -15,7 +15,10 @@ latest progress entry for validation/publication of this second increment;
 do not assume the first axes commit contains the numbering changes.
 Both production browser builds passed numbering/export checks. Work then
 continued into compact dialog geometry and a visible tick/title overlap fix;
-these follow-up edits require their own validation/publication.
+these follow-up edits were published as
+`42baa61c4d98029a095c5de9aa08a7d1aaa58376` on user request after typecheck,
+focused tests and development-browser checks passed. Production-build checks
+continue separately; see the execution log for their actual results.
 
 Active checkout is `/workspace/gp-status-main`, branch `gp-prism-axes`, based on
 GitHub main `948a451`. The old `/workspace/GP` checkout is historical; do not push
