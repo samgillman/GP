@@ -10,11 +10,100 @@ import matplotlib
 matplotlib.use("Agg")
 from matplotlib import colors, rc_context
 from matplotlib.figure import Figure
-from matplotlib.patches import Rectangle
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch, Rectangle
 from matplotlib.ticker import FixedLocator, FuncFormatter, NullFormatter
 from .statistics import AnalysisError, analyze, descriptive, pairs, values
 
 PLOT_LOCK = threading.Lock()
+MARKERS = {"circle": "o", "square": "s", "triangle": "^", "diamond": "D"}
+# Browser geometry in category slots of 70 px: bars are 46 px, error bar caps
+# 14 px and the scatter mean line 40 px wide.
+BAR_WIDTH, CAP_HALF, MEAN_HALF = .66, .1, 20 / 70
+
+
+def _style(graph, i):
+    """The resolved Format Graph style for plotted data set i, or None when the
+    request carries none (earlier clients), which keeps the fixed styling."""
+    return graph.styles[i] if i < len(graph.styles) else None
+
+
+def _bar_kwargs(style, color, graph):
+    # An explicit Column spacing sets the bar width as a share of its slot.
+    spaced = None if graph.column_space_percent is None else 1 / (1 + graph.column_space_percent / 100)
+    if style is None:
+        return {"color": color, "edgecolor": "black", "linewidth": 1.5, "width": spaced or .6}
+    return {"color": style.fill, "edgecolor": style.color, "linewidth": style.border_width,
+            "width": spaced or BAR_WIDTH, "hatch": "///" if style.pattern else None}
+
+
+def _box_kwargs(style, color):
+    if style is None:
+        line = {"color": "black", "linewidth": 1.5}
+        return {"boxprops": {"facecolor": colors.to_rgba(color, .35), "edgecolor": "black", "linewidth": 1.5},
+                "whiskerprops": line, "capprops": line, "medianprops": line}
+    line = {"color": style.color, "linewidth": style.border_width}
+    return {"boxprops": {"facecolor": style.fill, "edgecolor": style.color, "linewidth": style.border_width,
+                         "hatch": "///" if style.pattern else None},
+            "whiskerprops": line, "capprops": line, "medianprops": line}
+
+
+def _point_kwargs(style, color, size=22):
+    if style is None:
+        return {"s": size, "color": color, "edgecolors": (0, 0, 0, .35), "linewidths": .6}
+    # Browser symbol radius is size + 0.2 CSS px; 1 px = 0.75 pt.
+    diameter = 2 * (style.symbol_size + .2) * .75
+    return {"s": diameter * diameter, "color": style.symbol_color, "marker": MARKERS[style.symbol_shape],
+            "edgecolors": "none", "linewidths": 0}
+
+
+def _styled_errors(axis, i, mean, error, style, floor=None):
+    """Draw one styled error bar: direction, cap and thickness follow the style.
+    With a logarithmic axis, `floor` clips the bar and nonpositive ends are skipped."""
+    up, down = style.error_direction != "below", style.error_direction != "above"
+    lo, hi = (mean - error if down else mean), (mean + error if up else mean)
+    kwargs = {"color": style.error_color, "linewidth": style.error_width, "zorder": 4, "solid_capstyle": "butt"}
+    if floor is None or hi > floor:
+        axis.plot([i, i], [lo if floor is None else max(lo, floor), hi], **kwargs)
+    if style.error_cap == "T":
+        for value, shown in ((hi, up), (lo, down)):
+            if shown and (floor is None or value > 0):
+                axis.plot([i - CAP_HALF, i + CAP_HALF], [value, value], **kwargs)
+
+
+def _legend(axis, data, graph, xy):
+    shown = graph.show_legend if graph.show_legend is not None else xy
+    if not shown:
+        return
+    if not graph.styles:
+        axis.legend(frameon=False)
+        return
+    handles = []
+    names = [c.name for c in (data.columns[1:] if xy else data.columns)]
+    for name, style in zip(names, graph.styles):
+        if not xy and graph.type in {"bar", "box"}:
+            handles.append(Patch(facecolor=style.fill, edgecolor=style.color, linewidth=style.border_width,
+                                 hatch="///" if style.pattern else None, label=name))
+        else:
+            handles.append(Line2D([], [], color=style.color, linewidth=style.line_width,
+                                  linestyle="-" if xy and graph.type == "line" else "none",
+                                  marker=MARKERS[style.symbol_shape] if style.symbols else None,
+                                  markerfacecolor=style.symbol_color, markeredgecolor="none",
+                                  markersize=2 * (style.symbol_size + .2) * .75, label=name))
+    axis.legend(handles=handles, frameon=False, loc="upper left", bbox_to_anchor=(1.02, 1), borderaxespad=0)
+
+
+def _category_ticks(axis, data, graph):
+    names = [c.name for c in data.columns]
+    if graph.styles:
+        rotation = graph.x_tick_rotation
+        axis.set_xticks(range(len(names)), names, rotation=rotation, ha="right" if rotation else "center",
+                        rotation_mode="anchor" if rotation else "default", fontweight="bold")
+        axis.tick_params(axis="y", labelsize=11)
+        for label in axis.get_yticklabels():
+            label.set_fontweight("bold")
+    else:
+        axis.set_xticks(range(len(names)), names, rotation=20 if len(names) > 4 else 0)
 PALETTE = ["#315efb", "#dd7e44", "#309c88", "#a56ad1", "#cd5868", "#75913a"]
 
 
@@ -193,6 +282,7 @@ def _draw_configured(axis, data, graph, outcome, palette):
     floor = ylim[0]
     for i, (column, x, y, visible, summary, error, fit) in enumerate(series):
         color = palette[i % len(palette)]
+        style = _style(graph, i)
         if xy:
             if graph.type == "line":
                 line_x, line_y = (_xy_lines_with_missing_y(data.columns[0], column)
@@ -201,9 +291,14 @@ def _draw_configured(axis, data, graph, outcome, palette):
                 order = np.argsort(line_x, kind="stable")
                 # NaNs preserve gaps from empty Y cells and invalid log coordinates.
                 xx, yy = np.where(line_visible, line_x, np.nan), np.where(line_visible, line_y, np.nan)
-                axis.plot(xx[order], yy[order], color=color, marker="o" if graph.show_points else None, markersize=4, linewidth=1.5, label=column.name)
-            else:
-                axis.scatter(x[visible], y[visible], color=color, s=26, edgecolors=(0, 0, 0, .35), linewidths=.6, label=column.name)
+                if style is None:
+                    axis.plot(xx[order], yy[order], color=color, marker="o" if graph.show_points else None, markersize=4, linewidth=1.5, label=column.name)
+                else:
+                    axis.plot(xx[order], yy[order], color=style.color, linewidth=style.line_width, label=column.name)
+                    if style.symbols:
+                        axis.scatter(x[visible], y[visible], zorder=3, **_point_kwargs(style, color))
+            elif style is None or style.symbols:
+                axis.scatter(x[visible], y[visible], label=column.name, **_point_kwargs(style, color, 26))
             if fit:
                 xx = np.array([p["x"] for p in fit["points"]])
                 yy = np.array([p["y"] for p in fit["points"]])
@@ -216,26 +311,32 @@ def _draw_configured(axis, data, graph, outcome, palette):
         if graph.type == "bar" and (not logy or mean > 0):
             baseline = floor if logy else 0
             if not logy or mean > floor:
-                axis.bar(i, mean-baseline, bottom=baseline, color=color, edgecolor="black", linewidth=1.5,
-                         width=(.6 if graph.column_space_percent is None else 1 / (1 + graph.column_space_percent / 100)))
+                axis.bar(i, mean-baseline, bottom=baseline, **_bar_kwargs(style, color, graph))
         elif graph.type == "box":
             # Quantiles use all observations, including nonpositive ones. Only
             # geometric drawing is clipped to the displayed log domain.
             lo, q1, median, q3, hi = np.quantile(y, [0, .25, .5, .75, 1])
+            half = BAR_WIDTH / 2 if style else .25
             if not logy:
-                axis.boxplot([y], positions=[i], widths=[.5], whis=(0, 100), patch_artist=True, showfliers=not graph.show_points, boxprops={"facecolor": colors.to_rgba(color, .35), "edgecolor": "black", "linewidth": 1.5}, whiskerprops={"color": "black", "linewidth": 1.5}, capprops={"color": "black", "linewidth": 1.5}, medianprops={"color": "black", "linewidth": 1.5}, manage_ticks=False)
+                axis.boxplot([y], positions=[i], widths=[half * 2], whis=(0, 100), patch_artist=True, showfliers=not graph.show_points, manage_ticks=False, **_box_kwargs(style, color))
             else:
+                edge = {"color": style.color if style else "black", "linewidth": style.border_width if style else 1.5}
                 if q3 > floor:
-                    axis.add_patch(Rectangle((i-.25, max(q1, floor)), .5, q3-max(q1, floor), facecolor=colors.to_rgba(color, .35), edgecolor="none"))
-                    for side in (i-.25, i+.25):
-                        axis.plot([side, side], [max(q1, floor), q3], color="black", linewidth=1.5)
-                for value, width in ((q1, .25), (q3, .25), (median, .25), (lo, .125), (hi, .125)):
+                    axis.add_patch(Rectangle((i-half, max(q1, floor)), half * 2, q3-max(q1, floor), facecolor=style.fill if style else colors.to_rgba(color, .35), edgecolor="none"))
+                    for side in (i-half, i+half):
+                        axis.plot([side, side], [max(q1, floor), q3], **edge)
+                for value, width in ((q1, half), (q3, half), (median, half), (lo, half / 2), (hi, half / 2)):
                     if value > 0:
-                        axis.plot([i-width, i+width], [value, value], color="black", linewidth=1.5)
+                        axis.plot([i-width, i+width], [value, value], **edge)
                 for start, end in ((lo, q1), (q3, hi)):
                     if end > floor:
-                        axis.plot([i, i], [max(start, floor), end], color="black", linewidth=1.5)
-        if graph.type != "box":
+                        axis.plot([i, i], [max(start, floor), end], **edge)
+        if graph.type != "box" and style is not None:
+            if graph.type == "scatter" and (not logy or mean > 0):
+                axis.plot([i - MEAN_HALF, i + MEAN_HALF], [mean, mean], color=style.error_color, linewidth=1.5, zorder=4)
+            if error is not None and style.error_bars:
+                _styled_errors(axis, i, mean, error, style, floor if logy else None)
+        elif graph.type != "box":
             if not logy or mean > 0:
                 axis.plot([i], [mean], color="black", marker="_", markersize=22, markeredgewidth=2, zorder=4)
             if error is not None:
@@ -248,9 +349,9 @@ def _draw_configured(axis, data, graph, outcome, palette):
                     for value in (lo, hi):
                         if value > 0:
                             axis.plot([i], [value], color="black", marker="_", markersize=10, markeredgewidth=1.5, zorder=4)
-        if graph.show_points or graph.type == "scatter":
+        if (style.symbols if style else graph.show_points or graph.type == "scatter"):
             jitter = np.random.default_rng(i).uniform(-.13, .13, size=len(y))
-            axis.scatter(i+jitter[visible], y[visible], s=22, color=color, edgecolors=(0, 0, 0, .35), linewidths=.6, zorder=3)
+            axis.scatter(i+jitter[visible], y[visible], zorder=3, **_point_kwargs(style, color))
     if not xy and graph.type == "line":
         means = [s["mean"] if s["mean"] is not None and (not logy or s["mean"] > 0) else np.nan for s in outcome.get("graph_summary", outcome["summary"])]
         axis.plot(range(len(means)), means, color=palette[0], linewidth=1.5)
@@ -260,11 +361,11 @@ def _draw_configured(axis, data, graph, outcome, palette):
                   color="black", linewidth=1.2, solid_capstyle="butt", zorder=5)
         text = axis.text((lo+hi)/2, y+annotation_step*.08, label, ha="center", va="bottom", fontsize=10, zorder=5, clip_on=True)
         text.set_clip_path(axis.patch)
+    _legend(axis, data, graph, xy)
     if xy:
-        axis.legend(frameon=False)
         axis.set_xlabel(graph.x_label or data.columns[0].name)
     else:
-        axis.set_xticks(range(len(data.columns)), [c.name for c in data.columns], rotation=20 if len(data.columns)>4 else 0)
+        _category_ticks(axis, data, graph)
         axis.set_xlabel(graph.x_label)
     for name, config, limits in (("x", settings.x, xlim), ("y", settings.y, ylim)):
         if config.majorInterval is not None:
@@ -320,6 +421,8 @@ def export_plot(request):
     if sum(len(c.values) for c in data.columns) > 20000:
         raise AnalysisError("Graph export is limited to 20,000 cells per request.")
     palette = graph.colors or PALETTE
+    if graph.styles and len(graph.styles) != len(data.columns) - (data.table_type == "xy"):
+        raise AnalysisError("Graph styles must match the plotted data sets.")
     if any(len(c) > 64 or not colors.is_color_like(c) for c in palette):
         raise AnalysisError("Graph colors must be valid CSS-style hex or named colors.")
     outcome = analyze(data)
@@ -356,11 +459,17 @@ def export_plot(request):
                     else:
                         x, y = x[visible], y[visible]
                 color = palette[i % len(palette)]
+                style = _style(graph, i)
                 if graph.type == "line":
                     order = np.argsort(x, kind="stable")
-                    axis.plot(x[order], y[order], color=color, marker="o" if graph.show_points else None, markersize=4, linewidth=1.5, label=column.name)
-                else:
-                    axis.scatter(x, y, color=color, s=26, edgecolors=(0, 0, 0, .35), linewidths=.6, label=column.name)
+                    if style is None:
+                        axis.plot(x[order], y[order], color=color, marker="o" if graph.show_points else None, markersize=4, linewidth=1.5, label=column.name)
+                    else:
+                        axis.plot(x[order], y[order], color=style.color, linewidth=style.line_width, label=column.name)
+                        if style.symbols:
+                            axis.scatter(x, y, zorder=3, **_point_kwargs(style, color))
+                elif style is None or style.symbols:
+                    axis.scatter(x, y, label=column.name, **_point_kwargs(style, color, 26))
                 fit = next((fit for fit in outcome["fit"] if fit["series"] == column.name), None)
                 if fit:
                     points = fit["points"]
@@ -370,7 +479,7 @@ def export_plot(request):
             if data.analysis == "dose_response":
                 axis.set_xscale("log")
             axis.set_xlabel(graph.x_label or data.columns[0].name)
-            axis.legend(frameon=False)
+            _legend(axis, data, graph, True)
         else:
             tops, lows = {}, [0.0] if graph.type == "bar" else []
             for i, column in enumerate(data.columns):
@@ -378,27 +487,33 @@ def export_plot(request):
                 if not len(y):
                     continue
                 color = palette[i % len(palette)]
+                style = _style(graph, i)
                 summary = descriptive(column.name, y, data.confidence)
                 error = summary[graph.error] if graph.error in {"sd", "sem"} else (summary["ci_high"]-summary["mean"] if graph.error == "ci" and summary["ci_high"] is not None else None)
                 tops[i] = max(float(np.max(y)), summary["mean"] + (error or 0))
                 lows.append(min(float(np.min(y)), summary["mean"] - (error or 0)))
                 if graph.type == "bar":
-                    axis.bar(i, summary["mean"], color=color, edgecolor="black", linewidth=1.5,
-                             width=(.6 if graph.column_space_percent is None else 1 / (1 + graph.column_space_percent / 100)))
+                    axis.bar(i, summary["mean"], **_bar_kwargs(style, color, graph))
                 elif graph.type == "box":
-                    axis.boxplot([y], positions=[i], widths=.5, whis=(0, 100), patch_artist=True, showfliers=not graph.show_points, boxprops={"facecolor": colors.to_rgba(color, .35), "edgecolor": "black", "linewidth": 1.5}, whiskerprops={"color": "black", "linewidth": 1.5}, capprops={"color": "black", "linewidth": 1.5}, medianprops={"color": "black", "linewidth": 1.5}, manage_ticks=False)
-                if graph.type != "box":
+                    axis.boxplot([y], positions=[i], widths=BAR_WIDTH if style else .5, whis=(0, 100), patch_artist=True, showfliers=not graph.show_points, manage_ticks=False, **_box_kwargs(style, color))
+                if graph.type != "box" and style is not None:
+                    if graph.type == "scatter":
+                        axis.plot([i - MEAN_HALF, i + MEAN_HALF], [summary["mean"]] * 2, color=style.error_color, linewidth=1.5, zorder=4)
+                    if error is not None and style.error_bars:
+                        _styled_errors(axis, i, summary["mean"], error, style)
+                elif graph.type != "box":
                     axis.errorbar(i, summary["mean"], yerr=error, color="black", fmt="_", markersize=22, markeredgewidth=2, capsize=5, elinewidth=1.5, capthick=1.5, zorder=4)
-                if graph.show_points or graph.type == "scatter":
+                if (style.symbols if style else graph.show_points or graph.type == "scatter"):
                     jitter = np.random.default_rng(i).uniform(-.13, .13, size=len(y))
-                    axis.scatter(i+jitter, y, s=22, color=color, edgecolors=(0, 0, 0, .35), linewidths=.6, zorder=3)
+                    axis.scatter(i+jitter, y, zorder=3, **_point_kwargs(style, color))
             if graph.type == "line":
                 means = [s["mean"] if s["mean"] is not None else np.nan
                          for s in outcome.get("graph_summary", outcome["summary"])]
                 axis.plot(range(len(means)), means, color=palette[0], linewidth=1.5)
             if tops and graph.annotations:
                 draw_brackets(axis, graph.annotations, tops, min(lows + list(tops.values())))
-            axis.set_xticks(range(len(data.columns)), [c.name for c in data.columns], rotation=20 if len(data.columns)>4 else 0)
+            _category_ticks(axis, data, graph)
+            _legend(axis, data, graph, False)
             axis.set_xlabel(graph.x_label)
         axis.set_ylabel(graph.y_label or "Value")
         axis.set_title(graph.title, pad=15, fontweight="bold")

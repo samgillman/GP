@@ -66,7 +66,7 @@ with sync_playwright() as p:
     expect(graph_dialog).to_be_visible()
     page.keyboard.press('Escape')
     assert workbook() == graph_before, 'Opening Format Graph modified the workbook'
-    sample_bar = page.locator('svg.plot g[clip-path] rect[stroke="#000"]').first
+    sample_bar = page.locator('svg.plot g[data-dataset] rect').first
     expect(sample_bar).to_be_visible()
     sample_bar.dblclick()
     expect(graph_dialog).to_be_visible()
@@ -78,10 +78,12 @@ with sync_playwright() as p:
     page.screenshot(path=str(shots / 'format-graph.png'))
     page.keyboard.press('Escape')
     # Double-clicking the graph title reaches a real formatting editor.
-    page.locator('.graph-card .chart-title').dblclick()
+    page.locator('svg.plot .graph-title').dblclick()
     title_dialog = page.get_by_role('dialog', name='Format Graph', exact=True)
     expect(title_dialog).to_be_visible()
-    title_dialog.get_by_label('Title', exact=True).fill('Directly formatted graph title')
+    expect(title_dialog.get_by_role('tab', name='Graph Settings', exact=True)).to_have_attribute('aria-selected', 'true')
+    expect(title_dialog.get_by_label('Graph title:', exact=True)).to_be_focused()
+    title_dialog.get_by_label('Graph title:', exact=True).fill('Directly formatted graph title')
     title_dialog.get_by_role('button', name='OK', exact=True).click()
     assert next(s for s in workbook()['sheets'] if s['kind'] == 'graph')['graph']['title'] == 'Directly formatted graph title'
     page.get_by_role('button', name='Undo', exact=True).click()

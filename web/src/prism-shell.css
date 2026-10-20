@@ -1,0 +1,705 @@
+/* Workbook window: menu bar, ribbon, navigator, sheet and bottom bar.
+   Layout and values follow the supplied "Graph sheet + Format Graph dialog"
+   design reference (1440 × 900 artboard). Loaded after desktop.css. */
+.app {
+  --pw-font: "Segoe UI", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+  --pw-window: #f0f0f0;
+  --pw-text: #1b1b1b;
+  --pw-soft-text: #333;
+  --pw-muted: #757575;
+  --pw-menubar: #fff;
+  --pw-menubar-line: #e3e3e3;
+  --pw-ribbon: #f7f7f7;
+  --pw-ribbon-line: #d2d2d2;
+  --pw-group-line: #dedede;
+  --pw-surface: #fff;
+  --pw-nav-line: #cfcfcf;
+  --pw-current: #e5e5e5;
+  --pw-control-line: #c8c8c8;
+  --pw-canvas: #e6e6e6;
+  --pw-page-outline: #8f8f8f;
+  --pw-hover: #e5f1fb;
+  --pw-pressed: #cce4f7;
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100vh;
+  min-height: 560px;
+  overflow: hidden;
+  background: var(--pw-window);
+  color: var(--pw-text);
+  font: 13px var(--pw-font);
+}
+.app[data-theme="dark"] {
+  --pw-window: #262626;
+  --pw-text: #ececec;
+  --pw-soft-text: #d6d6d6;
+  --pw-muted: #a0a0a0;
+  --pw-menubar: #1f1f1f;
+  --pw-menubar-line: #333;
+  --pw-ribbon: #2b2b2b;
+  --pw-ribbon-line: #3d3d3d;
+  --pw-group-line: #3d3d3d;
+  --pw-surface: #1f1f1f;
+  --pw-nav-line: #3d3d3d;
+  --pw-current: #3a3a3a;
+  --pw-control-line: #4d4d4d;
+  --pw-canvas: #333;
+  --pw-page-outline: #777;
+  --pw-hover: #2f3d4a;
+  --pw-pressed: #24435f;
+  background: var(--pw-window);
+  color: var(--pw-text);
+}
+
+/* Menu bar */
+.pw-chrome {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  min-width: 0;
+  user-select: none;
+  z-index: 20;
+}
+.app .pw-menubar {
+  display: flex;
+  flex-wrap: wrap;
+  height: auto;
+  padding: 1px 4px;
+  background: var(--pw-menubar);
+  border-bottom: 1px solid var(--pw-menubar-line);
+  font-size: 13px;
+}
+.app .pw-menubar > .desktop-menu > summary {
+  height: auto;
+  padding: 3px 7px;
+  font: 13px var(--pw-font);
+  color: var(--pw-text);
+}
+.app .desktop-menu > div {
+  top: 100%;
+  font-family: var(--pw-font);
+}
+.app .desktop-menu button {
+  font-family: var(--pw-font);
+}
+
+/* Ribbon */
+.pw-ribbon {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  background: var(--pw-ribbon);
+  border-bottom: 1px solid var(--pw-ribbon-line);
+  padding: 2px 2px 3px;
+}
+.rb-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 6px;
+  border-right: 1px solid var(--pw-group-line);
+}
+.rb-group.last {
+  border-right: 0;
+}
+.rb-label {
+  font-size: 11.5px;
+  color: var(--pw-soft-text);
+  line-height: 15px;
+  margin-bottom: 1px;
+}
+.rb-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.rb-row {
+  display: flex;
+  gap: 1px;
+  align-items: center;
+}
+.rb-tool {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  min-width: 24px;
+  background: none;
+  border: 0;
+  border-radius: 3px;
+  padding: 0 2px;
+  cursor: default;
+  color: var(--pw-soft-text);
+  font: 13px var(--pw-font);
+}
+.rb-tool > svg {
+  width: 17px;
+  height: 17px;
+}
+.rb-tool > svg.dd {
+  width: 7px;
+  height: 7px;
+  margin-left: 1px;
+  color: #444;
+}
+.rb-tool.big {
+  height: 49px;
+  min-width: 40px;
+}
+.rb-tool.big > svg {
+  width: 30px;
+  height: 30px;
+}
+.rb-tool.tx {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 15px;
+  min-width: 20px;
+}
+.rb-tool:hover:not(:disabled) {
+  background: var(--pw-hover);
+}
+.rb-tool[aria-pressed="true"] {
+  background: var(--pw-pressed);
+}
+.rb-tool:disabled {
+  opacity: 0.38;
+}
+.rb-tool:focus-visible,
+.rb-menu > summary:focus-visible,
+.rb-app-menu > summary:focus-visible {
+  outline: 1px dotted var(--pw-text);
+  outline-offset: -1px;
+}
+.app .pw-ribbon .desktop-menu > summary {
+  height: auto;
+  padding: 0;
+  background: none;
+  color: inherit;
+}
+.app .pw-ribbon .desktop-menu[open] > summary .rb-tool {
+  background: var(--pw-pressed);
+}
+.pw-ribbon .desktop-menu > div {
+  top: calc(100% + 2px);
+}
+.rb-app {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 44px;
+  margin-top: 2px;
+  border-radius: 4px;
+  background: #2b5797;
+  color: #fff;
+  font: 700 15px Arial, Helvetica, sans-serif;
+}
+.rb-select {
+  font: 11.5px var(--pw-font);
+  height: 19px;
+  border: 1px solid var(--pw-control-line);
+  background: var(--pw-surface);
+  border-radius: 2px;
+  padding: 0 4px;
+  margin: 2px 1px;
+  color: var(--pw-soft-text);
+}
+.rb-select:disabled {
+  opacity: 0.7;
+}
+
+/* Navigator */
+.app > aside.pw-nav {
+  position: static;
+  grid-column: 1;
+  grid-row: 2;
+  width: auto;
+  min-height: 0;
+  padding: 0;
+  background: var(--pw-surface);
+  color: var(--pw-text);
+  border-right: 1px solid var(--pw-nav-line);
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  font-size: 13.5px;
+  overflow: hidden;
+  z-index: 1;
+}
+.pw-nav .pw-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px;
+  padding: 4px 7px;
+  border: 1px solid var(--pw-control-line);
+  border-radius: 3px;
+  color: var(--pw-muted);
+  background: var(--pw-surface);
+}
+.pw-nav .pw-search > svg {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 13px;
+}
+.app .pw-nav .pw-search .navigator-search {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  color: var(--pw-text);
+  font: 13px var(--pw-font);
+  box-shadow: none;
+}
+.app .pw-nav .pw-search .navigator-search::placeholder {
+  color: var(--pw-muted);
+}
+.pw-nav .pw-search:focus-within {
+  border-color: #0078d7;
+}
+.app .pw-nav .sheet-navigator {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0;
+  background: none;
+}
+.app .pw-nav .navigator-section {
+  margin: 0;
+  border: 0;
+}
+.app .pw-nav :is(.navigator-section, .family-navigator) > h2 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 5px 8px 2px 6px;
+  font: 14px var(--pw-font);
+  color: var(--pw-text);
+  background: none;
+  border: 0;
+  text-transform: none;
+  letter-spacing: 0;
+  height: auto;
+}
+.app .pw-nav :is(.navigator-section, .family-navigator) > h2 > button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: default;
+}
+.pw-chevron {
+  display: flex;
+}
+.pw-chevron > svg {
+  width: 10px;
+  height: 10px;
+  color: #444;
+  transition: transform 0.1s;
+}
+.pw-chevron.collapsed > svg {
+  transform: rotate(-90deg);
+}
+.app .pw-nav .navigator-section > h2 > .more {
+  margin-left: auto;
+  color: #555;
+  font-size: 13px;
+  font-weight: 400;
+}
+.app .pw-nav :is(.sheet-link, .navigator-new, .family-navigator > button) {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  height: 21px;
+  margin: 0;
+  padding: 1px 8px 1px 26px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--pw-text);
+  font: 13.5px var(--pw-font);
+  font-weight: 400;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: default;
+}
+.app .pw-nav :is(.sheet-link, .navigator-new, .family-navigator > button) > svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+}
+.app .pw-nav :is(.sheet-link, .family-navigator > button) > span:not(.stale-dot) {
+  color: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.app .pw-nav :is(.sheet-link, .family-navigator > button).selected,
+.app[data-theme] .pw-nav :is(.sheet-link, .family-navigator > button).selected {
+  font-weight: 700;
+  background: var(--pw-current);
+  color: var(--pw-text);
+  box-shadow: none;
+}
+.app .pw-nav :is(.sheet-link, .navigator-new, .family-navigator > button):hover:not(.selected) {
+  background: var(--pw-hover);
+}
+.app .pw-nav .navigator-new {
+  color: #3d3d3d;
+  font-style: italic;
+}
+.app[data-theme="dark"] .pw-nav .navigator-new {
+  color: #bdbdbd;
+}
+.app .pw-nav .family-navigator {
+  flex: 0 0 auto;
+  margin: 0;
+  max-height: 40%;
+  overflow: auto;
+  border-top: 4px double #d0d0d0;
+  padding: 2px 0 6px;
+  background: none;
+}
+.app .pw-nav .family-navigator > button.sub {
+  padding-left: 46px;
+}
+
+/* Sheet area */
+.app > main {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 0;
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--pw-surface);
+  overflow: hidden;
+}
+.app > main .main-content {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+  background: var(--pw-surface);
+}
+.app > main[data-active-sheet="graph"] .workbook-notifications:empty {
+  display: none;
+}
+.app > main .workspace-grid.sheet-graph-view {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--pw-canvas);
+}
+.graph-canvas {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 28px 20px;
+  background: var(--pw-canvas);
+  overflow: auto;
+}
+.graph-page {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  background: #fff;
+  outline: 1px dotted var(--pw-page-outline);
+  padding: 16px 24px;
+  color: #000;
+}
+.graph-page .plot-viewport {
+  overflow: auto;
+  max-width: calc(100vw - 250px - 90px);
+  max-height: calc(100vh - 250px);
+}
+.graph-page .graph-caption,
+.graph-page .result-warning {
+  max-width: 420px;
+  margin: 8px auto 0;
+  font-size: 11px;
+  color: #444;
+}
+.graph-page .plot-note {
+  max-width: 420px;
+  font-size: 11px;
+  margin: 4px auto;
+  color: #444;
+}
+.graph-page .point-details {
+  position: absolute;
+  z-index: 5;
+  width: 228px;
+  padding: 10px;
+  background: #fff;
+  color: #222;
+  border: 1px solid #8d8d8d;
+  border-radius: 4px;
+  box-shadow: 0 3px 12px #0003;
+  font: 12px var(--pw-font);
+}
+
+/* The SVG is drawn at its natural size; zoom scales its wrapper. */
+.app > main .sheet-graph-view .graph-page .plot {
+  padding: 0;
+  max-height: none;
+  min-height: 0;
+  margin: 0;
+}
+
+/* Graph page typography: bold Arial, black, as on the reference page. */
+.app .graph-page .plot text {
+  font-family: Arial, Helvetica, sans-serif;
+  fill: #000;
+}
+.app .graph-page .plot .tick {
+  font: 700 14px Arial, Helvetica, sans-serif;
+}
+.app .graph-page .plot .axis-label {
+  font: 700 16px Arial, Helvetica, sans-serif;
+  fill: #000;
+}
+.app .graph-page .plot .graph-title {
+  font: 700 18px Arial, Helvetica, sans-serif;
+}
+.app .graph-page .plot .pairwise-label {
+  font: 700 16px Arial, Helvetica, sans-serif;
+}
+.app .graph-page .plot .legend-label {
+  font: 700 13px Arial, Helvetica, sans-serif;
+}
+.app .graph-page .plot .axis-line {
+  stroke: #000;
+  fill: none;
+  stroke-linecap: square;
+}
+
+/* Bottom bar */
+.app > main .pw-bottombar {
+  position: static;
+  inset: auto;
+  height: auto;
+  min-height: 0;
+  z-index: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 27px;
+  box-sizing: border-box;
+  padding: 0 8px;
+  background: var(--pw-window);
+  border-top: 1px solid var(--pw-nav-line);
+  font: 12px var(--pw-font);
+  color: var(--pw-soft-text);
+}
+.app > main .pw-bottombar .bbtn {
+  width: 22px;
+  height: 20px;
+  min-height: 0;
+  border: 1px solid var(--pw-control-line);
+  background: var(--pw-surface);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: default;
+}
+.app > main .pw-bottombar .bbtn svg {
+  width: 12px;
+  height: 12px;
+}
+.app > main .pw-bottombar .bbtn:disabled {
+  opacity: 0.45;
+}
+.app > main .pw-bottombar .bsel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 300px;
+  height: 20px;
+  box-sizing: border-box;
+  border: 1px solid var(--pw-control-line);
+  background: var(--pw-surface);
+}
+.app > main .pw-bottombar .bsel .project-title {
+  flex: 1;
+  min-width: 0;
+  height: 18px;
+  margin: 0;
+  padding: 0 22px 0 6px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--pw-text);
+  font: 12px var(--pw-font);
+  box-shadow: none;
+}
+.app > main .pw-bottombar .bsel select {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 22px;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: default;
+}
+.app > main .pw-bottombar .bsel .bsel-arrow {
+  position: absolute;
+  right: 7px;
+  pointer-events: none;
+}
+.app > main[data-active-sheet] .pw-bottombar .status-save {
+  display: inline;
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--pw-muted);
+}
+.app > main .pw-bottombar .zoom {
+  margin-left: auto;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.app > main .pw-bottombar .zoom input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 110px;
+  height: 13px;
+  margin: 0;
+  background: transparent;
+}
+.app > main .pw-bottombar .zoom input[type="range"]::-webkit-slider-runnable-track {
+  height: 3px;
+  background: #b9b9b9;
+}
+.app > main .pw-bottombar .zoom input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 6px;
+  height: 13px;
+  margin-top: -5px;
+  border-radius: 1px;
+  background: #555;
+}
+.app > main .pw-bottombar .zoom input[type="range"]::-moz-range-track {
+  height: 3px;
+  background: #b9b9b9;
+}
+.app > main .pw-bottombar .zoom input[type="range"]::-moz-range-thumb {
+  width: 6px;
+  height: 13px;
+  border: 0;
+  border-radius: 1px;
+  background: #555;
+}
+.app > main .pw-bottombar .zoom select {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px;
+  min-height: 0;
+  margin: 0;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: 12px var(--pw-font);
+  cursor: default;
+}
+.app[data-theme="dark"] .rb-tool > svg.dd,
+.app[data-theme="dark"] .pw-chevron > svg {
+  color: #c8c8c8;
+}
+/* The reference icons are drawn for a light window; invert their lightness
+   (keeping hue) so dark strokes stay visible on the dark window. */
+.app[data-theme="dark"] :is(.rb-tool, .bbtn, .pw-nav .sheet-link, .pw-nav .navigator-new, .pw-nav .family-navigator > button, .pw-search) > svg:not(.dd) {
+  filter: invert(0.88) hue-rotate(180deg);
+}
+.app[data-theme="dark"] .pw-nav :is(.navigator-section, .family-navigator) > h2,
+.app[data-theme="dark"] .pw-nav :is(.navigator-section, .family-navigator) > h2 > button {
+  background: none;
+  color: var(--pw-text);
+  border: 0;
+  box-shadow: none;
+}
+.app[data-theme="dark"] .pw-nav .sheet-link:not(.selected),
+.app[data-theme="dark"] .pw-nav .family-navigator > button:not(.selected) {
+  background: none;
+  color: var(--pw-text);
+}
+.app[data-theme="dark"] .rb-app {
+  background: #3b6fb6;
+}
+
+@media (max-width: 760px) {
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+  .app > aside.pw-nav {
+    grid-column: 1;
+    grid-row: 2;
+    max-height: 30vh;
+    border-right: 0;
+    border-bottom: 1px solid var(--pw-nav-line);
+  }
+  .app > main {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .app > main .pw-bottombar .bsel {
+    min-width: 0;
+    flex: 1 1 160px;
+  }
+  .graph-page .plot-viewport {
+    max-width: calc(100vw - 90px);
+  }
+}
+
+@media print {
+  .pw-chrome,
+  .app > aside.pw-nav,
+  .app > main .pw-bottombar,
+  .docked-dialog {
+    display: none !important;
+  }
+  .app {
+    display: block;
+    height: auto;
+  }
+  .graph-canvas {
+    background: none;
+    padding: 0;
+  }
+  .graph-page {
+    outline: 0;
+  }
+}

@@ -91,6 +91,8 @@ jobs:
           python scripts/check_column_datasets.py http://127.0.0.1:8002
           python scripts/check_column_spacing.py http://127.0.0.1:8001
           python scripts/check_column_spacing.py http://127.0.0.1:8002
+          GP_FORMAT_GRAPH_EVIDENCE=test-results/format-graph-static python scripts/check_format_graph.py http://127.0.0.1:8001
+          GP_FORMAT_GRAPH_EVIDENCE=test-results/format-graph-server python scripts/check_format_graph.py http://127.0.0.1:8002
       - uses: actions/upload-artifact@v4
         if: always()
         with:

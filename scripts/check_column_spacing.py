@@ -18,7 +18,7 @@ with sync_playwright() as p:
     page.get_by_role("button", name="Show graph", exact=True).click()
     def graph():
         return next(s for s in book()["sheets"] if s["kind"] == "graph")
-    bar = page.locator('svg.plot g[clip-path] rect[stroke="#000"]').first
+    bar = page.locator('svg.plot g[data-dataset] rect').first
     expect(bar).to_be_visible()
     original_width = float(bar.get_attribute("width"))
     original_graph = graph()

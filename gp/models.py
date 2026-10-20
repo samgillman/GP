@@ -115,6 +115,30 @@ class AxisSettings(BaseModel):
         return self
 
 
+HexColor = Field(pattern=r"^#[0-9a-fA-F]{6}$")
+LineWeight = Literal[0.25, 0.5, 1, 1.5, 2, 3, 4]
+
+
+class DatasetStyle(BaseModel):
+    """One plotted data set's Format Graph appearance, fully resolved by the
+    browser (web/src/graph-style.ts) so exports draw what the page shows."""
+    model_config = ConfigDict(extra="forbid", strict=True)
+    color: str = HexColor
+    fill: str = HexColor
+    pattern: bool
+    border_width: LineWeight
+    symbols: bool
+    symbol_color: str = HexColor
+    symbol_shape: Literal["circle", "square", "triangle", "diamond"]
+    symbol_size: int = Field(ge=1, le=10)
+    error_bars: bool
+    error_color: str = HexColor
+    error_cap: Literal["T", "I"]
+    error_direction: Literal["above", "below", "both"]
+    error_width: LineWeight
+    line_width: LineWeight
+
+
 class GraphAxes(BaseModel):
     model_config = ConfigDict(extra="forbid")
     x: AxisSettings = Field(default_factory=AxisSettings)
@@ -136,6 +160,12 @@ class GraphOptions(BaseModel):
     column_space_percent: StrictInt | None = Field(default=None, ge=0, le=400)
     annotations: list[GraphAnnotation] = Field(default_factory=list, max_length=435)
     axes: GraphAxes | None = None
+    # Per plotted data set, in drawing order. Empty keeps the earlier styling.
+    styles: list[DatasetStyle] = Field(default_factory=list, max_length=32)
+    # None keeps the earlier rule: XY graphs have a legend, column graphs do not.
+    show_legend: StrictBool | None = None
+    # Category labels slant 45 degrees when they are wider than their slot.
+    x_tick_rotation: Literal[0, 45] = 0
 
 
 class ExportRequest(BaseModel):

@@ -1,27 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Activity,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  Asterisk,
-  BarChart3,
-  FileText,
-  FilePlus2,
   Copy,
-  ChevronDown,
-  ChevronRight,
   FlaskConical,
-  FolderOpen,
-  Grid2X2,
   Play,
-  Plus,
   Save,
-  Undo2,
-  Redo2,
-  Settings2,
-  Shapes,
   Brackets,
-  Table2,
   X,
 } from "lucide-react";
 import {
@@ -45,6 +28,20 @@ import type {
   TableType,
 } from "./data";
 import Plot from "./Plot";
+import { plottedDatasetStyles } from "./graph-style";
+import {
+  clampGraphZoom,
+  GRAPH_ZOOM_PRESETS,
+  MAX_GRAPH_ZOOM,
+  MIN_GRAPH_ZOOM,
+} from "./plot-view";
+import {
+  chevron,
+  dropArrow,
+  navigatorIcons,
+  ribbonIcons,
+  searchIcon,
+} from "./ribbon-icons";
 import FormatAxesDialog from "./FormatAxesDialog";
 import { axesForTableType } from "./axes";
 import DataGrid from "./DataGrid";
@@ -166,9 +163,14 @@ import type { RecalculationStates } from "./workbook-recalculation";
 function DesktopMenu({
   label,
   children,
+  summary,
+  className = "",
 }: {
   label: string;
   children: React.ReactNode;
+  /** Ribbon drop-downs show an icon instead of the menu label. */
+  summary?: React.ReactNode;
+  className?: string;
 }) {
   const menu = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
@@ -187,7 +189,7 @@ function DesktopMenu({
     <details
       ref={menu}
       name="workbook-menu"
-      className="desktop-menu"
+      className={`desktop-menu ${className}`}
       onClick={(event) => {
         if ((event.target as HTMLElement).closest("button"))
           event.currentTarget.open = false;
@@ -196,11 +198,70 @@ function DesktopMenu({
         if (event.key === "Escape") event.currentTarget.open = false;
       }}
     >
-      <summary>{label}</summary>
+      <summary>{summary ?? label}</summary>
       <div role="menu" aria-label={`${label} menu`}>
         {children}
       </div>
     </details>
+  );
+}
+function RibbonGroup({
+  label,
+  last,
+  children,
+}: {
+  label: string;
+  last?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={`rb-group${last ? " last" : ""}`} role="group" aria-label={label}>
+      <div className="rb-label" aria-hidden="true">{label}</div>
+      <div className="rb-body">{children}</div>
+    </div>
+  );
+}
+/** A ribbon button. `unavailable` marks a design-reference command GP does not
+ * implement yet: it stays visible but disabled, and says so. */
+function Tool({
+  label,
+  title,
+  icon,
+  text,
+  textStyle,
+  menu,
+  big,
+  pressed,
+  disabled,
+  unavailable,
+  onClick,
+}: {
+  label: string;
+  title?: string;
+  icon?: React.ReactNode;
+  text?: string;
+  textStyle?: React.CSSProperties;
+  menu?: boolean;
+  big?: boolean;
+  pressed?: boolean;
+  disabled?: boolean;
+  unavailable?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`rb-tool${big ? " big" : ""}${text ? " tx" : ""}${unavailable ? " unavailable" : ""}`}
+      aria-label={label}
+      aria-pressed={pressed}
+      title={unavailable ? `${title ?? label} is not available in GP yet` : (title ?? label)}
+      disabled={disabled || unavailable}
+      onClick={onClick}
+      style={textStyle}
+    >
+      {icon ?? text}
+      {menu && dropArrow}
+    </button>
   );
 }
 export default function App() {
@@ -484,11 +545,26 @@ export default function App() {
     } | null>(null),
     [resultTab, setResultTab] = useState(""),
     [pairwiseDialog, setPairwiseDialog] = useState(false),
-    [sheetSearch, setSheetSearch] = useState("");
+    [sheetSearch, setSheetSearch] = useState(""),
+    [formatTab, setFormatTab] = useState<"Appearance" | "Data Sets on Graph" | "Graph Settings">("Appearance"),
+    [formatDialogOpenCount, setFormatDialogOpenCount] = useState(0),
+    // The window's graph zoom (percent of the page's natural size) and Hand Pan tool.
+    [graphZoom, setGraphZoom] = useState(100),
+    [graphPan, setGraphPan] = useState(false);
+  // Whether the graph's category labels are slanted, so exports match the page.
+  const slantedLabels = useRef(false);
   const selectedSheet = workbook.sheets.find(
     (s) => s.id === workbook.activeSheetId,
   )!;
   const source = effectiveSource(workbook, selectedSheet);
+  const sheetPosition = workbook.sheets.findIndex((s) => s.id === selectedSheet.id);
+  useEffect(() => {
+    setGraphZoom(100);
+    setGraphPan(false);
+  }, [selectedSheet.id]);
+  useEffect(() => {
+    document.title = `${workbook.name} - GP`;
+  }, [workbook.name]);
   const dependencyGraph = useMemo(
     () => workbookDependencies(workbook),
     [workbook.sheets],
@@ -1153,9 +1229,13 @@ export default function App() {
                 : "descriptive",
             regression_model: linkedResult?.regression_model,
           }),
-          graph: (({ pairwise: _pairwise, ...options }) => ({
+          graph: (({ pairwise: _pairwise, dataset_styles: _styles, ...options }) => ({
             ...options,
             annotations: pairwiseAnnotations,
+            // Resolved per plotted data set, so the export draws what the page shows.
+            styles: plottedDatasetStyles(project.graph, plotProject.columns, xy, palette),
+            show_legend: project.graph.show_legend ?? xy,
+            x_tick_rotation: !xy && slantedLabels.current ? 45 : 0,
           }))(project.graph),
           format,
         }),
@@ -1500,12 +1580,16 @@ export default function App() {
       },
     }));
   }
-  function openGraphFormatting() {
+  function openGraphFormatting(
+    tab: "Appearance" | "Data Sets on Graph" | "Graph Settings" = "Appearance",
+  ) {
     if (graphSheet?.frozen) {
       setError("Unfreeze this graph before changing its appearance.");
       return;
     }
     setFormatAppearanceDataset(null);
+    setFormatTab(tab);
+    setFormatDialogOpenCount((n) => n + 1);
     setFormatDialog(true);
   }
   function openGraphDatasetFormatting(seriesIndex: number) {
@@ -1516,6 +1600,8 @@ export default function App() {
     const sourceIndex = graphSheet?.columnIndices[seriesIndex];
     if (sourceIndex === undefined) return openGraphFormatting();
     setFormatAppearanceDataset(sourceIndex);
+    setFormatTab("Appearance");
+    setFormatDialogOpenCount((n) => n + 1);
     setFormatDialog(true);
   }
   function openAxes(axis: "x" | "y" = "y") {
@@ -1552,6 +1638,15 @@ export default function App() {
       ),
     );
   }
+  function stepSheet(step: number) {
+    const next = workbook.sheets[sheetPosition + step];
+    if (next) selectSheet(next.id);
+  }
+  function renameWorkbook() {
+    const name = window.prompt("Workbook name", workbook.name)?.trim();
+    if (name && name !== workbook.name)
+      setWorkbook((w) => ({ ...w, name }), editOptions("Rename workbook"));
+  }
   function focusSheetName() {
     document
       .querySelector<HTMLInputElement>('[aria-label="Sheet name"]')
@@ -1584,32 +1679,8 @@ export default function App() {
         historyRef.current = breakHistoryGroup(historyRef.current);
       }}
     >
-      <header className="desktop-chrome">
-        <div className="desktop-titlebar">
-          <span className="desktop-app-name">
-            <FileText size={13} />
-            GP
-          </span>
-          <input
-            aria-label="Workbook name"
-            className="workbook-name"
-            value={workbook.name}
-            onChange={(e) =>
-              setWorkbook(
-                (w) => ({ ...w, name: e.target.value }),
-                editOptions("Rename workbook"),
-              )
-            }
-          />
-          <span className="document-state">
-            {recovery
-              ? "Autosave paused"
-              : saved
-                ? "Saved"
-                : "Not saved in browser"}
-          </span>
-        </div>
-        <nav className="desktop-menubar" aria-label="Application menu">
+      <header className="pw-chrome">
+        <nav className="pw-menubar desktop-menubar" aria-label="Application menu">
           <DesktopMenu label="File">
             <button role="menuitem" onClick={() => setNewTable(true)}>
               New Data Table and Graph…
@@ -1619,6 +1690,9 @@ export default function App() {
             </button>
             <button role="menuitem" onClick={saveWorkbook}>
               Save workbook
+            </button>
+            <button role="menuitem" onClick={renameWorkbook}>
+              Rename workbook…
             </button>
             <hr />
             <button role="menuitem" onClick={() => fileRef.current?.click()}>
@@ -1637,6 +1711,10 @@ export default function App() {
                 Export graph as {format.toUpperCase()}…
               </button>
             ))}
+            <hr />
+            <button role="menuitem" onClick={() => window.print()}>
+              Print…
+            </button>
           </DesktopMenu>
           <DesktopMenu label="Edit">
             <button
@@ -1693,6 +1771,40 @@ export default function App() {
             </button>
             <button role="menuitem" onClick={() => setActive("graph")}>
               Graph
+            </button>
+            <hr />
+            <button
+              role="menuitem"
+              aria-label="Zoom in graph"
+              disabled={active !== "graph" || graphZoom >= MAX_GRAPH_ZOOM}
+              onClick={() => setGraphZoom((z) => clampGraphZoom(z + 25))}
+            >
+              Zoom in graph <kbd>Ctrl+=</kbd>
+            </button>
+            <button
+              role="menuitem"
+              aria-label="Zoom out graph"
+              disabled={active !== "graph" || graphZoom <= MIN_GRAPH_ZOOM}
+              onClick={() => setGraphZoom((z) => clampGraphZoom(z - 25))}
+            >
+              Zoom out graph <kbd>Ctrl+-</kbd>
+            </button>
+            <button
+              role="menuitem"
+              aria-label="Fit graph"
+              disabled={active !== "graph"}
+              onClick={() => setGraphZoom(100)}
+            >
+              Fit graph (100%) <kbd>Ctrl+0</kbd>
+            </button>
+            <button
+              role="menuitemcheckbox"
+              aria-checked={graphPan}
+              disabled={active !== "graph"}
+              onClick={() => setGraphPan((v) => !v)}
+            >
+              Hand pan
+              <span aria-hidden="true">{graphPan ? "✓" : ""}</span>
             </button>
             <hr />
             <button
@@ -1791,13 +1903,22 @@ export default function App() {
             <button
               role="menuitem"
               disabled={active !== "graph" || graphSheet?.frozen}
-              onClick={openGraphFormatting}
+              onClick={() => openGraphFormatting()}
             >
               Format Graph…
             </button>
             <button role="menuitem" disabled={active !== "graph" || graphSheet?.frozen}
               onClick={() => openAxes()}>
               Format Axes…
+            </button>
+          </DesktopMenu>
+          <DesktopMenu label="Arrange">
+            <button
+              role="menuitem"
+              disabled={active !== "graph" || graphSheet?.frozen}
+              onClick={() => openGraphFormatting("Data Sets on Graph")}
+            >
+              Data Sets on Graph…
             </button>
           </DesktopMenu>
           <DesktopMenu label="Family">
@@ -1816,228 +1937,318 @@ export default function App() {
                 </button>
               ))}
           </DesktopMenu>
+          <DesktopMenu label="Window">
+            <button
+              role="menuitem"
+              disabled={sheetPosition <= 0}
+              onClick={() => stepSheet(-1)}
+            >
+              Previous sheet
+            </button>
+            <button
+              role="menuitem"
+              disabled={sheetPosition >= workbook.sheets.length - 1}
+              onClick={() => stepSheet(1)}
+            >
+              Next sheet
+            </button>
+          </DesktopMenu>
+          <DesktopMenu label="Help">
+            <button
+              role="menuitem"
+              onClick={() =>
+                window.open(
+                  "https://github.com/samgillman/GP#readme",
+                  "_blank",
+                  "noopener",
+                )
+              }
+            >
+              GP documentation
+            </button>
+            <button
+              role="menuitem"
+              onClick={() =>
+                setNotice(
+                  "Shortcuts: Ctrl+Z undo, Ctrl+Y redo, Ctrl+= / Ctrl+- / Ctrl+0 zoom the graph, Escape closes dialogs and menus. Double-click a data set, axis or the graph to format it.",
+                )
+              }
+            >
+              Keyboard shortcuts
+            </button>
+          </DesktopMenu>
         </nav>
-        <div className="desktop-toolbar" aria-label="Workbook toolbar">
-          <div className="desktop-tool-group">
-            <span>File</span>
-            <div>
-              <button
-                aria-label="Open workbook"
-                title="Open workbook"
-                onClick={() => projectRef.current?.click()}
-              >
-                <FolderOpen />
-                <small>Open</small>
+        <div className="pw-ribbon" role="toolbar" aria-label="Workbook toolbar">
+          <RibbonGroup label="GP">
+            <DesktopMenu
+              label="GP"
+              className="rb-app-menu"
+              summary={<span className="rb-app" aria-label="GP menu">GP</span>}
+            >
+              <button role="menuitem" onClick={() => setNewTable(true)}>
+                New Data Table and Graph…
               </button>
-              <button
-                aria-label="Save workbook"
-                title="Save workbook"
-                onClick={saveWorkbook}
-              >
-                <Save />
-                <small>Save</small>
+              <button role="menuitem" onClick={() => projectRef.current?.click()}>
+                Open workbook…
               </button>
+              <button role="menuitem" onClick={saveWorkbook}>
+                Save workbook
+              </button>
+              <button role="menuitem" onClick={() => fileRef.current?.click()}>
+                Import data…
+              </button>
+            </DesktopMenu>
+          </RibbonGroup>
+          <RibbonGroup label="File">
+            <div className="rb-row">
+              <Tool label="New" title="New data table and graph" icon={ribbonIcons.newFile} menu onClick={() => setNewTable(true)} />
+              <Tool label="Open workbook" icon={ribbonIcons.open} onClick={() => projectRef.current?.click()} />
             </div>
-          </div>
-          <div className="desktop-tool-group">
-            <span>Sheet</span>
-            <div>
-              <button
-                aria-label="New Data Table and Graph"
-                title="New Data Table and Graph"
-                onClick={() => setNewTable(true)}
-              >
-                <FilePlus2 />
-                <small>New</small>
-              </button>
-              <button title="Rename current sheet" onClick={focusSheetName}>
-                <FileText />
-                <small>Rename</small>
-              </button>
-              <button
-                aria-label={
-                  selectedSheet.frozen ? "Unfreeze sheet" : "Freeze sheet"
-                }
-                aria-pressed={!!selectedSheet.frozen}
-                title={
-                  selectedSheet.frozen
-                    ? "Unfreeze sheet"
-                    : "Freeze sheet so it will not automatically update"
-                }
+            <div className="rb-row">
+              <Tool label="Save workbook" icon={ribbonIcons.save} onClick={saveWorkbook} />
+              <Tool label="Save workbook as" title="Download a copy of the workbook" icon={ribbonIcons.saveAs} menu onClick={saveWorkbook} />
+            </div>
+          </RibbonGroup>
+          <RibbonGroup label="Sheet">
+            <div className="rb-row">
+              <Tool label="Highlight sheet" icon={ribbonIcons.highlight} menu unavailable />
+              <Tool
+                label={selectedSheet.frozen ? "Unfreeze sheet" : "Freeze sheet"}
+                title={selectedSheet.frozen ? "Unfreeze sheet" : "Freeze sheet so it will not automatically update"}
+                pressed={!!selectedSheet.frozen}
+                icon={ribbonIcons.freeze}
                 onClick={() => freezeSheet()}
-              >
-                <span aria-hidden="true" style={{ fontSize: 20 }}>
-                  ❄
-                </span>
-                <small>{selectedSheet.frozen ? "Unfreeze" : "Freeze"}</small>
-              </button>
+              />
+              <Tool label="Pin sheet" icon={ribbonIcons.pin} menu unavailable />
             </div>
-          </div>
-          <div className="desktop-tool-group">
-            <span>Undo</span>
-            <div>
-              <button
-                aria-label="Undo"
-                disabled={!history.past.length}
-                title={
-                  history.past.length
-                    ? `Undo: ${history.past.at(-1)!.label}`
-                    : "Nothing to undo"
-                }
-                onClick={() => applyHistory("undo")}
+            <div className="rb-row">
+              <Tool label="Delete sheet" icon={ribbonIcons.deleteSheet} onClick={() => removeSheet()} />
+              <DesktopMenu
+                label="New sheet"
+                className="rb-menu"
+                summary={<span className="rb-tool" aria-label="New sheet" title="New sheet">{ribbonIcons.newSheet}{dropArrow}</span>}
               >
-                <Undo2 />
-                <small>Undo</small>
-              </button>
-              <button
-                aria-label="Redo"
-                disabled={!history.future.length}
-                title={
-                  history.future.length
-                    ? `Redo: ${history.future.at(-1)!.label}`
-                    : "Nothing to redo"
-                }
-                onClick={() => applyHistory("redo")}
-              >
-                <Redo2 />
-                <small>Redo</small>
-              </button>
-            </div>
-          </div>
-          <div className="desktop-tool-group">
-            <span>Clipboard</span>
-            <div>
-              <button
-                aria-label="Copy data as CSV"
-                onClick={() => void copyData()}
-              >
-                <Copy />
-                <small>Copy CSV</small>
-              </button>
-            </div>
-          </div>
-          <div className="desktop-tool-group">
-            <span>Data</span>
-            <div>
-              <button
-                aria-label={
-                  selectionExcluded ? "Include values" : "Exclude values"
-                }
-                aria-pressed={selectionExcluded}
-                disabled={active !== "data" || !!source.frozen || !gridRange}
-                title={
-                  source.frozen
-                    ? "Unfreeze this data table to exclude or include values"
-                    : "Exclude selected values from analyses and graphs, or include them again"
-                }
-                onClick={() => excludeValues()}
-              >
-                <Asterisk />
-                <small>{selectionExcluded ? "Include" : "Exclude"}</small>
-              </button>
-            </div>
-          </div>
-          <div className="desktop-tool-group">
-            <span>Analysis</span>
-            <div>
-              <button
-                aria-label="Analyze Data…"
-                disabled={selectedSheet.kind !== "data" && selectedSheet.frozen}
-                title="Choose an analysis and datasets"
-                onClick={() => setAnalyzeDialog(true)}
-              >
-                <FlaskConical />
-                <small>Analyze…</small>
-              </button>
-              <button
-                aria-label="Grouped & survival"
-                title="Grouped and survival analyses"
-                onClick={() => setAdvanced(true)}
-              >
-                <Grid2X2 />
-                <small>Grouped / survival</small>
-              </button>
-            </div>
-          </div>
-          <div className="desktop-tool-group">
-            <span>Change</span>
-            <div>
-              <button
-                aria-label="New graph of existing data"
-                onClick={createLinkedGraph}
-              >
-                <BarChart3 />
-                <small>New graph</small>
-              </button>
-              <button
-                aria-label="Change Graph Type…"
-                title="Change the kind of graph"
-                disabled={active !== "graph" || graphSheet?.frozen}
-                onClick={() => setGraphTypeDialog(true)}
-              >
-                <Shapes />
-                <small>Graph type</small>
-              </button>
-              <button
-                aria-label="Add Pairwise Comparisons…"
-                title="Add significance brackets from a t test or one-way ANOVA"
-                disabled={active !== "graph" || graphSheet?.frozen || xy}
-                onClick={() => setPairwiseDialog(true)}
-              >
-                <Brackets />
-                <small>Pairwise</small>
-              </button>
-              <button
-                aria-label="Format Graph…"
-                disabled={active !== "graph" || graphSheet?.frozen}
-                onClick={openGraphFormatting}
-              >
-                <Settings2 />
-                <small>Format…</small>
-              </button>
-              <button aria-label="Format Axes…" title="Format axis scale, range and ticks"
-                disabled={active !== "graph" || graphSheet?.frozen} onClick={() => openAxes()}>
-                <Settings2 /><small>Axes…</small>
-              </button>
-            </div>
-          </div>
-          <div className="desktop-tool-group">
-            <span>Import</span>
-            <div>
-              <button
-                aria-label="Import data"
-                title="Import CSV or supported Prism raw data"
-                onClick={() => fileRef.current?.click()}
-              >
-                <ArrowUpFromLine />
-                <small>Import…</small>
-              </button>
-            </div>
-          </div>
-          <div className="desktop-tool-group">
-            <span>Export</span>
-            <div>
-              <button
-                aria-label="CSV"
-                title="Export data as CSV"
-                onClick={() => exportData()}
-              >
-                <ArrowDownToLine />
-                <small>CSV</small>
-              </button>
-              {active === "graph" && (
-                <button
-                  disabled={exporting}
-                  title="Export current figure as PDF"
-                  aria-label="Export graph as PDF"
-                  onClick={() => void exportGraph("pdf")}
-                >
-                  <FileText />
-                  <small>PDF</small>
+                <button role="menuitem" onClick={() => setNewTable(true)}>
+                  New Data Table…
                 </button>
-              )}
+                <button role="menuitem" onClick={createLinkedGraph}>
+                  New Graph of existing data
+                </button>
+                <button
+                  role="menuitem"
+                  disabled={selectedSheet.kind !== "data" && selectedSheet.frozen}
+                  onClick={() => setAnalyzeDialog(true)}
+                >
+                  New Analysis…
+                </button>
+              </DesktopMenu>
+              <Tool label="New Data Table and Graph" icon={ribbonIcons.newTableGraph} onClick={() => setNewTable(true)} />
             </div>
-          </div>
+          </RibbonGroup>
+          <RibbonGroup label="Undo">
+            <div className="rb-row">
+              <Tool
+                label="Undo"
+                title={history.past.length ? `Undo: ${history.past.at(-1)!.label}` : "Nothing to undo"}
+                icon={ribbonIcons.undo}
+                disabled={!history.past.length}
+                onClick={() => applyHistory("undo")}
+              />
+            </div>
+            <div className="rb-row">
+              <Tool
+                label="Redo"
+                title={history.future.length ? `Redo: ${history.future.at(-1)!.label}` : "Nothing to redo"}
+                icon={ribbonIcons.redo}
+                disabled={!history.future.length}
+                onClick={() => applyHistory("redo")}
+              />
+            </div>
+          </RibbonGroup>
+          <RibbonGroup label="Clipboard">
+            <div className="rb-row">
+              <Tool label="Cut" title="Cut: use Ctrl+X in the data table" icon={ribbonIcons.cut} unavailable />
+              <Tool label="Copy data as CSV" icon={ribbonIcons.copy} menu onClick={() => void copyData()} />
+            </div>
+            <div className="rb-row">
+              <Tool label="Paste" title="Paste: use Ctrl+V in the data table" icon={ribbonIcons.paste} menu unavailable />
+            </div>
+          </RibbonGroup>
+          <RibbonGroup label="Analysis">
+            <div className="rb-row">
+              <Tool
+                label="Analyze Data…"
+                title="Choose an analysis and datasets"
+                icon={ribbonIcons.analyze}
+                disabled={selectedSheet.kind !== "data" && selectedSheet.frozen}
+                onClick={() => setAnalyzeDialog(true)}
+              />
+              <Tool label="Statistical shortcuts" icon={ribbonIcons.shortcuts} menu unavailable />
+              <Tool label="Analysis checklist" icon={ribbonIcons.checklist} unavailable />
+            </div>
+            <div className="rb-row">
+              <Tool
+                label="Analysis Parameters…"
+                icon={ribbonIcons.parameters}
+                disabled={
+                  selectedSheet.kind !== "results" ||
+                  !!selectedSheet.frozen ||
+                  !isComparisonAnalysis(selectedSheet.analysis)
+                }
+                onClick={openParameters}
+              />
+              <Tool
+                label="Recalculate"
+                title="Recalculate analysis"
+                icon={ribbonIcons.recalculate}
+                disabled={busy || selectedSheet.kind !== "results"}
+                onClick={() => void run()}
+              />
+              <Tool label="Analyze by example" icon={ribbonIcons.byExample} menu unavailable />
+            </div>
+          </RibbonGroup>
+          <RibbonGroup label="Change">
+            <div className="rb-row">
+              <Tool
+                label="Change Graph Type…"
+                title="Change the kind of graph"
+                icon={ribbonIcons.graphType}
+                disabled={active !== "graph" || !!graphSheet?.frozen}
+                onClick={() => setGraphTypeDialog(true)}
+              />
+              <Tool
+                label="Format Graph…"
+                icon={ribbonIcons.formatGraph}
+                menu
+                disabled={active !== "graph" || !!graphSheet?.frozen}
+                onClick={() => openGraphFormatting()}
+              />
+              <Tool
+                label="Format Axes…"
+                title="Format axis scale, range and ticks"
+                icon={ribbonIcons.formatAxes}
+                disabled={active !== "graph" || !!graphSheet?.frozen}
+                onClick={() => openAxes()}
+              />
+              <Tool label="Sort" icon={ribbonIcons.sort} menu unavailable />
+            </div>
+            <div className="rb-row">
+              <Tool label="Color scheme" icon={ribbonIcons.colorScheme} menu unavailable />
+              <Tool
+                label="Add Pairwise Comparisons…"
+                title="Add significance brackets from a t test or one-way ANOVA"
+                icon={ribbonIcons.pairwise}
+                disabled={active !== "graph" || !!graphSheet?.frozen || xy}
+                onClick={() => setPairwiseDialog(true)}
+              />
+              <Tool label="Magic: match format of another graph" icon={ribbonIcons.magic} unavailable />
+              <Tool label="Decimal format" icon={ribbonIcons.decimal} unavailable />
+            </div>
+          </RibbonGroup>
+          <RibbonGroup label="Import">
+            <Tool
+              label="Import data"
+              title="Import CSV or supported Prism raw data"
+              icon={ribbonIcons.importData}
+              big
+              onClick={() => fileRef.current?.click()}
+            />
+          </RibbonGroup>
+          <RibbonGroup label="Draw">
+            <div className="rb-row">
+              <Tool label="Draw line" icon={ribbonIcons.drawLine} menu unavailable />
+            </div>
+            <div className="rb-row">
+              <Tool label="Draw shape" icon={ribbonIcons.drawShape} menu unavailable />
+            </div>
+          </RibbonGroup>
+          <RibbonGroup label="Write">
+            <div className="rb-row">
+              <Tool label="Equation" icon={ribbonIcons.equation} unavailable />
+              <Tool label="Text box" text="T" unavailable />
+            </div>
+            <div className="rb-row">
+              <Tool label="Insert results table" icon={ribbonIcons.resultsTable} unavailable />
+              <Tool label="Symbol" text="Ω" textStyle={{ fontFamily: "Arial, sans-serif", fontSize: 13 }} unavailable />
+            </div>
+          </RibbonGroup>
+          <RibbonGroup label="Text">
+            <div className="rb-row">
+              <select className="rb-select" aria-label="Font" title="Font is not available in GP yet" disabled>
+                <option>Arial</option>
+              </select>
+              <select className="rb-select" aria-label="Font size" title="Font size is not available in GP yet" disabled>
+                <option>12</option>
+              </select>
+            </div>
+            <div className="rb-row">
+              <Tool label="Bold" text="B" textStyle={{ fontWeight: 700 }} unavailable />
+              <Tool label="Italic" text="I" textStyle={{ fontStyle: "italic" }} unavailable />
+              <Tool label="Underline" text="U" textStyle={{ textDecoration: "underline" }} unavailable />
+              <Tool label="Superscript" text="x²" textStyle={{ fontSize: 12 }} unavailable />
+              <Tool label="Subscript" text="x₂" textStyle={{ fontSize: 12 }} unavailable />
+            </div>
+          </RibbonGroup>
+          <RibbonGroup label="Export">
+            <div className="rb-row">
+              <DesktopMenu
+                label="Export"
+                className="rb-menu"
+                summary={<span className="rb-tool" aria-label="Export graph" title="Export graph or data">{ribbonIcons.exportGraph}</span>}
+              >
+                {(["svg", "png", "pdf"] as const).map((format) => (
+                  <button
+                    role="menuitem"
+                    key={format}
+                    disabled={active !== "graph" || exporting}
+                    onClick={() => void exportGraph(format)}
+                  >
+                    Export graph as {format.toUpperCase()}…
+                  </button>
+                ))}
+                <button role="menuitem" onClick={() => exportData()}>
+                  Export data as CSV…
+                </button>
+              </DesktopMenu>
+            </div>
+            <div className="rb-row">
+              <Tool
+                label="Export graph as PDF"
+                icon={ribbonIcons.exportPdf}
+                disabled={active !== "graph" || exporting}
+                onClick={() => void exportGraph("pdf")}
+              />
+            </div>
+          </RibbonGroup>
+          <RibbonGroup label="Print">
+            <div className="rb-row">
+              <Tool label="Print" icon={ribbonIcons.print} onClick={() => window.print()} />
+            </div>
+            <div className="rb-row">
+              <Tool label="Print layout" icon={ribbonIcons.printLayout} unavailable />
+            </div>
+          </RibbonGroup>
+          <RibbonGroup label="Send">
+            <div className="rb-row">
+              <Tool label="Email" icon={ribbonIcons.email} unavailable />
+            </div>
+            <div className="rb-row">
+              <Tool label="Share link" icon={ribbonIcons.share} unavailable />
+            </div>
+          </RibbonGroup>
+          <RibbonGroup label="Help" last>
+            <div className="rb-row">
+              <Tool
+                label="Help"
+                title="Open the GP documentation"
+                icon={ribbonIcons.help}
+                onClick={() => window.open("https://github.com/samgillman/GP#readme", "_blank", "noopener")}
+              />
+            </div>
+            <div className="rb-row">
+              <Tool label="Tips" icon={ribbonIcons.tips} unavailable />
+            </div>
+          </RibbonGroup>
         </div>
       </header>
       {sheetMenu && (
@@ -2076,160 +2287,147 @@ export default function App() {
           </button>
         </div>
       )}
-      <aside className="sidebar">
-        <input
-          className="navigator-search"
-          aria-label="Search sheets"
-          placeholder="Search sheets"
-          value={sheetSearch}
-          onChange={(e) => setSheetSearch(e.target.value)}
-        />
+      <aside className="sidebar pw-nav" aria-label="Navigator">
+        <label className="pw-search">
+          {searchIcon}
+          <input
+            className="navigator-search"
+            aria-label="Search sheets"
+            placeholder="Search..."
+            value={sheetSearch}
+            onChange={(e) => setSheetSearch(e.target.value)}
+          />
+        </label>
         <div className="sheet-navigator" aria-label="Workbook sheets">
           {(
             [
               ["data", "Data Tables"],
+              ["info", "Info"],
               ["results", "Results"],
               ["graph", "Graphs"],
+              ["layout", "Layouts"],
             ] as const
-          ).map(([kind, label]) => (
-            <section className="navigator-section" key={kind}>
-              <h2>
-                <button
-                  aria-expanded={!collapsedSections[kind]}
-                  onClick={() =>
-                    setCollapsedSections((v) => ({ ...v, [kind]: !v[kind] }))
-                  }
-                >
-                  <ChevronRight
-                    size={12}
-                    className={collapsedSections[kind] ? "" : "expanded"}
-                  />
-                  {label}
-                </button>
-                <span>
-                  {workbook.sheets.filter((s) => s.kind === kind).length}
-                </span>
-              </h2>
-              {workbook.sheets
-                .filter(
-                  (s) =>
-                    s.kind === kind &&
-                    !collapsedSections[kind] &&
-                    s.name.toLowerCase().includes(sheetSearch.toLowerCase()),
-                )
-                .map((s) => (
+          ).map(([kind, label]) => {
+            const sheets =
+              kind === "info" || kind === "layout"
+                ? []
+                : workbook.sheets.filter((s) => s.kind === kind);
+            return (
+              <section className="navigator-section" key={kind}>
+                <h2>
                   <button
-                    key={s.id}
-                    className={`sheet-link ${s.id === selectedSheet.id ? "selected" : ""}${s.frozen ? " is-frozen" : ""}`}
-                    aria-current={
-                      s.id === selectedSheet.id ? "page" : undefined
+                    aria-expanded={!collapsedSections[kind]}
+                    onClick={() =>
+                      setCollapsedSections((v) => ({ ...v, [kind]: !v[kind] }))
                     }
-                    onClick={() => selectSheet(s.id)}
-                    onContextMenu={(event) => {
-                      event.preventDefault();
-                      setSheetMenu({
-                        id: s.id,
-                        x: Math.min(event.clientX, window.innerWidth - 210),
-                        y: Math.min(event.clientY, window.innerHeight - 150),
-                      });
-                    }}
-                    title={s.name}
                   >
-                    {kind === "data" ? (
-                      <Table2 size={14} />
-                    ) : kind === "graph" ? (
-                      <BarChart3 size={14} />
-                    ) : (
-                      <FlaskConical size={14} />
-                    )}
-                    <span
-                      style={s.frozen ? { fontStyle: "italic" } : undefined}
-                    >
-                      {s.name}
-                    </span>
-                    {s.kind === "results" && s.status === "stale" && (
-                      <span
-                        className="stale-dot"
-                        title={recalculationMessage(s.id)}
-                      >
-                        •
-                      </span>
-                    )}
+                    <span className={`pw-chevron${collapsedSections[kind] ? " collapsed" : ""}`}>{chevron}</span>
+                    {label}
                   </button>
-                ))}
-              {!collapsedSections[kind] && (
-                <button
-                  className="navigator-new"
-                  onClick={() =>
-                    kind === "data"
-                      ? setNewTable(true)
+                  <span
+                    className="more"
+                    title={
+                      kind === "info" || kind === "layout"
+                        ? `GP workbooks do not have ${label.toLowerCase()} sheets yet`
+                        : `${sheets.length} ${sheets.length === 1 ? "sheet" : "sheets"}`
+                    }
+                  >
+                    »
+                  </span>
+                </h2>
+                {!collapsedSections[kind] &&
+                  sheets
+                    .filter((s) => s.name.toLowerCase().includes(sheetSearch.toLowerCase()))
+                    .map((s) => (
+                      <button
+                        key={s.id}
+                        className={`sheet-link ${s.id === selectedSheet.id ? "selected" : ""}${s.frozen ? " is-frozen" : ""}`}
+                        aria-current={s.id === selectedSheet.id ? "page" : undefined}
+                        onClick={() => selectSheet(s.id)}
+                        onContextMenu={(event) => {
+                          event.preventDefault();
+                          setSheetMenu({
+                            id: s.id,
+                            x: Math.min(event.clientX, window.innerWidth - 210),
+                            y: Math.min(event.clientY, window.innerHeight - 150),
+                          });
+                        }}
+                        title={s.name}
+                      >
+                        {s.kind === "data"
+                          ? navigatorIcons.table
+                          : s.kind === "graph"
+                            ? navigatorIcons.graph
+                            : navigatorIcons.results}
+                        <span style={s.frozen ? { fontStyle: "italic" } : undefined}>
+                          {s.name}
+                        </span>
+                        {s.kind === "results" && s.status === "stale" && (
+                          <span className="stale-dot" title={recalculationMessage(s.id)}>
+                            •
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                {!collapsedSections[kind] && kind !== "info" && kind !== "layout" && (
+                  <button
+                    className="navigator-new"
+                    onClick={() =>
+                      kind === "data"
+                        ? setNewTable(true)
+                        : kind === "results"
+                          ? setAnalyzeDialog(true)
+                          : createLinkedGraph()
+                    }
+                  >
+                    {navigatorIcons.add}
+                    {kind === "data"
+                      ? "New Data Table..."
                       : kind === "results"
-                        ? setAnalyzeDialog(true)
-                        : createLinkedGraph()
-                  }
-                >
-                  <Plus size={12} />
-                  {kind === "data"
-                    ? "New Data Table…"
-                    : kind === "results"
-                      ? "New Analysis…"
-                      : "New Graph…"}
-                </button>
-              )}
-            </section>
-          ))}
+                        ? "New Analysis..."
+                        : "New Graph..."}
+                  </button>
+                )}
+              </section>
+            );
+          })}
         </div>
-        <section
-          className="family-navigator"
-          aria-label="Family of linked sheets"
-        >
+        <section className="family-navigator" aria-label="Family of linked sheets">
           <h2>
-            Family <small>Linked sheets</small>
+            <button
+              aria-expanded={!collapsedSections.family}
+              onClick={() =>
+                setCollapsedSections((v) => ({ ...v, family: !v.family }))
+              }
+            >
+              <span className={`pw-chevron${collapsedSections.family ? " collapsed" : ""}`}>{chevron}</span>
+              Family
+            </button>
           </h2>
-          {workbook.sheets
-            .filter((s) => familyIds.has(s.id))
-            .map((s) => (
+          {!collapsedSections.family &&
+            [
+              ...workbook.sheets.filter((s) => familyIds.has(s.id) && s.kind === "data"),
+              ...workbook.sheets.filter((s) => familyIds.has(s.id) && s.kind === "results"),
+              ...workbook.sheets.filter((s) => familyIds.has(s.id) && s.kind === "graph"),
+            ].map((s) => (
               <button
                 key={s.id}
                 onClick={() => selectSheet(s.id)}
-                className={s.id === selectedSheet.id ? "selected" : ""}
+                className={`${s.id === selectedSheet.id ? "selected" : ""}${s.kind === "results" ? " sub" : ""}`}
+                title={s.name}
               >
-                <span>
-                  {s.kind === "data" ? "▦" : s.kind === "graph" ? "◷" : "ƒ"}
-                </span>
-                {s.name}
+                {s.kind === "data"
+                  ? navigatorIcons.table
+                  : s.kind === "graph"
+                    ? navigatorIcons.graph
+                    : navigatorIcons.results}
+                <span>{s.name}</span>
               </button>
             ))}
         </section>
       </aside>
       <main data-active-sheet={active}>
         <div className="main-content">
-          <div className="desktop-sheet-strip">
-            <span className="sheet-kind-icon">
-              {active === "data" ? (
-                <Table2 size={15} />
-              ) : active === "graph" ? (
-                <BarChart3 size={15} />
-              ) : (
-                <FileText size={15} />
-              )}
-            </span>
-            <input
-              className="project-title"
-              aria-label="Sheet name"
-              value={selectedSheet.name}
-              onChange={(e) => renameSheet(e.target.value)}
-            />
-            <span className="desktop-sheet-type">
-              {active === "data"
-                ? xy
-                  ? "XY table"
-                  : "Column table"
-                : active === "graph"
-                  ? "Graph"
-                  : "Tabular results"}
-            </span>
-          </div>
           {selectedSheet.frozen && (
             <div className="alert notice" role="status">
               {selectedSheet.kind === "data"
@@ -2559,81 +2757,98 @@ export default function App() {
                 </section>
               )}
               {active === "graph" && (
-                <section className="card graph-card">
-                  <div className="card-heading">
-                    <div>
-                      <span className="card-icon">
-                        <BarChart3 size={17} />
-                      </span>
-                      <h2>{graphSheet?.name ?? "Graph"}</h2>
-                    </div>
-                  </div>
-                  <div
-                    className="chart-title"
-                    title="Double-click to format the graph title"
-                    onDoubleClick={openGraphFormatting}
-                  >{project.graph.title}</div>
-                  <Plot
-                    key={graphSheet?.id}
-                    project={plotProject}
-                    result={plotResult}
-                    dataTableName={source.name}
-                    selectedPointRanges={selectedPointRanges}
-                    onSelectPoint={(series, row) => selectPoint(series, row)}
-                    onGoToCell={(series, row) => selectPoint(series, row, true)}
-                    onExcludePoint={
-                      graphSheet?.frozen ? undefined : excludePoint
-                    }
-                    selectedPoint={selectedGraphPoint(
-                      source,
-                      graphSheet?.columnIndices ?? dataIndices(source.project),
-                      selection,
+                <div className="graph-canvas">
+                  <div className="graph-page">
+                    <Plot
+                      key={graphSheet?.id}
+                      project={plotProject}
+                      result={plotResult}
+                      zoom={graphZoom}
+                      onZoom={setGraphZoom}
+                      pan={graphPan}
+                      onPan={setGraphPan}
+                      onLabelLayout={(layout) => {
+                        slantedLabels.current = layout.slanted;
+                      }}
+                      dataTableName={source.name}
+                      selectedPointRanges={selectedPointRanges}
+                      onSelectPoint={(series, row) => selectPoint(series, row)}
+                      onGoToCell={(series, row) => selectPoint(series, row, true)}
+                      onExcludePoint={
+                        graphSheet?.frozen ? undefined : excludePoint
+                      }
+                      selectedPoint={selectedGraphPoint(
+                        source,
+                        graphSheet?.columnIndices ?? dataIndices(source.project),
+                        selection,
+                      )}
+                      onFormatAxes={openAxes}
+                      onFormatGraph={() => openGraphFormatting()}
+                      onEditTitle={() => openGraphFormatting("Graph Settings")}
+                      onSelectDataset={openGraphDatasetFormatting}
+                      onEditText={field => openAxes(field === "x_label" ? "x" : "y")}
+                      annotations={pairwiseAnnotations}
+                    />
+                    {project.graph.error === "ci" && !result && !xy && (
+                      <div className="graph-caption">
+                        Run an analysis to show 95% confidence intervals.
+                      </div>
                     )}
-                    onFormatAxes={openAxes}
-                    onFormatGraph={openGraphFormatting}
-                    onSelectDataset={openGraphDatasetFormatting}
-                    onEditText={field => openAxes(field === "x_label" ? "x" : "y")}
-                    annotations={pairwiseAnnotations}
-                  />
-                  {xy && (
-                    <div className="legend">
-                      {plotProject.columns.slice(1).map((c, i) => (
-                        <span key={i}>
-                          <i
-                            style={{
-                              background:
-                                project.graph.colors[
-                                  i % project.graph.colors.length
-                                ] || palette[i % palette.length],
-                            }}
-                          />
-                          {c.name}
-                        </span>
-                      ))}
-                    </div>
+                    {result?.graph_summary && linkedResult?.analysis === "t_test" && linkedResult.options?.paired && !xy && (
+                      <div className="graph-caption" role="note">
+                        Graph points and summaries describe observed cells in each column; paired-test results use only complete pairs.
+                      </div>
+                    )}
+                    {graphSheet?.graph.pairwise && linkedResult && isComparisonAnalysis(linkedResult.analysis) && !isHistoricalColumnOutput(result) && (
+                      <div className="graph-caption" role="note">
+                        {pairwiseMethodDescription(linkedResult.analysis, linkedResult.options ?? defaultComparisonOptions, linkedResult.datasetIds.length)}
+                      </div>
+                    )}
+                    {result && isHistoricalColumnOutput(result) && (
+                      <div className="result-warning" role="alert">
+                        Historical result from an earlier statistical engine. Unfreeze and recalculate before using the revised methods.
+                        {graphSheet?.graph.pairwise && " Historical bracket visibility retains the earlier fixed star thresholds, which may differ from the selected alpha."}
+                      </div>
+                    )}
+                  </div>
+                  {formatDialog && graphSheet && (
+                    <FormatGraphDialog
+                      key={`${graphSheet.id}-${formatDialogOpenCount}`}
+                      sheet={graphSheet}
+                      project={source.project}
+                      initialAppearanceDataset={formatAppearanceDataset}
+                      initialTab={formatTab}
+                      tableNumber={
+                        workbook.sheets.filter((s) => s.kind === "data").findIndex((s) => s.id === source.id) + 1
+                      }
+                      results={workbook.sheets.filter(
+                        (s): s is ResultSheet =>
+                          s.kind === "results" && s.dataId === source.id,
+                      )}
+                      onClose={() => setFormatDialog(false)}
+                      onChangeGraphType={() => setGraphTypeDialog(true)}
+                      onApply={(next) =>
+                        setWorkbook((w) => ({
+                          ...w,
+                          sheets: w.sheets.map((s) =>
+                            s.id === next.id
+                              ? s.kind === "graph" && s.frozen
+                                ? s
+                                : {
+                                    ...next,
+                                    selectionInvalid: false,
+                                    ...datasetSelection(
+                                      sourceSheet(w, next),
+                                      next.columnIndices,
+                                    ),
+                                  }
+                              : s,
+                          ),
+                        }))
+                      }
+                    />
                   )}
-                  {project.graph.error === "ci" && !result && !xy && (
-                    <div className="graph-caption">
-                      Run an analysis to show 95% confidence intervals.
-                    </div>
-                  )}
-                  {result?.graph_summary && linkedResult?.analysis === "t_test" && linkedResult.options?.paired && !xy && (
-                    <div className="graph-caption" role="note">
-                      Graph points and summaries describe observed cells in each column; paired-test results use only complete pairs.
-                    </div>
-                  )}
-                  {graphSheet?.graph.pairwise && linkedResult && isComparisonAnalysis(linkedResult.analysis) && !isHistoricalColumnOutput(result) && (
-                    <div className="graph-caption" role="note">
-                      {pairwiseMethodDescription(linkedResult.analysis, linkedResult.options ?? defaultComparisonOptions, linkedResult.datasetIds.length)}
-                    </div>
-                  )}
-                  {result && isHistoricalColumnOutput(result) && (
-                    <div className="result-warning" role="alert">
-                      Historical result from an earlier statistical engine. Unfreeze and recalculate before using the revised methods.
-                      {graphSheet?.graph.pairwise && " Historical bracket visibility retains the earlier fixed star thresholds, which may differ from the selected alpha."}
-                    </div>
-                  )}
-                </section>
+                </div>
               )}
             </div>
           ) : (
@@ -2840,53 +3055,62 @@ export default function App() {
               )}
             </section>
           )}
-          <footer className="desktop-statusbar">
-            <div className="status-view-buttons">
-              <button
-                aria-label="Show data table"
-                className={active === "data" ? "selected" : ""}
-                onClick={() => setActive("data")}
-                title="Data table"
-              >
-                <Table2 size={15} />
-              </button>
-              <button
-                aria-label="Show results"
-                className={active === "results" ? "selected" : ""}
-                onClick={() => setActive("results")}
-                title="Results"
-              >
-                <FileText size={15} />
-              </button>
-              <button
-                aria-label="Show graph"
-                className={active === "graph" ? "selected" : ""}
-                onClick={() => setActive("graph")}
-                title="Graph"
-              >
-                <BarChart3 size={15} />
-              </button>
-            </div>
-            <select
-              aria-label="Current sheet"
-              value={selectedSheet.id}
-              onChange={(e) => selectSheet(e.target.value)}
+          <footer className="desktop-statusbar pw-bottombar">
+            <button
+              className="bbtn"
+              aria-label="Previous sheet"
+              title="Previous sheet"
+              disabled={sheetPosition <= 0}
+              onClick={() => stepSheet(-1)}
             >
-              {workbook.sheets.map((sh) => (
-                <option key={sh.id} value={sh.id}>
-                  {sh.name}
-                </option>
-              ))}
-            </select>
-            <span>
-              {active === "data"
-                ? `${rows} rows · ${project.columns.length} columns · ${count} values${excludedPositions.size ? ` · ${excludedCount(source)} excluded` : ""}`
-                : active === "results"
-                  ? selectedSheet.frozen
-                    ? "Frozen results"
-                    : "Tabular results"
-                  : "Graph sheet"}
-            </span>
+              {ribbonIcons.previousSheet}
+            </button>
+            <button
+              className="bbtn"
+              aria-label="Next sheet"
+              title="Next sheet"
+              disabled={sheetPosition >= workbook.sheets.length - 1}
+              onClick={() => stepSheet(1)}
+            >
+              {ribbonIcons.nextSheet}
+            </button>
+            {active !== "data" && (
+              <button className="bbtn" aria-label="Show data table" title="Go to data table" onClick={() => setActive("data")}>
+                {ribbonIcons.goData}
+              </button>
+            )}
+            {active !== "results" && (
+              <button className="bbtn" aria-label="Show results" title="Go to results" onClick={() => setActive("results")}>
+                {ribbonIcons.goResults}
+              </button>
+            )}
+            {active !== "graph" && (
+              <button className="bbtn" aria-label="Show graph" title="Go to graph" onClick={() => setActive("graph")}>
+                {navigatorIcons.graph}
+              </button>
+            )}
+            <div className="bsel">
+              <input
+                className="project-title"
+                aria-label="Sheet name"
+                value={selectedSheet.name}
+                onChange={(e) => renameSheet(e.target.value)}
+              />
+              <select
+                aria-label="Current sheet"
+                value={selectedSheet.id}
+                onChange={(e) => selectSheet(e.target.value)}
+              >
+                {workbook.sheets.map((sh) => (
+                  <option key={sh.id} value={sh.id}>
+                    {sh.name}
+                  </option>
+                ))}
+              </select>
+              <svg className="bsel-arrow" width="8" height="8" viewBox="0 0 8 8" aria-hidden="true">
+                <path d="M1 2.5h6L4 6z" fill="#444" />
+              </svg>
+            </div>
             <span className="status-save">
               {busy ||
               Object.values(recalculations).some((s) => s.phase === "running")
@@ -2899,6 +3123,37 @@ export default function App() {
                       ? "Saved in browser"
                       : "Browser storage unavailable"}
             </span>
+            {active === "graph" && (
+              <div className="zoom" role="toolbar" aria-label="Graph view">
+                <label htmlFor="graph-zoom">Zoom</label>
+                <input
+                  id="graph-zoom"
+                  type="range"
+                  aria-label="Graph zoom"
+                  min={MIN_GRAPH_ZOOM}
+                  max={MAX_GRAPH_ZOOM}
+                  step="1"
+                  value={graphZoom}
+                  onChange={(e) => setGraphZoom(clampGraphZoom(Number(e.target.value)))}
+                />
+                <select
+                  aria-label="Graph zoom preset"
+                  value={GRAPH_ZOOM_PRESETS.some((value) => value === graphZoom) ? graphZoom : ""}
+                  onChange={(event) => setGraphZoom(clampGraphZoom(Number(event.target.value)))}
+                >
+                  {!GRAPH_ZOOM_PRESETS.some((value) => value === graphZoom) && (
+                    <option value="" disabled>
+                      {graphZoom}%
+                    </option>
+                  )}
+                  {GRAPH_ZOOM_PRESETS.map((value) => (
+                    <option key={value} value={value}>
+                      {value}%
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </footer>
         </div>
       </main>
@@ -3031,37 +3286,6 @@ export default function App() {
           onApply={graph => setWorkbook(w => ({ ...w, sheets: w.sheets.map(s =>
             s.id === graphSheet.id && s.kind === "graph" && !s.frozen ? { ...s, graph } : s,
           ) }), { label: "Format axes" })} />
-      )}
-      {formatDialog && graphSheet && (
-        <FormatGraphDialog
-          sheet={graphSheet}
-          project={source.project}
-          initialAppearanceDataset={formatAppearanceDataset}
-          results={workbook.sheets.filter(
-            (s): s is ResultSheet =>
-              s.kind === "results" && s.dataId === source.id,
-          )}
-          onClose={() => setFormatDialog(false)}
-          onApply={(next) =>
-            setWorkbook((w) => ({
-              ...w,
-              sheets: w.sheets.map((s) =>
-                s.id === next.id
-                  ? s.kind === "graph" && s.frozen
-                    ? s
-                    : {
-                        ...next,
-                        selectionInvalid: false,
-                        ...datasetSelection(
-                          sourceSheet(w, next),
-                          next.columnIndices,
-                        ),
-                      }
-                  : s,
-              ),
-            }))
-          }
-        />
       )}
       {csvExport && (
         <div className="modal-backdrop">

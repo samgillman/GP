@@ -111,14 +111,15 @@ with sync_playwright() as p:
     assert sent["columns"][0]["values"] == [1, 2, 3, None], sent
     check("context-menu exclusion keeps text, shows blue italic asterisk and recalculates", style=style, mean_a=2, request_values=sent["columns"][0]["values"])
 
-    # Toolbar: the same selection now offers Include.
-    include = page.get_by_role("button", name="Include values", exact=True)
+    # Edit menu: the same selection now offers Include.
+    page.locator(".desktop-menu > summary").filter(has_text="Edit").first.click()
+    include = page.get_by_role("menuitem", name="Include Values", exact=True)
     expect(include).to_be_enabled()
     include.click()
     expect(cell("A, row 4")).to_be_visible()
     assert excluded() == []
     wait_means(26.5, n=4)
-    check("toolbar toggle restores the value and its calculation", mean_a=26.5)
+    check("Edit menu toggle restores the value and its calculation", mean_a=26.5)
 
     # Edit menu on a range, then undo/redo as single commands.
     cell("A, row 1").click()
@@ -198,7 +199,9 @@ with sync_playwright() as p:
     page.get_by_label("Current sheet", exact=True).select_option("d1")
     page.get_by_role("button", name="Freeze sheet", exact=True).click()
     cell("A, row 3").click()
-    expect(page.get_by_role("button", name="Exclude values", exact=True)).to_be_disabled()
+    page.locator(".desktop-menu > summary").filter(has_text="Edit").first.click()
+    expect(page.get_by_role("menuitem", name="Exclude Values", exact=True)).to_be_disabled()
+    page.keyboard.press("Escape")
     cell("A, row 3").click(button="right")
     expect(page.get_by_role("menu", name="cell actions").get_by_role("menuitem", name="Exclude Values")).to_be_disabled()
     page.keyboard.press("Escape")

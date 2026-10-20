@@ -193,12 +193,14 @@ def main():
             result_id = next(s["id"] for s in ready["sheets"] if s["kind"] == "results")
             assert sheet(result_id)["result"]["fit"], "Actual linear fit must produce curves"
             select(result_id)
-            page.get_by_role("button", name="New graph of existing data", exact=True).click()
+            page.locator(".desktop-menu > summary").filter(has_text="Insert").first.click()
+            page.get_by_role("menuitem", name="New graph of existing data", exact=True).click()
             ready = wait_book(lambda w: any(s["kind"] == "graph" and s["resultId"] == result_id for s in w["sheets"]), "linked fitted graph created")
             graph_id = ready["activeSheetId"]
             page.get_by_role("button", name="Format Graph…", exact=True).first.click()
             dialog = page.get_by_role("dialog", name="Format Graph", exact=True)
-            dialog.get_by_label("Title", exact=True).fill("Frozen fitted graph acceptance")
+            dialog.get_by_role("tab", name="Graph Settings", exact=True).click()
+            dialog.get_by_label("Graph title:", exact=True).fill("Frozen fitted graph acceptance")
             dialog.get_by_role("button", name="OK", exact=True).click()
             ready = wait_book(lambda w: sheet(graph_id, w)["graph"]["title"] == "Frozen fitted graph acceptance", "graph settings saved")
 
@@ -234,7 +236,9 @@ def main():
             assert copy_cells() == "3"
             page.keyboard.press("ArrowDown")
             expect(page.locator(".data-grid-cell.is-active input")).to_have_attribute("data-row", "1")
-            expect(page.get_by_role("button", name="Exclude values", exact=True)).to_be_disabled()
+            page.locator(".desktop-menu > summary").filter(has_text="Edit").first.click()
+            expect(page.get_by_role("menuitem", name="Exclude Values", exact=True)).to_be_disabled()
+            page.keyboard.press("Escape")
             page.get_by_role("button", name="Select row 1", exact=True).click(button="right")
             for action in ["Insert row above", "Delete row", "Clear row"]:
                 expect(page.get_by_role("menuitem", name=action, exact=True)).to_be_disabled()

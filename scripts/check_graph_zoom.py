@@ -15,7 +15,10 @@ with sync_playwright() as p:
     for zoom in ['50','75','100','150','200','400','600','800','1000']:
         presets.select_option(zoom)
         expect(page.get_by_label('Graph zoom',exact=True)).to_have_value(zoom)
-    expect(page.get_by_role('button',name='Zoom in graph',exact=True)).to_be_disabled()
+    # Zoom in/out live in the View menu; the bottom bar has the slider and presets.
+    page.locator('.desktop-menu > summary').filter(has_text='View').first.click()
+    expect(page.get_by_role('menuitem',name='Zoom in graph',exact=True)).to_be_disabled()
+    page.keyboard.press('Escape')
     page.get_by_label('Graph viewport',exact=True).focus()
     page.keyboard.press('Control+0')
     expect(page.get_by_label('Graph zoom',exact=True)).to_have_value('100')

@@ -420,3 +420,62 @@ No new Prism execution, REA Evidence ID or equivalence claim is added. Remaining
 work includes every native case in the matrix, exact small/tied rank procedures,
 mixed-effects estimation, additional comparison methods/families, complete
 formatting controls and the wider reconstruction plan.
+
+## User design reference: graph sheet and Format Graph window (2026-10-20)
+
+The user supplied a design reference, "Graph sheet + Format Graph dialog"
+(`Graph.dc.html`, 1440 × 900 artboard), and asked for its layout to be
+replicated completely. This work follows that reference. It is **not** native
+Prism evidence: no REA analysis or Prism execution was used, and no parity
+status changes.
+
+Implemented on branch `feat/graph-sheet-format-graph-mockup`:
+
+- Window layout from the reference: ten-item menu bar (adds Arrange, Window and
+  Help), a ribbon with the reference's 15 groups and icons, a 250 px navigator
+  with Data Tables / Info / Results / Graphs / Layouts sections and a Family
+  panel, a grey graph canvas with a dotted white page, and a bottom bar with
+  previous/next sheet, family view buttons, the sheet field and the zoom
+  slider. Ribbon commands GP does not implement (highlight, pin, cut/paste
+  buttons, statistical shortcuts, checklist, analyze by example, sort, color
+  scheme, magic, decimal format, draw, write, text formatting, print layout,
+  send and tips) are visible but disabled, and their tooltips say they are not
+  available in GP yet. GP has no Info or Layout sheets, so those navigator
+  sections are empty.
+- Format Graph docks beside the page as a non-modal window with four tabs
+  (Appearance, Data Sets on Graph, Graph Settings, Annotations). Appearance has
+  the reference's data set selector with ‹ › and a Global / Data set scope,
+  Style, Bars and boxes (fill, border weight and color, fill pattern), Symbols
+  (color, shape, size), Error bars (color, T/I cap, direction, thickness), Lines
+  (XY only), and Additional options (legend; the right Y axis is shown disabled
+  because GP graphs have one Y axis). Titles moved to Graph Settings; pairwise
+  bracket display options are on Annotations.
+- New optional graph metadata `dataset_styles` (keyed by stable source data-set
+  ID, like `datasetColors`) and `show_legend`, with strict validation. Unset
+  fields follow the data set color and graph-wide choices, so earlier workbooks
+  draw from their colors as before, with the reference's tinted fills, colored
+  borders and above-only bar error bars as the new defaults.
+- Column graphs are drawn on the reference's portrait page (70 px per data set,
+  220 px plotting height, title inside the page, bold Arial text, category
+  labels slanted 45° when wider than their slot). XY graphs keep their frame.
+- Exports receive the resolved styles, legend choice and label rotation
+  (`GraphOptions.styles`, `show_legend`, `x_tick_rotation`); requests without
+  styles keep the earlier export styling.
+
+After PR #11 (Column bar spacing) merged into `main`, this branch merged it.
+The **Space between columns (%)** control now sits in a Column dimensions
+section of the redesigned Graph Settings tab. Its bar-width rule applies to
+both the restyled browser bars and the styled export.
+
+Validation on macOS (Python 3.12 with `requirements.lock`, Node 24) after
+merging `main` at `49e2e8c`: 485 backend tests (7 new export-style tests), 269
+frontend tests (10 new style and page layout tests), `scripts/check_requirements.py`,
+both builds, and 26 of 27 browser checks. Those include the new
+`scripts/check_format_graph.py` and PR #11's `check_column_spacing.py` on the
+static and packaged-server builds. `check_grid_ui.py` fails on this host
+because it presses Control+Z, which is not the macOS undo key; it passes in
+Linux CI on `main`. Five existing checks and PR #11's spacing check were updated
+for controls the reference moves or restyles: the zoom-in command is in View,
+Exclude/Include Values in Edit, new graph of existing data in Insert, the graph
+title is edited from Graph Settings, and bars are no longer black-outlined.
+Hosted CI for this branch has not yet been observed.
