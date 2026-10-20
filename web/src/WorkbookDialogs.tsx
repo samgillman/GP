@@ -19,7 +19,7 @@ import type {
 } from "./column-analysis";
 import "./dialog-desktop.css";
 import "./graph-datasets-dialog.css";
-import { colorsForDatasetIds, frontToBackDatasets, seedDatasetColors, reorderGraphDatasets } from "./graph-dataset-order";
+import { colorsForDatasetIds, frontToBackDatasets, seedDatasetColors, reorderGraphDatasets, reorderColumnGraphDatasets } from "./graph-dataset-order";
 import type { DatasetOrderAction } from "./graph-dataset-order";
 
 function datasetLetter(index: number) {
@@ -1071,24 +1071,25 @@ export function PairwiseDialog({
     </DesktopDialog>
   );
 }
-/** Native resource scope is XY; Column keeps its existing dataset controls. */
-function XYGraphDatasetList({ project, indices, onChange }: {
+/** XY follows front-to-back stacking; Column follows left-to-right position. */
+function GraphDatasetList({ project, indices, onChange }: {
   project: Project;
   indices: number[];
   onChange(indices: number[]): void;
 }) {
   const id = useId();
+  const isXY = project.table_type === "xy";
   const list = useRef<HTMLDivElement>(null);
   const addButton = useRef<HTMLButtonElement>(null);
   const availableSelect = useRef<HTMLSelectElement>(null);
-  const [selected, setSelected] = useState<number | null>(() => indices.at(-1) ?? null);
+  const [selected, setSelected] = useState<number | null>(() => (isXY ? indices.at(-1) : indices[0]) ?? null);
   const [adding, setAdding] = useState(false);
   const [choice, setChoice] = useState<number | null>(null);
-  const displayed = frontToBackDatasets(indices);
+  const displayed = isXY ? frontToBackDatasets(indices) : [...indices];
   const available = dataIndices(project).filter(index => !indices.includes(index));
   const position = selected === null ? -1 : displayed.indexOf(selected);
   useEffect(() => {
-    if (selected === null || !indices.includes(selected)) setSelected(indices.at(-1) ?? null);
+    if (selected === null || !indices.includes(selected)) setSelected((isXY ? indices.at(-1) : indices[0]) ?? null);
   }, [indices, selected]);
   useEffect(() => {
     list.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: "nearest" });
@@ -1100,12 +1101,13 @@ function XYGraphDatasetList({ project, indices, onChange }: {
     requestAnimationFrame(() => list.current?.focus());
   }
   function reorder(action: DatasetOrderAction) {
-    onChange(reorderGraphDatasets(indices, selected, action));
+    onChange(isXY ? reorderGraphDatasets(indices, selected, action)
+      : reorderColumnGraphDatasets(indices, selected, action));
   }
   function remove() {
     if (selected === null || position < 0) return;
     const remaining = indices.filter(index => index !== selected);
-    const nextDisplayed = frontToBackDatasets(remaining);
+    const nextDisplayed = isXY ? frontToBackDatasets(remaining) : remaining;
     onChange(remaining);
     setSelected(nextDisplayed[Math.min(position, nextDisplayed.length - 1)] ?? null);
     focusList();
@@ -1117,16 +1119,16 @@ function XYGraphDatasetList({ project, indices, onChange }: {
   }
   function add() {
     if (choice === null || !available.includes(choice)) return;
-    // Append in persisted draw order, which places the new observations in front.
+    // XY addition appears in front; Column addition appears at the right edge.
     onChange([...indices, choice]);
     setSelected(choice);
     setAdding(false);
     focusList();
   }
   return <div className="xy-dataset-manager">
-    <h3 id={`${id}-heading`}>Data sets plotted</h3>
+    <h3 id={`${id}-heading`}>Data sets plotted <span className="desktop-dataset-order-hint">({isXY ? "front to back" : "left to right"})</span></h3>
     <div className="xy-dataset-editor">
-      <div ref={list} role="listbox" aria-labelledby={`${id}-heading`}
+      <div ref={list} role="listbox" aria-label="Data sets plotted"
         aria-describedby={`${id}-order-help`} className="xy-dataset-list" tabIndex={0}
         aria-activedescendant={position >= 0 ? `${id}-dataset-${selected}` : undefined}
         onKeyDown={event => {
@@ -1171,7 +1173,9 @@ function XYGraphDatasetList({ project, indices, onChange }: {
       </div>
     </div>}
     <p id={`${id}-order-help`} className="desktop-help-text">
-      Top data sets draw their observations in front. Fitted curves and other graph elements keep their own drawing order.
+      {isXY
+        ? "Top data sets draw their observations in front. Fitted curves and other graph elements keep their own drawing order."
+        : "Column data sets run from left to right. The first item is the leftmost column on the graph."}
     </p>
     <p className="desktop-help-text">Selection and drawing order are saved for this graph without changing the data table.</p>
   </div>;
@@ -1239,13 +1243,7 @@ export function FormatGraphDialog({
   function g(p: Partial<Graph>) {
     setDraft((v) => ({ ...v, graph: { ...v.graph, ...p } }));
   }
-  function move(i: number, d: number) {
-    setDraft((v) => {
-      const a = [...v.columnIndices];
-      [a[i], a[i + d]] = [a[i + d], a[i]];
-      return { ...v, columnIndices: a };
-    });
-  }
+  // Dataset membership and ordering are handled by GraphDatasetList.
   return (
     <DesktopDialog
       title="Format Graph"
@@ -1467,66 +1465,11 @@ export function FormatGraphDialog({
               </fieldset>
             </div>
           ) : tab === "Data Sets on Graph" ? (
-            project.table_type === "xy" ? (
-              <XYGraphDatasetList
-                project={project}
-                indices={draft.columnIndices}
-                onChange={columnIndices => setDraft(previous => ({ ...previous, columnIndices }))}
-              />
-            ) : <>
-              <div className="desktop-dataset-panes">
-                <div>
-                  <h3>Include data sets:</h3>
-                  <div className="desktop-dataset-list">
-                    {dataIndices(project).map((i) => (
-                      <label className="desktop-dataset-option" key={i}>
-                        <input
-                          type="checkbox"
-                          checked={draft.columnIndices.includes(i)}
-                          onChange={(e) =>
-                            setDraft((v) => ({
-                              ...v,
-                              columnIndices: e.target.checked
-                                ? [...v.columnIndices, i]
-                                : v.columnIndices.filter((n) => n !== i),
-                            }))
-                          }
-                        />
-                        {project.columns[i].name}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h3>Drawing order:</h3>
-                  <ol className="desktop-graph-dataset-order">
-                    {draft.columnIndices.map((i, pos) => (
-                      <li key={i}>
-                        <span>{project.columns[i].name}</span>
-                        <button
-                          aria-label={`Move ${project.columns[i].name} up`}
-                          disabled={pos === 0}
-                          onClick={() => move(pos, -1)}
-                        >
-                          ↑
-                        </button>
-                        <button
-                          aria-label={`Move ${project.columns[i].name} down`}
-                          disabled={pos === draft.columnIndices.length - 1}
-                          onClick={() => move(pos, 1)}
-                        >
-                          ↓
-                        </button>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              </div>
-              <p className="desktop-help-text">
-                Selection and drawing order are saved for this graph without
-                changing the data table.
-              </p>
-            </>
+            <GraphDatasetList
+              project={project}
+              indices={draft.columnIndices}
+              onChange={columnIndices => setDraft(previous => ({ ...previous, columnIndices }))}
+            />
           ) : (
             <>
               <fieldset>

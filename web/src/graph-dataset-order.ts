@@ -28,6 +28,23 @@ export function reorderGraphDatasets(
   return displayed.reverse();
 }
 
+/** Column uses physical left-to-right order, not XY's front-to-back order. */
+export function reorderColumnGraphDatasets(
+  indices: readonly number[],
+  selected: number | null,
+  action: DatasetOrderAction,
+): number[] {
+  if (action === "reverse") return [...indices].reverse();
+  const next = [...indices], position = selected === null ? -1 : next.indexOf(selected);
+  if (position < 0) return next;
+  const destination = action === "top" ? 0 :
+    action === "bottom" ? next.length - 1 :
+    Math.max(0, Math.min(next.length - 1, position + (action === "up" ? -1 : 1)));
+  next.splice(position, 1);
+  next.splice(destination, 0, selected!);
+  return next;
+}
+
 /** Resolve persisted source identities, never substituting a dataset name or
  * a mutable column position for a missing ID. Workbook parsing validates the
  * complete source; these checks protect direct helper callers as well. */
