@@ -232,6 +232,7 @@ export default function App() {
     }
   }
   const [advanced, setAdvanced] = useState(false);
+  const [graphInspectorVisible, setGraphInspectorVisible] = useState(true);
   const [sheetMenu, setSheetMenu] = useState<{
     id: string;
     x: number;
@@ -1671,6 +1672,10 @@ export default function App() {
             </button>
           </DesktopMenu>
           <DesktopMenu label="View">
+            <button role="menuitemcheckbox" aria-checked={graphInspectorVisible} onClick={() => setGraphInspectorVisible(value => !value)}>
+              {graphInspectorVisible ? "Hide" : "Show"} Graph Inspector
+            </button>
+            <hr />
             <button role="menuitem" onClick={() => setActive("data")}>
               Data table
             </button>
@@ -2545,6 +2550,7 @@ export default function App() {
                 </section>
               )}
               {active === "graph" && (
+                <section className={`graph-document-workspace${graphInspectorVisible ? " with-inspector" : ""}`}>
                 <section className="card graph-card">
                   <div className="card-heading">
                     <div>
@@ -2613,6 +2619,38 @@ export default function App() {
                       {graphSheet?.graph.pairwise && " Historical bracket visibility retains the earlier fixed star thresholds, which may differ from the selected alpha."}
                     </div>
                   )}
+                </section>
+                {graphInspectorVisible && (
+                  <aside className="graph-inspector" aria-label="Graph Inspector">
+                    <div className="graph-inspector-heading">
+                      <strong>Inspector</strong>
+                      <button aria-label="Hide Graph Inspector" title="Hide inspector" onClick={() => setGraphInspectorVisible(false)}>×</button>
+                    </div>
+                    <div className="graph-inspector-body">
+                      <section>
+                        <h3>Graph</h3>
+                        <div className="graph-inspector-row"><span>Type</span><strong>{({ scatter: "Scatter", line: "Line", bar: "Bar", box: "Box and whiskers" } as const)[project.graph.type]}</strong></div>
+                        <button className="graph-inspector-action" disabled={!!graphSheet?.frozen} onClick={() => setGraphTypeDialog(true)}>Change Graph Type…</button>
+                      </section>
+                      <section>
+                        <h3>Appearance</h3>
+                        <label className="graph-inspector-checkbox"><input type="checkbox" checked={project.graph.show_points} disabled={!!graphSheet?.frozen} onChange={event => graph({show_points: event.target.checked})}/> Show individual points</label>
+                        {!xy && project.graph.type !== "box" && <label className="graph-inspector-field">Error bars <select aria-label="Inspector error bars" disabled={!!graphSheet?.frozen} value={project.graph.error} onChange={event => graph({error: event.target.value as Graph["error"]})}><option value="none">None</option><option value="sd">SD</option><option value="sem">SEM</option><option value="ci">95% CI</option></select></label>}
+                        <button className="graph-inspector-action" disabled={!!graphSheet?.frozen} onClick={openGraphFormatting}>Format Graph…</button>
+                      </section>
+                      <section>
+                        <h3>Axes</h3>
+                        <button className="graph-inspector-action" disabled={!!graphSheet?.frozen} onClick={() => openAxes("x")}>Format X Axis…</button>
+                        <button className="graph-inspector-action" disabled={!!graphSheet?.frozen} onClick={() => openAxes("y")}>Format Y Axis…</button>
+                      </section>
+                      <section>
+                        <h3>Data sets</h3>
+                        <p>{graphSheet?.columnIndices.length ?? 0} plotted</p>
+                        <button className="graph-inspector-action" disabled={!!graphSheet?.frozen} onClick={openGraphFormatting}>Edit Data Sets…</button>
+                      </section>
+                    </div>
+                  </aside>
+                )}
                 </section>
               )}
             </div>
