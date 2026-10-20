@@ -29,7 +29,12 @@ STORAGE = "gp.workbook.v2"
 
 
 def without_identity(book):
-    """Remove only fields added by the v2 -> v3 identity migration."""
+    """Recreate a genuine v2 fixture from a modern workbook.
+
+    Older files have neither stable dataset IDs nor graph-local datasetColors,
+    which was introduced after v2; leaving that modern metadata attached to
+    generated v2 columns makes the legacy fixture internally contradictory.
+    """
     result = copy.deepcopy(book)
     result["version"] = 2
     for sheet in result["sheets"]:
@@ -39,6 +44,8 @@ def without_identity(book):
                 column.pop("id", None)
         else:
             sheet.pop("datasetIds", None)
+            if sheet["kind"] == "graph":
+                sheet.pop("datasetColors", None)
     return result
 
 
