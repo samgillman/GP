@@ -3356,13 +3356,16 @@
         "Prefix/suffix",
         "Period/comma decimal mark"
       ],
-      "current_status": "unimplemented parity: generic numeric formatter only",
+      "current_status": "Partial: persistent explicit decimal places0–9, decimal/thousands separators, literal prefix/suffix, browser/export fixed-decimal rules and restore-to-automatic. Native automatic precision, scientific/power/antilog styles, custom precision and automatic label-layout fitting remain open.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
-        "web/src/WorkbookDialogs.tsx"
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/axis-number-format.ts",
+        "web/src/FormatAxesDialog.tsx",
+        "web/src/axes.ts"
       ],
       "dependencies": [
         "G066",
@@ -3380,7 +3383,7 @@
       "guide_sections": [
         "4.4.3"
       ],
-      "status": "not_started",
+      "status": "partial",
       "acceptance": [
         "Antilog linear value2 displays100; powers render superscripts; comma+thousands conflict handled explicitly."
       ],
@@ -3406,7 +3409,9 @@
         }
       ],
       "audit_status": "unimplemented",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [
+        "docs/prism-axes-rea-evidence.md"
+      ]
     },
     {
       "id": "G071",

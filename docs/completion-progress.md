@@ -1,5 +1,38 @@
 # Completion execution log
 
+## 2026-10-20 continuation: explicit decimal axis numbering
+
+G070 now has optional persistent fixed-decimal tick labels with 0–9 places,
+period/comma/middle-dot decimal separators, optional grouping, and literal
+prefix/suffix strings. The browser and exports share decimal half-away-from-zero
+rounding of the shortest decimal representation; 2,000 seeded cross-runtime
+cases matched. This is a tested GP contract, not recovered native rounding.
+REA control evidence and archive geometry are recorded in
+[axis evidence](prism-axes-rea-evidence.md). Scientific, Power-of-10, Antilog,
+native automatic precision and exact runtime layout remain open; G070 stays partial.
+
+An actual export probe found illegal XML control characters could produce an
+unreadable SVG. Both import/model and dialog validation now reject those
+characters while accepting legal Unicode affixes. Existing graphs without an
+explicit format retain their automatic formatting. Screenshot review found formatted Y labels (including `$20·00 µM`) overlap
+the Y title with the fixed browser margin. A follow-up layout fix is underway;
+the passing behavior checks do not close this visible defect.
+
+Validation: final backend suite **452 passed**; full frontend **223 passed**,
+followed by **37 focused tests** after the XML validation correction and
+**7 axes tests** after strengthening the frozen-numbering fixture (overlapping
+counts, not additional suites). Server
+and static production builds passed; the static assembler verified **19** locked
+runtime packages. Server Chromium checks passed controls, conflicting separators,
+literal hostile text, persistence, undo/redo, restoring automatic numbering,
+reload, Cancel and actual SVG/PNG/PDF downloads. Static Chromium checks passed the same scenarios and all three exports with
+zero page errors, using a 900000ms per-export allowance on this slow host.
+Evidence is retained separately under
+`/workspace/gp-evidence/axes-numbering-static`,
+`/workspace/gp-evidence/axes-numbering-server` and
+`/workspace/gp-evidence/axes-numbering`. These results do not establish native
+Prism equivalence or production deployment.
+
 ## 2026-10-20 continuation: persistent axes
 
 Resumed from GitHub main `948a451` in `/workspace/gp-status-main`. Reused actual

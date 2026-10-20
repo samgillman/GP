@@ -22,6 +22,15 @@ The latest **PRISM11_DIFFERENCES.md/HTML** takes precedence over the Prism 10 ba
 
 The JSON/Markdown registers together are part of this plan; they enumerate option-level work that would be lost in a high-level milestone list. Run `python3 scripts/check_requirements.py` to check identities, dependency references, source coverage and evidence gates. Section mappings identify owning requirements and include grouping headings; they do not assert those requirements are implemented. All requirement IDs remain stable. Parent requirements are not closed until every required child is closed.
 
+## Current graph work — 2026-10-20 UTC
+
+Persistent axes were published in `65faec6`. Explicit decimal numbering is the
+next bounded G070 increment, followed by a compact Format Axes layout informed
+by actual REA-decoded archive frames. See the execution log for verification.
+Neither increment closes graph parity: scientific/other numbering modes,
+additional scales, complete frame/origin and right-axis behavior, native default
+algorithms, layout equivalence and the remaining graph register stay open.
+
 ## Column statistical audit checkpoint — 2026-10-20 UTC
 
 The audit of merged PR #3 adds safeguards and independent numerical regressions;

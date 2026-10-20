@@ -2,6 +2,7 @@ import io
 import math
 import os
 import threading
+from decimal import Decimal, ROUND_HALF_UP, localcontext
 from pathlib import Path
 import numpy as np
 os.environ.setdefault("MPLCONFIGDIR", str(Path("/tmp/gp-matplotlib")))
@@ -10,11 +11,35 @@ matplotlib.use("Agg")
 from matplotlib import colors, rc_context
 from matplotlib.figure import Figure
 from matplotlib.patches import Rectangle
-from matplotlib.ticker import FixedLocator
+from matplotlib.ticker import FixedLocator, FuncFormatter, NullFormatter
 from .statistics import AnalysisError, analyze, descriptive, pairs, values
 
 PLOT_LOCK = threading.Lock()
 PALETTE = ["#315efb", "#dd7e44", "#309c88", "#a56ad1", "#cd5868", "#75913a"]
+
+
+def format_tick_number(value, config):
+    """Fixed-decimal GP display from the shortest decimal float representation.
+
+    Decimal ties round away from zero, without binary toFixed-style surprises.
+    This explicit policy is shared with the browser; native rounding is unknown.
+    """
+    if not math.isfinite(value):
+        raise AnalysisError("Axis tick values must be finite.")
+    decimal = Decimal(str(value))
+    with localcontext() as context:
+        context.prec = max(28, len(decimal.as_tuple().digits)+config.decimals+2,
+                           decimal.adjusted()+config.decimals+3)
+        rounded = decimal.quantize(Decimal(1).scaleb(-config.decimals), rounding=ROUND_HALF_UP)
+    sign = "-" if rounded < 0 else ""
+    fixed = format(rounded.copy_abs(), "f")
+    integer, _, fraction = fixed.partition(".")
+    if config.thousandsSeparator:
+        reversed_integer = integer[::-1]
+        integer = config.thousandsSeparator.join(
+            reversed_integer[i:i+3] for i in range(0, len(reversed_integer), 3))[::-1]
+    fraction = config.decimalSeparator+fraction if config.decimals else ""
+    return config.prefix+sign+integer+fraction+config.suffix
 
 
 def _major_ticks(low, high, interval):
@@ -230,6 +255,16 @@ def _draw_configured(axis, data, graph, outcome, palette):
             getattr(axis, f"{name}axis").set_major_locator(FixedLocator(_major_ticks(*limits, config.majorInterval)))
         elif name == "y" or xy:
             getattr(axis, f"{name}axis").set_major_locator(FixedLocator(xticks if name == "x" else yticks))
+        if config.numberFormat is not None:
+            tick_axis = getattr(axis, f"{name}axis")
+            tick_axis.set_major_formatter(FuncFormatter(
+                lambda value, position, spec=config.numberFormat: format_tick_number(value, spec)))
+            # Browser labels only major ticks. Keep minor marks, but do not
+            # leak an unrelated scientific formatter into explicit decimals.
+            tick_axis.set_minor_formatter(NullFormatter())
+            for tick in tick_axis.get_major_ticks():
+                tick.label1.set_parse_math(False)
+                tick.label2.set_parse_math(False)
         getattr(axis, f"set_{name}lim")(*(limits[::-1] if config.reverse else limits))
         axis.spines["bottom" if name == "x" else "left"].set_visible(config.showAxis)
         axis.tick_params(axis=name, which="both", **({"bottom": config.showAxis, "labelbottom": config.showAxis} if name == "x" else {"left": config.showAxis, "labelleft": config.showAxis}))

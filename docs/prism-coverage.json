@@ -4456,5 +4456,55 @@
       "static_browser_evidence": "/workspace/gp-evidence/axes-static/browser-check.json",
       "static_export_timeout_ms": 900000
     }
+  },
+  "axis_numbering_checkpoint": {
+    "scope": "Partial G070 fixed decimal numbering; native rounding and equivalence unverified",
+    "evidence": "docs/prism-axes-rea-evidence.md",
+    "implementation": "docs/axes-implementation.md",
+    "source_files": [
+      {
+        "path": "web/src/axes.ts",
+        "sha256": "266940ce41745cab5b986ab33eb849997a51c51db348b2690011f87fb293b953"
+      },
+      {
+        "path": "web/src/axis-number-format.ts",
+        "sha256": "979a77f608de42bdcac4366fb1aeee3930a3013133699a61c18ec4a6b4c81e41"
+      },
+      {
+        "path": "web/src/FormatAxesDialog.tsx",
+        "sha256": "383861528dd6cc03a450f2868cb3e3fd8712a54b8988aa6b39fe428ae3d07684"
+      },
+      {
+        "path": "web/src/Plot.tsx",
+        "sha256": "ec2ac5bc2267df8b729d42439665466870e42680af2aa93334e5165dd23012cd"
+      },
+      {
+        "path": "gp/models.py",
+        "sha256": "6e9fc3df5d02e136aa3b5bbf3c4d3d5911451639b906fb4b17cc87bc8a42bd7c"
+      },
+      {
+        "path": "gp/plotting.py",
+        "sha256": "34003a400f2dfa4b0bb249f23ae1668aa8ca5c8814184d26b4a380076d6a35ac"
+      }
+    ],
+    "validation": {
+      "backend_passed": 452,
+      "frontend_full_passed": 223,
+      "frontend_followup_passed": 37,
+      "final_frozen_numbering_fixture_axes_passed": 7,
+      "followup_note": "Followup runs overlap the full suite; do not sum counts.",
+      "cross_runtime_cases": 2000,
+      "cross_runtime_evidence": "/workspace/gp-evidence/axes-numbering/cross-runtime-result.json",
+      "builds": [
+        "server",
+        "static"
+      ],
+      "static_runtime_packages_verified": 19,
+      "server_browser_evidence": "/workspace/gp-evidence/axes-numbering-server/browser-check.json",
+      "native_equivalence": false,
+      "deployment_verified": false,
+      "static_browser_evidence": "/workspace/gp-evidence/axes-numbering-static/browser-check.json",
+      "static_export_timeout_ms": 900000
+    }
   }
 }

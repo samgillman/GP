@@ -1,7 +1,8 @@
 import { useState } from "react";
-import type { AxisSettings, Graph, GraphAxes, Project, Response } from "./data";
-import { numeric } from "./data";
-import { axesSettingsProblem, defaultGraphAxes } from "./axes";
+import type { AxisSettings, AxisNumberFormat, Graph, GraphAxes, Project, Response } from "./data";
+import { numeric, fmt } from "./data";
+import { axesSettingsProblem, defaultGraphAxes, defaultAxisNumberFormat, validAxisNumberFormat } from "./axes";
+import { formatAxisTick } from "./axis-number-format";
 import { buildPlotGeometry } from "./plot-geometry";
 import { DesktopDialog } from "./WorkbookDialogs";
 import "./axes-dialog.css";
@@ -44,7 +45,14 @@ export default function FormatAxesDialog({ project, result, initialAxis, onApply
   } catch (error) { problem = (error as Error).message; }
   function change(patch: Partial<DraftAxis>) {
     setApplyError("");
-    setDraft(previous => ({ ...previous, [axis]: { ...previous[axis], ...patch } }));
+    setDraft(previous => {
+      const next = { ...previous[axis], ...patch };
+      if (next.numberFormat === undefined) delete next.numberFormat;
+      return { ...previous, [axis]: next };
+    });
+  }
+  function changeNumberFormat(patch: Partial<AxisNumberFormat>) {
+    change({ numberFormat: { ...(current.numberFormat ?? defaultAxisNumberFormat()), ...patch } });
   }
   function automatic(enabled: boolean) {
     if (enabled) { change({ minimum: "", maximum: "", majorInterval: "" }); return; }
@@ -107,6 +115,42 @@ export default function FormatAxesDialog({ project, result, initialAxis, onApply
             <option value="standard">Standard</option><option value="reverse">Reverse</option>
           </select></label>
         </fieldset>
+        {!categorical && <fieldset><legend>Numbering</legend>
+          <label className="desktop-form-row"><span>Number format</span>
+            <select aria-label="Tick number format" value={current.numberFormat ? "decimal" : "auto"}
+              onChange={e => change({ numberFormat: e.target.value === "auto" ? undefined : defaultAxisNumberFormat() })}>
+              <option value="auto">Automatic</option><option value="decimal">Decimal</option>
+            </select>
+          </label>
+          {current.numberFormat && <>
+            <label className="desktop-form-row"><span>Decimal places</span>
+              <select aria-label="Tick decimal places" value={current.numberFormat.decimals}
+                onChange={e => changeNumberFormat({ decimals: Number(e.target.value) })}>
+                {Array.from({ length: 10 }, (_, i) => <option value={i} key={i}>{i}</option>)}
+              </select>
+            </label>
+            <label className="desktop-form-row"><span>Decimal separator</span>
+              <select aria-label="Tick decimal separator" value={current.numberFormat.decimalSeparator}
+                onChange={e => changeNumberFormat({ decimalSeparator: e.target.value as AxisNumberFormat["decimalSeparator"] })}>
+                <option value=".">1.23</option><option value=",">1,23</option><option value="·">1·23</option>
+              </select>
+            </label>
+            <label className="desktop-form-row"><span>Thousands separator</span>
+              <select aria-label="Tick thousands separator" value={current.numberFormat.thousandsSeparator}
+                onChange={e => changeNumberFormat({ thousandsSeparator: e.target.value as AxisNumberFormat["thousandsSeparator"] })}>
+                <option value="">100000</option><option value=",">100,000</option>
+                <option value=" ">100 000</option><option value="'">100&apos;000</option>
+              </select>
+            </label>
+            <label className="desktop-form-row"><span>Prefix</span><input aria-label="Tick prefix" maxLength={64}
+              value={current.numberFormat.prefix} onChange={e => changeNumberFormat({ prefix: e.target.value })} /></label>
+            <label className="desktop-form-row"><span>Suffix</span><input aria-label="Tick suffix" maxLength={64}
+              value={current.numberFormat.suffix} onChange={e => changeNumberFormat({ suffix: e.target.value })} /></label>
+          </>}
+          <p className="axes-hint">Example: <output aria-label="Tick label example">{current.numberFormat
+            ? validAxisNumberFormat(current.numberFormat) ? formatAxisTick(1234.5678, current.numberFormat) : "Check format settings"
+            : fmt(1234.5678)}</output></p>
+        </fieldset>}
         <fieldset><legend>Appearance</legend>
           <label className="desktop-checkbox-label"><input type="checkbox" checked={current.showAxis}
             onChange={e => change({ showAxis: e.target.checked })} />Show axis line, ticks and tick labels</label>

@@ -1,5 +1,5 @@
 from typing import Literal
-from pydantic import BaseModel, ConfigDict, Field, FiniteFloat, model_validator
+from pydantic import BaseModel, ConfigDict, Field, FiniteFloat, field_validator, model_validator
 
 
 class Column(BaseModel):
@@ -57,6 +57,32 @@ class GraphAnnotation(BaseModel):
     label: str = Field(min_length=1, max_length=40)
 
 
+class AxisNumberFormat(BaseModel):
+    """GP's explicit decimal display contract; not native automatic precision."""
+    model_config = ConfigDict(extra="forbid", strict=True)
+    decimals: int = Field(ge=0, le=9)
+    decimalSeparator: Literal[".", ",", "·"]
+    thousandsSeparator: Literal["", ",", " ", "'"]
+    prefix: str = Field(max_length=32)
+    suffix: str = Field(max_length=32)
+
+    @field_validator("prefix", "suffix")
+    @classmethod
+    def check_literal_characters(cls, value):
+        for character in value:
+            codepoint = ord(character)
+            if not (codepoint in (9, 10, 13) or 0x20 <= codepoint <= 0xD7FF
+                    or 0xE000 <= codepoint <= 0xFFFD or 0x10000 <= codepoint <= 0x10FFFF):
+                raise ValueError("Prefix and suffix must not contain unsupported control characters.")
+        return value
+
+    @model_validator(mode="after")
+    def check_separators(self):
+        if self.decimalSeparator == self.thousandsSeparator:
+            raise ValueError("Decimal and thousands separators must differ.")
+        return self
+
+
 class AxisSettings(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     scale: Literal["auto", "linear", "log10"] = "auto"
@@ -66,6 +92,14 @@ class AxisSettings(BaseModel):
     reverse: bool = False
     showAxis: bool = True
     showGrid: bool = False
+    numberFormat: AxisNumberFormat | None = Field(default=None, exclude_if=lambda value: value is None)
+
+    @field_validator("numberFormat", mode="before")
+    @classmethod
+    def reject_explicit_null_format(cls, value):
+        if value is None:
+            raise ValueError("Number format must be a complete object when provided.")
+        return value
 
     @model_validator(mode="after")
     def check_axis(self):
@@ -112,7 +146,7 @@ class ExportRequest(BaseModel):
             return self
         x = self.graph.axes.x
         if self.data.table_type == "column":
-            if x.scale != "auto" or any(v is not None for v in (x.minimum, x.maximum, x.majorInterval)):
+            if x.scale != "auto" or any(v is not None for v in (x.minimum, x.maximum, x.majorInterval, x.numberFormat)):
                 raise ValueError("Categorical X supports only reverse, axis visibility and grid settings.")
         elif x.scale == "auto" and self.data.analysis == "dose_response":
             if any(v <= 0 for v in (x.minimum, x.maximum) if v is not None):

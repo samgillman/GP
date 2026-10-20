@@ -1,5 +1,6 @@
 import { useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { fmt, palette } from "./data";
+import { formatAxisTick } from "./axis-number-format";
 import {
   buildPlotGeometry,
   DENSE_POINT_THRESHOLD,
@@ -374,12 +375,12 @@ export default function Plot({
             {geometry.axes.y.showAxis && <g data-axis="y" onDoubleClick={event => editAxis("y", event)}>
               <line x1={left} x2={left} y1={top} y2={H - bottom} stroke="#000" strokeWidth="1.5" />
               <line x1={left} x2={left} y1={top} y2={H - bottom} stroke="transparent" strokeWidth="10" />
-              {yTicks.map((v, i) => <g key={i}><line x1={left - 6} x2={left} y1={y(v)} y2={y(v)} stroke="#000" strokeWidth="1.5" /><text x={left - 10} y={y(v) + 4} textAnchor="end" className="tick">{fmt(v)}</text></g>)}
+              {yTicks.map((v, i) => <g key={i}><line x1={left - 6} x2={left} y1={y(v)} y2={y(v)} stroke="#000" strokeWidth="1.5" /><text x={left - 10} y={y(v) + 4} textAnchor="end" className="tick">{geometry.axes.y.numberFormat ? formatAxisTick(v, geometry.axes.y.numberFormat) : fmt(v)}</text></g>)}
             </g>}
             {geometry.axes.x.showAxis && <g data-axis="x" onDoubleClick={event => editAxis("x", event)}>
               <line x1={left} x2={W - right} y1={H - bottom} y2={H - bottom} stroke="#000" strokeWidth="1.5" />
               <line x1={left} x2={W - right} y1={H - bottom} y2={H - bottom} stroke="transparent" strokeWidth="10" />
-              {xy ? xTicks.map((v, i) => <g key={i}><line x1={x(v)} x2={x(v)} y1={H - bottom} y2={H - bottom + 6} stroke="#000" strokeWidth="1.5" /><text x={x(v)} y={H - bottom + 22} textAnchor="middle" className="tick">{fmt(v)}</text></g>) : series.map((s, i) => <text key={i} x={x(i + 1)} y={H - bottom + 26} textAnchor="middle" className="tick">{s.name.length > 20 ? s.name.slice(0, 19) + "…" : s.name}</text>)}
+              {xy ? xTicks.map((v, i) => <g key={i}><line x1={x(v)} x2={x(v)} y1={H - bottom} y2={H - bottom + 6} stroke="#000" strokeWidth="1.5" /><text x={x(v)} y={H - bottom + 22} textAnchor="middle" className="tick">{geometry.axes.x.numberFormat ? formatAxisTick(v, geometry.axes.x.numberFormat) : fmt(v)}</text></g>) : series.map((s, i) => <text key={i} x={x(i + 1)} y={H - bottom + 26} textAnchor="middle" className="tick">{s.name.length > 20 ? s.name.slice(0, 19) + "…" : s.name}</text>)}
             </g>}
             <text
               x={left + pw / 2}

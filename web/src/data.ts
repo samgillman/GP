@@ -1,7 +1,7 @@
 import type { ComparisonOptions } from "./column-analysis.ts";
 import { validGraphAxes, axesSettingsProblem } from "./axes.ts";
 import type { GraphAxes } from "./axes.ts";
-export type { AxisSettings, GraphAxes } from "./axes.ts";
+export type { AxisSettings, GraphAxes, AxisNumberFormat } from "./axes.ts";
 export type TableType = "column" | "xy";
 export type Analysis =
   | "descriptive"

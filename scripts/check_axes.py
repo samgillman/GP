@@ -34,6 +34,15 @@ with sync_playwright() as p:
     dialog.get_by_label("Axis maximum", exact=True).fill("80")
     dialog.get_by_label("Major tick interval", exact=True).fill("10")
     dialog.get_by_label("Axis direction", exact=True).select_option("reverse")
+    dialog.get_by_label("Tick number format", exact=True).select_option("decimal")
+    dialog.get_by_label("Tick decimal places", exact=True).select_option("2")
+    dialog.get_by_label("Tick thousands separator", exact=True).select_option(",")
+    dialog.get_by_label("Tick decimal separator", exact=True).select_option(",")
+    expect(dialog.get_by_role("button", name="OK", exact=True)).to_be_disabled()
+    dialog.get_by_label("Tick decimal separator", exact=True).select_option("·")
+    dialog.get_by_label("Tick prefix", exact=True).fill("$")
+    dialog.get_by_label("Tick suffix", exact=True).fill(" µM")
+    expect(dialog.get_by_label("Tick label example", exact=True)).to_have_text("$1,234·57 µM")
     dialog.get_by_label("Show major grid lines", exact=True).check()
     hostile = '<img src=x onerror="window.__axisInjected=1">'
     dialog.get_by_label("Axis title", exact=True).fill(hostile)
@@ -42,12 +51,15 @@ with sync_playwright() as p:
     expect(page.locator("svg.plot")).to_contain_text(hostile)
     assert page.evaluate("window.__axisInjected") is None
     ticks = page.locator('[data-axis="y"] text')
-    assert ticks.all_text_contents() == ["20", "30", "40", "50", "60", "70", "80"]
+    assert ticks.all_text_contents() == [f"${value}·00 µM" for value in range(20, 81, 10)]
     assert float(ticks.first.get_attribute("y")) < float(ticks.last.get_attribute("y"))
     after = workbook()
     assert [s for s in after["sheets"] if s["kind"] == "data"] == data_before
     graph = next(s for s in after["sheets"] if s["id"] == after["activeSheetId"])
     assert graph["graph"]["axes"]["y"]["reverse"]
+    assert graph["graph"]["axes"]["y"]["numberFormat"] == {
+        "decimals": 2, "decimalSeparator": "·", "thousandsSeparator": ",", "prefix": "$", "suffix": " µM",
+    }
     page.get_by_role("button", name="Undo", exact=True).click()
     undone = workbook()
     assert next(s for s in undone["sheets"] if s["id"] == graph["id"])["graph"] == next(
@@ -71,6 +83,15 @@ with sync_playwright() as p:
         if format_name == "SVG":
             assert b"window.__axisInjected" in content
         assert workbook() == after
+    page.locator('[data-axis="y"] text').first.dblclick()
+    dialog.get_by_label("Tick number format", exact=True).select_option("auto")
+    expect(dialog.get_by_label("Tick prefix", exact=True)).to_have_count(0)
+    dialog.get_by_role("button", name="OK", exact=True).click()
+    automatic = workbook()
+    assert "numberFormat" not in next(s for s in automatic["sheets"] if s["id"] == graph["id"])["graph"]["axes"]["y"]
+    assert page.locator('[data-axis="y"] text').all_text_contents() == [str(v) for v in range(20, 81, 10)]
+    page.get_by_role("button", name="Undo", exact=True).click()
+    assert workbook() == after
     page.reload()
     page.locator("svg.plot").wait_for()
     assert workbook() == after
@@ -88,7 +109,7 @@ with sync_playwright() as p:
         (destination / "browser-check.json").write_text(json.dumps({
             "url": sys.argv[1], "scope": "GP browser implementation, not native Prism parity",
             "export_timeout_ms": int(os.environ.get("GP_AXES_EXPORT_TIMEOUT", "300000")),
-            "checks": ["axis entry/tabs", "invalid limits", "reversed ticks", "hostile title",
+            "checks": ["axis entry/tabs", "invalid limits", "reversed ticks", "hostile title", "decimal numbering and separator validation", "restore automatic numbering",
                        "unchanged source", "undo/redo", "reload", "Cancel", "SVG/PNG/PDF downloads"],
             "page_errors": errors, "graph_axes": graph["graph"]["axes"],
         }, indent=2) + "\n")

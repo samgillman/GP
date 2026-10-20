@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { defaultGraphAxes, validGraphAxes, axesSettingsProblem } from "./axes.ts";
+import { defaultGraphAxes, defaultAxisNumberFormat, validGraphAxes, axesSettingsProblem } from "./axes.ts";
 import { parseProject, sample } from "./data.ts";
 import { fromProject, parseWorkbook, updateData } from "./workbook.ts";
 import { duplicateSheet } from "./workbook-actions.ts";
@@ -94,6 +94,7 @@ test("table conversion preserves frozen axes and their captured XY source", () =
   project.graph.axes = defaultGraphAxes();
   project.graph.axes.x.scale = "log10";
   project.graph.axes.x.minimum = 0.01;
+  project.graph.axes.x.numberFormat = { ...defaultAxisNumberFormat(), prefix: "frozen " };
   let book = fromProject(project);
   const graph = book.sheets.find(s => s.kind === "graph")!;
   book = toggleSheetFrozen(book, graph.id);
@@ -103,4 +104,45 @@ test("table conversion preserves frozen axes and their captured XY source", () =
   book = updateData(book, source.id, { ...source.project, table_type: "column" });
   assert.deepEqual(book.sheets.find(s => s.id === graph.id), frozen);
   assert.deepEqual(parseWorkbook(JSON.stringify(book)), book);
+});
+
+test("explicit numbering persists, rejects malformed settings, and resets only categorical X", () => {
+  const project = sample("xy");
+  project.graph.axes = defaultGraphAxes();
+  const numbering = { ...defaultAxisNumberFormat(), decimals: 3, prefix: "$", suffix: " units" };
+  project.graph.axes.x.numberFormat = numbering;
+  project.graph.axes.y.numberFormat = numbering;
+  const book = fromProject(project);
+  assert.deepEqual(parseWorkbook(JSON.stringify(book)), book);
+  const source = book.sheets[0];
+  if (source.kind !== "data") throw new Error("Expected source");
+  const converted = updateData(book, source.id, { ...source.project, table_type: "column" });
+  for (const sheet of converted.sheets) {
+    const graph = sheet.kind === "data" ? sheet.project.graph : sheet.kind === "graph" ? sheet.graph : null;
+    if (!graph) continue;
+    assert.equal(Object.hasOwn(graph.axes!.x, "numberFormat"), false);
+    assert.deepEqual(graph.axes!.y.numberFormat, numbering);
+  }
+  assert.deepEqual(parseWorkbook(JSON.stringify(converted)), converted);
+  const invalid = [null, {}, { ...numbering, decimals: true },
+    { ...numbering, decimals: 10 }, { ...numbering, decimals: 1.5 },
+    { ...numbering, decimalSeparator: ",", thousandsSeparator: "," },
+    { ...numbering, prefix: "😀".repeat(33) }, { ...numbering, suffix: 42 },
+    { ...numbering, prefix: "\u0000" }, { ...numbering, suffix: "\u0001" },
+    { ...numbering, prefix: "\ud800" }, { ...numbering, suffix: "\uffff" },
+    { ...numbering, unexpected: true }];
+  for (const value of invalid) {
+    const candidate = structuredClone(project);
+    Object.assign(candidate.graph.axes!.x, { numberFormat: value });
+    assert.throws(() => parseProject(JSON.stringify(candidate)), JSON.stringify(value));
+  }
+  const emoji = structuredClone(project);
+  emoji.graph.axes!.y.numberFormat!.prefix = "😀".repeat(32);
+  assert.deepEqual(parseProject(JSON.stringify(emoji)), emoji);
+  emoji.graph.axes!.y.numberFormat!.prefix = "\t\n\r\u0085";
+  assert.deepEqual(parseProject(JSON.stringify(emoji)), emoji);
+  const column = sample("column");
+  column.graph.axes = defaultGraphAxes();
+  column.graph.axes.x.numberFormat = numbering;
+  assert.throws(() => parseProject(JSON.stringify(column)));
 });
