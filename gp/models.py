@@ -1,5 +1,5 @@
 from typing import Literal
-from pydantic import BaseModel, ConfigDict, Field, FiniteFloat, StrictBool, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, FiniteFloat, StrictBool, StrictInt, field_validator, model_validator
 
 
 class Column(BaseModel):
@@ -132,6 +132,8 @@ class GraphOptions(BaseModel):
     show_points: bool = True
     # XY line rendering only; never masks a measurement from scientific analyses.
     gap_at_missing_y: StrictBool = False
+    # GP width mapping for archived Column spacing; native geometry unverified.
+    column_space_percent: StrictInt | None = Field(default=None, ge=0, le=400)
     annotations: list[GraphAnnotation] = Field(default_factory=list, max_length=435)
     axes: GraphAxes | None = None
 

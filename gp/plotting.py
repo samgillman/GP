@@ -216,7 +216,8 @@ def _draw_configured(axis, data, graph, outcome, palette):
         if graph.type == "bar" and (not logy or mean > 0):
             baseline = floor if logy else 0
             if not logy or mean > floor:
-                axis.bar(i, mean-baseline, bottom=baseline, color=color, edgecolor="black", linewidth=1.5, width=.6)
+                axis.bar(i, mean-baseline, bottom=baseline, color=color, edgecolor="black", linewidth=1.5,
+                         width=(.6 if graph.column_space_percent is None else 1 / (1 + graph.column_space_percent / 100)))
         elif graph.type == "box":
             # Quantiles use all observations, including nonpositive ones. Only
             # geometric drawing is clipped to the displayed log domain.
@@ -382,7 +383,8 @@ def export_plot(request):
                 tops[i] = max(float(np.max(y)), summary["mean"] + (error or 0))
                 lows.append(min(float(np.min(y)), summary["mean"] - (error or 0)))
                 if graph.type == "bar":
-                    axis.bar(i, summary["mean"], color=color, edgecolor="black", linewidth=1.5, width=.6)
+                    axis.bar(i, summary["mean"], color=color, edgecolor="black", linewidth=1.5,
+                             width=(.6 if graph.column_space_percent is None else 1 / (1 + graph.column_space_percent / 100)))
                 elif graph.type == "box":
                     axis.boxplot([y], positions=[i], widths=.5, whis=(0, 100), patch_artist=True, showfliers=not graph.show_points, boxprops={"facecolor": colors.to_rgba(color, .35), "edgecolor": "black", "linewidth": 1.5}, whiskerprops={"color": "black", "linewidth": 1.5}, capprops={"color": "black", "linewidth": 1.5}, medianprops={"color": "black", "linewidth": 1.5}, manage_ticks=False)
                 if graph.type != "box":

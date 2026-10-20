@@ -28,7 +28,7 @@ with sync_playwright() as p:
         return ordered.get_by_role("option").evaluate_all(
             "nodes => nodes.map(n => Number(n.dataset.sourceIndex))")
     assert indices() == original_graph["columnIndices"], "Column list must be left-to-right"
-    expect(dialog.get_by_text("left to right", exact=False)).to_be_visible()
+    expect(dialog.locator(".desktop-dataset-order-hint")).to_have_text("(left to right)")
     dialog.get_by_role("button", name="Reverse", exact=True).click()
     assert indices() == original_graph["columnIndices"][::-1]
     dialog.get_by_role("button", name="OK", exact=True).click()

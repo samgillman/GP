@@ -208,3 +208,20 @@ test("missing-Y line rule is optional, boolean-validated, and round-trips withou
   (malformed.graph as { gap_at_missing_y?: unknown }).gap_at_missing_y = "true";
   assert.throws(() => parseProject(JSON.stringify(malformed)), /Invalid project graph settings/);
 });
+
+test("Column bar spacing option accepts a bounded integer and preserves old graph defaults", () => {
+  const old = sample("column");
+  assert.equal(parseProject(JSON.stringify(old)).graph.column_space_percent, undefined);
+  const g = structuredClone(old);
+  g.graph.column_space_percent = 200;
+  assert.deepEqual(parseProject(JSON.stringify(g)), g);
+  // JSON.stringify turns nonfinite numbers into null, the supported automatic mode.
+  // Test invalid serialized values, not values erased before the parser runs.
+  for (const invalid of [-1, 401, 1.5, "NaN", "Infinity", "100", true]) {
+    const bad = structuredClone(g);
+    (bad.graph as { column_space_percent?: unknown }).column_space_percent = invalid;
+    assert.throws(() => parseProject(JSON.stringify(bad)), /Invalid project graph settings/);
+  }
+  g.graph.column_space_percent = null;
+  assert.deepEqual(parseProject(JSON.stringify(g)), g);
+});
