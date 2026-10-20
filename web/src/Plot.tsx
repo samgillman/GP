@@ -67,6 +67,9 @@ function DensePoints({
     </foreignObject>
   );
 }
+/** A US letter page at 100% zoom (8.5 × 11 in at 72 px per inch), as on a
+ * Prism graph sheet; the graph sits one inch below the top edge. */
+const PAGE_WIDTH = 612, PAGE_HEIGHT = 792, PAGE_TOP = 72;
 /** Jitter for column-graph points; shared by symbols and the selection ring. */
 const jitter = (index: number) => (((index * 17) % 11) - 5) * 2.1;
 
@@ -119,6 +122,7 @@ export default function Plot({
   selectedPoint,
   selectedPointRanges,
   annotations,
+  children,
 }: {
   project: Project;
   result: Response | null;
@@ -146,6 +150,8 @@ export default function Plot({
   selectedPointRanges?: SelectedPointRange[];
   // Pairwise comparison brackets for column graphs.
   annotations?: PlotAnnotation[];
+  /** Notes shown on the page below the graph. */
+  children?: React.ReactNode;
 }) {
   const [localSelection, setLocalSelection] = useState<PointReference | null>(
     null,
@@ -431,7 +437,15 @@ export default function Plot({
           drag.current = null;
         }}
       >
-        <div style={{ width: (W * zoom) / 100 }}>
+        <div
+          className="graph-page"
+          style={{
+            width: (Math.max(PAGE_WIDTH, W + 48) * zoom) / 100,
+            minHeight: (PAGE_HEIGHT * zoom) / 100,
+            paddingTop: (PAGE_TOP * zoom) / 100,
+          }}
+        >
+        <div className="graph-on-page" style={{ width: (W * zoom) / 100 }}>
           <svg
             ref={svgRef}
             onPointerMove={(event) => {
@@ -673,6 +687,18 @@ export default function Plot({
             )}
           </svg>
         </div>
+        <div className="graph-page-notes">
+          {geometry.logOmittedCount > 0 && <p role="note" className="plot-note">{geometry.logOmittedCount.toLocaleString()} observations have nonpositive coordinates on a logarithmic axis and cannot be displayed. Data and statistical summaries still include these values.</p>}
+          {geometry.logOmittedSummary && <p role="note" className="plot-note">Nonpositive summary marks and interval caps cannot be displayed on a logarithmic Y axis. Intervals crossing zero are clipped at the lower displayed limit; summaries still use all values.</p>}
+          {geometry.logY && graph.type === "bar" && <p role="note" className="plot-note">Logarithmic bars start at the lower displayed Y limit, not zero. Nonpositive means and interval caps cannot be displayed.</p>}
+          {dense && (
+            <p className="plot-note">
+              {count.toLocaleString()} valid-coordinate points · Canvas display. Only points within the axis limits are drawn; no sampling is used. Overlapping points may cover one another.
+            </p>
+          )}
+          {children}
+        </div>
+        </div>
       </div>
       {hover && series[hover.hit.seriesIndex] && (
         <div
@@ -724,14 +750,6 @@ export default function Plot({
             )}
           </div>
         </div>
-      )}
-      {geometry.logOmittedCount > 0 && <p role="note" className="plot-note">{geometry.logOmittedCount.toLocaleString()} observations have nonpositive coordinates on a logarithmic axis and cannot be displayed. Data and statistical summaries still include these values.</p>}
-      {geometry.logOmittedSummary && <p role="note" className="plot-note">Nonpositive summary marks and interval caps cannot be displayed on a logarithmic Y axis. Intervals crossing zero are clipped at the lower displayed limit; summaries still use all values.</p>}
-      {geometry.logY && graph.type === "bar" && <p role="note" className="plot-note">Logarithmic bars start at the lower displayed Y limit, not zero. Nonpositive means and interval caps cannot be displayed.</p>}
-      {dense && (
-        <p className="plot-note">
-          {count.toLocaleString()} valid-coordinate points · Canvas display. Only points within the axis limits are drawn; no sampling is used. Overlapping points may cover one another.
-        </p>
       )}
     </div>
   );

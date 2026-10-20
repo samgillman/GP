@@ -1,83 +1,125 @@
-/* Format Graph, docked beside the graph page. Values follow the supplied
-   "Graph sheet + Format Graph dialog" design reference. */
+/* Format Graph as a macOS sheet over the graph, laid out like Prism for Mac
+   (Appearance tab: centered Data Set row, label–control rows, Apply / Cancel /
+   OK at the bottom right). Dark values follow Prism's dark appearance. */
 .app .docked-dialog {
-  --fg-frame: #f0f0f0;
-  --fg-surface: #fff;
-  --fg-tab: #ececec;
-  --fg-line: #c2c2c2;
-  --fg-control: #adadad;
-  --fg-button: #e1e1e1;
-  --fg-nav: #e9e9e9;
-  --fg-rule: #d6d6d6;
-  --fg-text: #1b1b1b;
-  --fg-muted: #8a8a8a;
-  --fg-default: #0078d7;
-  flex: 0 0 auto;
-  width: 480px;
+  --fg-sheet: #ececec;
+  --fg-panel: #e3e3e3;
+  --fg-panel-line: #cdcdcd;
+  --fg-text: #1d1d1f;
+  --fg-muted: #8e8e8e;
+  --fg-rule: #c6c6c6;
+  --fg-control: #ffffff;
+  --fg-control-line: #c3c3c3;
+  --fg-segment: #dcdcdc;
+  --fg-segment-on: #ffffff;
+  --fg-default: #2f7cf6;
+  --fg-default-text: #ffffff;
+  position: absolute;
+  z-index: 30;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 682px;
   max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
   box-sizing: border-box;
-  background: var(--fg-frame);
-  border: 1px solid #8c8c8c;
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
-  font: 12px "Segoe UI", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+  padding: 0 0 4px;
+  background: var(--fg-sheet);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
+  font: 13px -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: var(--fg-text);
   text-align: left;
+}
+.app[data-theme="dark"] .docked-dialog {
+  --fg-sheet: #323232;
+  --fg-panel: #2b2b2b;
+  --fg-panel-line: #3e3e3e;
+  --fg-text: #e6e6e6;
+  --fg-muted: #7f7f7f;
+  --fg-rule: #4a4a4a;
+  --fg-control: #5f5f5f;
+  --fg-control-line: transparent;
+  --fg-segment: #3c3c3c;
+  --fg-segment-on: #6b6b6b;
+  --fg-default: #6b6b6b;
+  border-color: rgba(255, 255, 255, 0.12);
 }
 .app .docked-dialog:focus {
   outline: none;
 }
 .app .docked-dialog-head {
+  position: relative;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 7px 10px;
-  background: var(--fg-surface);
+  height: 26px;
 }
 .app .docked-dialog-head h2 {
   margin: 0;
-  font: inherit;
-  font-weight: 400;
+  font: 600 13px -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  color: var(--fg-text);
+  opacity: 0.8;
 }
 .app .docked-dialog-head button {
+  position: absolute;
+  left: 10px;
+  top: 7px;
+  width: 12px;
+  height: 12px;
+  padding: 0;
   border: 0;
-  background: none;
-  padding: 0 2px;
-  font-size: 14px;
-  line-height: 1;
-  color: #444;
+  border-radius: 50%;
+  background: #ff5f57;
+  color: transparent;
+  font-size: 0;
   cursor: default;
+}
+.app .docked-dialog-head button:hover {
+  color: #5a0000;
+  font-size: 9px;
+  line-height: 12px;
 }
 .app .docked-dialog.format-graph-dialog .fg-tabs {
   display: flex;
   flex-wrap: wrap;
-  padding: 8px 8px 0;
+  justify-content: center;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  margin: 6px auto -11px;
+  padding: 2px;
+  position: relative;
+  z-index: 1;
+  border-radius: 7px;
+  background: var(--fg-segment);
+  box-shadow: inset 0 0 0 1px rgba(127, 127, 127, 0.25);
 }
 .app .docked-dialog.format-graph-dialog .fg-tabs button {
-  font: inherit;
-  font-size: 12px;
-  border: 1px solid var(--fg-line);
-  border-bottom: 0;
-  background: var(--fg-tab);
-  padding: 3px 9px;
-  margin-right: -1px;
+  font: 13px -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  padding: 2px 11px;
+  border: 0;
+  border-radius: 5px;
+  background: none;
   color: var(--fg-text);
   cursor: default;
-  border-radius: 0;
 }
 .app .docked-dialog.format-graph-dialog .fg-tabs button.active {
-  background: var(--fg-surface);
-  position: relative;
-  top: 1px;
+  background: var(--fg-segment-on);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 .app .docked-dialog.format-graph-dialog .fg-panel {
-  background: var(--fg-surface);
-  border: 1px solid var(--fg-line);
-  margin: 0 8px;
-  padding: 8px 12px 10px;
+  margin: 0 18px;
+  padding: 20px 20px 16px;
+  min-height: 420px;
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  min-height: 330px;
+  gap: 9px;
+  border-radius: 8px;
+  background: var(--fg-panel);
+  border: 1px solid var(--fg-panel-line);
 }
 .app .docked-dialog.format-graph-dialog .fg-section {
   border: 0;
@@ -86,21 +128,22 @@
   min-inline-size: 0;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 9px;
 }
 .app .docked-dialog.format-graph-dialog .fg-heading {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
   padding: 0;
-  margin: 3px 0 7px;
+  margin: 2px 0 8px;
   font-weight: 700;
+  color: var(--fg-text);
 }
 .app .docked-dialog.format-graph-dialog .fg-heading label {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 .app .docked-dialog.format-graph-dialog .fg-rule {
   flex: 1;
@@ -108,83 +151,116 @@
   background: var(--fg-rule);
 }
 .app .docked-dialog.format-graph-dialog .fg-section.is-disabled > .fg-heading,
-.app .docked-dialog.format-graph-dialog .fg-section.is-disabled .fg-row {
+.app .docked-dialog.format-graph-dialog .fg-section.is-disabled :is(.fg-row, .fg-pairs) {
   color: var(--fg-muted);
 }
 .app .docked-dialog.format-graph-dialog .fg-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px 10px;
-  padding-left: 12px;
+  gap: 8px 10px;
+  padding-left: 18px;
+}
+.app .docked-dialog.format-graph-dialog .fg-row.fg-spread > select {
+  min-width: 190px;
+}
+.app .docked-dialog.format-graph-dialog .fg-row.fg-spread > label:nth-of-type(2) {
+  margin-left: auto;
+}
+/* Label–control pairs aligned in columns, labels right-aligned as in Prism. */
+.app .docked-dialog.format-graph-dialog .fg-pairs {
+  display: grid;
+  grid-template-columns: max-content max-content max-content max-content max-content max-content;
+  justify-content: space-between;
+  align-items: center;
+  gap: 9px 8px;
+  padding-left: 18px;
+}
+.app .docked-dialog.format-graph-dialog .fg-pairs.fg-pairs4 {
+  grid-template-columns: repeat(8, max-content);
+}
+.app .docked-dialog.format-graph-dialog .fg-pairs > :is(span, label):not(.fg-swatch):not(.fg-check) {
+  text-align: right;
+}
+.app .docked-dialog.format-graph-dialog .fg-pairs + .fg-row {
+  padding-left: 18px;
 }
 .app .docked-dialog.format-graph-dialog .fg-dataset {
+  justify-content: center;
   padding-left: 0;
+  margin-bottom: 4px;
   gap: 6px;
 }
 .app .docked-dialog.format-graph-dialog .fg-dataset > label {
   font-weight: 700;
 }
+.app .docked-dialog.format-graph-dialog .fg-double-rule {
+  flex: 1 1 20px;
+  min-width: 10px;
+  height: 4px;
+  border-top: 1px solid var(--fg-rule);
+  border-bottom: 1px solid var(--fg-rule);
+}
 .app .docked-dialog.format-graph-dialog .fg-dataset > #graph-appearance-dataset {
-  width: 200px;
-}
-.app .docked-dialog.format-graph-dialog #fg-plot {
-  min-width: 195px;
-}
-.app .docked-dialog.format-graph-dialog #fg-cap {
-  min-width: 46px;
+  width: 330px;
+  max-width: 50vw;
 }
 .app .docked-dialog.format-graph-dialog select,
 .app .docked-dialog.format-graph-dialog input:not([type]),
 .app .docked-dialog.format-graph-dialog input[type="text"],
 .app .docked-dialog.format-graph-dialog input[type="number"] {
-  font: inherit;
-  font-size: 12px;
-  height: 21px;
-  min-height: 21px;
+  font: 13px -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  height: 22px;
+  min-height: 22px;
   box-sizing: border-box;
-  border: 1px solid var(--fg-control);
-  border-radius: 0;
-  background: var(--fg-surface);
+  border: 1px solid var(--fg-control-line);
+  border-radius: 5px;
+  background: var(--fg-control);
   color: var(--fg-text);
-  padding: 0 2px;
+  padding: 0 6px;
+  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.18);
 }
-.app .docked-dialog.format-graph-dialog select:disabled {
-  color: var(--fg-muted);
+.app .docked-dialog.format-graph-dialog select:disabled,
+.app .docked-dialog.format-graph-dialog input:disabled {
+  opacity: 0.45;
 }
 .app .docked-dialog.format-graph-dialog .fg-nav {
-  font: inherit;
-  font-size: 12px;
-  width: 22px;
-  height: 21px;
-  border: 1px solid var(--fg-control);
-  background: var(--fg-nav);
+  font: 15px -apple-system, BlinkMacSystemFont, sans-serif;
+  width: 24px;
+  height: 22px;
+  border: 1px solid var(--fg-control-line);
+  border-radius: 5px;
+  background: var(--fg-control);
   padding: 0;
-  border-radius: 0;
   color: var(--fg-text);
   cursor: default;
 }
 .app .docked-dialog.format-graph-dialog .fg-nav:disabled {
-  color: var(--fg-muted);
+  opacity: 0.4;
 }
 .app .docked-dialog.format-graph-dialog .fg-swatch {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  border: 1px solid var(--fg-control);
-  background: var(--fg-surface);
-  height: 19px;
-  padding: 0 3px;
-  color: #444;
+  gap: 0;
+  padding: 3px;
+  border-radius: 5px;
+  background: var(--fg-control);
+  border: 1px solid var(--fg-control-line);
+  color: transparent;
+  justify-self: start;
+}
+.app .docked-dialog.format-graph-dialog .fg-swatch > svg {
+  display: none;
 }
 .app .docked-dialog.format-graph-dialog .fg-swatch input[type="color"] {
   -webkit-appearance: none;
   appearance: none;
-  width: 26px;
-  height: 11px;
+  width: 38px;
+  height: 15px;
   border: 0;
   padding: 0;
   margin: 0;
+  border-radius: 3px;
   background: none;
   cursor: default;
 }
@@ -192,108 +268,142 @@
   padding: 0;
 }
 .app .docked-dialog.format-graph-dialog .fg-swatch input[type="color"]::-webkit-color-swatch {
-  border: 0;
-  border-radius: 0;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
 }
 .app .docked-dialog.format-graph-dialog .fg-swatch input[type="color"]::-moz-color-swatch {
-  border: 0;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
 }
 .app .docked-dialog.format-graph-dialog .fg-swatch.is-disabled {
-  opacity: 0.55;
+  opacity: 0.45;
 }
 .app .docked-dialog.format-graph-dialog .fg-check {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 .app .docked-dialog.format-graph-dialog input[type="checkbox"],
 .app .docked-dialog.format-graph-dialog input[type="radio"] {
   margin: 0;
+  accent-color: #2f7cf6;
+}
+.app .docked-dialog.format-graph-dialog .fg-columns {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px 24px;
+  padding-left: 18px;
+}
+.app .docked-dialog.format-graph-dialog .fg-axis-choice {
+  display: flex;
+  gap: 10px;
+}
+.app .docked-dialog.format-graph-dialog .fg-axis-choice > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 .app .docked-dialog.format-graph-dialog .fg-grid {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
-  gap: 6px 10px;
+  gap: 8px 10px;
   align-items: center;
-  padding-left: 12px;
+  padding-left: 18px;
 }
 .app .docked-dialog.format-graph-dialog .fg-note,
 .app .docked-dialog.format-graph-dialog .fg-help {
   margin: 0;
-  padding-left: 12px;
-  color: #555;
+  padding-left: 18px;
+  color: var(--fg-muted);
   line-height: 1.4;
+  font-size: 12px;
 }
 .app .docked-dialog.format-graph-dialog .fg-help {
-  margin: 8px 8px 0;
-  padding: 6px 8px;
-  background: var(--fg-surface);
-  border: 1px solid var(--fg-line);
+  margin: 10px 18px 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--fg-panel);
+  border: 1px solid var(--fg-panel-line);
+  color: var(--fg-text);
 }
 .app .docked-dialog.format-graph-dialog .fg-footer {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 9px;
   align-items: center;
-  padding: 9px 8px;
+  padding: 14px 18px 12px;
 }
 .app .docked-dialog.format-graph-dialog .fg-spacer {
   flex: 1 1 0;
   min-width: 0;
 }
-.app .docked-dialog.format-graph-dialog .fg-button {
-  font: inherit;
-  font-size: 12px;
-  min-width: 74px;
-  height: 24px;
-  border: 1px solid var(--fg-control);
-  border-radius: 0;
-  background: var(--fg-button);
+.app .docked-dialog.format-graph-dialog .fg-help-button {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--fg-control-line);
+  border-radius: 50%;
+  background: var(--fg-control);
   color: var(--fg-text);
+  font: 600 13px -apple-system, BlinkMacSystemFont, sans-serif;
   cursor: default;
-  padding: 0 6px;
+}
+.app .docked-dialog.format-graph-dialog .fg-button {
+  font: 13px -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  min-width: 82px;
+  height: 22px;
+  padding: 0 12px;
+  border: 1px solid var(--fg-control-line);
+  border-radius: 5px;
+  background: var(--fg-control);
+  color: var(--fg-text);
+  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.18);
+  cursor: default;
 }
 .app .docked-dialog.format-graph-dialog .fg-button.fg-wide {
-  min-width: 130px;
-  padding: 0 4px;
+  min-width: 0;
   white-space: nowrap;
 }
 .app .docked-dialog.format-graph-dialog .fg-button.fg-default {
-  border: 2px solid var(--fg-default);
+  background: var(--fg-default);
+  color: var(--fg-default-text);
+  border-color: transparent;
 }
 .app .docked-dialog.format-graph-dialog .fg-button:disabled {
-  color: var(--fg-muted);
+  opacity: 0.45;
 }
-.app .docked-dialog.format-graph-dialog .fg-button[aria-pressed="true"] {
-  background: #cce4f7;
+.app .docked-dialog.format-graph-dialog :is(.fg-help-button, .fg-button)[aria-pressed="true"] {
+  box-shadow: 0 0 0 2px #2f7cf6;
 }
 .app .docked-dialog.format-graph-dialog :is(button, select, input):focus-visible {
-  outline: 1px dotted #000;
+  outline: 2px solid #2f7cf6;
   outline-offset: 1px;
 }
 /* The Data Sets on Graph list keeps its own layout inside the panel. */
 .app .docked-dialog.format-graph-dialog .fg-panel > .desktop-dataset-manager {
   margin: 0;
 }
+.app[data-theme="dark"] .docked-dialog.format-graph-dialog .fg-panel :is(.desktop-help-text, h3, p) {
+  color: var(--fg-text);
+}
 
-.app[data-theme="dark"] .docked-dialog {
-  --fg-frame: #2d2d2d;
-  --fg-surface: #1f1f1f;
-  --fg-tab: #333;
-  --fg-line: #4a4a4a;
-  --fg-control: #5a5a5a;
-  --fg-button: #3a3a3a;
-  --fg-nav: #3a3a3a;
-  --fg-rule: #444;
-  --fg-text: #e8e8e8;
-  --fg-muted: #8f8f8f;
-  --fg-default: #3b9cff;
-  border-color: #555;
-}
-.app[data-theme="dark"] .docked-dialog-head button,
-.app[data-theme="dark"] .format-graph-dialog .fg-swatch {
-  color: #ccc;
-}
-.app[data-theme="dark"] .format-graph-dialog :is(.fg-note, .fg-help) {
-  color: #b5b5b5;
+@media (max-width: 760px) {
+  .app .docked-dialog {
+    width: calc(100% - 8px);
+  }
+  .app .docked-dialog.format-graph-dialog .fg-panel {
+    margin: 0 6px;
+    padding: 18px 10px 12px;
+  }
+  .app .docked-dialog.format-graph-dialog .fg-pairs,
+  .app .docked-dialog.format-graph-dialog .fg-pairs.fg-pairs4 {
+    grid-template-columns: max-content max-content;
+    justify-content: start;
+  }
+  .app .docked-dialog.format-graph-dialog .fg-dataset > #graph-appearance-dataset {
+    width: 100%;
+    max-width: none;
+  }
 }

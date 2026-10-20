@@ -1331,6 +1331,7 @@ export function FormatGraphDialog({
   onApply,
   onChangeGraphType,
   tableNumber = 1,
+  tableName,
   initialTab = "Appearance",
 }: {
   sheet: GraphSheet;
@@ -1339,6 +1340,8 @@ export function FormatGraphDialog({
   initialAppearanceDataset?: number | null;
   /** Position of the source among the workbook's data tables, as in "Data 1:A:Control". */
   tableNumber?: number;
+  /** The source data table's name, as in Prism's "Table:A:Column" labels. */
+  tableName?: string;
   initialTab?: FormatTab;
   onClose: () => void;
   onApply: (next: GraphSheet) => void;
@@ -1442,7 +1445,7 @@ export function FormatGraphDialog({
   const filled = !xy && (graph.type === "bar" || graph.type === "box");
   const errorsApply = !xy && graph.type !== "box" && graph.error !== "none";
   const datasetLabel = (index: number) =>
-    `Data ${tableNumber}:${datasetLetter(index)}:${project.columns[index].name}`;
+    `${tableName ?? `Data ${tableNumber}`}:${datasetLetter(index)}:${project.columns[index].name}`;
   const appearanceChoices: [Graph["type"], string][] = xy
     ? [["scatter", "Points only"], ["line", "Points and connecting line"]]
     : [["bar", "Bar (one bar per column)"], ["scatter", "Scatter dot plot"], ["box", "Box and whiskers"]];
@@ -1494,7 +1497,8 @@ export function FormatGraphDialog({
           ) : (
             <>
               <div className="fg-row fg-dataset">
-                <label htmlFor="graph-appearance-dataset">Data set:</label>
+                <span className="fg-double-rule" aria-hidden="true" />
+                <label htmlFor="graph-appearance-dataset">Data Set:</label>
                 <select
                   id="graph-appearance-dataset"
                   aria-label="Appearance data set"
@@ -1520,7 +1524,7 @@ export function FormatGraphDialog({
                     setScope("dataset");
                   }}
                 >
-                  &lt;
+                  ←
                 </button>
                 <button
                   type="button"
@@ -1532,7 +1536,7 @@ export function FormatGraphDialog({
                     setScope("dataset");
                   }}
                 >
-                  &gt;
+                  →
                 </button>
                 <select
                   aria-label="Apply scope"
@@ -1543,9 +1547,10 @@ export function FormatGraphDialog({
                   <option value="global">Global</option>
                   <option value="dataset">Data set</option>
                 </select>
+                <span className="fg-double-rule" aria-hidden="true" />
               </div>
               <FormatSection title="Style">
-                <div className="fg-row">
+                <div className="fg-row fg-spread">
                   <label htmlFor="fg-appearance">Appearance:</label>
                   <select
                     id="fg-appearance"
@@ -1573,8 +1578,8 @@ export function FormatGraphDialog({
                 </div>
               </FormatSection>
               <FormatSection title="Bars and boxes" disabled={!filled}>
-                <div className="fg-row">
-                  <span>Fill:</span>
+                <div className="fg-pairs">
+                  <span>Fill color:</span>
                   <Swatch label={`${name} fill color`} value={style.fill} disabled={!filled} onChange={(fill) => setStyle({ fill })} />
                   <label htmlFor="fg-border">Border:</label>
                   <select id="fg-border" value={style.border_width} onChange={(event) => setStyle({ border_width: Number(event.target.value) })}>
@@ -1607,7 +1612,7 @@ export function FormatGraphDialog({
                   },
                 }}
               >
-                <div className="fg-row">
+                <div className="fg-pairs">
                   <span>Color:</span>
                   {filled ? (
                     <Swatch label={`${name} symbol color`} value={style.symbol_color} disabled={!style.symbols} onChange={(symbol_color) => setStyle({ symbol_color })} />
@@ -1629,18 +1634,18 @@ export function FormatGraphDialog({
                 disabled={!errorsApply}
                 checkbox={{ label: "Error bars", checked: style.error_bars, onChange: (error_bars) => setStyle({ error_bars }) }}
               >
-                <div className="fg-row">
+                <div className="fg-pairs fg-pairs4">
                   <span>Color:</span>
                   <Swatch label={`${name} error bar color`} value={style.error_color} disabled={!errorsApply || !style.error_bars} onChange={(error_color) => setStyle({ error_color })} />
-                  <label htmlFor="fg-cap">Cap style:</label>
-                  <select id="fg-cap" disabled={!style.error_bars} value={style.error_cap} title="T draws a cap; I draws the line only"
-                    onChange={(event) => setStyle({ error_cap: event.target.value as ErrorCap })}>
-                    {ERROR_CAPS.map((cap) => <option key={cap} value={cap}>{cap}</option>)}
-                  </select>
                   <label htmlFor="fg-direction">Dir.:</label>
                   <select id="fg-direction" disabled={!style.error_bars} value={style.error_direction}
                     onChange={(event) => setStyle({ error_direction: event.target.value as ErrorDirection })}>
                     {ERROR_DIRECTIONS.map((direction) => <option key={direction} value={direction}>{direction[0].toUpperCase() + direction.slice(1)}</option>)}
+                  </select>
+                  <label htmlFor="fg-cap">Style:</label>
+                  <select id="fg-cap" disabled={!style.error_bars} value={style.error_cap} title="T draws a cap; I draws the line only"
+                    onChange={(event) => setStyle({ error_cap: event.target.value as ErrorCap })}>
+                    {ERROR_CAPS.map((cap) => <option key={cap} value={cap}>{cap}</option>)}
                   </select>
                   <label htmlFor="fg-thickness">Thickness:</label>
                   <select id="fg-thickness" disabled={!style.error_bars} value={style.error_width}
@@ -1658,7 +1663,7 @@ export function FormatGraphDialog({
                 checkbox={{ label: "Lines", checked: xy && graph.type === "line", onChange: (on) => g({ type: on ? "line" : "scatter" }) }}
               >
                 {xy && (
-                  <div className="fg-row">
+                  <div className="fg-pairs">
                     <span>Color:</span>
                     <Swatch label={`${name} line color`} value={style.color} disabled={graph.type !== "line"} onChange={(color) => setMainColor(color)} />
                     <label htmlFor="fg-line">Thickness:</label>
@@ -1669,16 +1674,20 @@ export function FormatGraphDialog({
                 )}
               </FormatSection>
               <FormatSection title="Additional options">
-                <div className="fg-row">
-                  <span>Plot data on:</span>
-                  <label className="fg-check">
-                    <input type="radio" name="fg-axis" checked readOnly />
-                    Left Y axis
-                  </label>
-                  <label className="fg-check" title="GP graphs have a single Y axis">
-                    <input type="radio" name="fg-axis" disabled />
-                    Right Y axis
-                  </label>
+                <div className="fg-columns">
+                  <div className="fg-axis-choice">
+                    <span>Plot data on:</span>
+                    <div>
+                      <label className="fg-check">
+                        <input type="radio" name="fg-axis" checked readOnly />
+                        Left Y axis
+                      </label>
+                      <label className="fg-check" title="GP graphs have a single Y axis">
+                        <input type="radio" name="fg-axis" disabled />
+                        Right Y axis
+                      </label>
+                    </div>
+                  </div>
                   <label className="fg-check">
                     <input type="checkbox" checked={graph.show_legend ?? xy} onChange={(event) => g({ show_legend: event.target.checked })} />
                     Show legend
@@ -1809,6 +1818,9 @@ export function FormatGraphDialog({
         </p>
       )}
       <footer className="fg-footer">
+        <button type="button" className="fg-help-button" aria-label="Help" aria-pressed={help} title="Help" onClick={() => setHelp((v) => !v)}>
+          ?
+        </button>
         <button
           type="button"
           className="fg-button fg-wide"
@@ -1822,12 +1834,6 @@ export function FormatGraphDialog({
           Change Graph Type...
         </button>
         <span className="fg-spacer" />
-        <button type="button" className="fg-button" aria-pressed={help} onClick={() => setHelp((v) => !v)}>
-          Help
-        </button>
-        <button type="button" className="fg-button" onClick={onClose}>
-          Cancel
-        </button>
         <button
           type="button"
           className="fg-button"
@@ -1835,6 +1841,9 @@ export function FormatGraphDialog({
           onClick={() => onApply(draft)}
         >
           Apply
+        </button>
+        <button type="button" className="fg-button" onClick={onClose}>
+          Cancel
         </button>
         <button
           type="button"
