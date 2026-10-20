@@ -310,7 +310,10 @@ export default function Plot({
         }}
         onPointerDown={(e) => {
           e.currentTarget.focus({ preventScroll: true });
-          if (e.button !== 0 || (!pan && hitAt(e.clientX, e.clientY))) return;
+          // Pointer capture changes the effective event target: when disabled
+          // it steals normal click/double-click gestures from graph elements.
+          // Only the explicitly enabled Hand Pan tool captures the pointer.
+          if (e.button !== 0 || !pan) return;
           if ((e.target as Element).tagName === "text") return;
           dragged.current = false;
           drag.current = {
