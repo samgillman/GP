@@ -1,0 +1,95 @@
+.desktop-format .xy-dataset-manager h3 {
+  margin-bottom: 7px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.desktop-format .xy-dataset-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 102px;
+  gap: 14px;
+}
+.desktop-format .xy-dataset-list {
+  min-height: 272px;
+  max-height: 355px;
+  overflow-y: auto;
+  border: 1px solid #bdbdbd;
+  background: #fff;
+  outline: none;
+}
+.desktop-format .xy-dataset-list:focus-visible {
+  outline: 3px solid #78aff6;
+  outline-offset: 1px;
+}
+.desktop-format .xy-dataset-option {
+  padding: 3px 8px;
+  min-height: 23px;
+  color: #222;
+  font-size: 12px;
+  line-height: 17px;
+  overflow-wrap: anywhere;
+  cursor: default;
+}
+.desktop-format .xy-dataset-option[aria-selected="true"] {
+  color: #fff;
+  background: #2679d9;
+}
+.desktop-format .xy-dataset-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 7px;
+}
+.desktop-format .xy-dataset-actions .xy-dataset-action-divider {
+  margin-top: 13px;
+}
+.desktop-format .xy-dataset-empty {
+  margin: 0;
+  padding: 11px;
+  font-size: 12px;
+  color: #666;
+}
+.desktop-format .xy-dataset-manager .xy-dataset-required {
+  margin: 7px 0;
+  color: #a32020;
+  font-size: 12px;
+}
+.desktop-format .xy-dataset-add {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  background: #e5e5e5;
+}
+.desktop-format .xy-dataset-add label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+}
+.desktop-format .xy-dataset-add select {
+  width: 100%;
+  padding: 2px;
+  border-radius: 1px;
+}
+.desktop-format .xy-dataset-add option {
+  padding: 3px 6px;
+}
+.desktop-format .xy-dataset-add-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 9px;
+}
+@media (max-width: 480px) {
+  .desktop-format .xy-dataset-editor {
+    grid-template-columns: minmax(0, 1fr) 80px;
+    gap: 9px;
+  }
+  .desktop-format .xy-dataset-actions button {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+  .desktop-format .xy-dataset-list {
+    min-height: 250px;
+    max-height: 300px;
+  }
+}

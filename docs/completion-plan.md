@@ -24,12 +24,18 @@ The JSON/Markdown registers together are part of this plan; they enumerate optio
 
 ## Current graph work — 2026-10-20 UTC
 
-Persistent axes were published in `65faec6`. Explicit decimal numbering is the
-next bounded G070 increment, followed by a compact Format Axes layout informed
-by actual REA-decoded archive frames. See the execution log for verification.
-Neither increment closes graph parity: scientific/other numbering modes,
-additional scales, complete frame/origin and right-axis behavior, native default
-algorithms, layout equivalence and the remaining graph register stay open.
+Persistent axes, decimal numbering and compact dialog/label spacing have been
+published and verified as bounded GP increments. G045 then adds a native-informed
+XY dataset list with working membership/order controls and fixes positional
+color swapping. See the execution log for the latest tested/published state.
+A new focused REA decode establishes Column-specific controls and an archived
+Annotations tab, preventing accidental reuse of the XY layout as a native claim.
+
+These increments do not close graph parity. Continue with stable persistent
+dataset styles and scoped appearance editing, cross-table Add/Replace, complete
+Column and XY Graph Settings/Annotations, scientific/other numbering modes,
+additional scales, frame/origin/right-axis behavior and native default/layout
+comparisons. Every broader graph-register obligation remains tracked.
 
 ## Column statistical audit checkpoint — 2026-10-20 UTC
 

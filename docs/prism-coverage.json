@@ -20,7 +20,8 @@
   "completion_rule": "Do not close the full-equivalence goal until every material observed obligation has implementation and applicable numerical, format, UI and rendering evidence, and runtime-only unknowns have been resolved. No percentage inferred from counts.",
   "parent_evidence_ids": [
     "ev_4603ba47f833cde812c91edb0411496c352b2efbafa386d2b035143064b46289",
-    "ev_aabbaa1a43fb026eec06a396027e90ab2c45cab2b190e184bc36aca00ec664fc"
+    "ev_aabbaa1a43fb026eec06a396027e90ab2c45cab2b190e184bc36aca00ec664fc",
+    "ev_ff9c5094b7f4562421c7eeb24cd8c987d2500186575f364afba7c00b229ecc31"
   ],
   "obligations": [
     {
@@ -4560,5 +4561,43 @@
       "native_equivalence": false,
       "deployment_verified": false
     }
+  },
+  "dataset_order_checkpoint": {
+    "scope": "Partial G045 XY membership/order UI and active color ownership; native equivalence unverified",
+    "evidence": "docs/prism-graph-format-evidence.md",
+    "source_files": [
+      {
+        "path": "web/src/WorkbookDialogs.tsx",
+        "sha256": "f883d21ef60c89c1b3fcb9c61820f557d6ecc7a4ccb7a512bfed681df7a66ff0"
+      },
+      {
+        "path": "web/src/graph-dataset-order.ts",
+        "sha256": "f69ce1d07999c1b491374ddee2e366e10a3339571b206c888ecb8699f49689ba"
+      },
+      {
+        "path": "web/src/graph-datasets-dialog.css",
+        "sha256": "7ff0223e3237e5f94e55717de9f4b8d283e17e0d7e919e28ca25d1f2295ef74c"
+      }
+    ],
+    "validation": {
+      "full_frontend_before_color_fix_passed": 231,
+      "final_focused_tests_passed": 8,
+      "typecheck": true,
+      "development_browser": "passed including actual SVG order and color identity",
+      "production_browser": "server and static passed: SVG order/colors, membership, Apply/Cancel, undo/redo, reload, keyboard, narrow layout, source preservation; zero page errors",
+      "native_equivalence": false,
+      "deployment_verified": false,
+      "builds": [
+        "server",
+        "static"
+      ],
+      "runtime_packages_verified": 19
+    },
+    "remaining": [
+      "Cross-table Add/Replace",
+      "Persistent removed-dataset styles after dialog reopen",
+      "Unified browser/export whole-artist ordering",
+      "Complete native Appearance/Graph Settings/Column Annotations"
+    ]
   }
 }

@@ -2,6 +2,26 @@
 
 Prepared 2026-10-19, America/Chicago. This is a continuation checkpoint, **not completion of Prism parity**.
 
+## XY dataset-order follow-up (2026-10-20)
+
+After the published axes increments, work continued into G045. The XY Format
+Graph dataset page now uses one selected list with working membership/reorder
+controls. Persisted order remains back-to-front; the UI reverses presentation.
+Colors now stay attached to included source datasets through reorder and
+same-dialog remove/re-add. Cross-table Add/Replace, removed colors after a
+committed removal and dialog reopen, and whole-artist stacking parity remain
+open. Column retains its separate left-to-right workflow. Read the newest
+execution-log entry for actual validation/publication status.
+
+A new actual REA decode of four Column NIBs produced
+`ev_ff9c5094b7f4562421c7eeb24cd8c987d2500186575f364afba7c00b229ecc31`.
+The graph evidence report preserves original hashes and unresolved connectors.
+It confirms Column differs from XY: left-to-right order, baseline/orientation/
+spacing controls and an archived fourth Annotations tab. These missing controls
+are not implemented by this ordering increment. Next work should use the
+Column/XY-specific evidence, finish dataset-scoped appearance support and stable
+style ownership, and retain the wider completion registers; do not claim parity.
+
 ## Current continuation: persistent axes (2026-10-20)
 
 The first axes increment was published as `65faec6a81ec272e8abb9490e45f4bb5edf80020`

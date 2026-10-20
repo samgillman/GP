@@ -2368,13 +2368,17 @@
         "Add/replace/remove",
         "Top/up/reverse/down/bottom"
       ],
-      "current_status": "partial: same-table subset/up/down; renderer later series currently foreground, contrary to XY native first-front",
+      "current_status": "partial: XY selected front-first list with same-source Add/Remove and Top/Up/Reverse/Down/Bottom; stored order unchanged, graph colors preserved on reordering and same-dialog remove/re-add. Column retains left-to-right behavior. Cross-table Add/Replace, persistent removed-style ownership and whole-artist/native layering parity remain open.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
-        "web/src/WorkbookDialogs.tsx"
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/graph-dataset-order.ts",
+        "web/src/graph-dataset-order.test.ts",
+        "scripts/check_dataset_order.py",
+        "docs/prism-graph-format-evidence.md"
       ],
       "dependencies": [
         "G019",
@@ -2396,7 +2400,10 @@
         "Two coincident contrasting series reveal z order; all reorder operations preserve colors and source mappings."
       ],
       "audit_status": "partial",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [
+        "REA interface decoding ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f (XY resource controls)",
+        "REA interface decoding ev_ff9c5094b7f4562421c7eeb24cd8c987d2500186575f364afba7c00b229ecc31 (Column resource controls; not runtime behavior)"
+      ]
     },
     {
       "id": "G046",

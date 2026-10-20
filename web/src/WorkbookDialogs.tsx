@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { Analysis, Graph, Project, TableType } from "./data";
 import type { GraphSheet, ResultSheet } from "./workbook";
@@ -18,6 +18,9 @@ import type {
   ComparisonOptions,
 } from "./column-analysis";
 import "./dialog-desktop.css";
+import "./graph-datasets-dialog.css";
+import { colorsForDatasetOrder, frontToBackDatasets, rememberDatasetColors, reorderGraphDatasets } from "./graph-dataset-order";
+import type { DatasetOrderAction } from "./graph-dataset-order";
 
 function datasetLetter(index: number) {
   let label = "";
@@ -1068,6 +1071,112 @@ export function PairwiseDialog({
     </DesktopDialog>
   );
 }
+/** Native resource scope is XY; Column keeps its existing dataset controls. */
+function XYGraphDatasetList({ project, indices, onChange }: {
+  project: Project;
+  indices: number[];
+  onChange(indices: number[]): void;
+}) {
+  const id = useId();
+  const list = useRef<HTMLDivElement>(null);
+  const addButton = useRef<HTMLButtonElement>(null);
+  const availableSelect = useRef<HTMLSelectElement>(null);
+  const [selected, setSelected] = useState<number | null>(() => indices.at(-1) ?? null);
+  const [adding, setAdding] = useState(false);
+  const [choice, setChoice] = useState<number | null>(null);
+  const displayed = frontToBackDatasets(indices);
+  const available = dataIndices(project).filter(index => !indices.includes(index));
+  const position = selected === null ? -1 : displayed.indexOf(selected);
+  useEffect(() => {
+    if (selected === null || !indices.includes(selected)) setSelected(indices.at(-1) ?? null);
+  }, [indices, selected]);
+  useEffect(() => {
+    list.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: "nearest" });
+  }, [indices, selected]);
+  useEffect(() => {
+    if (adding) availableSelect.current?.focus();
+  }, [adding]);
+  function focusList() {
+    requestAnimationFrame(() => list.current?.focus());
+  }
+  function reorder(action: DatasetOrderAction) {
+    onChange(reorderGraphDatasets(indices, selected, action));
+  }
+  function remove() {
+    if (selected === null || position < 0) return;
+    const remaining = indices.filter(index => index !== selected);
+    const nextDisplayed = frontToBackDatasets(remaining);
+    onChange(remaining);
+    setSelected(nextDisplayed[Math.min(position, nextDisplayed.length - 1)] ?? null);
+    focusList();
+  }
+  function openAdd() {
+    if (!available.length) return;
+    setChoice(available[0]);
+    setAdding(true);
+  }
+  function add() {
+    if (choice === null || !available.includes(choice)) return;
+    // Append in persisted draw order, which places the new observations in front.
+    onChange([...indices, choice]);
+    setSelected(choice);
+    setAdding(false);
+    focusList();
+  }
+  return <div className="xy-dataset-manager">
+    <h3 id={`${id}-heading`}>Data sets plotted</h3>
+    <div className="xy-dataset-editor">
+      <div ref={list} role="listbox" aria-labelledby={`${id}-heading`}
+        aria-describedby={`${id}-order-help`} className="xy-dataset-list" tabIndex={0}
+        aria-activedescendant={position >= 0 ? `${id}-dataset-${selected}` : undefined}
+        onKeyDown={event => {
+          if (event.key === "Delete") { event.preventDefault(); remove(); return; }
+          if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(event.key) || !displayed.length) return;
+          event.preventDefault();
+          const next = event.key === "Home" ? 0 : event.key === "End" ? displayed.length - 1 :
+            Math.max(0, Math.min(displayed.length - 1, position + (event.key === "ArrowDown" ? 1 : -1)));
+          setSelected(displayed[next]);
+        }}>
+        {displayed.map(index => <div key={index} id={`${id}-dataset-${index}`}
+          role="option" aria-selected={selected === index} data-source-index={index}
+          className="xy-dataset-option" title={project.columns[index].name}
+          onClick={() => { setSelected(index); list.current?.focus(); }}>
+          {project.columns[index].name}
+        </div>)}
+        {!displayed.length && <p className="xy-dataset-empty">No data sets on this graph.</p>}
+      </div>
+      <div className="xy-dataset-actions" role="group" aria-label="Data set actions">
+        <button ref={addButton} disabled={!available.length || adding} onClick={openAdd}>Add…</button>
+        <button disabled={position < 0} onClick={remove}>Remove</button>
+        <button className="xy-dataset-action-divider" disabled={position <= 0} onClick={() => reorder("top")}>Top</button>
+        <button disabled={position <= 0} onClick={() => reorder("up")}>Up</button>
+        <button disabled={indices.length < 2} onClick={() => reorder("reverse")}>Reverse</button>
+        <button disabled={position < 0 || position >= displayed.length - 1} onClick={() => reorder("down")}>Down</button>
+        <button disabled={position < 0 || position >= displayed.length - 1} onClick={() => reorder("bottom")}>Bottom</button>
+      </div>
+    </div>
+    {!indices.length && <p className="xy-dataset-required" role="alert">Add at least one data set before applying.</p>}
+    {adding && <div className="xy-dataset-add" role="group" aria-label="Add data set from this table">
+      <label htmlFor={`${id}-available`}>Available data sets from this data table</label>
+      <select ref={availableSelect} id={`${id}-available`} aria-label="Available data sets"
+        size={Math.min(6, Math.max(2, available.length))} value={choice ?? ""}
+        onChange={event => setChoice(Number(event.target.value))}>
+        {available.map(index => <option key={index} value={index}>{project.columns[index].name}</option>)}
+      </select>
+      <div className="xy-dataset-add-actions">
+        <button aria-label="Cancel adding data set" onClick={() => {
+          setAdding(false); requestAnimationFrame(() => addButton.current?.focus());
+        }}>Cancel</button>
+        <button disabled={choice === null || !available.includes(choice)} onClick={add}>Add data set</button>
+      </div>
+    </div>}
+    <p id={`${id}-order-help`} className="desktop-help-text">
+      Top data sets draw their observations in front. Fitted curves and other graph elements keep their own drawing order.
+    </p>
+    <p className="desktop-help-text">Selection and drawing order are saved for this graph without changing the data table.</p>
+  </div>;
+}
+
 export function FormatGraphDialog({
   sheet,
   project,
@@ -1081,8 +1190,34 @@ export function FormatGraphDialog({
   onClose: () => void;
   onApply: (next: GraphSheet) => void;
 }) {
-  const [draft, setDraft] = useState(() => structuredClone(sheet)),
-    [tab, setTab] = useState("Appearance");
+  const [formatState, setFormatState] = useState(() => ({
+    draft: structuredClone(sheet),
+    datasetColors: rememberDatasetColors(new Map(), sheet.columnIndices, sheet.graph.colors),
+  }));
+  const draft = formatState.draft;
+  const [tab, setTab] = useState("Appearance");
+  function setDraft(update: (previous: GraphSheet) => GraphSheet) {
+    setFormatState(previous => {
+      const next = update(previous.draft);
+      if (project.table_type !== "xy") return { ...previous, draft: next };
+      const remembered = rememberDatasetColors(
+        previous.datasetColors, previous.draft.columnIndices, previous.draft.graph.colors,
+      );
+      const reordered = next.columnIndices.length !== previous.draft.columnIndices.length ||
+        next.columnIndices.some((source, i) => source !== previous.draft.columnIndices[i]);
+      if (reordered) {
+        const result = colorsForDatasetOrder(remembered, next.columnIndices);
+        return {
+          draft: { ...next, graph: { ...next.graph, colors: result.colors } },
+          datasetColors: result.remembered,
+        };
+      }
+      return {
+        draft: next,
+        datasetColors: rememberDatasetColors(remembered, next.columnIndices, next.graph.colors),
+      };
+    });
+  }
   function g(p: Partial<Graph>) {
     setDraft((v) => ({ ...v, graph: { ...v.graph, ...p } }));
   }
@@ -1268,7 +1403,13 @@ export function FormatGraphDialog({
               </fieldset>
             </div>
           ) : tab === "Data Sets on Graph" ? (
-            <>
+            project.table_type === "xy" ? (
+              <XYGraphDatasetList
+                project={project}
+                indices={draft.columnIndices}
+                onChange={columnIndices => setDraft(previous => ({ ...previous, columnIndices }))}
+              />
+            ) : <>
               <div className="desktop-dataset-panes">
                 <div>
                   <h3>Include data sets:</h3>

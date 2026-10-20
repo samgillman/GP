@@ -1,5 +1,43 @@
 # Completion execution log
 
+## 2026-10-20 continuation: XY dataset membership and ordering
+
+Using the retained REA XY graph-dialog contract, the next unit replaces its
+inclusion/order dual panes with one selected list and adjacent Add, Remove,
+Top, Up, Reverse, Down and Bottom actions. Stored order remains unchanged;
+the UI reverses it so the frontmost observations appear first. Column retains
+its separate ordering workflow. Same-source single-dataset addition is a GP
+implementation choice; cross-table Add/Replace and native runtime equivalence
+remain open. Curves and other artists have separate browser/export layers, so
+this is not a promise of whole-dataset layering across all graph elements.
+
+Before the color correction, the full frontend suite passed 231 tests, but the
+new actual browser check failed after Reverse→Apply: dataset colors followed
+positions rather than dataset identity. The fix must preserve active dataset
+colors on reorder and removed colors on re-add within the dialog, including
+Appearance edits. The existing schema cannot recover a removed dataset's old
+color after committing removal and closing/reopening the dialog; persistent
+style ownership across that workflow remains open.
+
+Final validation: eight focused ordering/color tests and typecheck passed after
+the color correction. Both production builds passed; the static assembler
+verified all 19 locked runtime packages. Actual Chromium checks passed on the
+development, packaged-server and static builds: SVG order and dataset colors,
+Apply/Cancel, undo/redo, membership changes, empty-selection refusal, reload,
+keyboard navigation, narrow-window layout and unchanged source data. Zero page
+errors occurred. Screenshots are retained under
+`/workspace/gp-evidence/dataset-order-{dev,server,static}`; the development
+screenshot was visually reviewed. The requirement audit preserves all 2,661
+requirement identities and 1,574 original parity rows. These checks are now wired
+into CI; hosted execution and live-site deployment have not been verified.
+
+The new Column resource decode is actual REA Evidence
+`ev_ff9c5094b7f4562421c7eeb24cd8c987d2500186575f364afba7c00b229ecc31`.
+All four requested archives decoded, with 71 recognized actions and 105
+unresolved connectors preserved. Original bytes/hashes remain outside Git.
+Column controls and its archived Annotations tab are documented separately;
+this UI increment does not implement or close them.
+
 ## 2026-10-20 continuation: axes dialog geometry and label spacing
 
 After publishing numbering as `b1eccbe` (verified against GitHub main), work
