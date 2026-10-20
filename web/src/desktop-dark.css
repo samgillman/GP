@@ -322,3 +322,15 @@
   background: white;
   color: #222;
 }
+
+/* Graph zoom belongs to dark window chrome, not the white graph page. */
+.app[data-theme="dark"] > main .graph-zoom-strip {
+  background: #333332;
+  color: #ededed;
+  border-color: #565656;
+}
+.app[data-theme="dark"] > main .graph-zoom-strip button {
+  color: #ededed;
+  background: #505050;
+  border-color: #686868;
+}

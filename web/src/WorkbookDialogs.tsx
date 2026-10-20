@@ -1181,12 +1181,14 @@ export function FormatGraphDialog({
   sheet,
   project,
   results,
+  initialAppearanceDataset,
   onClose,
   onApply,
 }: {
   sheet: GraphSheet;
   project: Project;
   results: ResultSheet[];
+  initialAppearanceDataset?: number | null;
   onClose: () => void;
   onApply: (next: GraphSheet) => void;
 }) {
@@ -1198,7 +1200,10 @@ export function FormatGraphDialog({
   // Keep the Appearance selection attached to the source column, even when the
   // Data Sets tab changes the graph's drawing order or membership.
   const [selectedAppearanceDataset, setSelectedAppearanceDataset] = useState<number | null>(
-    sheet.columnIndices[0] ?? null,
+    initialAppearanceDataset !== null && initialAppearanceDataset !== undefined &&
+      sheet.columnIndices.includes(initialAppearanceDataset)
+      ? initialAppearanceDataset
+      : (sheet.columnIndices[0] ?? null),
   );
   const appearanceIndex =
     selectedAppearanceDataset !== null &&
