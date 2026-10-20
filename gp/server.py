@@ -3,7 +3,7 @@ import numpy as np
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, Response
-from .models import AnalysisRequest, ExportRequest
+from .models import EXPORT_MEDIA_TYPES, AnalysisRequest, ExportRequest
 from .statistics import AnalysisError, analyze
 from .plotting import export_plot
 from .import_prism import PrismImportRequest, import_prism
@@ -63,7 +63,7 @@ def export_route(request: ExportRequest):
         content = export_plot(request)
     except (FloatingPointError, OverflowError) as exc:
         raise AnalysisError("The graph cannot be rendered at this numeric scale. Rescale values and retry.") from exc
-    return Response(content=content, media_type={"svg": "image/svg+xml", "png": "image/png", "pdf": "application/pdf"}[request.format], headers={"Content-Disposition": f'attachment; filename="gp-graph.{request.format}"'})
+    return Response(content=content, media_type=EXPORT_MEDIA_TYPES[request.format], headers={"Content-Disposition": f'attachment; filename="gp-graph.{request.format}"'})
 
 
 @app.post("/api/import-prism")

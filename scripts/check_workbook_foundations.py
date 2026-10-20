@@ -150,8 +150,10 @@ def main():
             }""", text)
 
         def export_svg(filename):
+            menu_action("File", "Export…")
+            page.get_by_role("dialog", name="Export", exact=True).get_by_label("File Format:", exact=True).select_option("svg")
             with page.expect_download(timeout=120000) as pending:
-                menu_action("File", "Export graph as SVG…")
+                page.get_by_role("dialog", name="Export", exact=True).get_by_role("button", name="Export", exact=True).click()
             destination = OUT / filename
             pending.value.save_as(destination)
             return svg_geometry(destination)
@@ -188,7 +190,7 @@ def main():
             page.get_by_role("button", name="Analyze Data…", exact=True).click()
             analyze_dialog = page.get_by_role("dialog", name="Analyze Data", exact=True)
             analyze_dialog.get_by_role("radio", name="Linear regression", exact=True).check()
-            analyze_dialog.get_by_role("button", name="Create analysis", exact=True).click()
+            analyze_dialog.get_by_role("button", name="OK", exact=True).click()
             ready = wait_book(lambda w: any(s["kind"] == "results" and s["status"] == "current" for s in w["sheets"]), "UI analysis computed")
             result_id = next(s["id"] for s in ready["sheets"] if s["kind"] == "results")
             assert sheet(result_id)["result"]["fit"], "Actual linear fit must produce curves"

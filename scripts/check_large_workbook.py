@@ -70,7 +70,7 @@ with sync_playwright() as p:
         page.get_by_role('button',name='Analyze Data…',exact=True).click()
         dialog=page.get_by_role('dialog',name='Analyze Data',exact=True)
         if choice: dialog.get_by_role('radio',name=choice,exact=True).check()
-        dialog.get_by_role('button',name='Create analysis',exact=True).click()
+        dialog.get_by_role('button',name='OK',exact=True).click()
         if test:
             # t tests open Prism-style parameters before anything is calculated.
             parameters=page.get_by_role('dialog',name=f'Parameters: {choice}',exact=True)

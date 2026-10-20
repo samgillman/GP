@@ -142,8 +142,10 @@ with sync_playwright() as p:
     titles = page.locator("svg circle title").all_text_contents()
     a_points = sorted(t for t in titles if t.startswith("A, row"))
     assert a_points == ["A, row 3: 3", "A, row 4: 100"], titles
+    menu("File", "Export…")
+    page.get_by_role("dialog", name="Export", exact=True).get_by_label("File Format:", exact=True).select_option("svg")
     with page.expect_download(timeout=300000):
-        menu("File", "Export graph as SVG…")
+        page.get_by_role("dialog", name="Export", exact=True).get_by_role("button", name="Export", exact=True).click()
     exported = payloads("/api/export")[-1]
     assert exported["data"]["columns"][0]["values"] == [None, None, 3, 100], exported
     check("results note, drawn graph points and graph export input omit excluded values", graph_points=a_points,

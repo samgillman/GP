@@ -581,6 +581,24 @@
   color: var(--nav-dim);
   font-style: italic;
 }
+/* Renaming a sheet in place (double-click its name). */
+.app[data-theme] .pw-nav .sheet-link.is-renaming {
+  overflow: visible;
+}
+.app[data-theme] .pw-nav .sheet-rename {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 17px;
+  margin: 0;
+  padding: 0 3px;
+  border: 1px solid #2f7cf6;
+  border-radius: 2px;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(47, 124, 246, 0.35);
+  background: var(--bottom-field);
+  color: var(--nav-text);
+  font: inherit;
+}
 .app[data-theme] .pw-nav .navigator-new:disabled {
   opacity: 0.7;
 }
@@ -710,6 +728,25 @@
 }
 .app .graph-page .plot .graph-title {
   font: 700 18px Arial, Helvetica, sans-serif;
+}
+/* In-place editing of the title and axis titles. */
+.app .plot .graph-text-editor {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0 4px;
+  border: 1px solid #2f7cf6;
+  border-radius: 2px;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(47, 124, 246, 0.3);
+  background: #fff;
+  color: #000;
+  text-align: center;
+  font: 700 16px Arial, Helvetica, sans-serif;
+}
+.app .plot .graph-text-editor.is-title {
+  font-size: 18px;
 }
 .app .graph-page .plot .pairwise-label {
   font: 700 16px Arial, Helvetica, sans-serif;

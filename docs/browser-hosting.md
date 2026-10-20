@@ -40,7 +40,7 @@ Open the URL issued by your host. With the included treatment example:
 
 1. Click **Run analysis**. Control mean should be **41.5**.
 2. Select **Data table** to edit observations. Existing result sheets become stale and can be recalculated. Use the navigator to move between tables, results, and graphs.
-3. From a result sheet, create a graph with **New graph of existing data**, then use **Format Graph…** and export SVG, PNG, or PDF. Use **Save workbook** to keep a portable copy of all sheets and their links.
+3. From a result sheet, create a graph with **New graph of existing data**, then use **Format Graph…** and **File › Export…** (PDF, TIFF, PNG, JPEG, or SVG). Use **Save workbook** to keep a portable copy of all sheets and their links.
 4. Load the **Dose response** example and run its 4PL fit, or import your own CSV, compatible Prism XML, or supported ZIP project tables.
 5. Open **Grouped & survival** to run a Kaplan–Meier/logrank analysis or a balanced two-way ANOVA. Load an example or paste long-format data, confirm the column mappings, and run the analysis. Save this workspace with **Save analysis input JSON**; its inputs also persist across page reloads.
 

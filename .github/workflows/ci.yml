@@ -95,6 +95,8 @@ jobs:
           GP_FORMAT_GRAPH_EVIDENCE=test-results/format-graph-server python scripts/check_format_graph.py http://127.0.0.1:8002
           python scripts/check_prism_behaviors.py http://127.0.0.1:8001
           python scripts/check_prism_behaviors.py http://127.0.0.1:8002
+          python scripts/check_prism_dialogs.py http://127.0.0.1:8001
+          python scripts/check_prism_dialogs.py http://127.0.0.1:8002
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -28,6 +28,7 @@ import type {
   TableType,
 } from "./data";
 import Plot from "./Plot";
+import type { GraphTextField } from "./Plot";
 import { applyColorScheme, COLOR_SCHEMES, plottedDatasetStyles } from "./graph-style";
 import type { ColorSchemeName } from "./graph-style";
 import { makeGraphConsistent } from "./graph-magic";
@@ -48,6 +49,8 @@ import {
   searchIcon,
 } from "./ribbon-icons";
 import FormatAxesDialog from "./FormatAxesDialog";
+import ExportDialog from "./ExportDialog";
+import type { GraphExportRequest } from "./ExportDialog";
 import { axesForTableType } from "./axes";
 import DataGrid from "./DataGrid";
 import { allExcluded, groupLabel } from "./data-grid";
@@ -94,10 +97,11 @@ import {
   updateData,
 } from "./workbook";
 import { SHEET_HIGHLIGHTS } from "./workbook";
-import type { Workbook, Sheet, GraphSheet, ResultSheet, SheetHighlight } from "./workbook";
+import type { DataSheet, Workbook, Sheet, GraphSheet, ResultSheet, SheetHighlight } from "./workbook";
 import {
   NewTableDialog,
   AnalyzeDialog,
+  offeredAnalyses,
   FormatGraphDialog,
   FormatDataTableDialog,
   ChangeGraphTypeDialog,
@@ -305,6 +309,17 @@ export default function App() {
     }
   }
   const [advanced, setAdvanced] = useState(false);
+  /** An analysis chosen for another table, run once that table is open. */
+  const [pendingAnalysis, setPendingAnalysis] = useState<{
+    tableId: string;
+    analysis: Analysis;
+    indices: number[];
+    model: string;
+  } | null>(null);
+  /** File > Export for the current graph. */
+  const [exportDialog, setExportDialog] = useState(false);
+  /** The navigator row being renamed in place. */
+  const [renamingSheet, setRenamingSheet] = useState<string | null>(null);
   const [sheetMenu, setSheetMenu] = useState<{
     id: string;
     x: number;
@@ -795,12 +810,38 @@ export default function App() {
     else if (view === "results") setAnalyzeDialog(true);
     else setWorkbook((w) => addGraph(w, source.id));
   }
-  function renameSheet(name: string) {
+  /** Analyze Data's "Recently used": analyses in this workbook, newest first. */
+  const recentAnalyses = [
+    ...new Set(
+      workbook.sheets
+        .filter((s): s is ResultSheet => s.kind === "results")
+        .map((s) => s.analysis)
+        .reverse(),
+    ),
+  ]
+    .filter((a) => offeredAnalyses.includes(a))
+    .slice(0, 5);
+  type AnalyzeChoice = { analysis: Analysis; indices: number[]; model: string };
+  /** Run an analysis chosen in Analyze Data on the current data table. */
+  function startAnalysis({ analysis, indices, model }: AnalyzeChoice) {
+    if (isComparisonAnalysis(analysis)) {
+      setParameters({ analysis, indices, prefix: "" });
+      return;
+    }
+    void run(
+      analysis,
+      indices,
+      "",
+      true,
+      analysis === "nonlinear_regression" ? model : undefined,
+    );
+  }
+  function renameSheet(name: string, id = selectedSheet.id) {
     setWorkbook(
       (w) => ({
         ...w,
         sheets: w.sheets.map((s) =>
-          s.id === selectedSheet.id
+          s.id === id
             ? s.kind === "data"
               ? { ...s, name, project: { ...s.project, name } }
               : { ...s, name }
@@ -808,6 +849,42 @@ export default function App() {
         ),
       }),
       editOptions("Rename sheet"),
+    );
+  }
+  /** Rename in the navigator, as in Prism; the bottom bar's name field is
+   * used when the row is hidden (navigator closed, section collapsed or
+   * filtered out by the search). */
+  function startRename(id: string) {
+    const sheet = workbook.sheets.find((s) => s.id === id);
+    if (!sheet) return;
+    selectSheet(id);
+    const visible =
+      !navigatorHidden &&
+      !collapsedSections[sheet.kind] &&
+      sheet.name.toLowerCase().includes(sheetSearch.toLowerCase());
+    if (visible) setRenamingSheet(id);
+    else requestAnimationFrame(focusSheetName);
+  }
+  function finishRename(id: string, name: string | null) {
+    setRenamingSheet(null);
+    const sheet = workbook.sheets.find((s) => s.id === id);
+    const trimmed = name?.trim();
+    if (sheet && trimmed && trimmed !== sheet.name) renameSheet(trimmed, id);
+  }
+  /** Title and axis titles edited in place on the graph. */
+  function editGraphText(field: GraphTextField, value: string) {
+    if (!graphSheet || graphSheet.frozen) return;
+    const id = graphSheet.id;
+    setWorkbook(
+      (w) => ({
+        ...w,
+        sheets: w.sheets.map((s) =>
+          s.id === id && s.kind === "graph" && !s.frozen
+            ? { ...s, graph: { ...s.graph, [field]: value } }
+            : s,
+        ),
+      }),
+      { label: field === "title" ? "Edit graph title" : "Edit axis title" },
     );
   }
   const fileRef = useRef<HTMLInputElement>(null),
@@ -834,6 +911,14 @@ export default function App() {
     setBusy(false);
     setResultTab("");
   }, [workbook.activeSheetId]);
+  // Declared after the sheet-change effect above, which cancels running
+  // analyses, so an analysis chosen for another table starts after it.
+  useEffect(() => {
+    if (!pendingAnalysis || selectedSheet.id !== pendingAnalysis.tableId) return;
+    const { tableId: _table, ...request } = pendingAnalysis;
+    setPendingAnalysis(null);
+    startAnalysis(request);
+  });
   function applyHistory(direction: "undo" | "redo") {
     const moved = moveHistory(
       historyRef.current,
@@ -881,6 +966,7 @@ export default function App() {
           parameters !== null ||
           pairwiseDialog ||
           csvExport !== null ||
+          exportDialog ||
           imported.length > 0,
       );
       if (
@@ -908,6 +994,7 @@ export default function App() {
     parameters,
     pairwiseDialog,
     csvExport,
+    exportDialog,
     imported.length,
   ]);
   function change(
@@ -1233,7 +1320,12 @@ export default function App() {
   function message(body: unknown) {
     return errorMessage(body);
   }
-  async function exportGraph(format: "svg" | "png" | "pdf") {
+  /** File > Export: graphs open the Export dialog; data tables save CSV. */
+  function exportCurrentSheet() {
+    if (active === "graph") setExportDialog(true);
+    else if (active === "data") exportData();
+  }
+  async function exportGraph(options: GraphExportRequest, fileName: string) {
     setError("");
     setExporting(true);
     try {
@@ -1282,12 +1374,12 @@ export default function App() {
             show_legend: project.graph.show_legend ?? xy,
             x_tick_rotation: !xy && slantedLabels.current ? 45 : 0,
           }))(project.graph),
-          format,
+          ...options,
         }),
       });
       if (!response.ok) throw new Error(message(await response.json()));
-      download(await response.blob(), `GP-graph.${format}`);
-      setNotice(`${format.toUpperCase()} graph exported.`);
+      download(await response.blob(), fileName);
+      setNotice(`Exported ${fileName}.`);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -1861,16 +1953,14 @@ export default function App() {
             <button role="menuitem" onClick={() => exportData()}>
               Export data as CSV…
             </button>
-            {(["svg", "png", "pdf"] as const).map((format) => (
-              <button
-                role="menuitem"
-                key={format}
-                disabled={active !== "graph" || exporting}
-                onClick={() => void exportGraph(format)}
-              >
-                Export graph as {format.toUpperCase()}…
-              </button>
-            ))}
+            <button
+              role="menuitem"
+              disabled={active === "results" || exporting}
+              title={active === "graph" ? "Export this graph" : active === "data" ? "Export this data table as CSV" : "Copy results from the results sheet"}
+              onClick={exportCurrentSheet}
+            >
+              Export…
+            </button>
             <hr />
             <button role="menuitem" onClick={() => window.print()}>
               Print…
@@ -1892,7 +1982,7 @@ export default function App() {
               Redo <kbd>⇧⌘Z / Ctrl+Y</kbd>
             </button>
             <hr />
-            <button role="menuitem" onClick={focusSheetName}>
+            <button role="menuitem" onClick={() => startRename(selectedSheet.id)}>
               Rename sheet
             </button>
             <button role="menuitem" onClick={() => void copyData()}>
@@ -2459,25 +2549,14 @@ export default function App() {
             </div>
           </RibbonGroup>
           <RibbonGroup label="Export">
-            <DesktopMenu
-              label="Export"
-              className="rb-menu"
-              summary={<span className="rb-tool big" aria-label="Export graph" title="Export graph or data">{ribbonIcons.exportGraph}</span>}
-            >
-              {(["svg", "png", "pdf"] as const).map((format) => (
-                <button
-                  role="menuitem"
-                  key={format}
-                  disabled={active !== "graph" || exporting}
-                  onClick={() => void exportGraph(format)}
-                >
-                  Export graph as {format.toUpperCase()}…
-                </button>
-              ))}
-              <button role="menuitem" onClick={() => exportData()}>
-                Export data as CSV…
-              </button>
-            </DesktopMenu>
+            <Tool
+              big
+              label="Export…"
+              title={active === "graph" ? "Export this graph" : "Export this data table as CSV"}
+              icon={ribbonIcons.exportGraph}
+              disabled={active === "results" || exporting}
+              onClick={exportCurrentSheet}
+            />
           </RibbonGroup>
           <RibbonGroup label="Send">
             <div className="rb-row">
@@ -2518,10 +2597,7 @@ export default function App() {
         >
           <button
             role="menuitem"
-            onClick={() => {
-              selectSheet(sheetMenu.id);
-              requestAnimationFrame(focusSheetName);
-            }}
+            onClick={() => startRename(sheetMenu.id)}
           >
             Rename sheet
           </button>
@@ -2609,12 +2685,49 @@ export default function App() {
                 {!collapsedSections[kind] &&
                   sheets
                     .filter((s) => s.name.toLowerCase().includes(sheetSearch.toLowerCase()))
-                    .map((s) => (
+                    .map((s) => renamingSheet === s.id ? (
+                      <div
+                        key={s.id}
+                        className={`sheet-link selected is-renaming${familyIds.has(s.id) ? " in-family" : ""}`}
+                      >
+                        {s.kind === "data"
+                          ? navigatorIcons.table
+                          : s.kind === "graph"
+                            ? navigatorIcons.graph
+                            : navigatorIcons.results}
+                        <input
+                          className="sheet-rename"
+                          aria-label={`Rename ${s.name}`}
+                          defaultValue={s.name}
+                          maxLength={100}
+                          autoFocus
+                          onFocus={(event) => event.currentTarget.select()}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              event.preventDefault();
+                              event.currentTarget.blur();
+                            } else if (event.key === "Escape") {
+                              event.preventDefault();
+                              event.stopPropagation();
+                              event.currentTarget.dataset.cancelled = "true";
+                              event.currentTarget.blur();
+                            }
+                          }}
+                          onBlur={(event) =>
+                            finishRename(
+                              s.id,
+                              event.currentTarget.dataset.cancelled ? null : event.currentTarget.value,
+                            )
+                          }
+                        />
+                      </div>
+                    ) : (
                       <button
                         key={s.id}
                         className={`sheet-link ${s.id === selectedSheet.id ? "selected" : ""}${familyIds.has(s.id) ? " in-family" : ""}${s.frozen ? " is-frozen" : ""}${s.highlight ? ` hl-${s.highlight}` : ""}`}
                         aria-current={s.id === selectedSheet.id ? "page" : undefined}
                         onClick={() => selectSheet(s.id)}
+                        onDoubleClick={() => startRename(s.id)}
                         onContextMenu={(event) => {
                           event.preventDefault();
                           setSheetMenu({
@@ -3068,6 +3181,7 @@ export default function App() {
                       onEditTitle={() => openGraphFormatting("Graph Settings")}
                       onSelectDataset={openGraphDatasetFormatting}
                       onEditText={field => openAxes(field === "x_label" ? "x" : "y")}
+                      onChangeText={graphSheet && !graphSheet.frozen ? editGraphText : undefined}
                       annotations={pairwiseAnnotations}
                     >
                     {project.graph.error === "ci" && !result && !xy && (
@@ -3654,21 +3768,30 @@ export default function App() {
       )}
       {analyzeDialog && (
         <AnalyzeDialog
-          project={project}
+          tables={workbook.sheets
+            .filter((s): s is DataSheet => s.kind === "data")
+            .map((s) => ({ id: s.id, name: s.name, project: s.project }))}
+          initialTableId={source.id}
+          recent={recentAnalyses}
           onClose={() => setAnalyzeDialog(false)}
-          onRun={(analysis, indices, prefix, model) => {
+          onRun={(tableId, analysis, indices, model) => {
             setAnalyzeDialog(false);
-            if (isComparisonAnalysis(analysis)) {
-              setParameters({ analysis, indices, prefix });
-              return;
-            }
-            void run(
-              analysis,
-              indices,
-              prefix,
-              true,
-              analysis === "nonlinear_regression" ? model : undefined,
-            );
+            const request = { analysis, indices, model };
+            // Another table: open it first, then analyze it (see pendingAnalysis).
+            if (tableId !== source.id || selectedSheet.kind !== "data") {
+              setPendingAnalysis({ tableId, ...request });
+              selectSheet(tableId);
+            } else startAnalysis(request);
+          }}
+        />
+      )}
+      {exportDialog && active === "graph" && (
+        <ExportDialog
+          sheetName={graphSheet?.name ?? "GP graph"}
+          onClose={() => setExportDialog(false)}
+          onExport={(fileName, options) => {
+            setExportDialog(false);
+            void exportGraph(options, fileName);
           }}
         />
       )}

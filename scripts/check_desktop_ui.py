@@ -77,14 +77,14 @@ with sync_playwright() as p:
     page.get_by_role('button', name='Format Graph…', exact=True).first.click()
     page.screenshot(path=str(shots / 'format-graph.png'))
     page.keyboard.press('Escape')
-    # Double-clicking the graph title reaches a real formatting editor.
+    # Double-clicking the graph title edits it in place, as in Prism.
     page.locator('svg.plot .graph-title').dblclick()
-    title_dialog = page.get_by_role('dialog', name='Format Graph', exact=True)
-    expect(title_dialog).to_be_visible()
-    expect(title_dialog.get_by_role('tab', name='Graph Settings', exact=True)).to_have_attribute('aria-selected', 'true')
-    expect(title_dialog.get_by_label('Graph title:', exact=True)).to_be_focused()
-    title_dialog.get_by_label('Graph title:', exact=True).fill('Directly formatted graph title')
-    title_dialog.get_by_role('button', name='OK', exact=True).click()
+    title_editor = page.get_by_label('Graph title text', exact=True)
+    expect(title_editor).to_be_focused()
+    title_editor.fill('Directly formatted graph title')
+    title_editor.press('Enter')
+    expect(title_editor).to_have_count(0)
+    expect(page.locator('svg.plot .graph-title')).to_have_text('Directly formatted graph title')
     assert next(s for s in workbook()['sheets'] if s['kind'] == 'graph')['graph']['title'] == 'Directly formatted graph title'
     page.get_by_role('button', name='Undo', exact=True).click()
     assert next(s for s in workbook()['sheets'] if s['kind'] == 'graph')['graph']['title'] != 'Directly formatted graph title'
@@ -95,7 +95,7 @@ with sync_playwright() as p:
     page.get_by_role('dialog', name='Change Graph Type').get_by_role('button', name='OK', exact=True).click()
     assert next(s for s in workbook()['sheets'] if s['kind'] == 'graph')['graph']['type'] == 'scatter'
     page.get_by_role('button', name='Analyze Data…', exact=True).click()
-    page.get_by_role('dialog', name='Analyze Data').get_by_role('button', name='Create analysis', exact=True).click()
+    page.get_by_role('dialog', name='Analyze Data').get_by_role('button', name='OK', exact=True).click()
     expect(page.get_by_role('heading', name='Summary statistics', exact=True)).to_be_visible(timeout=120000)
     page.screenshot(path=str(shots / 'results.png'))
     assert page.locator('.analysis-output tbody tr').count() > 0

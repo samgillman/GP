@@ -128,7 +128,7 @@ with sync_playwright() as p:
         dialog.get_by_role("radio", name=choice, exact=True).check()
         for name in uncheck:
             dialog.get_by_label(name, exact=True).uncheck()
-        dialog.get_by_role("button", name="Create analysis", exact=True).click()
+        dialog.get_by_role("button", name="OK", exact=True).click()
         parameters = page.get_by_role("dialog", name=f"Parameters: {choice}", exact=True)
         expect(parameters).to_be_visible()
         return parameters
@@ -260,8 +260,10 @@ with sync_playwright() as p:
     expect(labels).to_have_count(len(significant))
     check("pairwise brackets persist across reload")
 
+    menu("File", "Export…")
+    page.get_by_role("dialog", name="Export", exact=True).get_by_label("File Format:", exact=True).select_option("svg")
     with page.expect_download(timeout=300000) as pending:
-        menu("File", "Export graph as SVG…")
+        page.get_by_role("dialog", name="Export", exact=True).get_by_role("button", name="Export", exact=True).click()
     sent = requests("/api/export")[-1]
     assert "pairwise" not in sent["graph"], sent["graph"]
     assert sorted(a["label"] for a in sent["graph"]["annotations"]) == significant, sent["graph"]

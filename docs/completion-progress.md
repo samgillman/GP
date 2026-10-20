@@ -550,3 +550,45 @@ existing checks now accept the first-view Change Graph Type prompt.
 `check_grid_ui.py` stops on this host at its Control+Z step, before its prompt
 change; it passes in Linux CI. Hosted CI for this branch has not yet been
 observed.
+
+## Prism behaviors, batch 2: editing in place, Analyze Data and Export (2026-10-20)
+
+Batch 1 (PR #14) passed hosted CI and is live at gp.samgillman.org. This
+batch follows dialogs observed in the user's Prism 11.1 for Mac (Analyze Data
+and File › Export captured from a discarded sample project). It is not REA
+evidence, and no parity status changes.
+
+- The graph title and the X and Y axis titles are edited in place: double-click
+  the text, then Enter or clicking away keeps it and Escape restores it. Each
+  edit is one undo step. Frozen graphs keep the previous double-click editors.
+- Double-clicking a sheet in the navigator renames it in place, and Rename
+  sheet in the Edit and navigator menus does the same. The bottom bar's name
+  field is used when the row is hidden.
+- Analyze Data has Prism's layout: Use (built-in analysis); Which analysis?,
+  with search and a collapsible tree (Recently used, XY analyses, Column
+  analyses); Analyze which data sets?, with a Table chooser, `A:Name` data set
+  rows and Select All / Deselect All; then Cancel / OK. Analyses that need the
+  other table type are listed but unavailable. Choosing another table opens it
+  and analyzes it. The sheet-name prefix field is gone, since Prism's dialog has
+  none.
+- File › Export and the toolbar Export button open Prism's Export sheet for
+  graphs: Export As, File Format (PDF, TIFF, PNG, JPEG, SVG) with a description,
+  Resolution (72–1200 dpi, bitmaps only, with the pixel size shown), Size
+  (Actual, or Enlarge/shrink to make width), Background Color (White or Clear),
+  and Make these options become the default / Restore the original defaults
+  (kept in this browser). On a data table, Export saves CSV.
+- `/api/export` accepts `tiff` and `jpeg`, plus `dpi`, `width_inches` (1–20)
+  and `transparent`. Enlarging or shrinking scales the whole graph, text
+  included; bitmaps record the chosen dpi. Requests are refused when they
+  cannot be honored: JPEG with a clear background, a resolution for vector
+  formats, a width for PDF (GP exports PDF at actual size), or bitmaps over 60
+  megapixels. Requests without the new fields export exactly as before.
+
+Validation on macOS: 279 frontend tests (5 new for export options), 499
+backend tests (21 new in `tests/test_export_options.py`), both builds, and 29
+of 31 local browser checks, including the new `scripts/check_prism_dialogs.py`
+(added to CI) against the static build and the server. Six checks now export
+through the Export dialog and four press Analyze Data's OK. `check_grid_ui.py`
+again stops at its macOS-only Control+Z step. `check_dataset_order.py` timed
+out once on its static SVG download while the full suite ran and passed when
+rerun alone. Hosted CI for this branch has not yet been observed.
