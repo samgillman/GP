@@ -136,7 +136,8 @@
 }
 .app .docked-dialog.format-graph-dialog select,
 .app .docked-dialog.format-graph-dialog input:not([type]),
-.app .docked-dialog.format-graph-dialog input[type="text"] {
+.app .docked-dialog.format-graph-dialog input[type="text"],
+.app .docked-dialog.format-graph-dialog input[type="number"] {
   font: inherit;
   font-size: 12px;
   height: 21px;

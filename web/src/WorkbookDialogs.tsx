@@ -1721,6 +1721,26 @@ export function FormatGraphDialog({
                 <p className="fg-note">This affects drawing only. Missing cells remain omitted from numerical analyses.</p>
               </FormatSection>
             )}
+            {!xy && graph.type === "bar" && (
+              <FormatSection title="Column dimensions">
+                <div className="fg-row">
+                  <label htmlFor="fg-column-space">Space between columns (%):</label>
+                  <input
+                    id="fg-column-space"
+                    type="number"
+                    min={0}
+                    max={400}
+                    step={10}
+                    aria-label="Space between columns (%)"
+                    placeholder="Automatic"
+                    value={graph.column_space_percent ?? ""}
+                    onChange={(event) => g({ column_space_percent:
+                      event.target.value === "" ? null : Number(event.target.value) })}
+                  />
+                </div>
+                <p className="fg-note">Percent of drawn bar width (0 = touching; 100 = a bar-width gap). Blank restores the existing GP automatic spacing. The renderer uses an explicit GP rule; native Prism dimensions are not verified.</p>
+              </FormatSection>
+            )}
             <FormatSection title="Analysis results on graph">
               <div className="fg-grid">
                 <label htmlFor="fg-result">Linked analysis result:</label>

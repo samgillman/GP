@@ -28,11 +28,13 @@ def _style(graph, i):
     return graph.styles[i] if i < len(graph.styles) else None
 
 
-def _bar_kwargs(style, color):
+def _bar_kwargs(style, color, graph):
+    # An explicit Column spacing sets the bar width as a share of its slot.
+    spaced = None if graph.column_space_percent is None else 1 / (1 + graph.column_space_percent / 100)
     if style is None:
-        return {"color": color, "edgecolor": "black", "linewidth": 1.5, "width": .6}
+        return {"color": color, "edgecolor": "black", "linewidth": 1.5, "width": spaced or .6}
     return {"color": style.fill, "edgecolor": style.color, "linewidth": style.border_width,
-            "width": BAR_WIDTH, "hatch": "///" if style.pattern else None}
+            "width": spaced or BAR_WIDTH, "hatch": "///" if style.pattern else None}
 
 
 def _box_kwargs(style, color):
@@ -309,7 +311,7 @@ def _draw_configured(axis, data, graph, outcome, palette):
         if graph.type == "bar" and (not logy or mean > 0):
             baseline = floor if logy else 0
             if not logy or mean > floor:
-                axis.bar(i, mean-baseline, bottom=baseline, **_bar_kwargs(style, color))
+                axis.bar(i, mean-baseline, bottom=baseline, **_bar_kwargs(style, color, graph))
         elif graph.type == "box":
             # Quantiles use all observations, including nonpositive ones. Only
             # geometric drawing is clipped to the displayed log domain.
@@ -491,7 +493,7 @@ def export_plot(request):
                 tops[i] = max(float(np.max(y)), summary["mean"] + (error or 0))
                 lows.append(min(float(np.min(y)), summary["mean"] - (error or 0)))
                 if graph.type == "bar":
-                    axis.bar(i, summary["mean"], **_bar_kwargs(style, color))
+                    axis.bar(i, summary["mean"], **_bar_kwargs(style, color, graph))
                 elif graph.type == "box":
                     axis.boxplot([y], positions=[i], widths=BAR_WIDTH if style else .5, whis=(0, 100), patch_artist=True, showfliers=not graph.show_points, manage_ticks=False, **_box_kwargs(style, color))
                 if graph.type != "box" and style is not None:

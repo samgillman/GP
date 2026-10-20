@@ -341,7 +341,10 @@ export default function Plot({
   const editAxis = (axis: "x" | "y", event: React.MouseEvent) => { event.stopPropagation(); onFormatAxes?.(axis); };
   const dense = styles.some(style => style.symbols) && count > DENSE_POINT_THRESHOLD;
   const slot = series.length ? pw / (series.length + 0.2) : pw;
-  const bw = Math.min(72, slot * 0.66);
+  // An explicit Column spacing sets the bar width as a share of its slot.
+  const bw = !xy && graph.type === "bar" && graph.column_space_percent != null
+    ? slot / (1 + graph.column_space_percent / 100)
+    : Math.min(72, slot * 0.66);
   const axisWidth = 2;
   return (
     <div

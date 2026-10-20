@@ -462,15 +462,20 @@ Implemented on branch `feat/graph-sheet-format-graph-mockup`:
   (`GraphOptions.styles`, `show_legend`, `x_tick_rotation`); requests without
   styles keep the earlier export styling.
 
-Validation on macOS (Python 3.12 with `requirements.lock`, Node 24): 469 backend
-tests (7 new export-style tests), 268 frontend tests (10 new style and page
-layout tests), `scripts/check_requirements.py`, both builds, and the new
-`scripts/check_format_graph.py` on the static and packaged-server builds. In the
-full browser suite, 22 checks passed. `check_grid_ui.py` and both
-`check_column_datasets.py` runs fail identically on an unmodified build of
-`main` (`55eb858`) on this host. The first uses Control+Z, which is not the macOS
-undo key; the second matches two "left to right" elements under Playwright's
-strict mode. Five existing checks were updated for controls the reference moves:
-the zoom-in command is in View, Exclude/Include Values in Edit, new graph of
-existing data in Insert, and the graph title is edited from Graph Settings.
+After PR #11 (Column bar spacing) merged into `main`, this branch merged it.
+The **Space between columns (%)** control now sits in a Column dimensions
+section of the redesigned Graph Settings tab. Its bar-width rule applies to
+both the restyled browser bars and the styled export.
+
+Validation on macOS (Python 3.12 with `requirements.lock`, Node 24) after
+merging `main` at `49e2e8c`: 485 backend tests (7 new export-style tests), 269
+frontend tests (10 new style and page layout tests), `scripts/check_requirements.py`,
+both builds, and 26 of 27 browser checks. Those include the new
+`scripts/check_format_graph.py` and PR #11's `check_column_spacing.py` on the
+static and packaged-server builds. `check_grid_ui.py` fails on this host
+because it presses Control+Z, which is not the macOS undo key; it passes in
+Linux CI on `main`. Five existing checks and PR #11's spacing check were updated
+for controls the reference moves or restyles: the zoom-in command is in View,
+Exclude/Include Values in Edit, new graph of existing data in Insert, the graph
+title is edited from Graph Settings, and bars are no longer black-outlined.
 Hosted CI for this branch has not yet been observed.
