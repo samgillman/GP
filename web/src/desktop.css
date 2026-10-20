@@ -871,16 +871,28 @@
   font-size: 14px;
   font-weight: 700;
 }
+/* Prism's Mac zoom tools sit at the lower-right window edge, not on
+   the publication page. View zoom must not alter graph/export settings. */
 .app > main .graph-zoom-strip {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index: 17;
+  box-sizing: border-box;
+  max-width: 100vw;
+  height: var(--status-height);
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 4px;
-  padding: 3px 8px;
-  border-top: 1px solid #e3e3e3;
+  padding: 2px 8px;
+  background: linear-gradient(#f1f1f1, #e1e1e1);
+  border-top: 1px solid #a8a8a8;
+  border-left: 1px solid #c6c6c6;
   font-size: 11px;
   color: #555;
+  overflow-x: auto;
 }
 .app > main .graph-zoom-strip button,
 .app > main .graph-zoom-strip select {
@@ -1378,4 +1390,11 @@
 .app > main .plot .pairwise-label {
   font-size: 14px;
   fill: #000;
+}
+
+/* The titlebar still reports save state while graph zoom uses this corner. */
+.app > main[data-active-sheet="graph"] .status-save { display: none; }
+@media (max-width: 700px) {
+  .app > main .graph-zoom-strip { gap: 2px; padding-inline: 4px; }
+  .app > main .graph-zoom-strip input[type="range"] { max-width: 58px; }
 }

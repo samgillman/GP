@@ -472,6 +472,7 @@ export default function App() {
   const [newTable, setNewTable] = useState(false),
     [analyzeDialog, setAnalyzeDialog] = useState(false),
     [formatDialog, setFormatDialog] = useState(false),
+    [formatAppearanceDataset, setFormatAppearanceDataset] = useState<number | null>(null),
     [axesDialog, setAxesDialog] = useState<"x" | "y" | null>(null),
     [formatTableDialog, setFormatTableDialog] = useState(false),
     [graphTypeDialog, setGraphTypeDialog] = useState(false),
@@ -1500,9 +1501,22 @@ export default function App() {
     }));
   }
   function openGraphFormatting() {
-    if (graphSheet?.frozen)
+    if (graphSheet?.frozen) {
       setError("Unfreeze this graph before changing its appearance.");
-    else setFormatDialog(true);
+      return;
+    }
+    setFormatAppearanceDataset(null);
+    setFormatDialog(true);
+  }
+  function openGraphDatasetFormatting(seriesIndex: number) {
+    if (graphSheet?.frozen) {
+      setError("Unfreeze this graph before changing its appearance.");
+      return;
+    }
+    const sourceIndex = graphSheet?.columnIndices[seriesIndex];
+    if (sourceIndex === undefined) return openGraphFormatting();
+    setFormatAppearanceDataset(sourceIndex);
+    setFormatDialog(true);
   }
   function openAxes(axis: "x" | "y" = "y") {
     if (graphSheet?.frozen)
@@ -2188,7 +2202,7 @@ export default function App() {
             ))}
         </section>
       </aside>
-      <main>
+      <main data-active-sheet={active}>
         <div className="main-content">
           <div className="desktop-sheet-strip">
             <span className="sheet-kind-icon">
@@ -2572,6 +2586,8 @@ export default function App() {
                       selection,
                     )}
                     onFormatAxes={openAxes}
+                    onFormatGraph={openGraphFormatting}
+                    onSelectDataset={openGraphDatasetFormatting}
                     onEditText={field => openAxes(field === "x_label" ? "x" : "y")}
                     annotations={pairwiseAnnotations}
                   />
@@ -3016,6 +3032,7 @@ export default function App() {
         <FormatGraphDialog
           sheet={graphSheet}
           project={source.project}
+          initialAppearanceDataset={formatAppearanceDataset}
           results={workbook.sheets.filter(
             (s): s is ResultSheet =>
               s.kind === "results" && s.dataId === source.id,

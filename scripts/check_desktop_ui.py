@@ -54,6 +54,26 @@ with sync_playwright() as p:
     expect(page.locator('.data-card')).not_to_be_visible()
     expect(page.locator('svg.plot')).to_be_visible()
     page.screenshot(path=str(shots / 'graph.png'))
+    # GraphPad's classic graph: plot double-click opens Format Graph;
+    # double-clicking a drawn bar scopes Appearance to that data set.
+    zoom_strip = page.get_by_role('toolbar', name='Graph view', exact=True)
+    statusbar = page.locator('.desktop-statusbar')
+    expect(zoom_strip).to_be_visible()
+    assert abs(zoom_strip.bounding_box()['y'] - statusbar.bounding_box()['y']) < 3, 'Graph zoom belongs in the bottom toolbar'
+    graph_before = workbook()
+    page.locator('svg.plot').dblclick(position={'x': 320, 'y': 36})
+    graph_dialog = page.get_by_role('dialog', name='Format Graph', exact=True)
+    expect(graph_dialog).to_be_visible()
+    page.keyboard.press('Escape')
+    assert workbook() == graph_before, 'Opening Format Graph modified the workbook'
+    sample_bar = page.locator('svg.plot g[clip-path] rect[stroke="#000"]').first
+    expect(sample_bar).to_be_visible()
+    sample_bar.dblclick()
+    expect(graph_dialog).to_be_visible()
+    first_source_index = next(s for s in graph_before['sheets'] if s['kind'] == 'graph')['columnIndices'][0]
+    assert graph_dialog.get_by_label('Appearance data set', exact=True).input_value() == str(first_source_index)
+    page.keyboard.press('Escape')
+    assert workbook() == graph_before, 'Cancel after mark double-click changed the workbook'
     page.get_by_role('button', name='Format Graph…', exact=True).first.click()
     page.screenshot(path=str(shots / 'format-graph.png'))
     page.keyboard.press('Escape')

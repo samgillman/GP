@@ -78,6 +78,7 @@ export default function Plot({
   onFormatAxes,
   onEditText,
   onSelectDataset,
+  onFormatGraph,
   dataTableName,
   onSelectPoint,
   onGoToCell,
@@ -91,6 +92,8 @@ export default function Plot({
   onFormatAxes?: (axis: "x" | "y") => void;
   onEditText?: (field: "x_label" | "y_label") => void;
   onSelectDataset?: (index: number) => void;
+  /** Open graph-wide Format Graph when double-clicking the plotting background. */
+  onFormatGraph?: () => void;
   dataTableName?: string;
   onSelectPoint?: (seriesIndex: number, row: number) => void;
   onGoToCell?: (seriesIndex: number, row: number) => void;
@@ -388,9 +391,12 @@ export default function Plot({
             }}
             role="img"
             onDoubleClick={(event) => {
-              if ((event.target as Element).tagName === "text") return;
+              // Axis gestures belong to Format Axes. Graph marks and the
+              // plotting background belong to Format Graph.
+              if ((event.target as Element).closest('[data-axis], .axis-label')) return;
               const hit = hitAt(event.clientX, event.clientY);
-              if (hit) onSelectDataset?.(hit.seriesIndex);
+              if (hit && onSelectDataset) onSelectDataset(hit.seriesIndex);
+              else onFormatGraph?.();
             }}
             aria-label={`${graph.title}. ${graph.type} graph of ${series.map((s) => s.name).join(", ")}.`}
           >
@@ -443,7 +449,7 @@ export default function Plot({
               const cap = (value: number, half: number, key: string) => geometry.validY(value) && value >= geometry.minY && value <= geometry.maxY ? <line key={key} x1={cx - half} x2={cx + half} y1={y(value)} y2={y(value)} /> : null;
               const stem = (lo: number, hi: number) => Number.isFinite(lo) && Number.isFinite(hi) && hi >= geometry.minY && lo <= geometry.maxY ? <line x1={cx} x2={cx} y1={yy(lo)} y2={yy(hi)} /> : null;
               const baseline = geometry.logY ? geometry.minY : 0;
-              return <g key={i} onDoubleClick={event => { event.stopPropagation(); onSelectDataset?.(i); }}>
+              return <g key={i} onDoubleClick={event => { event.stopPropagation(); if (onSelectDataset) onSelectDataset(i); else onFormatGraph?.(); }}>
                 {!xy && graph.type === "bar" && v.length > 0 && geometry.validY(s.mean) && Math.max(s.mean, baseline) >= geometry.minY && Math.min(s.mean, baseline) <= geometry.maxY && <rect x={cx - bw / 2} y={Math.min(yy(s.mean), yy(baseline))} width={bw} height={Math.abs(yy(baseline) - yy(s.mean))} fill={s.color} stroke="#000" strokeWidth="1.5" />}
                 {!xy && graph.type === "box" && v.length > 0 && s.quartiles && <g stroke="#000" strokeWidth="1.5">
                   {stem(s.min, s.max)}{cap(s.min, bw / 4, "min")}{cap(s.max, bw / 4, "max")}
