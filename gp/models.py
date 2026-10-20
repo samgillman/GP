@@ -1,5 +1,5 @@
 from typing import Literal
-from pydantic import BaseModel, ConfigDict, Field, FiniteFloat, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, FiniteFloat, StrictBool, field_validator, model_validator
 
 
 class Column(BaseModel):
@@ -130,6 +130,8 @@ class GraphOptions(BaseModel):
     y_label: str = Field(default="", max_length=100)
     colors: list[str] = Field(default_factory=list, max_length=32)
     show_points: bool = True
+    # XY line rendering only; never masks a measurement from scientific analyses.
+    gap_at_missing_y: StrictBool = False
     annotations: list[GraphAnnotation] = Field(default_factory=list, max_length=435)
     axes: GraphAxes | None = None
 

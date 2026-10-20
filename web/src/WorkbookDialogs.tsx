@@ -1529,6 +1529,31 @@ export function FormatGraphDialog({
             </>
           ) : (
             <>
+              {project.table_type === "xy" && draft.graph.type === "line" && (
+                <fieldset>
+                  <legend>Connecting lines</legend>
+                  <p className="desktop-help-text">At a missing Y value with an entered X value:</p>
+                  <label className="desktop-checkbox-label">
+                    <input
+                      type="radio"
+                      name="missing-y-connection"
+                      checked={Boolean(draft.graph.gap_at_missing_y)}
+                      onChange={() => g({ gap_at_missing_y: true })}
+                    />
+                    Leave a gap
+                  </label>
+                  <label className="desktop-checkbox-label">
+                    <input
+                      type="radio"
+                      name="missing-y-connection"
+                      checked={!draft.graph.gap_at_missing_y}
+                      onChange={() => g({ gap_at_missing_y: false })}
+                    />
+                    Connect adjacent points
+                  </label>
+                  <p className="desktop-help-text">This affects drawing only. Missing cells remain omitted from numerical analyses.</p>
+                </fieldset>
+              )}
               <fieldset>
                 <legend>Analysis results on graph</legend>
                 <label className="desktop-form-row">

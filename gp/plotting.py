@@ -127,6 +127,19 @@ def _configured_limits(coordinates, settings, logarithmic, name, bar=False):
     return (low, high), automatic_ticks
 
 
+def _xy_lines_with_missing_y(xcolumn, ycolumn):
+    """Retain numeric-X/missing-Y row positions for graphical line breaks.
+
+    Other calls to pairs() keep their complete-observation scientific semantics.
+    A missing X cannot be positioned on the XY axis and is omitted.
+    """
+    coords = [(x, np.nan if y is None else y)
+              for x, y in zip(xcolumn.values, ycolumn.values) if x is not None]
+    if not coords:
+        return np.array([], dtype=float), np.array([], dtype=float)
+    return np.asarray(coords, dtype=float).T
+
+
 def _draw_configured(axis, data, graph, outcome, palette):
     """Formatting-only view of the already analyzed data. No mask reaches analysis."""
     xy = data.table_type == "xy"
@@ -182,10 +195,12 @@ def _draw_configured(axis, data, graph, outcome, palette):
         color = palette[i % len(palette)]
         if xy:
             if graph.type == "line":
-                order = np.argsort(x, kind="stable")
-                # NaNs break paths at invalid log coordinates; filtering the
-                # vectors would incorrectly join across an omitted observation.
-                xx, yy = np.where(visible, x, np.nan), np.where(visible, y, np.nan)
+                line_x, line_y = (_xy_lines_with_missing_y(data.columns[0], column)
+                                  if graph.gap_at_missing_y else (x, y))
+                line_visible = ((not logx) | (line_x > 0)) & ((not logy) | (line_y > 0))
+                order = np.argsort(line_x, kind="stable")
+                # NaNs preserve gaps from empty Y cells and invalid log coordinates.
+                xx, yy = np.where(line_visible, line_x, np.nan), np.where(line_visible, line_y, np.nan)
                 axis.plot(xx[order], yy[order], color=color, marker="o" if graph.show_points else None, markersize=4, linewidth=1.5, label=column.name)
             else:
                 axis.scatter(x[visible], y[visible], color=color, s=26, edgecolors=(0, 0, 0, .35), linewidths=.6, label=column.name)
@@ -325,13 +340,20 @@ def export_plot(request):
             if graph.type in {"bar", "box"}:
                 raise AnalysisError("XY graphs support scatter or line; choose a column table for bar or box graphs.")
             for i, column in enumerate(data.columns[1:]):
-                x, y = pairs(data.columns[0], column)
+                x, y = (_xy_lines_with_missing_y(data.columns[0], column)
+                        if graph.type == "line" and graph.gap_at_missing_y
+                        else pairs(data.columns[0], column))
                 if data.analysis == "dose_response":
                     # All pairs, including zero controls, were analyzed above.
                     # Filter only the log-coordinate drawing to avoid clipping
                     # zero to an artificial off-axis coordinate/line segment.
                     visible = x > 0
-                    x, y = x[visible], y[visible]
+                    if graph.type == "line" and graph.gap_at_missing_y:
+                        # Preserve missing and nonpositive log-X positions as
+                        # gaps; removing rows would reconnect neighbors.
+                        x, y = np.where(visible, x, np.nan), np.where(visible, y, np.nan)
+                    else:
+                        x, y = x[visible], y[visible]
                 color = palette[i % len(palette)]
                 if graph.type == "line":
                     order = np.argsort(x, kind="stable")
