@@ -46,7 +46,7 @@
       "implementation_sources": [
         {
           "path": "gp/statistics.py",
-          "sha256": "3e84842cf26985341976e8cd45413e11d4ca725fd46c2144f16a1f679705533e"
+          "sha256": "40b50d1c7beedaf0176919e3207fc52c8618d435bb1f7789a57b2c6e072edf03"
         },
         {
           "path": "gp/descriptive.py",
@@ -83,7 +83,7 @@
       "implementation_sources": [
         {
           "path": "gp/statistics.py",
-          "sha256": "3e84842cf26985341976e8cd45413e11d4ca725fd46c2144f16a1f679705533e"
+          "sha256": "40b50d1c7beedaf0176919e3207fc52c8618d435bb1f7789a57b2c6e072edf03"
         },
         {
           "path": "tests/test_prism_reference.py",
@@ -91,7 +91,19 @@
         },
         {
           "path": "gp/column_tests.py",
-          "sha256": "b979714bdc7355223797e1d651d0dfe19cd9d4ca5ddef5649e89c0ff4c23ef1c"
+          "sha256": "7fc47d8c11d33d100fc734ced89c6ff4fe3947ba26c4726c87ec8c625cec10a8"
+        },
+        {
+          "path": "gp/models.py",
+          "sha256": "7320f5b64210bfc0929a3a90cbc777e1966f733108c766ee74cbb54a5e8c54c6"
+        },
+        {
+          "path": "tests/test_column_tests.py",
+          "sha256": "4502eec6b5745da36076d1a9cb9c2bd466d46170411d013ea8d623c7725ad6c7"
+        },
+        {
+          "path": "tests/test_column_audit.py",
+          "sha256": "458fc36551802873640435aca41b7aa28c3b2f22dc882eff6712036b7ec4346e"
         }
       ],
       "remaining_obligations": [
@@ -99,14 +111,15 @@
         "All missing-pair, zero-variance and extreme-input behavior",
         "Graph options and linked result sheets"
       ],
-      "priority": "high"
+      "priority": "high",
+      "latest_progress": "2026-10-20 Column statistical audit: docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes. Baseline CI https://github.com/samgillman/GP/actions/runs/39335578778 verified; no new native Prism outputs. Follow-up backend suite: 330 tests passed; final browser/CI results remain separately scoped."
     },
     {
       "id": "unpaired_t",
       "scope": "Unpaired t tests",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
-      "verification_status": "independent_math_tests_and_browser_workflow",
+      "verification_status": "independent_numerical_regressions_and_explicit_safeguards_native_parity_unverified",
       "evidence": [
         {
           "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
@@ -116,15 +129,23 @@
       "implementation_sources": [
         {
           "path": "gp/column_tests.py",
-          "sha256": "b979714bdc7355223797e1d651d0dfe19cd9d4ca5ddef5649e89c0ff4c23ef1c"
+          "sha256": "7fc47d8c11d33d100fc734ced89c6ff4fe3947ba26c4726c87ec8c625cec10a8"
         },
         {
           "path": "gp/models.py",
-          "sha256": "d8e851695e6f1efe022520e7de8013d4985634e2fcc3ada2a9c75f940b63cdaa"
+          "sha256": "7320f5b64210bfc0929a3a90cbc777e1966f733108c766ee74cbb54a5e8c54c6"
         },
         {
           "path": "gp/statistics.py",
-          "sha256": "bac0bbe874724ec35bbfe28eef27e680f436ff535cdbc0be849e167cd1b78180"
+          "sha256": "40b50d1c7beedaf0176919e3207fc52c8618d435bb1f7789a57b2c6e072edf03"
+        },
+        {
+          "path": "tests/test_column_tests.py",
+          "sha256": "4502eec6b5745da36076d1a9cb9c2bd466d46170411d013ea8d623c7725ad6c7"
+        },
+        {
+          "path": "tests/test_column_audit.py",
+          "sha256": "458fc36551802873640435aca41b7aa28c3b2f22dc882eff6712036b7ec4346e"
         }
       ],
       "remaining_obligations": [
@@ -133,28 +154,52 @@
         "Guide exact-P rule for Mann–Whitney with ties (≤100 in smaller group)",
         "Saved Prism numerical oracles for Student, Welch, Mann–Whitney and one-tailed choices"
       ],
-      "priority": "high"
+      "priority": "high",
+      "latest_progress": "2026-10-20 Column statistical audit: docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes. Baseline CI https://github.com/samgillman/GP/actions/runs/39335578778 verified; no new native Prism outputs. Follow-up backend suite: 330 tests passed; final browser/CI results remain separately scoped."
     },
     {
       "id": "nonparametric_tests",
       "scope": "Mann-Whitney, Wilcoxon, Kruskal-Wallis, Friedman and related choices",
-      "implementation_status": "unimplemented",
+      "implementation_status": "partial",
       "functional_equivalence": "not_established",
-      "verification_status": "not_established",
+      "verification_status": "independent_numerical_regressions_and_explicit_safeguards_native_parity_unverified",
       "evidence": [
         {
           "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
           "sha256": "1b5f73afc3bab77e0468ed02bf55fde77cb119554b34e07faaa2fe205bcc0668"
         }
       ],
-      "implementation_sources": [],
+      "implementation_sources": [
+        {
+          "path": "gp/column_tests.py",
+          "sha256": "7fc47d8c11d33d100fc734ced89c6ff4fe3947ba26c4726c87ec8c625cec10a8"
+        },
+        {
+          "path": "gp/models.py",
+          "sha256": "7320f5b64210bfc0929a3a90cbc777e1966f733108c766ee74cbb54a5e8c54c6"
+        },
+        {
+          "path": "gp/statistics.py",
+          "sha256": "40b50d1c7beedaf0176919e3207fc52c8618d435bb1f7789a57b2c6e072edf03"
+        },
+        {
+          "path": "tests/test_column_tests.py",
+          "sha256": "4502eec6b5745da36076d1a9cb9c2bd466d46170411d013ea8d623c7725ad6c7"
+        },
+        {
+          "path": "tests/test_column_audit.py",
+          "sha256": "458fc36551802873640435aca41b7aa28c3b2f22dc882eff6712036b7ec4346e"
+        }
+      ],
       "remaining_obligations": [
         "Exact/asymptotic and tie/zero policy",
         "Pratt choice",
         "Confidence intervals",
-        "Native/saved reference cases"
+        "Native/saved reference cases",
+        "Tied and small-sample exact procedures/thresholds remain different or unimplemented; method disclosures are safeguards, not native parity"
       ],
-      "priority": "high"
+      "priority": "high",
+      "latest_progress": "2026-10-20 Column statistical audit: docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes. Baseline CI https://github.com/samgillman/GP/actions/runs/39335578778 verified; no new native Prism outputs. Follow-up backend suite: 330 tests passed; final browser/CI results remain separately scoped."
     },
     {
       "id": "normality_tests",
@@ -181,7 +226,7 @@
       "scope": "Ordinary one-way ANOVA",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
-      "verification_status": "independent_math_tests_and_browser_workflow",
+      "verification_status": "independent_numerical_regressions_and_explicit_safeguards_native_parity_unverified",
       "evidence": [
         {
           "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
@@ -191,15 +236,23 @@
       "implementation_sources": [
         {
           "path": "gp/column_tests.py",
-          "sha256": "b979714bdc7355223797e1d651d0dfe19cd9d4ca5ddef5649e89c0ff4c23ef1c"
+          "sha256": "7fc47d8c11d33d100fc734ced89c6ff4fe3947ba26c4726c87ec8c625cec10a8"
         },
         {
           "path": "gp/models.py",
-          "sha256": "d8e851695e6f1efe022520e7de8013d4985634e2fcc3ada2a9c75f940b63cdaa"
+          "sha256": "7320f5b64210bfc0929a3a90cbc777e1966f733108c766ee74cbb54a5e8c54c6"
         },
         {
           "path": "gp/statistics.py",
-          "sha256": "bac0bbe874724ec35bbfe28eef27e680f436ff535cdbc0be849e167cd1b78180"
+          "sha256": "40b50d1c7beedaf0176919e3207fc52c8618d435bb1f7789a57b2c6e072edf03"
+        },
+        {
+          "path": "tests/test_column_tests.py",
+          "sha256": "4502eec6b5745da36076d1a9cb9c2bd466d46170411d013ea8d623c7725ad6c7"
+        },
+        {
+          "path": "tests/test_column_audit.py",
+          "sha256": "458fc36551802873640435aca41b7aa28c3b2f22dc882eff6712036b7ec4346e"
         }
       ],
       "remaining_obligations": [
@@ -208,7 +261,8 @@
         "Exact small-sample Kruskal–Wallis P",
         "Saved Prism one-way reference cases"
       ],
-      "priority": "high"
+      "priority": "high",
+      "latest_progress": "2026-10-20 Column statistical audit: docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes. Baseline CI https://github.com/samgillman/GP/actions/runs/39335578778 verified; no new native Prism outputs. Follow-up backend suite: 330 tests passed; final browser/CI results remain separately scoped."
     },
     {
       "id": "two_way_anova",
@@ -288,7 +342,7 @@
       "scope": "Repeated-measures ANOVA and mixed-effects models",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
-      "verification_status": "independent_math_tests",
+      "verification_status": "independent_numerical_regressions_and_explicit_safeguards_native_parity_unverified",
       "evidence": [
         {
           "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
@@ -298,31 +352,41 @@
       "implementation_sources": [
         {
           "path": "gp/column_tests.py",
-          "sha256": "b979714bdc7355223797e1d651d0dfe19cd9d4ca5ddef5649e89c0ff4c23ef1c"
+          "sha256": "7fc47d8c11d33d100fc734ced89c6ff4fe3947ba26c4726c87ec8c625cec10a8"
         },
         {
           "path": "gp/models.py",
-          "sha256": "d8e851695e6f1efe022520e7de8013d4985634e2fcc3ada2a9c75f940b63cdaa"
+          "sha256": "7320f5b64210bfc0929a3a90cbc777e1966f733108c766ee74cbb54a5e8c54c6"
         },
         {
           "path": "gp/statistics.py",
-          "sha256": "bac0bbe874724ec35bbfe28eef27e680f436ff535cdbc0be849e167cd1b78180"
+          "sha256": "40b50d1c7beedaf0176919e3207fc52c8618d435bb1f7789a57b2c6e072edf03"
+        },
+        {
+          "path": "tests/test_column_tests.py",
+          "sha256": "4502eec6b5745da36076d1a9cb9c2bd466d46170411d013ea8d623c7725ad6c7"
+        },
+        {
+          "path": "tests/test_column_audit.py",
+          "sha256": "458fc36551802873640435aca41b7aa28c3b2f22dc882eff6712036b7ec4346e"
         }
       ],
       "remaining_obligations": [
         "Missing values and variance-component (mixed-effects) estimation",
         "Convergence/boundary handling",
         "Exact small-table Friedman P",
-        "Reference results beyond the paired/F = t² identity"
+        "Reference results beyond the paired/F = t² identity",
+        "Native assumed-sphericity versus Geisser-Greenhouse comparison outputs; GG Tukey remains unsupported; incomplete subjects require an independently chosen missing-data analysis"
       ],
-      "priority": "high"
+      "priority": "high",
+      "latest_progress": "2026-10-20 Column statistical audit: docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes. Baseline CI https://github.com/samgillman/GP/actions/runs/39335578778 verified; no new native Prism outputs. Follow-up backend suite: 330 tests passed; final browser/CI results remain separately scoped."
     },
     {
       "id": "multiple_comparisons",
       "scope": "Multiplicity-adjusted comparisons and FDR",
       "implementation_status": "partial",
       "functional_equivalence": "not_established",
-      "verification_status": "independent_math_tests",
+      "verification_status": "independent_numerical_regressions_and_explicit_safeguards_native_parity_unverified",
       "evidence": [
         {
           "path": "/workspace/gp-evidence/resources-pass2/feature-map.json",
@@ -336,15 +400,23 @@
       "implementation_sources": [
         {
           "path": "gp/column_tests.py",
-          "sha256": "b979714bdc7355223797e1d651d0dfe19cd9d4ca5ddef5649e89c0ff4c23ef1c"
+          "sha256": "7fc47d8c11d33d100fc734ced89c6ff4fe3947ba26c4726c87ec8c625cec10a8"
         },
         {
           "path": "gp/models.py",
-          "sha256": "d8e851695e6f1efe022520e7de8013d4985634e2fcc3ada2a9c75f940b63cdaa"
+          "sha256": "7320f5b64210bfc0929a3a90cbc777e1966f733108c766ee74cbb54a5e8c54c6"
         },
         {
           "path": "gp/statistics.py",
-          "sha256": "bac0bbe874724ec35bbfe28eef27e680f436ff535cdbc0be849e167cd1b78180"
+          "sha256": "40b50d1c7beedaf0176919e3207fc52c8618d435bb1f7789a57b2c6e072edf03"
+        },
+        {
+          "path": "tests/test_column_tests.py",
+          "sha256": "4502eec6b5745da36076d1a9cb9c2bd466d46170411d013ea8d623c7725ad6c7"
+        },
+        {
+          "path": "tests/test_column_audit.py",
+          "sha256": "458fc36551802873640435aca41b7aa28c3b2f22dc882eff6712036b7ec4346e"
         }
       ],
       "remaining_obligations": [
@@ -353,7 +425,8 @@
         "Two-way and multifactor families",
         "Saved Prism multiple-comparison families"
       ],
-      "priority": "high"
+      "priority": "high",
+      "latest_progress": "2026-10-20 Column statistical audit: docs/column-statistical-audit.md: consequential fixes, method-specific disclosures, numerical regressions and distinct CI/native evidence scopes. Baseline CI https://github.com/samgillman/GP/actions/runs/39335578778 verified; no new native Prism outputs. Follow-up backend suite: 330 tests passed; final browser/CI results remain separately scoped."
     },
     {
       "id": "linear_regression",
@@ -374,7 +447,7 @@
       "implementation_sources": [
         {
           "path": "gp/statistics.py",
-          "sha256": "3e84842cf26985341976e8cd45413e11d4ca725fd46c2144f16a1f679705533e"
+          "sha256": "40b50d1c7beedaf0176919e3207fc52c8618d435bb1f7789a57b2c6e072edf03"
         }
       ],
       "remaining_obligations": [
@@ -469,7 +542,7 @@
         },
         {
           "path": "gp/statistics.py",
-          "sha256": "3e84842cf26985341976e8cd45413e11d4ca725fd46c2144f16a1f679705533e"
+          "sha256": "40b50d1c7beedaf0176919e3207fc52c8618d435bb1f7789a57b2c6e072edf03"
         },
         {
           "path": "tests/test_regression_models.py",
@@ -930,23 +1003,23 @@
       "implementation_sources": [
         {
           "path": "web/src/App.tsx",
-          "sha256": "648d15d053ec801d0819965efe5e915e7aa512d14536d13b18af132c8f2c32da"
+          "sha256": "b59b8fa78393e1118f0831f0c60012ba9fd1a9ecd382a23ecfdba1a431147555"
         },
         {
           "path": "web/src/data.ts",
-          "sha256": "05e36377352bbb6c19814b02896f0f93e1a26dc48cf2ec25d1d92953bf97678d"
+          "sha256": "1dfb93359716b1511a6174e3835265a0057dff23f96e7b0dae1b8167a55179a7"
         },
         {
           "path": "web/src/workbook.ts",
-          "sha256": "9823cba6c115d21d28dc73edb23c18874ddf5e52bbdb8653eb0bf58ff7699072"
+          "sha256": "b0a68817435083ab68439b70f230ef0a3acbeaf546d5b731344e9a606929c929"
         },
         {
           "path": "web/src/workbook.test.ts",
-          "sha256": "453d2d181d109ecf18a8cd3d269ca35b84e35138a901676b0a1855753058c7fd"
+          "sha256": "bba2baa363bab4586c53587fc918a5d21ae968e28d69676cc5db69588c21c1b9"
         },
         {
           "path": "web/src/WorkbookDialogs.tsx",
-          "sha256": "7e5fd3c6bf937e5271332d48ccdf46e220302425011a5c59933855c109b2a49a"
+          "sha256": "a68250830a2519ae105a7dc234e4a2e6733945ff529a3ec197a790323ba3fe80"
         },
         {
           "path": "web/src/workbook-storage.ts",
@@ -999,6 +1072,22 @@
         {
           "path": "scripts/check_workbook_foundations.py",
           "sha256": "88ce75f559815f25aff9caebd1e1356d22ff6898e9c6bd7dad92b857bf60e577"
+        },
+        {
+          "path": "web/src/column-analysis.ts",
+          "sha256": "7cf383588a22a430310477f24c782e64715bb169f65b0e4c981f44b8327d8f37"
+        },
+        {
+          "path": "web/src/column-analysis.test.ts",
+          "sha256": "8faf44d3b2c22dc06618c1192bc0357cf63b05bb991f097b2a56ba7bac543fa9"
+        },
+        {
+          "path": "web/src/analysis-version.ts",
+          "sha256": "b280470c3c8f8a5854a83db20ea13486628d837da66f2c9e3b67836916db2cf5"
+        },
+        {
+          "path": "web/src/analysis-version.test.ts",
+          "sha256": "511fbb0070583875a6989c36f0720851102de5d11aa1504935db15490e56aaea"
         }
       ],
       "remaining_obligations": [
@@ -1009,7 +1098,7 @@
         "Complete sheet navigation and selection fidelity"
       ],
       "priority": "high",
-      "latest_progress": "Version3 stable dataset/row identities, legacy migration, prepared immutable snapshots, direct-family dependency ordering and bounded Column/XY freeze.145 frontend unit tests; all nine foundation browser scenarios passed in dev/server/static; direct server/static recalculation,26 grid checks and capacity/recovery checks passed. Typed families, chained execution, native freeze internals and runtime parity remain incomplete."
+      "latest_progress": "2026-10-20 Column audit adds method-specific dialog/results disclosures, alpha-aware bracket filtering and method/family context in the preview and bracket dialog (users must include the method and adjustment in exported figure legends; the HTML caption is not exported), explicit directional tests, and invalidation of pre-audit unfrozen results; see docs/column-statistical-audit.md. Historical native/static evidence is unchanged; full equivalence remains open."
     },
     {
       "id": "graphing",
@@ -1066,11 +1155,27 @@
         },
         {
           "path": "gp/plotting.py",
-          "sha256": "095de67a08e1d5f6c2f70d9e62207a1293280f9c69f3ea61ee6d808baf67b995"
+          "sha256": "991d3be9c8238a03fecc018474ee20ffb7a71ba34167c72f1fd5cd524521d99a"
         },
         {
           "path": "web/src/AdvancedAnalyses.tsx",
           "sha256": "b5c245abc0b9338bd28ec402d0871a9598bd1af0471d7d8559d34bae24744fb8"
+        },
+        {
+          "path": "web/src/column-analysis.ts",
+          "sha256": "7cf383588a22a430310477f24c782e64715bb169f65b0e4c981f44b8327d8f37"
+        },
+        {
+          "path": "web/src/column-analysis.test.ts",
+          "sha256": "8faf44d3b2c22dc06618c1192bc0357cf63b05bb991f097b2a56ba7bac543fa9"
+        },
+        {
+          "path": "web/src/analysis-version.ts",
+          "sha256": "b280470c3c8f8a5854a83db20ea13486628d837da66f2c9e3b67836916db2cf5"
+        },
+        {
+          "path": "web/src/analysis-version.test.ts",
+          "sha256": "511fbb0070583875a6989c36f0720851102de5d11aa1504935db15490e56aaea"
         }
       ],
       "remaining_obligations": [
@@ -1081,7 +1186,8 @@
         "Annotations/significance/legends",
         "Exact geometry and fonts"
       ],
-      "priority": "high"
+      "priority": "high",
+      "latest_progress": "2026-10-20 Column audit adds method-specific dialog/results disclosures, alpha-aware bracket filtering and method/family context in the preview and bracket dialog (users must include the method and adjustment in exported figure legends; the HTML caption is not exported), explicit directional tests, and invalidation of pre-audit unfrozen results; see docs/column-statistical-audit.md. Historical native/static evidence is unchanged; full equivalence remains open."
     },
     {
       "id": "layouts_exports",
@@ -1098,7 +1204,7 @@
       "implementation_sources": [
         {
           "path": "gp/plotting.py",
-          "sha256": "095de67a08e1d5f6c2f70d9e62207a1293280f9c69f3ea61ee6d808baf67b995"
+          "sha256": "991d3be9c8238a03fecc018474ee20ffb7a71ba34167c72f1fd5cd524521d99a"
         }
       ],
       "remaining_obligations": [
@@ -1221,7 +1327,7 @@
       "implementation_sources": [
         {
           "path": "web/src/App.tsx",
-          "sha256": "648d15d053ec801d0819965efe5e915e7aa512d14536d13b18af132c8f2c32da"
+          "sha256": "b59b8fa78393e1118f0831f0c60012ba9fd1a9ecd382a23ecfdba1a431147555"
         },
         {
           "path": "docs/prism-ui-map.md",
@@ -1245,7 +1351,7 @@
         },
         {
           "path": "web/src/WorkbookDialogs.tsx",
-          "sha256": "7e5fd3c6bf937e5271332d48ccdf46e220302425011a5c59933855c109b2a49a"
+          "sha256": "a68250830a2519ae105a7dc234e4a2e6733945ff529a3ec197a790323ba3fe80"
         },
         {
           "path": "web/src/desktop.css",
@@ -1253,7 +1359,7 @@
         },
         {
           "path": "web/src/dialog-desktop.css",
-          "sha256": "56651ba037a49fd9ba81254e2503cdc2965eaf5bcd5824b1b9bdb5f892574122"
+          "sha256": "cae7886aca13855da18c8b228a4c462b5b90a2af9fb4d35d5e8b41b8c1ad9c34"
         },
         {
           "path": "web/src/advanced.css",
@@ -1278,6 +1384,22 @@
         {
           "path": "scripts/check_workbook_foundations.py",
           "sha256": "88ce75f559815f25aff9caebd1e1356d22ff6898e9c6bd7dad92b857bf60e577"
+        },
+        {
+          "path": "web/src/column-analysis.ts",
+          "sha256": "7cf383588a22a430310477f24c782e64715bb169f65b0e4c981f44b8327d8f37"
+        },
+        {
+          "path": "web/src/column-analysis.test.ts",
+          "sha256": "8faf44d3b2c22dc06618c1192bc0357cf63b05bb991f097b2a56ba7bac543fa9"
+        },
+        {
+          "path": "web/src/analysis-version.ts",
+          "sha256": "b280470c3c8f8a5854a83db20ea13486628d837da66f2c9e3b67836916db2cf5"
+        },
+        {
+          "path": "web/src/analysis-version.test.ts",
+          "sha256": "511fbb0070583875a6989c36f0720851102de5d11aa1504935db15490e56aaea"
         }
       ],
       "remaining_obligations": [
@@ -1287,7 +1409,8 @@
         "Full graph/axes dialogs and Apply/OK/Cancel semantics",
         "Runtime geometry, fonts, defaults and interaction validation"
       ],
-      "priority": "high"
+      "priority": "high",
+      "latest_progress": "2026-10-20 Column audit adds method-specific dialog/results disclosures, alpha-aware bracket filtering and method/family context in the preview and bracket dialog (users must include the method and adjustment in exported figure legends; the HTML caption is not exported), explicit directional tests, and invalidation of pre-audit unfrozen results; see docs/column-statistical-audit.md. Historical native/static evidence is unchanged; full equivalence remains open."
     }
   ],
   "model_catalog": [
@@ -4236,5 +4359,26 @@
       "sha256": "88ce75f559815f25aff9caebd1e1356d22ff6898e9c6bd7dad92b857bf60e577"
     }
   ],
-  "refresh_notes": "Refreshed v3 identity/snapshot/dependency/freeze sources and final browser evidence. All1574 supplied audit rows are individually planned, original claims retained. Dev/server/static foundation acceptance and direct recalculation passed; performance and full Prism parity remain open. Eleven completed static REA freeze/zoom records are distinguished from runtime equivalence."
+  "refresh_notes": "Refreshed v3 identity/snapshot/dependency/freeze sources and final browser evidence. All1574 supplied audit rows are individually planned, original claims retained. Dev/server/static foundation acceptance and direct recalculation passed; performance and full Prism parity remain open. Eleven completed static REA freeze/zoom records are distinguished from runtime equivalence. 2026-10-20 audit: current implementation_sources hashes refreshed only for changed source files; historical evidence and prior implementation_snapshot hashes retained. Column disclosures, exact-enumeration edge cases and numerical safeguards added; full equivalence remains false.",
+  "column_audit_checkpoint": {
+    "date_utc": "2026-10-20",
+    "baseline_commit": "1fec4e165a5b35396e0c675e33e23161526948d2",
+    "baseline_ci_url": "https://github.com/samgillman/GP/actions/runs/39335578778",
+    "baseline_ci_verified": {
+      "backend_tests": 296,
+      "frontend_tests": 163,
+      "column_server_scenarios": 10,
+      "column_static_scenarios": 10,
+      "locked_browser_runtime_files": 19
+    },
+    "followup_local_backend_tests": 330,
+    "followup_hosted_ci": "not yet observed at this checkpoint",
+    "native_prism_equivalence": "unverified beyond the existing saved paired-t example",
+    "audit": "docs/column-statistical-audit.md",
+    "native_capture_plan": "docs/prism-native-validation-matrix.md",
+    "followup_local_frontend_tests": 176,
+    "followup_local_frontend_test_files": 18,
+    "followup_local_builds": "TypeScript, packaged-server build, static Vite build and build_browser.py passed; 19 locked runtime files verified",
+    "followup_browser_scenarios": "19 scenarios implemented; follow-up execution not yet observed at this checkpoint"
+  }
 }

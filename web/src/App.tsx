@@ -65,6 +65,7 @@ import { workbookDependencies } from "./workbook-dependencies";
 import { deleteSheet, deletionIds, duplicateSheet } from "./workbook-actions";
 import { getRecoveryWorkbook, rememberWorkbook } from "./render-recovery";
 import { errorMessage } from "./error-message";
+import { isHistoricalColumnOutput } from "./analysis-version";
 import AdvancedAnalyses from "./AdvancedAnalyses";
 import { ResultTableGrid } from "./ResultPages";
 import { apiFetch, browserOnly, warmUpEngine } from "./api";
@@ -100,6 +101,8 @@ import {
 import {
   defaultComparisonOptions,
   isComparisonAnalysis,
+  pairwiseMethodDescription,
+  showPairwiseComparison,
   testName,
 } from "./column-analysis";
 import type { ComparisonAnalysis, ComparisonOptions } from "./column-analysis";
@@ -545,7 +548,9 @@ export default function App() {
     )
       return [];
     return result.comparisons
-      .filter((c) => setting.show_ns || c.summary !== "ns")
+      .filter((c) => isHistoricalColumnOutput(result)
+        ? setting.show_ns || c.summary !== "ns"
+        : showPairwiseComparison(c.p, setting.show_ns, linkedResult.options?.alpha ?? 0.05))
       .map((c) => ({
         a: graphSheet.datasetIds.indexOf(linkedResult.datasetIds[c.a]),
         b: graphSheet.datasetIds.indexOf(linkedResult.datasetIds[c.b]),
@@ -638,6 +643,9 @@ export default function App() {
     return {
       ...result,
       summary: result.summary.filter((s) => names.has(s.name)),
+      ...(result.graph_summary ? {
+        graph_summary: result.graph_summary.filter((s) => names.has(s.name)),
+      } : {}),
       fit: result.fit.filter((f) => names.has(f.series)),
     };
   }, [result, plotProject]);
@@ -2570,6 +2578,22 @@ export default function App() {
                       Run an analysis to show 95% confidence intervals.
                     </div>
                   )}
+                  {result?.graph_summary && linkedResult?.analysis === "t_test" && linkedResult.options?.paired && !xy && (
+                    <div className="graph-caption" role="note">
+                      Graph points and summaries describe observed cells in each column; paired-test results use only complete pairs.
+                    </div>
+                  )}
+                  {graphSheet?.graph.pairwise && linkedResult && isComparisonAnalysis(linkedResult.analysis) && !isHistoricalColumnOutput(result) && (
+                    <div className="graph-caption" role="note">
+                      {pairwiseMethodDescription(linkedResult.analysis, linkedResult.options ?? defaultComparisonOptions, linkedResult.datasetIds.length)}
+                    </div>
+                  )}
+                  {result && isHistoricalColumnOutput(result) && (
+                    <div className="result-warning" role="alert">
+                      Historical result from an earlier statistical engine. Unfreeze and recalculate before using the revised methods.
+                      {graphSheet?.graph.pairwise && " Historical bracket visibility retains the earlier fixed star thresholds, which may differ from the selected alpha."}
+                    </div>
+                  )}
                 </section>
               )}
             </div>
@@ -2619,12 +2643,25 @@ export default function App() {
                 </div>
               ) : (
                 <div className="results-content">
+                  {isHistoricalColumnOutput(result) && (
+                    <div className="result-warning" role="alert">
+                      Historical result from an earlier statistical engine. Unfreeze and recalculate before using the revised methods.
+                    </div>
+                  )}
                   {analyzedExcluded > 0 && (
                     <div className="result-note" role="note">
                       {analyzedExcluded} excluded{" "}
                       {analyzedExcluded === 1 ? "value was" : "values were"}{" "}
                       left out of this analysis. They remain in the data table
                       in blue italics.
+                    </div>
+                  )}
+                  {isComparisonAnalysis(result.analysis) && (
+                    <div className="result-notes" role="note" aria-label="Method and limitations">
+                      <h3>Method and limitations</h3>
+                      <ul>{result.warnings.map((warning, i) => (
+                        <li className="result-warning" key={i}>{warning}</li>
+                      ))}</ul>
                     </div>
                   )}
                   {result.tables?.length ? (
@@ -2745,7 +2782,7 @@ export default function App() {
                       )}
                     </>
                   )}
-                  <div className="result-notes">
+                  {!isComparisonAnalysis(result.analysis) && <div className="result-notes">
                     <h3>Notes</h3>
                     <ul>
                       {result.warnings.map((w, i) => (
@@ -2759,7 +2796,7 @@ export default function App() {
                         results.
                       </li>
                     </ul>
-                  </div>
+                  </div>}
                 </div>
               )}
             </section>
@@ -2846,7 +2883,14 @@ export default function App() {
                 s.dataId === graphSheet.dataId &&
                 isComparisonAnalysis(s.analysis),
             )
-            .map((s) => ({ id: s.id, name: s.name }))}
+            .map((s) => ({
+              id: s.id,
+              name: s.name,
+              analysis: s.analysis as ComparisonAnalysis,
+              options: s.options ?? defaultComparisonOptions,
+              datasets: s.datasetIds.length,
+              historical: !!s.result && isHistoricalColumnOutput(s.result),
+            }))}
           initial={
             graphSheet.graph.pairwise
               ? { resultId: graphSheet.resultId, ...graphSheet.graph.pairwise }
