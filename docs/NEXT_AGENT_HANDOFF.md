@@ -2,6 +2,28 @@
 
 Prepared 2026-10-19, America/Chicago. This is a continuation checkpoint, **not completion of Prism parity**.
 
+## 2026-10-20 continuation: selected-dataset Appearance and corrected CI fixture
+
+The next increment is [PR #5](https://github.com/samgillman/GP/pull/5),
+branch `feat/selected-dataset-appearance`. It replaces Appearance's flat
+all-dataset color list with a selected-data-set selector plus previous/next.
+The color still uses the prior persistent source-ID mapping, and graph-wide
+plot/titles remain separate. This follows the archived REA Appearance
+selector controls in `prism-graph-format-evidence.md`, not native runtime
+observation. More per-series style properties, point formatting, Column-specific
+controls and whole-artist layering are still open. Do not call this Prism parity.
+
+The `main` CI on `490be1e` failed its workbook-foundations browser case
+because its generated v2 fixture retained v4-only `datasetColors` after
+discarding source column IDs. PR #5 corrects the fixture without weakening
+the parser. **Hosted CI succeeded** in [run 39469471533](https://github.com/samgillman/GP/actions/runs/39469471533)
+for tested code head `957e48b00a94c2e0735b4c4e077ea12ad6f6a2c4`:
+452 backend, 254 frontend, requirements and both builds; production
+server/static browser suites passed including the legacy migration, graph
+Appearance navigation, color persistence and exports. No deployment
+verification. Check the PR's actual merge state before starting further
+changes; never overwrite concurrent work on `main`.
+
 ## Persistent colors continuation (2026-10-20)
 
 The removed-color limitation in the earlier entry below is superseded for

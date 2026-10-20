@@ -1,5 +1,40 @@
 # Completion execution log
 
+## 2026-10-20 continuation: selected-dataset graph Appearance (PR #5)
+
+Continuing from the committed REA XY/Column Format Graph resource evidence
+(`docs/prism-graph-format-evidence.md`), Appearance now edits the color of one
+selected source data set, with an explicit selector and previous/next buttons.
+The selected source column remains stable while drawing order or membership
+changes in the Data Sets tab. This reuses the existing validated
+`GraphSheet.datasetColors` source-ID persistence and positional browser/export
+color behavior; it does not introduce a new graph serialization contract.
+Plot/title/error-point controls remain whole-graph options and are expressly
+labelled as such. The controls work for XY and Column, but the new browser
+navigation scenario exercises XY. This is an incremental native-informed
+interaction, **not** per-dataset symbols, line style, whisker style, area fill,
+native runtime-equivalent behavior, or full Prism parity.
+
+The existing GitHub main CI on `490be1e` failed its browser workbook
+foundation migration at the legacy-v2 fixture. The fixture removed modern
+source IDs but inadvertently retained newly introduced, source-ID-keyed
+`datasetColors`; that combination could not have existed in a valid v2
+workbook and was correctly rejected by current validation. The test fixture
+now removes the v4-only graph metadata. No migration validation was relaxed
+and no real user workbook was modified.
+
+**Verification:** GitHub Actions [run 39469471533](https://github.com/samgillman/GP/actions/runs/39469471533)
+completed successfully for code head `957e48b00a94c2e0735b4c4e077ea12ad6f6a2c4`:
+452 backend tests, 254 frontend tests, requirements checker (2,661 tracked
+identities and all 1,574 original parity rows), TypeScript and both production
+builds. Hosted Chromium browser checks passed in server/static builds, including
+selected-dataset Appearance navigation, cross-dataset color persistence,
+undo/redo, workbook save/reload/import, legacy-v2 migration, axes, SVG export
+and exclusions. This evidence establishes supported GP behavior, not native
+macOS Prism equivalence. No independent live-site deployment verification.
+Changes are reviewed in [PR #5](https://github.com/samgillman/GP/pull/5);
+the PR page is authoritative for its eventual merge state.
+
 ## 2026-10-20 continuation: persistent dataset colors
 
 GraphSheet now optionally stores `datasetColors`, keyed by stable source-column
