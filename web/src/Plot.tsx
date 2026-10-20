@@ -447,7 +447,11 @@ export default function Plot({
             </text>
             <g clipPath={`url(#${clipId})`}>
             {series.map((s, i) => {
-              const cx = x(i + 1), bw = Math.min(72, (pw / series.length) * .46), v = s.values;
+              const cx = x(i + 1),
+                bw = !xy && graph.type === "bar" && graph.column_space_percent != null
+                  ? (pw / (series.length + .2)) / (1 + graph.column_space_percent / 100)
+                  : Math.min(72, (pw / series.length) * .46),
+                v = s.values;
               const yy = geometry.boundedY;
               const cap = (value: number, half: number, key: string) => geometry.validY(value) && value >= geometry.minY && value <= geometry.maxY ? <line key={key} x1={cx - half} x2={cx + half} y1={y(value)} y2={y(value)} /> : null;
               const stem = (lo: number, hi: number) => Number.isFinite(lo) && Number.isFinite(hi) && hi >= geometry.minY && lo <= geometry.maxY ? <line x1={cx} x2={cx} y1={yy(lo)} y2={yy(hi)} /> : null;

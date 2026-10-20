@@ -26,6 +26,8 @@ export type Graph = {
   show_points: boolean;
   /** Optional XY line rule. Missing Y rows break the line when true. */
   gap_at_missing_y?: boolean;
+  /** Column bar spacing as a percentage of the drawn bar width. */
+  column_space_percent?: number | null;
   axes?: GraphAxes;
   // Brackets from the graph's linked t test or one-way ANOVA.
   pairwise?: { style: "asterisks" | "p"; show_ns: boolean };
@@ -376,6 +378,8 @@ export function parseProject(text: string): Project {
     !["title", "x_label", "y_label"].every((k) => typeof g[k] === "string") ||
     typeof g.show_points !== "boolean" ||
     (g.gap_at_missing_y !== undefined && typeof g.gap_at_missing_y !== "boolean") ||
+    (g.column_space_percent != null &&
+      (!Number.isInteger(g.column_space_percent) || g.column_space_percent < 0 || g.column_space_percent > 400)) ||
     (g.axes !== undefined && (!validGraphAxes(g.axes) ||
       axesSettingsProblem(g.axes, p.table_type === "xy") !== null)) ||
     !Array.isArray(g.colors) ||
