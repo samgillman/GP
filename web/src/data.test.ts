@@ -215,7 +215,9 @@ test("Column bar spacing option accepts a bounded integer and preserves old grap
   const g = structuredClone(old);
   g.graph.column_space_percent = 200;
   assert.deepEqual(parseProject(JSON.stringify(g)), g);
-  for (const invalid of [-1, 401, 1.5, NaN, Infinity, "100", true]) {
+  // JSON.stringify turns nonfinite numbers into null, the supported automatic mode.
+  // Test invalid serialized values, not values erased before the parser runs.
+  for (const invalid of [-1, 401, 1.5, "NaN", "Infinity", "100", true]) {
     const bad = structuredClone(g);
     (bad.graph as { column_space_percent?: unknown }).column_space_percent = invalid;
     assert.throws(() => parseProject(JSON.stringify(bad)), /Invalid project graph settings/);
