@@ -6,12 +6,16 @@ Prepared 2026-10-19, America/Chicago. This is a continuation checkpoint, **not c
 
 The first axes increment was published as `65faec6a81ec272e8abb9490e45f4bb5edf80020`
 and verified with `git ls-remote`. Work continued immediately into G070 explicit
-decimal numbering. Its current changes add `AxisSettings.numberFormat`, a
+decimal numbering, published as `b1eccbe53495164e29ebfec205f282c1aa0deb17`
+and verified on GitHub main. Its changes add `AxisSettings.numberFormat`, a
 BigInt/Decimal formatter pair, Numbering controls, and strict prefix/suffix
 validation after an actual NUL-prefix probe produced an unreadable SVG.
 Scientific/Power-of-10/Antilog/native auto formatting remain open. Read the
 latest progress entry for validation/publication of this second increment;
 do not assume the first axes commit contains the numbering changes.
+Both production browser builds passed numbering/export checks. Work then
+continued into compact dialog geometry and a visible tick/title overlap fix;
+these follow-up edits require their own validation/publication.
 
 Active checkout is `/workspace/gp-status-main`, branch `gp-prism-axes`, based on
 GitHub main `948a451`. The old `/workspace/GP` checkout is historical; do not push

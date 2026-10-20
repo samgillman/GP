@@ -1,6 +1,7 @@
 import { useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { fmt, palette } from "./data";
 import { formatAxisTick } from "./axis-number-format";
+import { plotLabelLayout } from "./plot-label-layout";
 import {
   buildPlotGeometry,
   DENSE_POINT_THRESHOLD,
@@ -8,6 +9,7 @@ import {
   drawSelectedPoints,
   plotFrame,
   pointHitIndex,
+  reframePlotGeometry,
 } from "./plot-geometry";
 import type {
   PlotAnnotation,
@@ -136,7 +138,38 @@ export default function Plot({
     try { return { geometry: buildPlotGeometry(project, result, annotations), error: null }; }
     catch (error) { return { geometry: null, error: error instanceof Error ? error.message : "Invalid axis settings." }; }
   }, [project, result, annotations]);
-  const geometry = computed.geometry;
+  const [labelFonts, setLabelFonts] = useState({ tick: "13px Arial", title: "700 14px Arial", tickHeight: 13, titleHeight: 14 });
+  useLayoutEffect(() => {
+    const tick = svgRef.current?.querySelector(".tick"), title = svgRef.current?.querySelector(".axis-label");
+    if (!tick || !title) return;
+    const a = getComputedStyle(tick), b = getComputedStyle(title);
+    const next = { tick: a.font, title: b.font, tickHeight: parseFloat(a.fontSize), titleHeight: parseFloat(b.fontSize) };
+    setLabelFonts(previous => JSON.stringify(previous) === JSON.stringify(next) ? previous : next);
+  }, [computed.geometry]);
+  const plotted = useMemo(() => {
+    const base = computed.geometry;
+    if (!base) return null;
+    const context = document.createElement("canvas").getContext("2d");
+    const measure = (text: string, font = labelFonts.tick) => {
+      if (!context) return text.length * 7;
+      context.font = font;
+      return context.measureText(text).width;
+    };
+    const xLabels = base.xy
+      ? base.xTicks.map(value => base.axes.x.numberFormat ? formatAxisTick(value, base.axes.x.numberFormat) : fmt(value))
+      : base.series.map(series => series.name.length > 20 ? series.name.slice(0, 19) + "…" : series.name);
+    const yLabels = base.yTicks.map(value => base.axes.y.numberFormat ? formatAxisTick(value, base.axes.y.numberFormat) : fmt(value));
+    const xWidths = xLabels.map(text => measure(text)), yWidths = yLabels.map(text => measure(text));
+    const layout = plotLabelLayout({
+      xWidth: base.axes.x.showAxis ? Math.max(0, ...xWidths) : 0,
+      yWidth: base.axes.y.showAxis ? Math.max(0, ...yWidths) : 0,
+      tickHeight: labelFonts.tickHeight, titleHeight: labelFonts.titleHeight,
+      hasYTitle: Boolean(graph.y_label),
+    });
+    return { geometry: reframePlotGeometry(base, layout.frame), layout, xLabels, yLabels, xWidths, yWidths,
+      xTitleWidth: measure(graph.x_label, labelFonts.title), yTitleWidth: measure(graph.y_label, labelFonts.title) };
+  }, [computed.geometry, labelFonts, graph.x_label, graph.y_label]);
+  const geometry = plotted?.geometry ?? null;
   const findPoint = useMemo(
     () => (geometry ? pointHitIndex(geometry) : null),
     [geometry],
@@ -226,7 +259,7 @@ export default function Plot({
       <div className="empty-chart">Enter numeric data to create a graph.</div>
     );
   const { series, fits, xy, count, x, y, xTicks, yTicks } = geometry;
-  const { width: W, height: H, left, right, top, bottom } = plotFrame;
+  const { width: W, height: H, left, right, top, bottom } = geometry.frame;
   const pw = W - left - right,
     ph = H - top - bottom;
   const editAxis = (axis: "x" | "y", event: React.MouseEvent) => { event.stopPropagation(); onFormatAxes?.(axis); };
@@ -375,16 +408,18 @@ export default function Plot({
             {geometry.axes.y.showAxis && <g data-axis="y" onDoubleClick={event => editAxis("y", event)}>
               <line x1={left} x2={left} y1={top} y2={H - bottom} stroke="#000" strokeWidth="1.5" />
               <line x1={left} x2={left} y1={top} y2={H - bottom} stroke="transparent" strokeWidth="10" />
-              {yTicks.map((v, i) => <g key={i}><line x1={left - 6} x2={left} y1={y(v)} y2={y(v)} stroke="#000" strokeWidth="1.5" /><text x={left - 10} y={y(v) + 4} textAnchor="end" className="tick">{geometry.axes.y.numberFormat ? formatAxisTick(v, geometry.axes.y.numberFormat) : fmt(v)}</text></g>)}
+              {yTicks.map((v, i) => <g key={i}><line x1={left - 6} x2={left} y1={y(v)} y2={y(v)} stroke="#000" strokeWidth="1.5" /><text x={left - 10} y={y(v) + 4} textAnchor="end" className="tick" textLength={plotted!.yWidths[i] > plotted!.layout.yTickWidth ? plotted!.layout.yTickWidth : undefined} lengthAdjust="spacingAndGlyphs">{plotted!.yLabels[i]}</text></g>)}
             </g>}
             {geometry.axes.x.showAxis && <g data-axis="x" onDoubleClick={event => editAxis("x", event)}>
               <line x1={left} x2={W - right} y1={H - bottom} y2={H - bottom} stroke="#000" strokeWidth="1.5" />
               <line x1={left} x2={W - right} y1={H - bottom} y2={H - bottom} stroke="transparent" strokeWidth="10" />
-              {xy ? xTicks.map((v, i) => <g key={i}><line x1={x(v)} x2={x(v)} y1={H - bottom} y2={H - bottom + 6} stroke="#000" strokeWidth="1.5" /><text x={x(v)} y={H - bottom + 22} textAnchor="middle" className="tick">{geometry.axes.x.numberFormat ? formatAxisTick(v, geometry.axes.x.numberFormat) : fmt(v)}</text></g>) : series.map((s, i) => <text key={i} x={x(i + 1)} y={H - bottom + 26} textAnchor="middle" className="tick">{s.name.length > 20 ? s.name.slice(0, 19) + "…" : s.name}</text>)}
+              {xy ? xTicks.map((v, i) => <g key={i}><line x1={x(v)} x2={x(v)} y1={H - bottom} y2={H - bottom + 6} stroke="#000" strokeWidth="1.5" /><text x={x(v)} y={H - bottom + 22} textAnchor="middle" className="tick" textLength={plotted!.xWidths[i] > plotted!.layout.xTickWidth ? plotted!.layout.xTickWidth : undefined} lengthAdjust="spacingAndGlyphs">{plotted!.xLabels[i]}</text></g>) : series.map((s, i) => <text key={i} x={x(i + 1)} y={H - bottom + 26} textAnchor="middle" className="tick">{s.name.length > 20 ? s.name.slice(0, 19) + "…" : s.name}</text>)}
             </g>}
             <text
               x={left + pw / 2}
               y={H - 18}
+              textLength={plotted!.xTitleWidth > pw ? pw : undefined}
+              lengthAdjust="spacingAndGlyphs"
               textAnchor="middle"
               className="axis-label"
               onDoubleClick={() => onEditText?.("x_label")}
@@ -392,7 +427,9 @@ export default function Plot({
               {graph.x_label}
             </text>
             <text
-              transform={`translate(18 ${top + ph / 2}) rotate(-90)`}
+              transform={`translate(${plotted!.layout.yTitleX} ${top + ph / 2}) rotate(-90)`}
+              textLength={plotted!.yTitleWidth > ph ? ph : undefined}
+              lengthAdjust="spacingAndGlyphs"
               textAnchor="middle"
               className="axis-label"
               onDoubleClick={() => onEditText?.("y_label")}

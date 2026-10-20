@@ -78,3 +78,21 @@ the test allows five minutes per export, as does the existing Column workflow
 check. A timeout is reported as a failure, never counted as a passing export.
 `GP_AXES_EXPORT_TIMEOUT` overrides that allowance in milliseconds when diagnosing
 a constrained host; record the override with the result.
+
+## Compact dialog and measured browser labels
+
+The follow-up uses the REA archive's broad dialog grouping: direction/scale,
+horizontal minimum/maximum, adjacent tick/appearance and numbering controls,
+and Apply/Cancel/OK. The 820px browser width and responsive breakpoints are GP
+choices; archive construction frames do not establish runtime pixel parity.
+The supported two pages remain explicit; missing native pages are not inert tabs.
+
+Browser labels now measure the displayed font and reserve a separate title band.
+Reprojection shares already-computed series/statistics; canvas clipping, SVG
+clipping, selection overlays and hit testing use the same adjusted frame.
+The 680×420 page and exported dimensions remain unchanged. Extremely long tick
+labels compress within bounded widths (Y 190px, X 200px), and titles compress
+to the plotted span. Full text remains present. Adjacent dense tick labels can
+still overlap; neither native spacing algorithms nor browser/export pixel
+identity are established. This supersedes the fixed-margin limitation above
+for the ordinary currency/unit label case observed during screenshot review.

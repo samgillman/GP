@@ -12,6 +12,7 @@ export const plotFrame = {
   top: 35,
   bottom: 78,
 };
+export type PlotFrame = typeof plotFrame;
 export type PlotPoint = { x: number; y: number; row: number };
 export type PlotSeries = {
   name: string;
@@ -223,7 +224,24 @@ export function buildPlotGeometry(project: Project, result: Response | null, ann
   const automatic = (axis: AxisSettings) => axis.minimum === null && axis.maximum === null && axis.majorInterval === null;
   const xTicks = xy ? !logX && automatic(axes.x) ? autoXTicks : configuredTicks(minX, maxX, logX, axes.x, "X") : [];
   const yTicks = !logY && automatic(axes.y) ? autoYTicks : configuredTicks(minY, maxY, logY, axes.y, "Y");
-  const { width, height, left, right, top, bottom } = plotFrame, pw = width - left - right, ph = height - top - bottom;
+  const logOmittedSummary = logY && !xy && series.some(s => s.values.length > 0 && (
+    graph.type === "box" ? [s.min, s.max, ...(s.quartiles ?? [])].some(v => v <= 0) :
+    (graph.type === "bar" && s.mean <= 0) || (graph.error !== "none" && [s.mean, s.lo, s.hi].some(v => v <= 0))));
+  return { series, fits, count, totalCount, logOmittedCount, logOmittedSummary, xy, logX, logY, axes, minX, maxX, minY, maxY, xTicks, yTicks, brackets, frame: plotFrame, ...plotProjection({ minX, maxX, minY, maxY, logX, logY, axes }, plotFrame) };
+}
+export type PlotGeometry = NonNullable<ReturnType<typeof buildPlotGeometry>>;
+/** Reproject the already-computed series; label layout must not rescan large tables. */
+export function reframePlotGeometry(geometry: PlotGeometry, frame: PlotFrame): PlotGeometry {
+  return { ...geometry, frame, ...plotProjection(geometry, frame) };
+}
+function plotProjection(domain: {
+  minX: number; maxX: number; minY: number; maxY: number;
+  logX: boolean; logY: boolean; axes: { x: AxisSettings; y: AxisSettings };
+}, frame: PlotFrame) {
+  const { minX, maxX, minY, maxY, logX, logY, axes } = domain;
+  const validX = (value: number) => Number.isFinite(value) && (!logX || value > 0);
+  const validY = (value: number) => Number.isFinite(value) && (!logY || value > 0);
+  const { width, height, left, right, top, bottom } = frame, pw = width - left - right, ph = height - top - bottom;
   const tx = (v: number) => logX ? Math.log10(v) : v, ty = (v: number) => logY ? Math.log10(v) : v;
   const x = (v: number) => { const f = (tx(v) - tx(minX)) / (tx(maxX) - tx(minX)); return left + (axes.x.reverse ? 1 - f : f) * pw; };
   const y = (v: number) => { const f = (ty(v) - ty(minY)) / (ty(maxY) - ty(minY)); return top + (axes.y.reverse ? f : 1 - f) * ph; };
@@ -265,18 +283,15 @@ export function buildPlotGeometry(project: Project, result: Response | null, ann
     }
     return path;
   };
-  const logOmittedSummary = logY && !xy && series.some(s => s.values.length > 0 && (
-    graph.type === "box" ? [s.min, s.max, ...(s.quartiles ?? [])].some(v => v <= 0) :
-    (graph.type === "bar" && s.mean <= 0) || (graph.error !== "none" && [s.mean, s.lo, s.hi].some(v => v <= 0))));
-  return { series, fits, count, totalCount, logOmittedCount, logOmittedSummary, xy, logX, logY, axes, minX, maxX, minY, maxY, xTicks, yTicks, brackets, x, y, validY, visible, boundedY, linePath };
+  return { x, y, validY, visible, boundedY, linePath };
 }
-export type PlotGeometry = NonNullable<ReturnType<typeof buildPlotGeometry>>;
+
 /** Every observation is drawn, in the same series/row order as the SVG mode. */
 export function drawDensePoints(
   context: CanvasRenderingContext2D,
   geometry: PlotGeometry,
 ) {
-  clipCanvas(context);
+  clipCanvas(context, geometry.frame);
   for (const series of geometry.series) {
     context.fillStyle = series.color;
     context.strokeStyle = "white";
@@ -335,7 +350,7 @@ export function pointHitIndex(geometry: PlotGeometry) {
     });
   });
   return (px: number, py: number, radius = 12): PointHit | null => {
-    if (px < plotFrame.left || px > plotFrame.width - plotFrame.right || py < plotFrame.top || py > plotFrame.height - plotFrame.bottom) return null;
+    if (px < geometry.frame.left || px > geometry.frame.width - geometry.frame.right || py < geometry.frame.top || py > geometry.frame.height - geometry.frame.bottom) return null;
     let best: PointHit | null = null,
       distance = radius * radius;
     for (
@@ -388,7 +403,7 @@ export function drawSelectedPoints(
     list.push(range);
     bySeries.set(range.seriesIndex, list);
   }
-  clipCanvas(context);
+  clipCanvas(context, geometry.frame);
   context.strokeStyle = "#0866db";
   context.lineWidth = 2.5;
   let count = 0;
@@ -418,8 +433,8 @@ export function drawSelectedPoints(
   return count;
 }
 
-function clipCanvas(context: CanvasRenderingContext2D) {
+function clipCanvas(context: CanvasRenderingContext2D, frame: PlotFrame) {
   context.save(); context.beginPath();
-  context.rect(plotFrame.left, plotFrame.top, plotFrame.width - plotFrame.left - plotFrame.right, plotFrame.height - plotFrame.top - plotFrame.bottom);
+  context.rect(frame.left, frame.top, frame.width - frame.left - frame.right, frame.height - frame.top - frame.bottom);
   context.clip();
 }

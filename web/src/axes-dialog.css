@@ -1,16 +1,83 @@
-.axes-dialog { width: 700px; }
-.axes-tabs { display: flex; justify-content: center; margin-bottom: 18px; }
-.axes-tabs button { border-radius: 0; min-width: 100px; }
-.axes-tabs button:first-child { border-radius: 5px 0 0 5px; }
-.axes-tabs button:last-child { border-radius: 0 5px 5px 0; }
-.axes-tabs [aria-selected="true"] { color: #fff; background: #317cdb; border-color: #2468bd; }
-.axes-dialog fieldset { margin: 0 0 16px; padding: 12px 16px; border: 1px solid #bbb; border-radius: 5px; }
+/* Archived controls establish broad spatial grouping, not browser dimensions. */
+.desktop-dialog.axes-dialog { width: 820px; }
+.axes-dialog .desktop-dialog-body { padding: 12px 16px 0; }
+.axes-dialog .axes-tabs { display: flex; justify-content: center; margin-bottom: 13px; }
+.axes-dialog .axes-tabs button { min-width: 108px; border-radius: 0; }
+.axes-dialog .axes-tabs button + button { margin-left: -1px; }
+.axes-dialog .axes-tabs button:first-child { border-radius: 5px 0 0 5px; }
+.axes-dialog .axes-tabs button:last-child { border-radius: 0 5px 5px 0; }
+.axes-dialog .axes-tabs [aria-selected="true"] {
+  position: relative; color: #fff; background: #317cdb; border-color: #2468bd;
+}
+.axes-dialog fieldset {
+  margin: 0; padding: 8px 12px 10px; min-width: 0;
+  border: 1px solid #bdbdbd; border-radius: 4px;
+}
 .axes-dialog legend { padding: 0 5px; font-weight: 500; }
-.axes-dialog .desktop-form-row { margin: 9px 0; }
-.axes-dialog .desktop-checkbox-label { margin: 9px 0; }
-.axes-dialog .axes-hint { font-size: 11px; color: #626262; }
-.axes-error { min-height: 32px; color: #a32020; font-size: 12px; }
-@media(max-width: 600px) {
-  .axes-dialog fieldset { padding: 10px; }
-  .axes-dialog .desktop-form-row { flex-wrap: wrap; }
+.axes-dialog .desktop-form-row {
+  grid-template-columns: 126px minmax(0, 1fr); gap: 7px; margin: 6px 0;
+}
+.axes-dialog .desktop-form-row > span { text-align: right; }
+.axes-dialog input:not([type="checkbox"]), .axes-dialog select { height: 25px; min-width: 0; }
+.axes-dialog input:disabled { color: #666; background: #e5e5e5; }
+.axes-dialog .desktop-checkbox-label { display: flex; align-items: center; margin: 7px 0; }
+.axes-dialog .axes-range-controls {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 22px;
+}
+.axes-dialog .axes-range-controls .desktop-form-row { grid-template-columns: 74px minmax(0, 1fr); }
+.axes-dialog .axes-direction { grid-column: 1; grid-row: 1; }
+.axes-dialog .axes-scale { grid-column: 2; grid-row: 1; }
+.axes-dialog .axes-automatic { grid-column: 1 / -1; grid-row: 2; margin: 8px 0 3px; }
+.axes-dialog .axes-minimum { grid-column: 1; grid-row: 3; }
+.axes-dialog .axes-maximum { grid-column: 2; grid-row: 3; }
+.axes-dialog .axes-range-controls > p { grid-column: 1 / -1; grid-row: 4; }
+.axes-dialog .axes-hint { margin: 5px 0 0; font-size: 11px; line-height: 1.4; color: #626262; }
+.axes-dialog .axes-detail-columns {
+  display: grid; grid-template-columns: minmax(245px, .8fr) minmax(0, 1.3fr);
+  gap: 12px; align-items: stretch; margin-top: 12px;
+}
+.axes-dialog .axes-ticks-appearance { display: grid; gap: 12px; align-content: start; min-width: 0; }
+.axes-dialog .axes-regular-ticks .desktop-form-row { grid-template-columns: 88px minmax(0, 1fr); }
+.axes-dialog .axes-appearance .desktop-form-row { grid-template-columns: 54px minmax(0, 1fr); margin-top: 11px; }
+.axes-dialog .axes-numbering-controls {
+  display: grid; grid-template-columns: minmax(0, 1fr) 112px;
+  column-gap: 14px; align-content: start;
+}
+.axes-dialog .axes-numbering-main, .axes-dialog .axes-affixes { min-width: 0; }
+.axes-dialog .axes-prefix.desktop-form-row,
+.axes-dialog .axes-suffix.desktop-form-row { grid-template-columns: 34px minmax(0, 1fr); gap: 5px; }
+.axes-dialog .axes-number-example {
+  display: grid; grid-template-columns: 60px minmax(0, 1fr); align-items: baseline;
+  gap: 8px; margin: 12px 0 0; padding-top: 10px; border-top: 1px solid #d2d2d2; font-size: 12px;
+}
+.axes-dialog .axes-number-example > span { color: #626262; }
+.axes-dialog .axes-number-example output { min-width: 0; overflow-wrap: anywhere; white-space: pre-wrap; font-variant-numeric: tabular-nums; }
+.axes-dialog .axes-categorical { grid-template-columns: 1fr; }
+.axes-dialog .axes-error { min-height: 29px; padding: 6px 0; color: #a32020; font-size: 12px; overflow-wrap: anywhere; }
+.axes-dialog .desktop-dialog-actions { gap: 8px; padding: 10px 16px; }
+@media (max-width: 780px) {
+  .axes-dialog .axes-detail-columns { grid-template-columns: minmax(0, 1fr); }
+  .axes-dialog .axes-ticks-appearance { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .axes-dialog .axes-numbering-controls { grid-template-columns: minmax(0, 1fr) 160px; }
+  .axes-dialog .axes-categorical .axes-ticks-appearance { grid-template-columns: 1fr; }
+}
+@media (max-width: 540px) {
+  .axes-dialog .desktop-dialog-body { padding: 10px 12px 0; }
+  .axes-dialog .axes-range-controls, .axes-dialog .axes-ticks-appearance,
+  .axes-dialog .axes-numbering-controls { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .axes-dialog .axes-ticks-appearance { gap: 12px; }
+  .axes-dialog .axes-range-controls > *, .axes-dialog .axes-numbering-controls > * { grid-column: 1; grid-row: auto; }
+  .axes-dialog .axes-direction { order: -2; }
+  .axes-dialog .axes-scale { order: -1; }
+  .axes-dialog .axes-range-controls > p { order: 2; }
+  .axes-dialog .axes-prefix.desktop-form-row, .axes-dialog .axes-suffix.desktop-form-row { grid-template-columns: 126px minmax(0, 1fr); }
+  .axes-dialog .desktop-dialog-actions { padding: 10px 12px; }
+}
+@media (max-width: 360px) {
+  .axes-dialog .desktop-form-row, .axes-dialog .axes-range-controls .desktop-form-row,
+  .axes-dialog .axes-regular-ticks .desktop-form-row, .axes-dialog .axes-appearance .desktop-form-row,
+  .axes-dialog .axes-prefix.desktop-form-row, .axes-dialog .axes-suffix.desktop-form-row { grid-template-columns: minmax(0, 1fr); gap: 3px; }
+  .axes-dialog .desktop-form-row > span { text-align: left; }
+  .axes-dialog .desktop-dialog-actions { gap: 6px; }
+  .axes-dialog .desktop-dialog-actions button { min-width: 68px; }
 }

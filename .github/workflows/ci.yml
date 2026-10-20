@@ -74,6 +74,8 @@ jobs:
           python scripts/check_graph_zoom.py http://127.0.0.1:8001
           GP_AXES_EVIDENCE=test-results/axes-static python scripts/check_axes.py http://127.0.0.1:8001
           GP_AXES_EVIDENCE=test-results/axes-server python scripts/check_axes.py http://127.0.0.1:8002
+          GP_AXIS_LAYOUT_EVIDENCE=test-results/axis-layout-static python scripts/check_axis_layout.py http://127.0.0.1:8001
+          GP_AXIS_LAYOUT_EVIDENCE=test-results/axis-layout-server python scripts/check_axis_layout.py http://127.0.0.1:8002
           GP_EXCLUSIONS_EVIDENCE=test-results/exclusions-static.json python scripts/check_exclusions.py http://127.0.0.1:8001
           GP_EXCLUSIONS_EVIDENCE=test-results/exclusions-server.json python scripts/check_exclusions.py http://127.0.0.1:8002
           GP_FOUNDATIONS_EVIDENCE=test-results/foundations-server python scripts/check_workbook_foundations.py http://127.0.0.1:8002

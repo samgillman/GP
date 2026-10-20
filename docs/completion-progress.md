@@ -1,5 +1,23 @@
 # Completion execution log
 
+## 2026-10-20 continuation: axes dialog geometry and label spacing
+
+After publishing numbering as `b1eccbe` (verified against GitHub main), work
+continued into the visible Y-title overlap and dialog layout. The dialog now
+uses REA-recovered broad spatial grouping with responsive GP dimensions.
+Browser label measurement reserves title space and reprojects the same data;
+clipping and hit targets follow the adjusted frame. See the implementation
+notes for remaining long-label and dense-tick limitations.
+
+Development Chromium checks passed at 1280×800 and 390×844: the full desktop
+Decimal dialog fits without scrolling, the narrow dialog has no horizontal
+overflow and remains editable, and actual transformed SVG bounds show the
+Y title separated from every formatted tick. Screenshots were visually reviewed
+under `/workspace/gp-evidence/axis-layout-dev`. Typecheck passed; four focused
+frontend test files passed including projection/selection/clipping coverage.
+Production builds and packaged-browser verification are in progress. These are
+GP observations, not a native Prism screenshot comparison.
+
 ## 2026-10-20 continuation: explicit decimal axis numbering
 
 G070 now has optional persistent fixed-decimal tick labels with 0–9 places,

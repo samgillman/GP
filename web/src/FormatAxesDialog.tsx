@@ -87,10 +87,15 @@ export default function FormatAxesDialog({ project, result, initialAxis, onApply
           {key === "x" ? "X axis" : "Left Y axis"}
         </button>)}
       </div>
-      <div role="tabpanel" id={`axis-panel-${axis}`} aria-labelledby={`axis-tab-${axis}`}>
-        <fieldset><legend>Scale and range</legend>
+      <div role="tabpanel" id={`axis-panel-${axis}`} aria-labelledby={`axis-tab-${axis}`} className="axes-panel">
+        <fieldset className="axes-range"><legend>Scale and range</legend>
+          <div className="axes-range-controls">
+          <label className="desktop-form-row axes-direction"><span>Direction</span><select aria-label="Axis direction"
+            value={current.reverse ? "reverse" : "standard"} onChange={e => change({ reverse: e.target.value === "reverse" })}>
+            <option value="standard">Standard</option><option value="reverse">Reverse</option>
+          </select></label>
           {categorical ? <p>The X axis shows dataset titles. Its positions follow the datasets on this graph.</p> : <>
-            <label className="desktop-form-row"><span>Scale</span>
+            <label className="desktop-form-row axes-scale"><span>Scale</span>
               <select aria-label="Axis scale" value={current.scale} onChange={e => change({
                 scale: e.target.value as AxisSettings["scale"],
                 ...(e.target.value === "log10" ? { majorInterval: "" } : {}),
@@ -99,59 +104,32 @@ export default function FormatAxesDialog({ project, result, initialAxis, onApply
                 <option value="linear">Linear</option><option value="log10">Log 10</option>
               </select>
             </label>
-            <label className="desktop-checkbox-label"><input type="checkbox"
+            <label className="desktop-checkbox-label axes-automatic"><input type="checkbox"
               checked={!current.minimum && !current.maximum && !current.majorInterval}
               onChange={e => automatic(e.target.checked)} />Automatic range and interval</label>
-            {(["minimum", "maximum", "majorInterval"] as const).map(key => <label key={key} className="desktop-form-row">
-              <span>{key === "minimum" ? "Minimum" : key === "maximum" ? "Maximum" : "Major tick interval"}</span>
-              <input aria-label={key === "minimum" ? "Axis minimum" : key === "maximum" ? "Axis maximum" : "Major tick interval"}
+            {(["minimum", "maximum"] as const).map(key => <label key={key} className={`desktop-form-row axes-${key}`}>
+              <span>{key === "minimum" ? "Minimum" : "Maximum"}</span>
+              <input aria-label={key === "minimum" ? "Axis minimum" : "Axis maximum"} aria-describedby="axis-range-hint"
                 inputMode="decimal" type="text" placeholder="Automatic" value={current[key]}
-                disabled={key === "majorInterval" && logarithmic} onChange={e => change({ [key]: e.target.value })} />
+                onChange={e => change({ [key]: e.target.value })} />
             </label>)}
-            <p className="axes-hint">Leave a limit blank for automatic range. Log scales display positive values only; the data and analyses stay unchanged.</p>
+            <p id="axis-range-hint" className="axes-hint axes-range-hint">Leave a limit blank for automatic range. Log scales display positive values only; the data and analyses stay unchanged.</p>
           </>}
-          <label className="desktop-form-row"><span>Direction</span><select aria-label="Axis direction"
-            value={current.reverse ? "reverse" : "standard"} onChange={e => change({ reverse: e.target.value === "reverse" })}>
-            <option value="standard">Standard</option><option value="reverse">Reverse</option>
-          </select></label>
+          </div>
         </fieldset>
-        {!categorical && <fieldset><legend>Numbering</legend>
-          <label className="desktop-form-row"><span>Number format</span>
-            <select aria-label="Tick number format" value={current.numberFormat ? "decimal" : "auto"}
-              onChange={e => change({ numberFormat: e.target.value === "auto" ? undefined : defaultAxisNumberFormat() })}>
-              <option value="auto">Automatic</option><option value="decimal">Decimal</option>
-            </select>
-          </label>
-          {current.numberFormat && <>
-            <label className="desktop-form-row"><span>Decimal places</span>
-              <select aria-label="Tick decimal places" value={current.numberFormat.decimals}
-                onChange={e => changeNumberFormat({ decimals: Number(e.target.value) })}>
-                {Array.from({ length: 10 }, (_, i) => <option value={i} key={i}>{i}</option>)}
-              </select>
+        <div className={`axes-detail-columns${categorical ? " axes-categorical" : ""}`}>
+        <div className="axes-ticks-appearance">
+          {!categorical && <fieldset className="axes-regular-ticks"><legend>Regular ticks</legend>
+            <label className="desktop-form-row"><span>Major interval</span>
+              <input aria-label="Major tick interval" aria-describedby="axis-interval-hint"
+                inputMode="decimal" type="text" placeholder="Automatic" value={current.majorInterval}
+                disabled={logarithmic} onChange={e => change({ majorInterval: e.target.value })} />
             </label>
-            <label className="desktop-form-row"><span>Decimal separator</span>
-              <select aria-label="Tick decimal separator" value={current.numberFormat.decimalSeparator}
-                onChange={e => changeNumberFormat({ decimalSeparator: e.target.value as AxisNumberFormat["decimalSeparator"] })}>
-                <option value=".">1.23</option><option value=",">1,23</option><option value="·">1·23</option>
-              </select>
-            </label>
-            <label className="desktop-form-row"><span>Thousands separator</span>
-              <select aria-label="Tick thousands separator" value={current.numberFormat.thousandsSeparator}
-                onChange={e => changeNumberFormat({ thousandsSeparator: e.target.value as AxisNumberFormat["thousandsSeparator"] })}>
-                <option value="">100000</option><option value=",">100,000</option>
-                <option value=" ">100 000</option><option value="'">100&apos;000</option>
-              </select>
-            </label>
-            <label className="desktop-form-row"><span>Prefix</span><input aria-label="Tick prefix" maxLength={64}
-              value={current.numberFormat.prefix} onChange={e => changeNumberFormat({ prefix: e.target.value })} /></label>
-            <label className="desktop-form-row"><span>Suffix</span><input aria-label="Tick suffix" maxLength={64}
-              value={current.numberFormat.suffix} onChange={e => changeNumberFormat({ suffix: e.target.value })} /></label>
-          </>}
-          <p className="axes-hint">Example: <output aria-label="Tick label example">{current.numberFormat
-            ? validAxisNumberFormat(current.numberFormat) ? formatAxisTick(1234.5678, current.numberFormat) : "Check format settings"
-            : fmt(1234.5678)}</output></p>
-        </fieldset>}
-        <fieldset><legend>Appearance</legend>
+            <p id="axis-interval-hint" className="axes-hint">{logarithmic
+              ? "Logarithmic tick spacing is automatic."
+              : "Leave blank for automatic tick spacing."}</p>
+          </fieldset>}
+        <fieldset className="axes-appearance"><legend>Appearance</legend>
           <label className="desktop-checkbox-label"><input type="checkbox" checked={current.showAxis}
             onChange={e => change({ showAxis: e.target.checked })} />Show axis line, ticks and tick labels</label>
           <label className="desktop-checkbox-label"><input type="checkbox" checked={current.showGrid}
@@ -161,12 +139,56 @@ export default function FormatAxesDialog({ project, result, initialAxis, onApply
             onChange={e => setTitles(previous => ({ ...previous, [axis === "x" ? "x_label" : "y_label"]: e.target.value }))} /></label>
           <p className="axes-hint">The title remains independent of axis visibility. Clear the title to hide it.</p>
         </fieldset>
+        </div>
+        {!categorical && <fieldset className="axes-numbering"><legend>Numbering</legend>
+          <div className="axes-numbering-controls">
+          <div className="axes-numbering-main">
+          <label className="desktop-form-row axes-number-format"><span>Number format</span>
+            <select aria-label="Tick number format" value={current.numberFormat ? "decimal" : "auto"}
+              onChange={e => change({ numberFormat: e.target.value === "auto" ? undefined : defaultAxisNumberFormat() })}>
+              <option value="auto">Automatic</option><option value="decimal">Decimal</option>
+            </select>
+          </label>
+          {current.numberFormat && <>
+            <label className="desktop-form-row axes-thousands-separator"><span>Thousands separator</span>
+              <select aria-label="Tick thousands separator" value={current.numberFormat.thousandsSeparator}
+                onChange={e => changeNumberFormat({ thousandsSeparator: e.target.value as AxisNumberFormat["thousandsSeparator"] })}>
+                <option value="">100000</option><option value=",">100,000</option>
+                <option value=" ">100 000</option><option value="'">100&apos;000</option>
+              </select>
+            </label>
+            <label className="desktop-form-row axes-decimal-places"><span>Decimal places</span>
+              <select aria-label="Tick decimal places" value={current.numberFormat.decimals}
+                onChange={e => changeNumberFormat({ decimals: Number(e.target.value) })}>
+                {Array.from({ length: 10 }, (_, i) => <option value={i} key={i}>{i}</option>)}
+              </select>
+            </label>
+            <label className="desktop-form-row axes-decimal-separator"><span>Decimal separator</span>
+              <select aria-label="Tick decimal separator" value={current.numberFormat.decimalSeparator}
+                onChange={e => changeNumberFormat({ decimalSeparator: e.target.value as AxisNumberFormat["decimalSeparator"] })}>
+                <option value=".">1.23</option><option value=",">1,23</option><option value="·">1·23</option>
+              </select>
+            </label>
+          </>}
+          </div>
+          {current.numberFormat && <div className="axes-affixes">
+            <label className="desktop-form-row axes-prefix"><span>Prefix</span><input aria-label="Tick prefix" maxLength={64}
+              value={current.numberFormat.prefix} onChange={e => changeNumberFormat({ prefix: e.target.value })} /></label>
+            <label className="desktop-form-row axes-suffix"><span>Suffix</span><input aria-label="Tick suffix" maxLength={64}
+              value={current.numberFormat.suffix} onChange={e => changeNumberFormat({ suffix: e.target.value })} /></label>
+          </div>}
+          </div>
+          <p className="axes-number-example"><span>Example</span><output aria-label="Tick label example">{current.numberFormat
+            ? validAxisNumberFormat(current.numberFormat) ? formatAxisTick(1234.5678, current.numberFormat) : "Check format settings"
+            : fmt(1234.5678)}</output></p>
+        </fieldset>}
+        </div>
       </div>
       <div className="axes-error" role={problem || applyError ? "alert" : undefined}>{problem || applyError}</div>
     </div>
     <footer className="desktop-dialog-actions">
-      <button onClick={onClose}>Cancel</button>
       <button disabled={!!problem || !axes} onClick={() => apply(false)}>Apply</button>
+      <button onClick={onClose}>Cancel</button>
       <button className="primary" disabled={!!problem || !axes} onClick={() => apply(true)}>OK</button>
     </footer>
   </DesktopDialog>;
