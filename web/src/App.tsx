@@ -2568,7 +2568,11 @@ export default function App() {
                       <h2>{graphSheet?.name ?? "Graph"}</h2>
                     </div>
                   </div>
-                  <div className="chart-title">{project.graph.title}</div>
+                  <div
+                    className="chart-title"
+                    title="Double-click to format the graph title"
+                    onDoubleClick={openGraphFormatting}
+                  >{project.graph.title}</div>
                   <Plot
                     key={graphSheet?.id}
                     project={plotProject}
