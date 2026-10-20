@@ -565,100 +565,191 @@ export function NewTableDialog({
     </DesktopDialog>
   );
 }
+/** Analyze Data's tree: Prism's categories, limited to the analyses GP runs. */
+const ANALYSIS_CATEGORIES: { key: string; label: string; items: Analysis[] }[] = [
+  { key: "xy", label: "XY analyses", items: ["linear_regression", "nonlinear_regression", "dose_response"] },
+  { key: "column", label: "Column analyses", items: ["t_test", "one_way_anova", "descriptive"] },
+];
+const ANALYSIS_HINTS: Partial<Record<Analysis, string>> = {
+  descriptive: "Sample size, mean, SD, SEM and confidence intervals of each data set.",
+  t_test: "Compare two data sets: unpaired or paired t tests, Welch's test, Mann-Whitney or Wilcoxon.",
+  one_way_anova: "Compare three or more data sets: ordinary, Welch or repeated-measures ANOVA, Kruskal-Wallis or Friedman.",
+  linear_regression: "Fit a straight line to each Y data set against X.",
+  dose_response: "Fit a four-parameter dose–response curve to positive X values.",
+  nonlinear_regression: "Fit a nonlinear model to each Y data set.",
+};
+/** Analyses offered for new results, in tree order. */
+export const offeredAnalyses: Analysis[] = ANALYSIS_CATEGORIES.flatMap((c) => c.items);
+/** Whether GP can run the analysis on this kind of data table. */
+export function analysisFitsTable(analysis: Analysis, tableType: TableType) {
+  if (analysis === "descriptive") return true;
+  const category = ANALYSIS_CATEGORIES.find((c) => c.items.includes(analysis));
+  return category?.key === tableType;
+}
+
+export type AnalyzeTable = { id: string; name: string; project: Project };
+
 export function AnalyzeDialog({
-  project,
+  tables,
+  initialTableId,
+  recent = [],
   onClose,
   onRun,
 }: {
-  project: Project;
+  /** Every data table in the workbook; the analysis can use any of them. */
+  tables: AnalyzeTable[];
+  initialTableId: string;
+  /** Analyses already used in this workbook, most recent first. */
+  recent?: Analysis[];
   onClose: () => void;
   onRun: (
+    tableId: string,
     analysis: Analysis,
     indices: number[],
-    prefix: string,
     regressionModel: string,
   ) => void;
 }) {
-  // The single-test entries remain readable in saved results but new analyses
-  // use the Prism families with their parameter dialogs.
-  const offered: Analysis[] =
-    project.table_type === "xy"
-      ? ["descriptive", "linear_regression", "dose_response", "nonlinear_regression"]
-      : ["descriptive", "t_test", "one_way_anova"];
+  const [tableId, setTableId] = useState(initialTableId);
+  const table = tables.find((t) => t.id === tableId) ?? tables[0];
+  const project = table.project;
+  const fits = (analysis: Analysis) => analysisFitsTable(analysis, project.table_type);
+  const firstFit = (p: Project) =>
+    ANALYSIS_CATEGORIES.flatMap((c) => c.items).find((a) => analysisFitsTable(a, p.table_type))!;
   const [search, setSearch] = useState(""),
-    [analysis, setAnalysis] = useState<Analysis>(
-      offered.includes(project.analysis) ? project.analysis : offered[0],
+    [analysis, setAnalysis] = useState<Analysis>(() =>
+      ANALYSIS_CATEGORIES.some((c) => c.items.includes(project.analysis)) && fits(project.analysis)
+        ? project.analysis
+        : firstFit(project),
     ),
-    [model, setModel] = useState(
-      project.regression_model ?? "one_phase_decay",
-    ),
+    [model, setModel] = useState(project.regression_model ?? "one_phase_decay"),
     [selected, setSelected] = useState(dataIndices(project)),
-    [prefix, setPrefix] = useState("");
-  const eligible = offered.map((key) => [key, analysisLabels[key]] as const);
+    [expanded, setExpanded] = useState<Record<string, boolean>>({
+      [project.table_type]: true,
+    });
+  const all = dataIndices(project);
+  const query = search.trim().toLowerCase();
+  const categories = [
+    ...(recent.length ? [{ key: "recent", label: "Recently used", items: recent }] : []),
+    ...ANALYSIS_CATEGORIES,
+  ]
+    .map((category) => ({
+      ...category,
+      items: category.items.filter((a) => analysisLabels[a].toLowerCase().includes(query)),
+    }))
+    .filter((category) => !query || category.items.length);
+  function chooseTable(id: string) {
+    const next = tables.find((t) => t.id === id);
+    if (!next) return;
+    setTableId(id);
+    setSelected(dataIndices(next.project));
+    if (!analysisFitsTable(analysis, next.project.table_type)) setAnalysis(firstFit(next.project));
+    setExpanded((old) => ({ ...old, [next.project.table_type]: true }));
+  }
   return (
     <DesktopDialog
       title="Analyze Data"
       titleId="analyze-title"
-      className="desktop-analyze"
+      className="desktop-analyze prism-analyze"
       onClose={onClose}
     >
       <div className="desktop-dialog-body">
-        <label className="desktop-form-row desktop-source-table">
-          <span>Table:</span>
-          <input value={project.name} readOnly />
+        <label className="analyze-use">
+          <span>Use:</span>
+          <select aria-label="Analysis source" value="builtin" onChange={() => undefined}>
+            <option value="builtin">Built-in analysis</option>
+          </select>
         </label>
-        <div className="desktop-analysis-chooser">
-          <div>
+        <div className="analyze-panes">
+          <section>
             <h3>Which analysis?</h3>
             <input
               data-autofocus
+              type="search"
               className="desktop-search"
               aria-label="Search analyses"
-              placeholder="Search analyses"
+              placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <div
-              className="desktop-method-list"
-              role="radiogroup"
-              aria-label="Available analyses"
-            >
-              <div className="desktop-analysis-category">
-                <span aria-hidden="true">▾</span>{" "}
-                {project.table_type === "xy"
-                  ? "XY analyses"
-                  : "Column analyses"}
-              </div>
-              {eligible
-                .filter(([, label]) =>
-                  label.toLowerCase().includes(search.toLowerCase()),
-                )
-                .map(([key, label]) => (
-                  <label
-                    key={key}
-                    className={analysis === key ? "selected" : ""}
-                  >
-                    <input
-                      type="radio"
-                      name="analysis-choice"
-                      checked={analysis === key}
-                      onChange={() => setAnalysis(key as Analysis)}
-                    />
-                    {label}
-                  </label>
-                ))}
-              {!eligible.some(([, label]) =>
-                label.toLowerCase().includes(search.toLowerCase()),
-              ) && <p className="desktop-empty">No matching items found</p>}
+            <div className="analysis-tree" role="radiogroup" aria-label="Available analyses">
+              {categories.map((category) => {
+                const open = Boolean(query) || Boolean(expanded[category.key]);
+                return (
+                  <div key={category.key} className="analysis-category">
+                    <button
+                      type="button"
+                      className="analysis-category-toggle"
+                      aria-expanded={open}
+                      onClick={() =>
+                        setExpanded((old) => ({ ...old, [category.key]: !open }))
+                      }
+                    >
+                      <span className={`disclosure${open ? " open" : ""}`} aria-hidden="true">
+                        ›
+                      </span>
+                      {category.label}
+                    </button>
+                    {open &&
+                      category.items.map((key) => (
+                        <label
+                          key={key}
+                          className={`analysis-item${analysis === key ? " selected" : ""}${fits(key) ? "" : " unavailable"}`}
+                          title={
+                            fits(key)
+                              ? ANALYSIS_HINTS[key]
+                              : `Needs ${analysisFitsTable(key, "xy") ? "an XY" : "a column"} data table`
+                          }
+                        >
+                          <input
+                            type="radio"
+                            name="analysis-choice"
+                            checked={analysis === key}
+                            disabled={!fits(key)}
+                            onChange={() => setAnalysis(key)}
+                          />
+                          {analysisLabels[key]}
+                        </label>
+                      ))}
+                  </div>
+                );
+              })}
+              {!categories.length && <p className="desktop-empty">No matching items found</p>}
             </div>
-            <p className="desktop-help-text">
-              Only analyses supported for this table are listed.
-            </p>
-          </div>
-          <div>
+            {analysis === "nonlinear_regression" && (
+              <label className="analyze-model">
+                <span>Model:</span>
+                <select
+                  aria-label="Regression model"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                >
+                  {regressionModels.map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+          </section>
+          <section>
             <h3>Analyze which data sets?</h3>
-            <div className="desktop-dataset-list">
-              {dataIndices(project).map((i, position) => (
+            <label className="analyze-table">
+              <span>Table:</span>
+              <select
+                aria-label="Table to analyze"
+                value={table.id}
+                onChange={(e) => chooseTable(e.target.value)}
+              >
+                {tables.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="desktop-dataset-list analyze-datasets">
+              {all.map((i, position) => (
                 <label className="desktop-dataset-option" key={i}>
                   <input
                     type="checkbox"
@@ -672,77 +763,30 @@ export function AnalyzeDialog({
                       )
                     }
                   />
-                  <span aria-hidden="true" className="desktop-dataset-letter">
-                    {datasetLetter(position)}:
-                  </span>{" "}
-                  {project.columns[i].name}
+                  <span aria-hidden="true">
+                    {datasetLetter(position)}:{project.columns[i].name}
+                  </span>
                 </label>
               ))}
             </div>
             <div className="selection-actions">
-              <button onClick={() => setSelected(dataIndices(project))}>
+              <button
+                type="button"
+                disabled={selected.length === all.length}
+                onClick={() => setSelected(all)}
+              >
                 Select All
               </button>
-              <button onClick={() => setSelected([])}>Deselect All</button>
+              <button
+                type="button"
+                disabled={!selected.length}
+                onClick={() => setSelected([])}
+              >
+                Deselect All
+              </button>
             </div>
-            <p className="desktop-help-text">
-              {selected.length} of {dataIndices(project).length} data sets
-              selected
-              {project.table_type === "xy"
-                ? ". X values are included automatically."
-                : "."}
-            </p>
-          </div>
+          </section>
         </div>
-        <div className="desktop-analysis-description">
-          <strong>{analysisLabels[analysis]}</strong>
-          <p>
-            {
-              (
-                {
-                  descriptive:
-                    "Summarize the selected data sets with sample size, mean, SD, SEM and confidence intervals.",
-                  welch_t:
-                    "Compare two independent groups without assuming equal variances.",
-                  paired_t:
-                    "Compare two matched groups. Matching follows the rows of the data table.",
-                  anova:
-                    "Compare the means of two or more independent groups using ordinary one-way ANOVA.",
-                  t_test:
-                    "Compare two data sets: unpaired or paired t tests, Welch's test, Mann-Whitney or Wilcoxon. Choose the test on the next screen.",
-                  one_way_anova:
-                    "Compare three or more data sets: ordinary, Welch or repeated-measures ANOVA, Kruskal-Wallis or Friedman, with multiple comparisons. Choose on the next screen.",
-                  linear_regression:
-                    "Fit a straight line to each selected Y data set against X.",
-                  dose_response:
-                    "Fit a four-parameter dose–response curve to positive X values.",
-                  nonlinear_regression:
-                    "Fit the selected nonlinear model to each Y data set.",
-                } satisfies Record<Analysis, string>
-              )[analysis]
-            }
-          </p>
-        </div>
-        {analysis === "nonlinear_regression" && (
-          <label className="desktop-form-row">
-            <span>Model</span>
-            <select
-              aria-label="Regression model"
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-            >
-              {regressionModels.map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
-        <label className="desktop-form-row desktop-prefix">
-          <span>Prefix sheet names with</span>
-          <input value={prefix} onChange={(e) => setPrefix(e.target.value)} />
-        </label>
       </div>
       <footer className="desktop-dialog-actions">
         <button className="button" onClick={onClose}>
@@ -750,10 +794,10 @@ export function AnalyzeDialog({
         </button>
         <button
           className="button primary"
-          disabled={!selected.length}
-          onClick={() => onRun(analysis, selected, prefix, model)}
+          disabled={!selected.length || !fits(analysis)}
+          onClick={() => onRun(table.id, analysis, selected, model)}
         >
-          Create analysis
+          OK
         </button>
       </footer>
     </DesktopDialog>

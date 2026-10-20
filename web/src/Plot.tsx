@@ -102,6 +102,73 @@ function DatasetSymbol({
   );
 }
 
+/** Text on the graph that can be edited in place, as in Prism. */
+export type GraphTextField = "title" | "x_label" | "y_label";
+const TEXT_LIMITS: Record<GraphTextField, number> = { title: 200, x_label: 100, y_label: 100 };
+const TEXT_EDITOR_LABELS: Record<GraphTextField, string> = {
+  title: "Graph title text",
+  x_label: "X axis title text",
+  y_label: "Y axis title text",
+};
+
+/** An input laid over a graph text object. Enter or clicking away keeps the
+ * text; Escape restores it. */
+function GraphTextEditor({
+  field,
+  value,
+  box,
+  transform,
+  onCommit,
+  onCancel,
+}: {
+  field: GraphTextField;
+  value: string;
+  box: { x: number; y: number; width: number; height: number };
+  transform?: string;
+  onCommit: (text: string) => void;
+  onCancel: () => void;
+}) {
+  const done = useRef(false);
+  const finish = (text: string | null) => {
+    if (done.current) return;
+    done.current = true;
+    if (text === null) onCancel();
+    else onCommit(text);
+  };
+  const stop = (event: React.SyntheticEvent) => event.stopPropagation();
+  return (
+    <g transform={transform}>
+      <foreignObject
+        {...box}
+        onPointerDown={stop}
+        onMouseDown={stop}
+        onClick={stop}
+        onDoubleClick={stop}
+      >
+        <input
+          className={`graph-text-editor ${field === "title" ? "is-title" : "is-axis"}`}
+          aria-label={TEXT_EDITOR_LABELS[field]}
+          defaultValue={value}
+          maxLength={TEXT_LIMITS[field]}
+          autoFocus
+          onFocus={(event) => event.currentTarget.select()}
+          onKeyDown={(event) => {
+            event.stopPropagation();
+            if (event.key === "Enter") {
+              event.preventDefault();
+              finish(event.currentTarget.value);
+            } else if (event.key === "Escape") {
+              event.preventDefault();
+              finish(null);
+            }
+          }}
+          onBlur={(event) => finish(event.currentTarget.value)}
+        />
+      </foreignObject>
+    </g>
+  );
+}
+
 export default function Plot({
   project,
   result,
@@ -115,6 +182,7 @@ export default function Plot({
   onSelectDataset,
   onFormatGraph,
   onEditTitle,
+  onChangeText,
   dataTableName,
   onSelectPoint,
   onGoToCell,
@@ -142,6 +210,9 @@ export default function Plot({
   onFormatGraph?: () => void;
   /** Open the graph title's editor when double-clicking the title. */
   onEditTitle?: () => void;
+  /** Edit the title and axis titles in place; omitted for frozen graphs,
+   * which fall back to onEditTitle and onEditText. */
+  onChangeText?: (field: GraphTextField, value: string) => void;
   dataTableName?: string;
   onSelectPoint?: (seriesIndex: number, row: number) => void;
   onGoToCell?: (seriesIndex: number, row: number) => void;
@@ -159,6 +230,11 @@ export default function Plot({
   const [localSelection, setLocalSelection] = useState<PointReference | null>(
     null,
   );
+  const [editingText, setEditingText] = useState<GraphTextField | null>(null);
+  const commitText = (field: GraphTextField, text: string) => {
+    setEditingText(null);
+    if (text !== graph[field]) onChangeText?.(field, text);
+  };
   const [hover, setHover] = useState<{
     hit: PointHit;
     left: number;
@@ -509,14 +585,28 @@ export default function Plot({
                 y={top - plotted.titleBand + 46}
                 textAnchor="middle"
                 className="graph-title"
+                visibility={editingText === "title" ? "hidden" : undefined}
                 onDoubleClick={(event) => {
                   event.stopPropagation();
-                  (onEditTitle ?? onFormatGraph)?.();
+                  if (onChangeText) setEditingText("title");
+                  else (onEditTitle ?? onFormatGraph)?.();
                 }}
               >
                 {graph.title}
               </text>
             )}
+            {editingText === "title" && (() => {
+              const width = Math.min(W, Math.max(pw + 80, 240));
+              return (
+                <GraphTextEditor
+                  field="title"
+                  value={graph.title}
+                  box={{ x: Math.max(0, left + pw / 2 - width / 2), y: top - plotted.titleBand + 24, width, height: 30 }}
+                  onCommit={(text) => commitText("title", text)}
+                  onCancel={() => setEditingText(null)}
+                />
+              );
+            })()}
             <defs>
               <clipPath id={clipId}><rect x={left} y={top} width={pw} height={ph} /></clipPath>
               {styles.map((style, i) => style.pattern && (
@@ -657,7 +747,8 @@ export default function Plot({
               lengthAdjust="spacingAndGlyphs"
               textAnchor="middle"
               className="axis-label"
-              onDoubleClick={() => onEditText?.("x_label")}
+              visibility={editingText === "x_label" ? "hidden" : undefined}
+              onDoubleClick={() => onChangeText ? setEditingText("x_label") : onEditText?.("x_label")}
             >
               {graph.x_label}
             </text>
@@ -667,10 +758,36 @@ export default function Plot({
               lengthAdjust="spacingAndGlyphs"
               textAnchor="middle"
               className="axis-label"
-              onDoubleClick={() => onEditText?.("y_label")}
+              visibility={editingText === "y_label" ? "hidden" : undefined}
+              onDoubleClick={() => onChangeText ? setEditingText("y_label") : onEditText?.("y_label")}
             >
               {graph.y_label}
             </text>
+            {editingText === "x_label" && (() => {
+              const width = Math.min(W, Math.max(pw + 40, 200));
+              return (
+                <GraphTextEditor
+                  field="x_label"
+                  value={graph.x_label}
+                  box={{ x: Math.max(0, left + pw / 2 - width / 2), y: plotBottom + plotted.xTitleOffset - 19, width, height: 26 }}
+                  onCommit={(text) => commitText("x_label", text)}
+                  onCancel={() => setEditingText(null)}
+                />
+              );
+            })()}
+            {editingText === "y_label" && (() => {
+              const width = Math.max(ph + 40, 200);
+              return (
+                <GraphTextEditor
+                  field="y_label"
+                  value={graph.y_label}
+                  transform={`translate(${plotted.yTitleX} ${top + ph / 2}) rotate(-90)`}
+                  box={{ x: -width / 2, y: -19, width, height: 26 }}
+                  onCommit={(text) => commitText("y_label", text)}
+                  onCancel={() => setEditingText(null)}
+                />
+              );
+            })()}
             {showLegend && (
               <g className="plot-legend" aria-label="Legend" transform={`translate(${plotRight + 18} ${top + 4})`}>
                 {series.map((s, i) => {

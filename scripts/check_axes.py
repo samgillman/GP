@@ -69,9 +69,11 @@ with sync_playwright() as p:
     for format_name, signature in [("SVG", b"<?xml"), ("PNG", b"\x89PNG"), ("PDF", b"%PDF")]:
         print("Checking export", format_name, flush=True)
         page.locator(".desktop-menu > summary").filter(has_text="File").first.click()
+        page.get_by_role("menuitem", name="Export…", exact=True).click()
+        page.get_by_role("dialog", name="Export", exact=True).get_by_label("File Format:", exact=True).select_option(format_name.lower())
         try:
             with page.expect_download(timeout=int(os.environ.get("GP_AXES_EXPORT_TIMEOUT", "300000"))) as pending:
-                page.get_by_role("menuitem", name=f"Export graph as {format_name}…", exact=True).click()
+                page.get_by_role("dialog", name="Export", exact=True).get_by_role("button", name="Export", exact=True).click()
         except Exception:
             print("Page at export failure:", page.locator("body").inner_text(), flush=True)
             print("Page errors:", errors, flush=True)

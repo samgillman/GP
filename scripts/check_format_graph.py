@@ -138,8 +138,10 @@ with sync_playwright() as p:
 
     # The export draws the same styles.
     page.locator(".desktop-menu > summary").filter(has_text="File").first.click()
+    page.get_by_role("menuitem", name="Export…", exact=True).click()
+    page.get_by_role("dialog", name="Export", exact=True).get_by_label("File Format:", exact=True).select_option("svg")
     with page.expect_download(timeout=240000) as download:
-        page.get_by_role("menuitem", name="Export graph as SVG…", exact=True).click()
+        page.get_by_role("dialog", name="Export", exact=True).get_by_role("button", name="Export", exact=True).click()
     exported = Path(download.value.path()).read_text()
     assert "#ff0000" in exported and "rotate(-45" in exported, "export keeps fill and slanted labels"
     assert exported.count(names[1]) >= 2, "legend entry exported"

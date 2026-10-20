@@ -168,11 +168,41 @@ class GraphOptions(BaseModel):
     x_tick_rotation: Literal[0, 45] = 0
 
 
+# Graph export: the page is 7.5 x 5 in at actual size.
+EXPORT_SIZE = (7.5, 5.0)
+RASTER_FORMATS = ("png", "tiff", "jpeg")
+MAX_EXPORT_PIXELS = 60_000_000
+EXPORT_MEDIA_TYPES = {"svg": "image/svg+xml", "png": "image/png", "pdf": "application/pdf",
+                      "tiff": "image/tiff", "jpeg": "image/jpeg"}
+
+
 class ExportRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     data: AnalysisRequest
     graph: GraphOptions = Field(default_factory=GraphOptions)
-    format: Literal["svg", "png", "pdf"] = "svg"
+    format: Literal["svg", "png", "pdf", "tiff", "jpeg"] = "svg"
+    # File > Export options. Resolution applies to raster formats; None keeps
+    # the 160 dpi default. width_inches enlarges or shrinks the whole graph
+    # (text included) to that width; None exports the actual 7.5 x 5 in size.
+    dpi: Literal[72, 150, 300, 600, 1200] | None = None
+    width_inches: float | None = Field(default=None, ge=1, le=20)
+    transparent: StrictBool = False
+
+    @model_validator(mode="after")
+    def check_export_options(self):
+        raster = self.format in RASTER_FORMATS
+        if self.dpi is not None and not raster:
+            raise ValueError("Resolution applies only to PNG, TIFF and JPEG exports.")
+        if self.width_inches is not None and self.format == "pdf":
+            raise ValueError("PDF exports at the graph's actual size.")
+        if self.transparent and self.format == "jpeg":
+            raise ValueError("JPEG cannot store a clear background; choose white or another format.")
+        if raster:
+            scale = (self.width_inches or EXPORT_SIZE[0]) / EXPORT_SIZE[0]
+            pixels = (self.dpi or 160) ** 2 * scale ** 2 * EXPORT_SIZE[0] * EXPORT_SIZE[1]
+            if pixels > MAX_EXPORT_PIXELS:
+                raise ValueError("That resolution and size exceed 60 megapixels; lower the resolution or the width.")
+        return self
 
     @model_validator(mode="after")
     def check_axes(self):

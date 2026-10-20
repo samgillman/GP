@@ -171,8 +171,10 @@ with sync_playwright() as p:
     assert next(s for s in restored["sheets"] if s["id"] == source_id) == source_before
     page.locator(".desktop-menu > summary").filter(has_text="File").first.click()
     print("Checking SVG export with restored dataset color", flush=True)
+    page.get_by_role("menuitem", name="Export…", exact=True).click()
+    page.get_by_role("dialog", name="Export", exact=True).get_by_label("File Format:", exact=True).select_option("svg")
     with page.expect_download(timeout=int(os.environ.get("GP_DATASET_EXPORT_TIMEOUT", "300000"))) as pending:
-        page.get_by_role("menuitem", name="Export graph as SVG…", exact=True).click()
+        page.get_by_role("dialog", name="Export", exact=True).get_by_role("button", name="Export", exact=True).click()
     exported = pending.value
     assert exported.failure() is None
     assert custom_color.encode() in Path(exported.path()).read_bytes()

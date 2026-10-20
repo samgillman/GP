@@ -113,7 +113,9 @@ self.onmessage = ({ data }) => {
             svg: "image/svg+xml",
             png: "image/png",
             pdf: "application/pdf",
-          }[body.format as string],
+            tiff: "image/tiff",
+            jpeg: "image/jpeg",
+          }[(body.format as string | undefined) ?? "svg"],
         });
       } else {
         self.postMessage({ id, status: 200, body: JSON.parse(value) });

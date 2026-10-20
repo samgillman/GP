@@ -1,6 +1,7 @@
 import io
 import math
 import os
+import re
 import threading
 from decimal import Decimal, ROUND_HALF_UP, localcontext
 from pathlib import Path
@@ -13,6 +14,7 @@ from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle
 from matplotlib.ticker import FixedLocator, FuncFormatter, NullFormatter
+from .models import EXPORT_SIZE, RASTER_FORMATS
 from .statistics import AnalysisError, analyze, descriptive, pairs, values
 
 PLOT_LOCK = threading.Lock()
@@ -436,7 +438,7 @@ def export_plot(request):
              "xtick.color": "black", "ytick.color": "black", "xtick.direction": "out", "ytick.direction": "out",
              "xtick.major.width": 1.5, "ytick.major.width": 1.5, "xtick.major.size": 6, "ytick.major.size": 6}
     with PLOT_LOCK, rc_context(style):
-        figure = Figure(figsize=(7.5, 5.0), dpi=160, layout="constrained")
+        figure = Figure(figsize=EXPORT_SIZE, dpi=160, layout="constrained")
         axis = figure.subplots()
         if graph.axes is not None:
             _draw_configured(axis, data, graph, outcome, palette)
@@ -519,6 +521,48 @@ def export_plot(request):
         axis.set_title(graph.title, pad=15, fontweight="bold")
         axis.tick_params(direction="out")
         output = io.BytesIO()
-        figure.savefig(output, format=request.format, metadata={"Creator": "GP independent scientific workbench"})
+        figure.savefig(output, **_save_options(request))
         figure.clear()
-        return output.getvalue()
+        content = output.getvalue()
+        if request.format == "svg" and request.width_inches is not None:
+            content = _scale_svg(content, request.width_inches / EXPORT_SIZE[0])
+        return content
+
+
+def _save_options(request):
+    """savefig arguments for File > Export: format, resolution, size, background."""
+    options = {"format": request.format, "transparent": request.transparent}
+    scale = (request.width_inches or EXPORT_SIZE[0]) / EXPORT_SIZE[0]
+    if request.format in RASTER_FORMATS:
+        dpi = request.dpi or 160
+        # Rendering at a scaled resolution enlarges or shrinks everything,
+        # text included; the file still records the chosen resolution.
+        options["dpi"] = dpi * scale
+        options["pil_kwargs"] = {"dpi": (dpi, dpi)}
+        if request.format == "tiff" and _has_libtiff():
+            options["pil_kwargs"]["compression"] = "tiff_lzw"
+        if request.format == "jpeg":
+            options["pil_kwargs"]["quality"] = 95
+    if request.format in {"svg", "pdf"}:
+        options["metadata"] = {"Creator": "GP independent scientific workbench"}
+    return options
+
+
+def _has_libtiff():
+    """LZW-compressed TIFF needs Pillow's libtiff codec, which some builds
+    (such as the browser runtime) may lack; those write uncompressed TIFF."""
+    from PIL import features
+    return bool(features.check_codec("libtiff"))
+
+
+def _scale_svg(content, scale):
+    """Enlarge or shrink an SVG uniformly by rewriting its outer size; the
+    viewBox keeps every coordinate, so text and lines scale together."""
+    text = content.decode("utf-8")
+    start = text.index("<svg")
+    end = text.index(">", start)
+    tag = text[start:end]
+    def size(match):
+        return f'{match.group(1)}="{float(match.group(2)) * scale:.3f}pt"'
+    scaled = re.sub(r'\b(width|height)="([0-9.]+)pt"', size, tag, count=2)
+    return (text[:start] + scaled + text[end:]).encode("utf-8")
