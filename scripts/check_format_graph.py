@@ -43,9 +43,9 @@ with sync_playwright() as p:
     sections = page.locator(".sheet-navigator .navigator-section > h2 > button").all_inner_texts()
     assert sections == ["Data Tables", "Info", "Results", "Graphs", "Layouts"], sections
     # Commands GP does not implement stay visible but disabled, and say so.
-    sort = page.get_by_role("button", name="Sort", exact=True)
-    expect(sort).to_be_disabled()
-    assert "not available in GP yet" in sort.get_attribute("title")
+    transform = page.get_by_role("button", name="Transform", exact=True)
+    expect(transform).to_be_disabled()
+    assert "not available in GP yet" in transform.get_attribute("title")
 
     page.get_by_role("button", name="Show graph", exact=True).click()
     plot = page.locator("svg.plot")

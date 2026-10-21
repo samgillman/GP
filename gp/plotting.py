@@ -1,4 +1,5 @@
 import io
+import logging
 import math
 import os
 import re
@@ -18,6 +19,9 @@ from .models import EXPORT_SIZE, RASTER_FORMATS
 from .statistics import AnalysisError, analyze, descriptive, pairs, values
 
 PLOT_LOCK = threading.Lock()
+# Chosen fonts fall back to similar installed ones (the browser runtime has only
+# DejaVu); matplotlib would log a warning for every missing family name.
+logging.getLogger("matplotlib.font_manager").setLevel(logging.ERROR)
 MARKERS = {"circle": "o", "square": "s", "triangle": "^", "diamond": "D"}
 # Browser geometry in category slots of 70 px: bars are 46 px, error bar caps
 # 14 px and the scatter mean line 40 px wide.
@@ -530,6 +534,7 @@ def export_plot(request):
         axis.set_ylabel(graph.y_label or "Value")
         axis.set_title(graph.title, pad=15, fontweight="bold")
         axis.tick_params(direction="out")
+        _apply_text_styles(figure, axis, graph)
         output = io.BytesIO()
         figure.savefig(output, **_save_options(request))
         figure.clear()
@@ -537,6 +542,45 @@ def export_plot(request):
         if request.format == "svg" and request.width_inches is not None:
             content = _scale_svg(content, request.width_inches / EXPORT_SIZE[0])
         return content
+
+
+# On-screen default size of each text object (points on GP's graph page).
+# Exports keep their own default sizes and scale them by the same ratio.
+SCREEN_TEXT_SIZES = {"title": 18, "x_label": 16, "y_label": 16, "x_ticks": 14, "y_ticks": 14, "legend": 13}
+TEXT_FAMILIES = {
+    "Arial": ["Arial", "Helvetica", "Liberation Sans", "DejaVu Sans"],
+    "Helvetica": ["Helvetica", "Arial", "Liberation Sans", "DejaVu Sans"],
+    "Verdana": ["Verdana", "DejaVu Sans"],
+    "Times New Roman": ["Times New Roman", "Times", "Liberation Serif", "DejaVu Serif"],
+    "Georgia": ["Georgia", "DejaVu Serif"],
+    "Courier New": ["Courier New", "Courier", "Liberation Mono", "DejaVu Sans Mono"],
+}
+
+
+def _apply_text_styles(figure, axis, graph):
+    """Text toolbar formatting: font, size, bold, italic and color."""
+    if not graph.text_styles:
+        return
+    # Tick labels and the legend exist only once the figure has been laid out.
+    figure.draw_without_rendering()
+    legend = axis.get_legend()
+    targets = {
+        "title": [axis.title], "x_label": [axis.xaxis.label], "y_label": [axis.yaxis.label],
+        "x_ticks": axis.get_xticklabels(), "y_ticks": axis.get_yticklabels(),
+        "legend": legend.get_texts() if legend else [],
+    }
+    for name, style in graph.text_styles.items():
+        for text in targets[name]:
+            if style.size is not None:
+                text.set_fontsize(text.get_fontsize() * style.size / SCREEN_TEXT_SIZES[name])
+            if style.bold is not None:
+                text.set_fontweight("bold" if style.bold else "normal")
+            if style.italic is not None:
+                text.set_fontstyle("italic" if style.italic else "normal")
+            if style.color is not None:
+                text.set_color(style.color)
+            if style.font is not None:
+                text.set_fontfamily(TEXT_FAMILIES[style.font])
 
 
 def _save_options(request):

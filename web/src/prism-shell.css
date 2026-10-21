@@ -363,6 +363,10 @@
 .rb-tool[aria-pressed="true"] {
   background: var(--mac-pressed);
 }
+/* A ribbon drop-down whose commands need a selection first. */
+.rb-tool.is-off {
+  opacity: 0.4;
+}
 .rb-tool:disabled {
   opacity: 0.32;
 }

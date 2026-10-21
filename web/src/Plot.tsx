@@ -4,6 +4,8 @@ import { formatAxisTick } from "./axis-number-format";
 import { columnPageLayout, plotLabelLayout } from "./plot-label-layout";
 import { ptToPx, symbolPath, symbolRadius } from "./graph-style";
 import type { ResolvedDatasetStyle } from "./graph-style";
+import { cssFont, resolveTextStyle, TEXT_OBJECTS, textStyleProps } from "./graph-text";
+import type { ResolvedTextStyle, TextObject } from "./graph-text";
 import { symbolSelectionRadius } from "./plot-symbol";
 import {
   buildPlotGeometry,
@@ -185,6 +187,8 @@ export default function Plot({
   onFormatGraph,
   onEditTitle,
   onChangeText,
+  selectedText = null,
+  onSelectText,
   dataTableName,
   onSelectPoint,
   onGoToCell,
@@ -215,6 +219,9 @@ export default function Plot({
   /** Edit the title and axis titles in place; omitted for frozen graphs,
    * which fall back to onEditTitle and onEditText. */
   onChangeText?: (field: GraphTextField, value: string) => void;
+  /** The text object selected for the Text toolbar, as in Prism. */
+  selectedText?: TextObject | null;
+  onSelectText?: (object: TextObject | null) => void;
   dataTableName?: string;
   onSelectPoint?: (seriesIndex: number, row: number) => void;
   onGoToCell?: (seriesIndex: number, row: number) => void;
@@ -272,19 +279,25 @@ export default function Plot({
     try { return { geometry: buildPlotGeometry(project, result, annotations), error: null }; }
     catch (error) { return { geometry: null, error: error instanceof Error ? error.message : "Invalid axis settings." }; }
   }, [project, result, annotations]);
-  const [labelFonts, setLabelFonts] = useState({ tick: "700 14px Arial", title: "700 16px Arial", legend: "700 13px Arial", tickHeight: 14, titleHeight: 16 });
-  useLayoutEffect(() => {
-    const tick = svgRef.current?.querySelector(".tick"), title = svgRef.current?.querySelector(".axis-label");
-    if (!tick || !title) return;
-    const a = getComputedStyle(tick), b = getComputedStyle(title);
-    const next = { tick: a.font, title: b.font, legend: labelFonts.legend, tickHeight: parseFloat(a.fontSize), titleHeight: parseFloat(b.fontSize) };
-    setLabelFonts(previous => JSON.stringify(previous) === JSON.stringify(next) ? previous : next);
-  }, [computed.geometry]);
+  // Text toolbar formatting drives both drawing and the label layout.
+  const textStyles = useMemo(
+    () => Object.fromEntries(TEXT_OBJECTS.map((object) => [object, resolveTextStyle(graph, object)])) as Record<TextObject, ResolvedTextStyle>,
+    [graph.text_styles],
+  );
+  const labelFonts = useMemo(() => ({
+    xTick: cssFont(textStyles.x_ticks),
+    yTick: cssFont(textStyles.y_ticks),
+    xTitle: cssFont(textStyles.x_label),
+    yTitle: cssFont(textStyles.y_label),
+    legend: cssFont(textStyles.legend),
+    tickHeight: textStyles.x_ticks.size,
+    titleHeight: Math.max(textStyles.x_label.size, textStyles.y_label.size),
+  }), [textStyles]);
   const plotted = useMemo(() => {
     const base = computed.geometry;
     if (!base) return null;
     const context = document.createElement("canvas").getContext("2d");
-    const measure = (text: string, font = labelFonts.tick) => {
+    const measure = (text: string, font = labelFonts.xTick) => {
       if (!context) return text.length * 7;
       context.font = font;
       return context.measureText(text).width;
@@ -293,7 +306,7 @@ export default function Plot({
       ? base.xTicks.map(value => base.axes.x.numberFormat ? formatAxisTick(value, base.axes.x.numberFormat) : fmt(value))
       : base.series.map(series => series.name.length > 20 ? series.name.slice(0, 19) + "…" : series.name);
     const yLabels = base.yTicks.map(value => base.axes.y.numberFormat ? formatAxisTick(value, base.axes.y.numberFormat) : fmt(value));
-    const xWidths = xLabels.map(text => measure(text)), yWidths = yLabels.map(text => measure(text));
+    const xWidths = xLabels.map(text => measure(text)), yWidths = yLabels.map(text => measure(text, labelFonts.yTick));
     const legendWidths = base.series.map(series => measure(series.name, labelFonts.legend));
     const legendWidth = showLegend ? Math.min(220, Math.max(0, ...legendWidths)) + 26 : 0;
     const shared = {
@@ -315,12 +328,12 @@ export default function Plot({
       ({ frame, yTitleX, yTickWidth, slanted, xTitleOffset } = layout);
     }
     // The graph title sits above the plotting area on the same page.
-    const titleBand = graph.title ? 94 : 14;
+    const titleBand = graph.title ? 76 + textStyles.title.size : 14;
     frame = { ...frame, top: frame.top + titleBand, height: frame.height + titleBand };
     return { geometry: reframePlotGeometry(base, frame), yTitleX, yTickWidth, slanted, xTitleOffset, legendWidths, titleBand,
       xLabels, yLabels, xWidths, yWidths,
-      xTitleWidth: measure(graph.x_label, labelFonts.title), yTitleWidth: measure(graph.y_label, labelFonts.title) };
-  }, [computed.geometry, labelFonts, graph.x_label, graph.y_label, graph.title, showLegend]);
+      xTitleWidth: measure(graph.x_label, labelFonts.xTitle), yTitleWidth: measure(graph.y_label, labelFonts.yTitle) };
+  }, [computed.geometry, labelFonts, textStyles, graph.x_label, graph.y_label, graph.title, showLegend]);
   const slanted = plotted?.slanted ?? false;
   useLayoutEffect(() => {
     onLabelLayout?.({ slanted });
@@ -410,6 +423,28 @@ export default function Plot({
     view.addEventListener("wheel", wheel, { passive: false });
     return () => view.removeEventListener("wheel", wheel);
   }, [!!geometry]);
+  // The selected text object is outlined, as Prism does.
+  const [selectionBox, setSelectionBox] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+  useLayoutEffect(() => {
+    const svg = svgRef.current;
+    const items = svg && selectedText && !editingText
+      ? [...svg.querySelectorAll(`[data-text="${selectedText}"]`)].map((item) => item.getBoundingClientRect()).filter((r) => r.width || r.height)
+      : [];
+    let next: typeof selectionBox = null;
+    if (svg && items.length) {
+      const frame = svg.getBoundingClientRect();
+      const scale = svg.viewBox.baseVal.width / frame.width;
+      const left = Math.min(...items.map((r) => r.left)), top = Math.min(...items.map((r) => r.top));
+      const right = Math.max(...items.map((r) => r.right)), bottom = Math.max(...items.map((r) => r.bottom));
+      next = {
+        x: Math.round((left - frame.left) * scale - 3),
+        y: Math.round((top - frame.top) * scale - 3),
+        width: Math.round((right - left) * scale + 6),
+        height: Math.round((bottom - top) * scale + 6),
+      };
+    }
+    setSelectionBox((old) => (JSON.stringify(old) === JSON.stringify(next) ? old : next));
+  });
   if (computed.error) return <div className="empty-chart" role="alert">Graph axis settings: {computed.error}</div>;
   if (!geometry || !plotted)
     return (
@@ -509,6 +544,9 @@ export default function Plot({
         onPointerCancel={() => {
           drag.current = null;
         }}
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && selectedText && !editingText) onSelectText?.(null);
+        }}
         onLostPointerCapture={() => {
           drag.current = null;
         }}
@@ -533,6 +571,15 @@ export default function Plot({
               if (dragged.current) {
                 dragged.current = false;
                 return;
+              }
+              if (onSelectText) {
+                const text = (event.target as Element).closest("[data-text]");
+                if (text) {
+                  setHover(null);
+                  onSelectText(text.getAttribute("data-text") as TextObject);
+                  return;
+                }
+                if (selectedText) onSelectText(null);
               }
               const hit = hitAt(event.clientX, event.clientY);
               if (!hit) {
@@ -579,9 +626,11 @@ export default function Plot({
             {graph.title && (
               <text
                 x={left + pw / 2}
-                y={top - plotted.titleBand + 46}
+                y={top - plotted.titleBand + 28 + textStyles.title.size}
                 textAnchor="middle"
                 className="graph-title"
+                data-text="title"
+                style={textStyleProps(graph, "title")}
                 visibility={editingText === "title" ? "hidden" : undefined}
                 onDoubleClick={(event) => {
                   event.stopPropagation();
@@ -598,7 +647,7 @@ export default function Plot({
                 <GraphTextEditor
                   field="title"
                   value={graph.title}
-                  box={{ x: Math.max(0, left + pw / 2 - width / 2), y: top - plotted.titleBand + 24, width, height: 30 }}
+                  box={{ x: Math.max(0, left + pw / 2 - width / 2), y: top - plotted.titleBand + 24, width, height: textStyles.title.size + 12 }}
                   onCommit={(text) => commitText("title", text)}
                   onCancel={() => setEditingText(null)}
                 />
@@ -721,20 +770,20 @@ export default function Plot({
             {geometry.axes.y.showAxis && <g data-axis="y" onDoubleClick={event => editAxis("y", event)}>
               <path d={`M${left},${top}V${plotBottom}`} className="axis-line" strokeWidth={axisWidth} />
               <line x1={left} x2={left} y1={top} y2={plotBottom} stroke="transparent" strokeWidth="10" />
-              {yTicks.map((v, i) => <g key={i}><line x1={left - 6} x2={left} y1={y(v)} y2={y(v)} className="axis-line" strokeWidth={axisWidth} /><text x={left - 11} y={y(v) + 5} textAnchor="end" className="tick" textLength={plotted.yWidths[i] > plotted.yTickWidth ? plotted.yTickWidth : undefined} lengthAdjust="spacingAndGlyphs">{plotted.yLabels[i]}</text></g>)}
+              {yTicks.map((v, i) => <g key={i}><line x1={left - 6} x2={left} y1={y(v)} y2={y(v)} className="axis-line" strokeWidth={axisWidth} /><text x={left - 11} y={y(v) + Math.round(textStyles.y_ticks.size * 0.36)} textAnchor="end" className="tick" data-text="y_ticks" style={textStyleProps(graph, "y_ticks")} textLength={plotted.yWidths[i] > plotted.yTickWidth ? plotted.yTickWidth : undefined} lengthAdjust="spacingAndGlyphs">{plotted.yLabels[i]}</text></g>)}
             </g>}
             {geometry.axes.x.showAxis && <g data-axis="x" onDoubleClick={event => editAxis("x", event)}>
               <path d={`M${left},${plotBottom}H${plotRight}`} className="axis-line" strokeWidth={axisWidth} />
               <line x1={left} x2={plotRight} y1={plotBottom} y2={plotBottom} stroke="transparent" strokeWidth="10" />
               {xy
-                ? xTicks.map((v, i) => <g key={i}><line x1={x(v)} x2={x(v)} y1={plotBottom} y2={plotBottom + 6} className="axis-line" strokeWidth={axisWidth} /><text x={x(v)} y={plotBottom + 22} textAnchor="middle" className="tick" textLength={plotted.xWidths[i] > 200 ? 200 : undefined} lengthAdjust="spacingAndGlyphs">{plotted.xLabels[i]}</text></g>)
+                ? xTicks.map((v, i) => <g key={i}><line x1={x(v)} x2={x(v)} y1={plotBottom} y2={plotBottom + 6} className="axis-line" strokeWidth={axisWidth} /><text x={x(v)} y={plotBottom + 8 + textStyles.x_ticks.size} textAnchor="middle" className="tick" data-text="x_ticks" style={textStyleProps(graph, "x_ticks")} textLength={plotted.xWidths[i] > 200 ? 200 : undefined} lengthAdjust="spacingAndGlyphs">{plotted.xLabels[i]}</text></g>)
                 : series.map((_, i) => {
                     const cx = x(i + 1), label = plotted.xLabels[i];
                     return <g key={i}>
                       <line x1={cx} x2={cx} y1={plotBottom} y2={plotBottom + 6} className="axis-line" strokeWidth={axisWidth} />
                       {plotted.slanted
-                        ? <text x={cx + 5} y={plotBottom + 20} transform={`rotate(-45 ${cx + 5} ${plotBottom + 20})`} textAnchor="end" className="tick" textLength={plotted.xWidths[i] > 160 ? 160 : undefined} lengthAdjust="spacingAndGlyphs">{label}</text>
-                        : <text x={cx} y={plotBottom + 24} textAnchor="middle" className="tick">{label}</text>}
+                        ? <text x={cx + 5} y={plotBottom + 6 + textStyles.x_ticks.size} transform={`rotate(-45 ${cx + 5} ${plotBottom + 6 + textStyles.x_ticks.size})`} textAnchor="end" className="tick" data-text="x_ticks" style={textStyleProps(graph, "x_ticks")} textLength={plotted.xWidths[i] > 160 ? 160 : undefined} lengthAdjust="spacingAndGlyphs">{label}</text>
+                        : <text x={cx} y={plotBottom + 10 + textStyles.x_ticks.size} textAnchor="middle" className="tick" data-text="x_ticks" style={textStyleProps(graph, "x_ticks")}>{label}</text>}
                     </g>;
                   })}
             </g>}
@@ -745,6 +794,8 @@ export default function Plot({
               lengthAdjust="spacingAndGlyphs"
               textAnchor="middle"
               className="axis-label"
+              data-text="x_label"
+              style={textStyleProps(graph, "x_label")}
               visibility={editingText === "x_label" ? "hidden" : undefined}
               onDoubleClick={() => onChangeText ? setEditingText("x_label") : onEditText?.("x_label")}
             >
@@ -756,6 +807,8 @@ export default function Plot({
               lengthAdjust="spacingAndGlyphs"
               textAnchor="middle"
               className="axis-label"
+              data-text="y_label"
+              style={textStyleProps(graph, "y_label")}
               visibility={editingText === "y_label" ? "hidden" : undefined}
               onDoubleClick={() => onChangeText ? setEditingText("y_label") : onEditText?.("y_label")}
             >
@@ -767,7 +820,7 @@ export default function Plot({
                 <GraphTextEditor
                   field="x_label"
                   value={graph.x_label}
-                  box={{ x: Math.max(0, left + pw / 2 - width / 2), y: plotBottom + plotted.xTitleOffset - 19, width, height: 26 }}
+                  box={{ x: Math.max(0, left + pw / 2 - width / 2), y: plotBottom + plotted.xTitleOffset - textStyles.x_label.size - 3, width, height: textStyles.x_label.size + 10 }}
                   onCommit={(text) => commitText("x_label", text)}
                   onCancel={() => setEditingText(null)}
                 />
@@ -780,7 +833,7 @@ export default function Plot({
                   field="y_label"
                   value={graph.y_label}
                   transform={`translate(${plotted.yTitleX} ${top + ph / 2}) rotate(-90)`}
-                  box={{ x: -width / 2, y: -19, width, height: 26 }}
+                  box={{ x: -width / 2, y: -textStyles.y_label.size - 3, width, height: textStyles.y_label.size + 10 }}
                   onCommit={(text) => commitText("y_label", text)}
                   onCancel={() => setEditingText(null)}
                 />
@@ -791,17 +844,29 @@ export default function Plot({
                 {series.map((s, i) => {
                   const style = styles[i];
                   const filled = !xy && (graph.type === "bar" || graph.type === "box");
-                  return <g key={i} transform={`translate(0 ${i * 20})`}>
+                  return <g key={i} transform={`translate(0 ${i * Math.max(20, textStyles.legend.size + 7)})`}>
                     {filled
                       ? <rect x="0" y="0" width="14" height="12" fill={style.fill} stroke={style.color} strokeWidth={ptToPx(style.border_width)} />
                       : <>
                           {xy && graph.type === "line" && <line x1="-1" x2="15" y1="6" y2="6" stroke={style.color} strokeWidth={ptToPx(style.line_width)} />}
                           {style.symbols && <path d={symbolPath(style.symbol_shape, symbolRadius(style.symbol_size))} transform="translate(7 6)" fill={style.symbol_color} />}
                         </>}
-                    <text x="22" y="11" className="legend-label" textLength={plotted.legendWidths[i] > 220 ? 220 : undefined} lengthAdjust="spacingAndGlyphs">{s.name}</text>
+                    <text x="22" y={Math.round(6 + textStyles.legend.size * 0.38)} className="legend-label" data-text="legend" style={textStyleProps(graph, "legend")} textLength={plotted.legendWidths[i] > 220 ? 220 : undefined} lengthAdjust="spacingAndGlyphs">{s.name}</text>
                   </g>;
                 })}
               </g>
+            )}
+            {selectionBox && selectedText && !editingText && (
+              <rect
+                className="text-selection"
+                data-selected-text={selectedText}
+                {...selectionBox}
+                fill="none"
+                stroke="#2f7cf6"
+                strokeWidth="1"
+                strokeDasharray="4 2"
+                pointerEvents="none"
+              />
             )}
           </svg>
         </div>

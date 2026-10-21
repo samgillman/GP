@@ -649,3 +649,41 @@ through the Export dialog and four press Analyze Data's OK. `check_grid_ui.py`
 again stops at its macOS-only Control+Z step. `check_dataset_order.py` timed
 out once on its static SVG download while the full suite ran and passed when
 rerun alone. Hosted CI for this branch has not yet been observed.
+
+## Prism behaviors, batch 3: graph text formatting, row order and data set order (2026-10-20)
+
+Batch 2 (PR #15) passed hosted CI and is live at gp.samgillman.org. This
+batch follows the Text toolbar and the Edit and Change menus of the user's
+Prism 11.1 for Mac (menu items listed from the running app). It is not REA
+evidence, and no parity status changes.
+
+- Clicking the graph title, an axis title, the X or Y axis labels or the
+  legend selects that text object, outlined as in Prism. Escape or a click
+  elsewhere on the graph deselects it.
+- The Text toolbar formats the selection: font size (Prism's 6–72 pt list),
+  font (Arial, Helvetica, Verdana, Times New Roman, Georgia, Courier New),
+  Larger/Smaller text, Bold, Italic and text color. Each command is one undo
+  step. The choices are saved as optional, validated `graph.text_styles`,
+  and only values that differ from GP's defaults are stored. The label layout
+  makes room for larger text. Underline, superscript and subscript stay
+  unavailable because they need rich text runs.
+- Exports apply the same formatting. Sizes scale the export's own default
+  size for that object by the on-screen ratio, so a doubled title is doubled in
+  the file. Fonts fall back to similar installed ones (the browser runtime has
+  only DejaVu).
+- Edit › Sort by X Value (XY tables) and Reverse Row Order, also in the data
+  table's Sort ▾ toolbar menu, reorder whole rows. Rows keep their IDs, so
+  excluded values move with their rows.
+- Change › Reverse Data Set Order, also in the graph's data set order ▾
+  toolbar menu, reverses the plotted data sets. Each data set keeps its color
+  and per-data-set formatting.
+
+Validation on macOS: 285 frontend tests (6 new for text styles, row order and
+data set order), 507 backend tests (8 new in `tests/test_text_styles.py`),
+both builds, and the new `scripts/check_prism_text.py` (added to CI) against
+the static build and the server. `check_format_graph.py` now uses Transform as
+its example of an unavailable command, since Sort works. In the full local run,
+`check_prism_dialogs.py` (static) and `check_prism_text.py` (server) hit
+browser timeouts while the host was slow (one Chromium launch took over three
+minutes); both passed when rerun alone. `check_grid_ui.py` again stops at its
+macOS-only Control+Z step. Hosted CI for this branch has not yet been observed.

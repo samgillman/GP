@@ -3,6 +3,8 @@ import { validGraphAxes, axesSettingsProblem } from "./axes.ts";
 import type { GraphAxes } from "./axes.ts";
 import { validDatasetStyles } from "./graph-style.ts";
 import type { DatasetStyle } from "./graph-style.ts";
+import { validTextStyles } from "./graph-text.ts";
+import type { TextObject, TextStyle } from "./graph-text.ts";
 export type { AxisSettings, GraphAxes, AxisNumberFormat } from "./axes.ts";
 export type TableType = "column" | "xy";
 export type Analysis =
@@ -37,6 +39,8 @@ export type Graph = {
   dataset_styles?: Record<string, DatasetStyle>;
   /** Unset keeps the earlier rule: XY graphs show a legend, column graphs do not. */
   show_legend?: boolean;
+  /** Text toolbar formatting of the title, axis titles, tick labels and legend. */
+  text_styles?: Partial<Record<TextObject, TextStyle>>;
 };
 export type Project = {
   version: 1;
@@ -399,7 +403,8 @@ export function parseProject(text: string): Project {
         typeof g.pairwise.show_ns !== "boolean" ||
         Object.keys(g.pairwise).length !== 2)) ||
     (g.dataset_styles !== undefined && !validDatasetStyles(g.dataset_styles)) ||
-    (g.show_legend !== undefined && typeof g.show_legend !== "boolean")
+    (g.show_legend !== undefined && typeof g.show_legend !== "boolean") ||
+    (g.text_styles !== undefined && !validTextStyles(g.text_styles))
   )
     throw new Error("Invalid project graph settings.");
   return p as Project;
