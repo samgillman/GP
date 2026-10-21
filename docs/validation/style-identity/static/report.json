@@ -1,0 +1,303 @@
+{
+  "base": "http://127.0.0.1:8013",
+  "scope": "current-main GP style identity and renderer regression; no native parity claim",
+  "started_utc": "2026-10-20T23:50:28.712152+00:00",
+  "checks": [
+    {
+      "name": "single-table import remaps source and graph styles to new IDs; sparse SVG shapes/colors/sizes"
+    },
+    {
+      "name": "selected dataset Apply/edit/Cancel and undo/redo keep other styles and source cells"
+    },
+    {
+      "name": "omitted styles survive save/reload/file import/re-addition and undo/redo by source ID"
+    },
+    {
+      "name": "Duplicate sheet remaps styles without aliasing; new graph keeps them through first-view chooser"
+    },
+    {
+      "name": "current Export dialog sends copied appearance and SVG renders visible colors only"
+    },
+    {
+      "name": "canvas draws 5,008 visible of 6,261 total observations with sparse symbol shape/size/color"
+    },
+    {
+      "name": "hidden overlap/isolated hits are excluded; large diamond tip selects correct source row at 200%"
+    }
+  ],
+  "page_errors": [],
+  "console_errors": [],
+  "fixtures": {
+    "sparse": {
+      "sha256": "7ff91cf6c2fde0c47aec89f6b6587efb63130fd15c16aa1e71ac2a080c413acd",
+      "observations": 6
+    },
+    "dense": {
+      "sha256": "041fb39305bd3495966b2965fb161fa6315dbbd52cf0907c005063b532b907c2",
+      "observations": 6261
+    }
+  },
+  "browser": "153.0.8010.0",
+  "build_scripts": [
+    "http://127.0.0.1:8013/assets/index-Df2KrSr4.js"
+  ],
+  "sparse_samples": [
+    {
+      "name": "circle center",
+      "series": 0,
+      "dx": 0,
+      "dy": 0,
+      "inside": true,
+      "rgba": [
+        0,
+        119,
+        187,
+        255
+      ]
+    },
+    {
+      "name": "circle outside",
+      "series": 0,
+      "dx": 5,
+      "dy": 0,
+      "inside": false,
+      "rgba": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "name": "square corner",
+      "series": 1,
+      "dx": 4.5,
+      "dy": 4.5,
+      "inside": true,
+      "rgba": [
+        204,
+        51,
+        102,
+        255
+      ]
+    },
+    {
+      "name": "square outside",
+      "series": 1,
+      "dx": 7,
+      "dy": 0,
+      "inside": false,
+      "rgba": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "name": "triangle apex",
+      "series": 2,
+      "dx": 0,
+      "dy": -7,
+      "inside": true,
+      "rgba": [
+        238,
+        119,
+        51,
+        255
+      ]
+    },
+    {
+      "name": "triangle outside corner",
+      "series": 2,
+      "dx": 7,
+      "dy": -7,
+      "inside": false,
+      "rgba": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "name": "diamond tip",
+      "series": 3,
+      "dx": 0,
+      "dy": -10.5,
+      "inside": true,
+      "rgba": [
+        102,
+        51,
+        153,
+        255
+      ]
+    },
+    {
+      "name": "diamond outside corner",
+      "series": 3,
+      "dx": 8,
+      "dy": 8,
+      "inside": false,
+      "rgba": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "name": "hidden isolated point",
+      "series": 4,
+      "x": 90,
+      "y": 20,
+      "dx": 0,
+      "dy": 0,
+      "inside": false,
+      "rgba": [
+        255,
+        255,
+        255,
+        255
+      ]
+    }
+  ],
+  "dense_samples": [
+    {
+      "name": "circle center",
+      "series": 0,
+      "dx": 0,
+      "dy": 0,
+      "inside": true,
+      "rgba": [
+        0,
+        119,
+        187,
+        255
+      ]
+    },
+    {
+      "name": "circle outside",
+      "series": 0,
+      "dx": 5,
+      "dy": 0,
+      "inside": false,
+      "rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "square corner",
+      "series": 1,
+      "dx": 4.5,
+      "dy": 4.5,
+      "inside": true,
+      "rgba": [
+        204,
+        51,
+        102,
+        255
+      ]
+    },
+    {
+      "name": "square outside",
+      "series": 1,
+      "dx": 7,
+      "dy": 0,
+      "inside": false,
+      "rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "triangle apex",
+      "series": 2,
+      "dx": 0,
+      "dy": -7,
+      "inside": true,
+      "rgba": [
+        238,
+        119,
+        51,
+        255
+      ]
+    },
+    {
+      "name": "triangle outside corner",
+      "series": 2,
+      "dx": 7,
+      "dy": -7,
+      "inside": false,
+      "rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "diamond tip",
+      "series": 3,
+      "dx": 0,
+      "dy": -10.5,
+      "inside": true,
+      "rgba": [
+        102,
+        51,
+        153,
+        255
+      ]
+    },
+    {
+      "name": "diamond outside corner",
+      "series": 3,
+      "dx": 8,
+      "dy": 8,
+      "inside": false,
+      "rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "hidden isolated point",
+      "series": 4,
+      "x": 90,
+      "y": 20,
+      "dx": 0,
+      "dy": 0,
+      "inside": false,
+      "rgba": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "status": "passed",
+  "finished_utc": "2026-10-20T23:50:40.822271+00:00",
+  "elapsed_seconds": 12.11,
+  "artifacts": {
+    "copied-styles.svg": {
+      "bytes": 9207,
+      "sha256": "a58263ac79d82cdb531da27ed89a08c8d895298c1ae145279e43425583e589ab"
+    },
+    "dense.png": {
+      "bytes": 103251,
+      "sha256": "e64d08a01e7049aa9411b665731bc253d026561c93c553822342ef25fb112202"
+    },
+    "sparse.png": {
+      "bytes": 96710,
+      "sha256": "08b87702aededf1a96036eee07f824116a61b8775008dc0d4954ca0c3b637709"
+    }
+  }
+}

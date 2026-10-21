@@ -1,4 +1,5 @@
 import { remapGraphDatasetColors } from "./workbook-graph-colors.ts";
+import { retainDatasetStyles } from "./workbook-style-identity.ts";
 import {
   datasetSelection,
   responseValid,
@@ -129,9 +130,11 @@ export function toggleSheetFrozen(book: Workbook, id: string): Workbook {
         };
         delete next.frozenSource;
       } else {
+        const colors = remapGraphDatasetColors(sheet.frozenSource.project, source.project, sheet, selection.columnIndices);
         next = {
           ...sheet,
-          ...remapGraphDatasetColors(sheet.frozenSource.project, source.project, sheet, selection.columnIndices),
+          ...colors,
+          graph: retainDatasetStyles(colors.graph, source.project.columns),
           ...selection,
           frozen: false,
           resultId: book.sheets.some(

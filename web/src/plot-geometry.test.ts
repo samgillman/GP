@@ -110,7 +110,7 @@ for (const [columns, rows] of [
     drawDensePoints(context, geometry);
     assert.equal(arcs, columns * rows);
     assert.equal(fills, arcs);
-    assert.equal(strokes, arcs);
+    assert.equal(strokes, 0, "dense symbols have the same fill-only appearance as SVG symbols");
     assert.ok(
       foundLow && foundHigh,
       "both outliers must be rendered, not just included in bounds",

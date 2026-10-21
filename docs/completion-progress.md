@@ -1,5 +1,59 @@
 # Completion execution log
 
+## 2026-10-20 continuation: existing dataset styles survive identity changes
+
+This continuation integrates with main `f5d3eed` (PR #15) and preserves the newer
+macOS shell, first-view graph chooser, non-modal Format Graph, Magic/palettes,
+in-place text editors, Analyze Data and Export dialogs. A prior unpublished
+appearance branch (`e6e6d45`, based on `490be1e`) became obsolete while main
+advanced. It was kept as local history and was not merged. The following results
+validate the current-main follow-up, not that older branch.
+
+- Single-table JSON imports, Add Data and data-sheet duplication now remap
+  `graph.dataset_styles` when assigning fresh source-column IDs. New graphs
+  inherit the copied table's appearance without sharing mutable style objects.
+- Source deletion removes dangling styles. Graph-only removal retains them
+  through save, reload, import and re-addition. Frozen graphs retain captured
+  source styles until thaw; same-name replacement columns inherit no deleted
+  identity. Well-formed stale keys from older v4 files are cleaned during import,
+  while invalid field values still fail validation.
+- Dense canvas and sparse SVG use the same existing symbol geometry, size and
+  color. Hidden series no longer draw or block visible point selection. Larger
+  marks can be selected at their outer extent. Visibility affects the dense
+  rendering threshold without discarding scientific observations.
+- Default-axis Matplotlib exports retain bounds when symbol visibility changes.
+  Line/observation inputs and statistical requests remain unchanged. Numeric
+  style weights and export width reject booleans or numeric strings instead of
+  coercing them into valid values.
+
+**Verification:** 530 backend tests, 298 frontend tests, TypeScript and both
+production builds passed. Static assembly verified 19 locked runtime packages.
+The new `check_style_identity.py` passed all seven groups on both packaged-server
+and static builds, including real file import/save, current-dialog Apply/Cancel,
+undo/redo, data duplication, actual SVG export, dense/sparse pixel comparisons,
+hidden overlapping targets and a size-10 diamond at 200% zoom. The existing
+Format Graph check also passed both builds. Both focused runs reported zero
+page/console errors. Reports and reviewed screenshots are retained in
+`docs/validation/style-identity/`; CI now runs the new check on both builds.
+The 390-pixel viewport check establishes horizontal containment only: the
+existing tall window chrome leaves much of the dialog below its first viewport.
+
+**Evidence boundary:** [style identity](style-identity.md) records the retained
+XY/Column REA IDs and original Appearance NIB hashes. No original resource was
+available to rehash and no native Prism execution or fresh REA analysis ran.
+The stable-ID map, marker geometry and hit tolerance are GP implementation
+choices. The separately recorded user/macOS observations from PRs #12–15 remain
+intact. G031/G033/G045 and AUD-P1171–1173 remain partial; native physical units,
+defaults, exact rendering, arbitrary subset edits and remaining style channels
+are open. All 1,574 audit rows and 2,661 requirement identities are preserved.
+The original large audit register is unchanged. Current AUD-P1171–1173
+assessments live in `requirements/parity-audit-progress.json`, linked from the
+source map and applied by the requirement checker before evidence gates. This
+small update record avoids the repeatedly timing-out full-file upload while
+validating its baseline hash, IDs and immutable source fields.
+GitHub publication, hosted CI and site deployment are separate verification
+steps; consult this increment's PR for their current state.
+
 ## 2026-10-20 continuation: XY missing-Y connecting-line gaps (PR #9)
 
 Implemented a real XY Format Graph → Graph Settings choice between **Leave a gap**

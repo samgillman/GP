@@ -8,10 +8,30 @@ root = Path(__file__).resolve().parents[1]
 base = root / 'docs/requirements'
 manifest = json.loads((base / 'source-map.json').read_text())
 contracts = json.loads((base / 'dependency-contracts.json').read_text())['contracts']
+audit = manifest.get('parity_audit')
+assessment_updates = {}
+if audit and audit.get('assessment_updates_path'):
+    progress = json.loads((root / audit['assessment_updates_path']).read_text())
+    baseline = (base / audit['register']).read_bytes()
+    assert progress['schema_version'] == 1, 'Unsupported audit assessment format'
+    assert progress['base_register'] == audit['register'], 'Assessment register mismatch'
+    assert hashlib.sha256(baseline).hexdigest() == progress['base_register_sha256'], 'Audit baseline changed; reconcile current assessments before continuing'
+    register = json.loads(baseline)
+    assert progress['source_csv_sha256'] == register['source']['sha256'], 'Assessment source mismatch'
+    allowed_updates = {'id', 'status', 'assessment', 'latest_progress', 'implementation_evidence', 'validation_evidence', 'prism_reference_evidence', 'limitations'}
+    for update in progress['updates']:
+        uid = update['id']
+        assert uid not in assessment_updates, ('Duplicate audit assessment', uid)
+        assert set(update) <= allowed_updates, ('Immutable audit field in assessment', uid)
+        assert update['status'] == update['assessment'] and update['latest_progress'].strip(), uid
+        for key in ('implementation_evidence', 'validation_evidence', 'prism_reference_evidence', 'limitations'):
+            assert isinstance(update[key], list) and all(isinstance(value, str) and value.strip() for value in update[key]), (uid, key)
+        assessment_updates[uid] = update
+    assert set(assessment_updates) <= {row['id'] for row in register['requirements']}, 'Unknown audit assessment ID'
 rows = []
 for name in manifest['requirement_registers']:
     data = json.loads((base / name).read_text())
-    rows.extend(data['requirements'])
+    rows.extend({**row, **assessment_updates.get(row['id'], {})} for row in data['requirements'])
     rows.extend(data.get('model_catalog', []))
 ids = {row['id'] for row in rows}
 assert len(ids) == len(rows) == manifest['requirement_count'], 'Duplicate or missing IDs'
@@ -69,3 +89,5 @@ if audit:
 print(f"PASS: {len(rows)} unique requirements; {len(manifest['guide_sections'])} guide sections; {len(manifest['prism11_headings'])} Prism11 headings; 32 coverage families; 152 equations; 82 functions; evidence gates")
 if audit:
     print(f"PASS: all {audit['rows']} parity CSV rows, original statuses, findings and sources preserved; individual plans and notes populated")
+if assessment_updates:
+    print(f"PASS: {len(assessment_updates)} current audit assessments applied to verified baseline; immutable source fields preserved")

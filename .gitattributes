@@ -1,3 +1,5 @@
 # Preserve the supplied audit's exact bytes and its CSV companion's CRLF records.
 docs/sources/prism-parity.csv -text whitespace=cr-at-eol
 docs/prism-parity-plan.csv -text whitespace=cr-at-eol
+# Preserve exact downloaded SVG evidence, including Matplotlib's whitespace.
+docs/validation/style-identity/*/copied-styles.svg -text -whitespace

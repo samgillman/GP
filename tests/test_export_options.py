@@ -5,6 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 from PIL import Image
 
+from gp.models import ExportRequest
 from gp.server import app
 
 client = TestClient(app)
@@ -65,3 +66,16 @@ def test_invalid_export_options_are_rejected(options, message):
     response = export(**options)
     assert response.status_code == 422
     assert message in response.text
+
+
+@pytest.mark.parametrize("width", [True, False, "3.5"])
+def test_export_width_rejects_boolean_and_text_coercion(width):
+    response = export(format="svg", width_inches=width)
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["loc"] == ["body", "width_inches"]
+
+
+@pytest.mark.parametrize("width", [None, 1, 3.75, 20])
+def test_export_width_keeps_optional_integer_and_decimal_numbers(width):
+    request = ExportRequest(data=DATA, width_inches=width)
+    assert request.width_inches == width
