@@ -1,4 +1,5 @@
 import type { Sheet, Workbook } from "./workbook.ts";
+import { remapDatasetStyleIds } from "./workbook-style-identity.ts";
 export function deletionIds(book: Workbook, id: string): Set<string> {
   const sheet = book.sheets.find((s) => s.id === id);
   if (!sheet) throw new Error("The sheet no longer exists.");
@@ -51,6 +52,7 @@ export function duplicateSheet(book: Workbook, id: string): Workbook {
     const rows = new Map(copy.rowIds.map((rowId) => [rowId, crypto.randomUUID()]));
     copy.project.name = name;
     copy.project.columns = copy.project.columns.map((column) => ({ ...column, id: datasets.get(column.id!) }));
+    copy.project.graph = remapDatasetStyleIds(copy.project.graph, datasets);
     copy.rowIds = copy.rowIds.map((rowId) => rows.get(rowId)!);
     if (copy.excluded)
       copy.excluded = Object.fromEntries(

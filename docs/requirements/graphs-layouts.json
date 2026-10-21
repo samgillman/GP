@@ -58,15 +58,32 @@
     "unresolved": "Service or runtime/platform evidence missing"
   },
   "current_source_files": {
-    "web/src/data.ts": "f48a527a7b0bbb57343c3be2022c492386b51bddfd766ab3d0e5e3cb86195547",
-    "web/src/Plot.tsx": "1de1530b38ab96076034af4eee55c39cf9f09fcf1afa3a48da39e67475791272",
-    "web/src/WorkbookDialogs.tsx": "7e5fd3c6bf937e5271332d48ccdf46e220302425011a5c59933855c109b2a49a",
-    "web/src/workbook.ts": "aa194f37f6a4fb3cfc04aa9d513e3885667a86cf0b48fb6fe4a9d1c5aed25424",
-    "web/src/App.tsx": "2c9b9e7998afc97155c1ac3d08bcd44406c40ef08d811efd173e80e5ffd1470c",
-    "gp/models.py": "a829b93d70a87a6082af02cad394449b7e1f3cbf75f6b114e7789be1fb5dc8be",
-    "gp/plotting.py": "c8f572312ad4d634ce3d476f3abad73672b54d7827db9a3b6a0b0b2dc16c9442",
+    "web/src/data.ts": "5de3105231da9aa6984aa607a5f7eb13633a75e448ccf9bfa910c90c3a09ea0d",
+    "web/src/Plot.tsx": "c5af4d8996544b186ff16394190e9a27a7e97eb5de97e7322f4f50eba70323f4",
+    "web/src/WorkbookDialogs.tsx": "5200a9647a483ee32af9d38c5be57db78473517d20c7b384af6d9016660542ad",
+    "web/src/workbook.ts": "aa49c2cb3f7b802d326adb462beb0eaa82fe2ea10a7204df6d5991945029872b",
+    "web/src/App.tsx": "e4dd239f3fe33f7ae7e2ecd2435b459b57015d07a86d66aa204807e878f105f6",
+    "gp/models.py": "75bfcdec597bdf6c16a3f4e55910543014e3ce1492c9c71cc991e17712be1792",
+    "gp/plotting.py": "1a67d90345eca2aa691f5f077b66c77260bce692f5dcb88b36ad25d571b0cd8f",
     "web/src/AdvancedAnalyses.tsx": "b5c245abc0b9338bd28ec402d0871a9598bd1af0471d7d8559d34bae24744fb8",
-    "docs/prism-coverage.json": "a0d7523ac10d9e70a028934a155d6da790a35f5e8b5725803f4e17b30cccd9ac"
+    "docs/prism-coverage.json": "fd8c5cfef1af21a9cf6d77c3f5f2724f7dbc86a9452b7b04e5a10170282a02f3",
+    "web/src/graph-style.ts": "af61dac06c4c71e59e6e6e0c1e2337f258b9ff3f9f8c74958eeeeb9468b28dfc",
+    "web/src/plot-symbol.ts": "9b255c1320b2cc747f63beb3bec179ddb53a2281bd7a2573138eec39e4d49738",
+    "web/src/plot-geometry.ts": "de46e3c258b93c488396691e7896d83dc131f0d4994ac90a4396c144565aec6b",
+    "web/src/workbook-style-identity.ts": "56c8f9d5fabc97228ca0a213a4bd5872c2a0d6de0e2633ffbee21098457321ae",
+    "web/src/workbook-actions.ts": "5123ed1af6a6de2c4b3b5de887ca9862bcc1c9f57daaab61756f26ff161b13ac",
+    "web/src/workbook-freeze.ts": "dadef01de82ee00c779ecd90267361b9d8844d04bf134f8183255b1f7d9596c7",
+    "docs/style-identity.md": "6521ecee15dbacd3ed415a7f2a78ee8414429d03c9ff23c01aa55f42726d99bb",
+    "web/src/workbook-style-identity.test.ts": "95ef388ccc46bdc41917d3a928d27a409114fcb144252437e040dccc540514d0",
+    "web/src/plot-appearance.test.ts": "728c5b6f690b7a6651029af3ac1cdba9793693531a9e5fa6c40b3580b30a97c7",
+    "tests/test_graph_styles.py": "30c3012a6556b1e773c8fca73c318dcf0139d413106da8e9ca53283f8cfeb2bb",
+    "tests/test_export_options.py": "9fc6bd383c1e17ec0e57bbbeea68ec75e0e9b5b23c8dc6e6c6a187f8df73f860",
+    "scripts/check_style_identity.py": "d5526c2c4f82323935a8c4ad6bbcadbd7816dee4246af76a8bf43d7d0a3f5fe1",
+    "docs/validation/style-identity/manifest.json": "3135506e418a4349ad769ac4cb8f58ebe8b859d25fd7aaa943816212ea29e230",
+    "docs/validation/style-identity/server/report.json": "60b0f0f64bc0eaeed00a30427d545378f6b6b4d895ac90047180f0360dd1a2e3",
+    "docs/validation/style-identity/static/report.json": "c443415ef8824cd14c489fa6113dfcbe3a2d1afaf41de3867df50bf7ee4195fe",
+    "docs/requirements/parity-audit-progress.json": "af50dffb2fc44d376728e898a161151ad8cde8ad60e714fadfa6dedeea6873d6",
+    "scripts/check_requirements.py": "5c7ed2467761a06107dd790cc3b9560c8110ddb812063eb71a0ed4bae4e2f4f9"
   },
   "ledger_comparison": {
     "graphing": "Ledger partial/independentrenderingonly; expanded into detailedGrequirements",
@@ -1646,13 +1663,21 @@
         "Change Graph Type on every tab",
         "Apply previews without closing; OK commits/closes; Cancel transaction semantics"
       ],
-      "current_status": "partial: three-tab dialog for Column/XY subset, Apply/OK/Cancel; no annotations or type-dialog entry",
+      "current_status": "partial: current macOS-style non-modal Format Graph has Appearance, Data Sets on Graph and Graph Settings, plus Column Annotations for pairwise comparisons, with Apply/OK/Cancel and Change Graph Type. Current-dialog regression checks pass both builds. Complete family coverage, native transaction grouping and remaining annotation controls are open.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
-        "web/src/WorkbookDialogs.tsx"
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/graph-style.ts",
+        "web/src/plot-symbol.ts",
+        "web/src/plot-geometry.ts",
+        "web/src/workbook-style-identity.ts",
+        "web/src/workbook.ts",
+        "web/src/workbook-actions.ts",
+        "web/src/workbook-freeze.ts",
+        "docs/style-identity.md"
       ],
       "dependencies": [
         "G023",
@@ -1675,7 +1700,19 @@
         "Test edit/cancel, edit/apply/edit/cancel, multiple apply then undo; correct tabs by family."
       ],
       "audit_status": "partial",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [],
+      "validation_evidence": [
+        "web/src/workbook-style-identity.test.ts",
+        "web/src/plot-appearance.test.ts",
+        "tests/test_graph_styles.py",
+        "tests/test_export_options.py",
+        "scripts/check_style_identity.py",
+        "docs/validation/style-identity/manifest.json",
+        "docs/validation/style-identity/server/report.json",
+        "docs/validation/style-identity/static/report.json",
+        "scripts/check_format_graph.py"
+      ],
+      "latest_progress": "2026-10-20 current-main follow-up: 530 backend and 298 frontend tests; both builds; seven focused browser groups per build plus existing Format Graph checks. Exact scope and hashes: docs/validation/style-identity/manifest.json. No new native execution; preserve original acceptance obligations."
     },
     {
       "id": "G031",
@@ -1696,7 +1733,7 @@
         "Global Select Data Sets",
         "Return to one dataset for per-group overrides"
       ],
-      "current_status": "partial: persistent source-ID dataset colors for Column and XY survive reordering, committed graph removal/re-addition, save/import, source edits and frozen/thaw workflows. Other per-dataset styles and global/subset appearance controls remain open.",
+      "current_status": "partial: existing Global/all and single-dataset appearance controls use source-ID styles. Import/Add Data and data copy now remap identities; source deletion prunes missing IDs; omitted and frozen styles persist through save/import/re-addition/thaw as applicable. Arbitrary subset editing, remaining channels and native behavior remain open.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
@@ -1706,7 +1743,15 @@
         "web/src/workbook-graph-colors.ts",
         "web/src/workbook-graph-colors.test.ts",
         "web/src/graph-dataset-order.ts",
-        "scripts/check_dataset_order.py"
+        "scripts/check_dataset_order.py",
+        "web/src/graph-style.ts",
+        "web/src/plot-symbol.ts",
+        "web/src/plot-geometry.ts",
+        "web/src/workbook-style-identity.ts",
+        "web/src/workbook.ts",
+        "web/src/workbook-actions.ts",
+        "web/src/workbook-freeze.ts",
+        "docs/style-identity.md"
       ],
       "dependencies": [
         "G030",
@@ -1729,7 +1774,22 @@
         "Change size on subset then color on one; reorder/remove/add preserves style ownership."
       ],
       "audit_status": "partial",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [
+        "Retained REA XY interface decoding ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f; Appearance NIB SHA256 443996d58ae7e6ce26178b4c267c6ab19fc72ece16a2e7c7d8bf6ea3497ef781. Static controls only; no new native execution.",
+        "Retained REA Column interface decoding ev_ff9c5094b7f4562421c7eeb24cd8c987d2500186575f364afba7c00b229ecc31; Appearance NIB SHA256 2cebcc2cfff0da4744bae7c7d7afbc1c202bfc48073f9e5764451419a0de38c6. Static controls only; no new native execution."
+      ],
+      "validation_evidence": [
+        "web/src/workbook-style-identity.test.ts",
+        "web/src/plot-appearance.test.ts",
+        "tests/test_graph_styles.py",
+        "tests/test_export_options.py",
+        "scripts/check_style_identity.py",
+        "docs/validation/style-identity/manifest.json",
+        "docs/validation/style-identity/server/report.json",
+        "docs/validation/style-identity/static/report.json",
+        "scripts/check_format_graph.py"
+      ],
+      "latest_progress": "2026-10-20 current-main follow-up: 530 backend and 298 frontend tests; both builds; seven focused browser groups per build plus existing Format Graph checks. Exact scope and hashes: docs/validation/style-identity/manifest.json. No new native execution; preserve original acceptance obligations."
     },
     {
       "id": "G032",
@@ -1796,13 +1856,21 @@
         "Errors color, both/above/below, cap style, auto or 1/4-6pt width",
         "Mean lines color/thickness/style/pattern, underneath/on-top layering, short/long/extra-long"
       ],
-      "current_status": "partial: one dataset color reused across channels, show_points; hardcoded sizes/styles",
+      "current_status": "partial: current main has bar fill/pattern/border, four filled symbol shapes with size/color/visibility, error color/caps/direction/width and line width. This follow-up applies existing symbol rules to dense canvas and selection, preserves hidden-symbol export bounds and strictly validates numeric fields. Independent symbol borders, full line channels/layering, native physical units/defaults and complete parity remain open.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
         "gp/models.py",
         "gp/plotting.py",
-        "web/src/WorkbookDialogs.tsx"
+        "web/src/WorkbookDialogs.tsx",
+        "web/src/graph-style.ts",
+        "web/src/plot-symbol.ts",
+        "web/src/plot-geometry.ts",
+        "web/src/workbook-style-identity.ts",
+        "web/src/workbook.ts",
+        "web/src/workbook-actions.ts",
+        "web/src/workbook-freeze.ts",
+        "docs/style-identity.md"
       ],
       "dependencies": [
         "G031",
@@ -1834,7 +1902,22 @@
         }
       ],
       "audit_status": "partial",
-      "prism_reference_evidence": []
+      "prism_reference_evidence": [
+        "Retained REA XY interface decoding ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f; Appearance NIB SHA256 443996d58ae7e6ce26178b4c267c6ab19fc72ece16a2e7c7d8bf6ea3497ef781. Static controls only; no new native execution.",
+        "Retained REA Column interface decoding ev_ff9c5094b7f4562421c7eeb24cd8c987d2500186575f364afba7c00b229ecc31; Appearance NIB SHA256 2cebcc2cfff0da4744bae7c7d7afbc1c202bfc48073f9e5764451419a0de38c6. Static controls only; no new native execution."
+      ],
+      "validation_evidence": [
+        "web/src/workbook-style-identity.test.ts",
+        "web/src/plot-appearance.test.ts",
+        "tests/test_graph_styles.py",
+        "tests/test_export_options.py",
+        "scripts/check_style_identity.py",
+        "docs/validation/style-identity/manifest.json",
+        "docs/validation/style-identity/server/report.json",
+        "docs/validation/style-identity/static/report.json",
+        "scripts/check_format_graph.py"
+      ],
+      "latest_progress": "2026-10-20 current-main follow-up: 530 backend and 298 frontend tests; both builds; seven focused browser groups per build plus existing Format Graph checks. Exact scope and hashes: docs/validation/style-identity/manifest.json. No new native execution; preserve original acceptance obligations."
     },
     {
       "id": "G034",
@@ -2372,7 +2455,7 @@
         "Add/replace/remove",
         "Top/up/reverse/down/bottom"
       ],
-      "current_status": "partial: XY front-first selected list and same-source Add/Remove/Top/Up/Reverse/Down/Bottom; Column left-to-right order; stable-ID colors persist across removal/reopen/re-addition. Cross-table Add/Replace and whole-artist/native layering parity remain open.",
+      "current_status": "partial: XY front-first and Column left-to-right same-source membership/order controls retain style ownership. Omission/save/import/re-addition, source reorder/rename, data duplication, source deletion and frozen/thaw behavior are covered. Cross-table Add/Replace and whole-artist/native layering parity remain open.",
       "implementation_evidence": [
         "web/src/data.ts",
         "web/src/Plot.tsx",
@@ -2384,7 +2467,15 @@
         "scripts/check_dataset_order.py",
         "docs/prism-graph-format-evidence.md",
         "web/src/workbook-graph-colors.ts",
-        "web/src/workbook-graph-colors.test.ts"
+        "web/src/workbook-graph-colors.test.ts",
+        "web/src/graph-style.ts",
+        "web/src/plot-symbol.ts",
+        "web/src/plot-geometry.ts",
+        "web/src/workbook-style-identity.ts",
+        "web/src/workbook.ts",
+        "web/src/workbook-actions.ts",
+        "web/src/workbook-freeze.ts",
+        "docs/style-identity.md"
       ],
       "dependencies": [
         "G019",
@@ -2408,8 +2499,22 @@
       "audit_status": "partial",
       "prism_reference_evidence": [
         "REA interface decoding ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f (XY resource controls)",
-        "REA interface decoding ev_ff9c5094b7f4562421c7eeb24cd8c987d2500186575f364afba7c00b229ecc31 (Column resource controls; not runtime behavior)"
-      ]
+        "REA interface decoding ev_ff9c5094b7f4562421c7eeb24cd8c987d2500186575f364afba7c00b229ecc31 (Column resource controls; not runtime behavior)",
+        "Retained REA XY interface decoding ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f; Appearance NIB SHA256 443996d58ae7e6ce26178b4c267c6ab19fc72ece16a2e7c7d8bf6ea3497ef781. Static controls only; no new native execution.",
+        "Retained REA Column interface decoding ev_ff9c5094b7f4562421c7eeb24cd8c987d2500186575f364afba7c00b229ecc31; Appearance NIB SHA256 2cebcc2cfff0da4744bae7c7d7afbc1c202bfc48073f9e5764451419a0de38c6. Static controls only; no new native execution."
+      ],
+      "validation_evidence": [
+        "web/src/workbook-style-identity.test.ts",
+        "web/src/plot-appearance.test.ts",
+        "tests/test_graph_styles.py",
+        "tests/test_export_options.py",
+        "scripts/check_style_identity.py",
+        "docs/validation/style-identity/manifest.json",
+        "docs/validation/style-identity/server/report.json",
+        "docs/validation/style-identity/static/report.json",
+        "scripts/check_format_graph.py"
+      ],
+      "latest_progress": "2026-10-20 current-main follow-up: 530 backend and 298 frontend tests; both builds; seven focused browser groups per build plus existing Format Graph checks. Exact scope and hashes: docs/validation/style-identity/manifest.json. No new native execution; preserve original acceptance obligations."
     },
     {
       "id": "G046",

@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-10-21",
+  "base_register": "parity-audit.json",
+  "base_register_sha256": "b70def02033669db124a9b9bf78871f2ae9cbd910fbb942f902bed369c220b91",
+  "source_csv_sha256": "61d5e6bdb53e0c3c8f76ccd42322e7c52b3524ea8a5f469fc3486ed376a64dc8",
+  "scope": "Current assessment and evidence updates only; the complete original audit register and its submitted fields remain unchanged. check_requirements.py applies these updates before evidence gates and rejects stale baselines, unknown IDs or immutable-field changes.",
+  "updates": [
+    {
+      "id": "AUD-P1171",
+      "status": "partial",
+      "assessment": "partial",
+      "latest_progress": "2026-10-20: current main provides four filled built-in shapes (circle, square, triangle, diamond). This follow-up applies the same existing geometry to dense canvas, filters hidden hit targets and preserves source-ID ownership through import/copy. Both builds pass actual sparse/dense pixel and SVG checks. Open symbols, complete native shape inventory, custom shapes and reference geometry remain open.",
+      "implementation_evidence": [
+        "web/src/graph-style.ts",
+        "web/src/plot-symbol.ts",
+        "web/src/plot-geometry.ts",
+        "web/src/workbook-style-identity.ts",
+        "web/src/workbook.ts",
+        "web/src/workbook-actions.ts",
+        "web/src/workbook-freeze.ts",
+        "docs/style-identity.md",
+        "web/src/Plot.tsx",
+        "gp/models.py",
+        "gp/plotting.py"
+      ],
+      "validation_evidence": [
+        "web/src/workbook-style-identity.test.ts",
+        "web/src/plot-appearance.test.ts",
+        "tests/test_graph_styles.py",
+        "tests/test_export_options.py",
+        "scripts/check_style_identity.py",
+        "docs/validation/style-identity/manifest.json",
+        "docs/validation/style-identity/server/report.json",
+        "docs/validation/style-identity/static/report.json"
+      ],
+      "prism_reference_evidence": [
+        "Retained REA XY interface decoding ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f; Appearance NIB SHA256 443996d58ae7e6ce26178b4c267c6ab19fc72ece16a2e7c7d8bf6ea3497ef781. Static controls only; no new native execution.",
+        "Retained REA Column interface decoding ev_ff9c5094b7f4562421c7eeb24cd8c987d2500186575f364afba7c00b229ecc31; Appearance NIB SHA256 2cebcc2cfff0da4744bae7c7d7afbc1c202bfc48073f9e5764451419a0de38c6. Static controls only; no new native execution."
+      ],
+      "limitations": [
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "This checkpoint validates GP behavior against current-main f5d3eed sources. No live Prism execution or fresh REA operation occurred; original review_note and implementation_plan preserve the submitted audit planning history."
+      ]
+    },
+    {
+      "id": "AUD-P1172",
+      "status": "partial",
+      "assessment": "partial",
+      "latest_progress": "2026-10-20: current main provides per-dataset integer sizes 1–10; the follow-up shares existing size geometry with dense canvas and uses marker extents for hit testing and selection. A size-10 diamond is selectable 11 graph units from center at 200% zoom in both builds. These are GP graph units, not validated native physical points. Native Auto, physical scaling, export-size equality and layout comparisons remain open.",
+      "implementation_evidence": [
+        "web/src/graph-style.ts",
+        "web/src/plot-symbol.ts",
+        "web/src/plot-geometry.ts",
+        "web/src/workbook-style-identity.ts",
+        "web/src/workbook.ts",
+        "web/src/workbook-actions.ts",
+        "web/src/workbook-freeze.ts",
+        "docs/style-identity.md",
+        "web/src/Plot.tsx",
+        "gp/models.py",
+        "gp/plotting.py"
+      ],
+      "validation_evidence": [
+        "web/src/workbook-style-identity.test.ts",
+        "web/src/plot-appearance.test.ts",
+        "tests/test_graph_styles.py",
+        "tests/test_export_options.py",
+        "scripts/check_style_identity.py",
+        "docs/validation/style-identity/manifest.json",
+        "docs/validation/style-identity/server/report.json",
+        "docs/validation/style-identity/static/report.json"
+      ],
+      "prism_reference_evidence": [
+        "Retained REA XY interface decoding ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f; Appearance NIB SHA256 443996d58ae7e6ce26178b4c267c6ab19fc72ece16a2e7c7d8bf6ea3497ef781. Static controls only; no new native execution.",
+        "Retained REA Column interface decoding ev_ff9c5094b7f4562421c7eeb24cd8c987d2500186575f364afba7c00b229ecc31; Appearance NIB SHA256 2cebcc2cfff0da4744bae7c7d7afbc1c202bfc48073f9e5764451419a0de38c6. Static controls only; no new native execution."
+      ],
+      "limitations": [
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "This checkpoint validates GP behavior against current-main f5d3eed sources. No live Prism execution or fresh REA operation occurred; original review_note and implementation_plan preserve the submitted audit planning history."
+      ]
+    },
+    {
+      "id": "AUD-P1173",
+      "status": "partial",
+      "assessment": "partial",
+      "latest_progress": "2026-10-20: existing independent symbol colors remain attached to source-column IDs across standalone import, Add Data, data copy, graph omission/re-addition, source reorder/rename/deletion and frozen/thaw state. Dense pixels and actual SVG export preserve the selected colors; hidden symbols draw no marker. The current bar/error/line-width subset is preserved. Separate symbol-border and full independent line channels and native equivalence remain open.",
+      "implementation_evidence": [
+        "web/src/graph-style.ts",
+        "web/src/plot-symbol.ts",
+        "web/src/plot-geometry.ts",
+        "web/src/workbook-style-identity.ts",
+        "web/src/workbook.ts",
+        "web/src/workbook-actions.ts",
+        "web/src/workbook-freeze.ts",
+        "docs/style-identity.md",
+        "web/src/Plot.tsx",
+        "gp/models.py",
+        "gp/plotting.py"
+      ],
+      "validation_evidence": [
+        "web/src/workbook-style-identity.test.ts",
+        "web/src/plot-appearance.test.ts",
+        "tests/test_graph_styles.py",
+        "tests/test_export_options.py",
+        "scripts/check_style_identity.py",
+        "docs/validation/style-identity/manifest.json",
+        "docs/validation/style-identity/server/report.json",
+        "docs/validation/style-identity/static/report.json"
+      ],
+      "prism_reference_evidence": [
+        "Retained REA XY interface decoding ev_7134f710b640d3ba5f9c663eb9791aaaf2af296a4445119788468366552abc5f; Appearance NIB SHA256 443996d58ae7e6ce26178b4c267c6ab19fc72ece16a2e7c7d8bf6ea3497ef781. Static controls only; no new native execution.",
+        "Retained REA Column interface decoding ev_ff9c5094b7f4562421c7eeb24cd8c987d2500186575f364afba7c00b229ecc31; Appearance NIB SHA256 2cebcc2cfff0da4744bae7c7d7afbc1c202bfc48073f9e5764451419a0de38c6. Static controls only; no new native execution."
+      ],
+      "limitations": [
+        "Audit/source claims are attributed observations; they are not a new native execution or full-equivalence certificate. Complete each specified behavior and appropriate reference validation before closure.",
+        "This checkpoint validates GP behavior against current-main f5d3eed sources. No live Prism execution or fresh REA operation occurred; original review_note and implementation_plan preserve the submitted audit planning history."
+      ]
+    }
+  ]
+}

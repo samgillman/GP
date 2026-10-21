@@ -1,0 +1,9 @@
+{
+  "script": "scripts/check_format_graph.py",
+  "base": "http://127.0.0.1:8013",
+  "started_utc": "2026-10-20T23:51:02.406188+00:00",
+  "finished_utc": "2026-10-20T23:51:12.752325+00:00",
+  "elapsed_seconds": 10.346,
+  "exit_code": 0,
+  "output": "PASS: Prism window layout, Format Graph sheet, Global and per-data-set styles, drawing, undo/redo, reload, legend, double-click scope, SVG export, mobile wrapping\n"
+}

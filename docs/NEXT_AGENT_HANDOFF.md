@@ -2,6 +2,58 @@
 
 Prepared 2026-10-19, America/Chicago. This is a continuation checkpoint, **not completion of Prism parity**.
 
+## Latest continuation — 2026-10-20 UTC: dataset style identity and dense symbols
+
+Read [style identity](style-identity.md) and the newest execution-log entry first.
+This increment is based on main `f5d3eed93445879116eb6ef3788d2fdbfc71b85d`
+(merged PR #15). PRs #12–15 added newer user-directed macOS UI and behavior;
+preserve those changes, the current dialogs and the source-ID
+`Graph.dataset_styles` map. Export receives resolved positional `graph.styles`.
+There is no new style schema or workbook version in this follow-up.
+
+Fixed standalone-project/add-data and data-copy style remapping, deletion
+cleanup, frozen/thaw ownership, dense canvas shape/size/color/visibility,
+hidden/large point selection, hidden-symbol export bounds and strict numeric
+style/export-width validation. Source values, analysis inputs and the existing
+appearance defaults are preserved. Local verification: **530 backend and 298
+frontend tests**, both production builds, **19** checksum-verified static runtime
+packages, seven focused browser groups on each build, and the existing Format
+Graph check on each build. Portable reports/screenshots and exact source hashes
+are under `docs/validation/style-identity/`. Narrow-width containment was checked;
+full mobile usability was not established.
+
+The earlier local branch `feat/dataset-appearance` (`e6e6d45`) was based on
+`490be1e` and became obsolete while main advanced. Its publication stalled
+before any commit/ref update. It is retained only as local history: **do not merge
+its alternate positional style schema or old UI over current main**, and do not
+reuse its 536/282 test counts as validation of this increment. Current work is on
+`fix/dataset-style-identity` in `/workspace/scratch/ba9e7f63bfd5/GP`.
+
+This host has neither the original Prism artifacts nor a live Prism reference.
+No fresh REA run occurred. Reuse the recorded XY/Column Evidence IDs and hashes
+in the graph-format report, keeping the newer user/macOS observations separate.
+G031/G033/G045 and related option-level rows remain partial. Native size units,
+defaults, exact geometry, arbitrary subset editing and remaining style channels
+still require implementation/reference work. Continue the full registers rather
+than interpreting this repaired GP contract as complete Prism reconstruction.
+
+Current AUD-P1171–1173 assessments are in
+`docs/requirements/parity-audit-progress.json`, linked from `source-map.json`.
+The large original audit register remains byte-for-byte unchanged after its
+replacement upload repeatedly timed out. `check_requirements.py` applies the
+small current-assessment record before evidence gates and verifies its baseline
+hash and immutable fields. If the baseline is edited later, reconcile these
+updates and their recorded hash together; do not silently discard them.
+
+Published on 2026-10-21 in [PR #16](https://github.com/samgillman/GP/pull/16),
+with implementation/evidence commit
+`ece5479095011b495023f559ce62bbac01592ef8`. Its GitHub tree was verified identical
+to the locally tested tree. Consult that PR for the current hosted CI and merge
+state; this handoff records publication separately from those checks. A
+successful GitHub merge is not proof of a Cloudflare deployment. The older
+checkout paths, branch names, counts and publication states below describe
+historical sessions.
+
 ## 2026-10-20 continuation: native-informed XY line gaps
 
 [PR #9](https://github.com/samgillman/GP/pull/9) implements the currently

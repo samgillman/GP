@@ -472,6 +472,11 @@ def export_plot(request):
                             axis.scatter(x, y, zorder=3, **_point_kwargs(style, color))
                 elif style is None or style.symbols:
                     axis.scatter(x, y, label=column.name, **_point_kwargs(style, color, 26))
+                else:
+                    # Hiding symbols changes the drawing, not the data extent.
+                    # Retain scatter's bounds without adding invisible artists.
+                    axis.update_datalim(np.column_stack((x, y)))
+                    axis.autoscale_view()
                 fit = next((fit for fit in outcome["fit"] if fit["series"] == column.name), None)
                 if fit:
                     points = fit["points"]
@@ -505,9 +510,14 @@ def export_plot(request):
                         _styled_errors(axis, i, summary["mean"], error, style)
                 elif graph.type != "box":
                     axis.errorbar(i, summary["mean"], yerr=error, color="black", fmt="_", markersize=22, markeredgewidth=2, capsize=5, elinewidth=1.5, capthick=1.5, zorder=4)
-                if (style.symbols if style else graph.show_points or graph.type == "scatter"):
+                show_symbols = style.symbols if style else graph.show_points or graph.type == "scatter"
+                if show_symbols or style is not None:
                     jitter = np.random.default_rng(i).uniform(-.13, .13, size=len(y))
-                    axis.scatter(i+jitter, y, zorder=3, **_point_kwargs(style, color))
+                    if show_symbols:
+                        axis.scatter(i+jitter, y, zorder=3, **_point_kwargs(style, color))
+                    else:
+                        axis.update_datalim(np.column_stack((i+jitter, y)))
+                        axis.autoscale_view()
             if graph.type == "line":
                 means = [s["mean"] if s["mean"] is not None else np.nan
                          for s in outcome.get("graph_summary", outcome["summary"])]

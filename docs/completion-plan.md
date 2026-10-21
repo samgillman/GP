@@ -16,6 +16,7 @@ The latest **PRISM11_DIFFERENCES.md/HTML** takes precedence over the Prism 10 ba
 - [Prism 11 changes](requirements/prism11-deltas.json), including the latest uploaded revision.
 - [Source traceability manifest](requirements/source-map.json): every guide heading, existing coverage family, recovered equation and formula.
 - [Full 1,574-row parity plan](prism-parity-plan.csv), [unaltered submitted audit](sources/prism-parity.csv), and [option-level audit requirements](requirements/parity-audit.json): every supplied row has a concrete plan, verification work, original finding and mapped owners. The AUD-Pxxxx namespace preserves original Pxxxx identifiers without replacing earlier requirements.
+- [Current option-level assessments](requirements/parity-audit-progress.json) update the linked audit baseline without rewriting its submitted claims. The requirement checker applies these limited status/evidence updates before checking closure gates and rejects unknown IDs, immutable-field changes or a changed baseline requiring reconciliation.
 - [Shared dependency contracts](requirements/dependency-contracts.json): named infrastructure dependencies and accountable workstreams.
 - [Existing implementation coverage](prism-coverage.json): historical bounded evidence, refreshed when implementation changes.
 - [Execution log](completion-progress.md): actual completed work, commands/results, current work and remaining blockers. A plan entry is not implementation evidence.
@@ -24,18 +25,26 @@ The JSON/Markdown registers together are part of this plan; they enumerate optio
 
 ## Current graph work — 2026-10-20 UTC
 
-Persistent axes, decimal numbering and compact dialog/label spacing have been
-published and verified as bounded GP increments. G045 then adds a native-informed
-XY dataset list with working membership/order controls and fixes positional
-color swapping. See the execution log for the latest tested/published state.
-A new focused REA decode establishes Column-specific controls and an archived
-Annotations tab, preventing accidental reuse of the XY layout as a native claim.
+The current continuation starts from merged PR #15 (`f5d3eed`), including the
+newer macOS window, scoped Appearance controls, Magic/color schemes, in-place
+editors, Analyze Data and Export dialogs. It preserves their existing
+source-ID `graph.dataset_styles` contract. The [style identity follow-up](style-identity.md)
+remaps styles when importing a single-table project or copying data, prunes
+deleted source IDs while retaining omitted/frozen styles, and makes dense
+canvas symbols and point selection follow the current appearance settings.
+Default-axis exports retain observation bounds when symbols are hidden;
+numeric style/export-width options reject boolean/string coercion.
 
-These increments do not close graph parity. Continue with stable persistent
-dataset styles and scoped appearance editing, cross-table Add/Replace, complete
-Column and XY Graph Settings/Annotations, scientific/other numbering modes,
-additional scales, frame/origin/right-axis behavior and native default/layout
-comparisons. Every broader graph-register obligation remains tracked.
+Validation is scoped to GP: 530 backend and 298 frontend tests, both production
+builds, and focused server/static Chromium workflows. The execution log records
+the evidence and publication state. Retained XY and Column REA records establish
+native controls; no new native execution or resource analysis occurred here.
+
+G031/G033/G045 remain partial. Continue with cross-table Add/Replace, arbitrary
+subset appearance editing, remaining symbol/line channels, complete Column and
+XY Graph Settings/Annotations, scientific/other numbering modes, additional
+scales, frame/origin/right-axis behavior and native default/layout comparisons.
+Every broader graph-register obligation remains tracked.
 
 ## Column statistical audit checkpoint — 2026-10-20 UTC
 
