@@ -2,10 +2,11 @@ import { useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { fmt, palette } from "./data";
 import { formatAxisTick } from "./axis-number-format";
 import { columnPageLayout, plotLabelLayout } from "./plot-label-layout";
-import { plottedDatasetStyles, ptToPx, symbolPath, symbolRadius } from "./graph-style";
+import { ptToPx, symbolPath, symbolRadius } from "./graph-style";
 import type { ResolvedDatasetStyle } from "./graph-style";
 import { cssFont, resolveTextStyle, TEXT_OBJECTS, textStyleProps } from "./graph-text";
 import type { ResolvedTextStyle, TextObject } from "./graph-text";
+import { symbolSelectionRadius } from "./plot-symbol";
 import {
   buildPlotGeometry,
   DENSE_POINT_THRESHOLD,
@@ -63,7 +64,7 @@ function DensePoints({
         aria-label={
           selection
             ? "Selected observations from the data table"
-            : `${geometry.count.toLocaleString()} observations rendered in full. Overlapping observations may cover one another.`
+            : `${geometry.symbolCount.toLocaleString()} observations rendered in full. Overlapping observations may cover one another.`
         }
       />
     </foreignObject>
@@ -89,7 +90,7 @@ function DatasetSymbol({
   const radius = symbolRadius(style.symbol_size);
   // Circles stay <circle> elements so existing point lookups keep working.
   return style.symbol_shape === "circle" ? (
-    <circle cx={cx} cy={cy} r={radius} fill={style.symbol_color}>
+    <circle cx={cx} cy={cy} r={radius} fill={style.symbol_color} data-observation="true" data-symbol="circle">
       {children}
     </circle>
   ) : (
@@ -97,6 +98,7 @@ function DatasetSymbol({
       d={symbolPath(style.symbol_shape, radius)}
       transform={`translate(${cx} ${cy})`}
       fill={style.symbol_color}
+      data-observation="true"
       data-symbol={style.symbol_shape}
     >
       {children}
@@ -272,10 +274,6 @@ export default function Plot({
   const { graph } = project;
   const xyTable = project.table_type === "xy";
   const clipId = useId().replace(/:/g, "");
-  const styles = useMemo(
-    () => plottedDatasetStyles(graph, project.columns, xyTable, palette),
-    [graph, project.columns, xyTable],
-  );
   const showLegend = graph.show_legend ?? xyTable;
   const computed = useMemo(() => {
     try { return { geometry: buildPlotGeometry(project, result, annotations), error: null }; }
@@ -341,6 +339,7 @@ export default function Plot({
     onLabelLayout?.({ slanted });
   }, [slanted, onLabelLayout]);
   const geometry = plotted?.geometry ?? null;
+  const styles = geometry?.series.map(series => series.style) ?? [];
   const findPoint = useMemo(
     () => (geometry ? pointHitIndex(geometry) : null),
     [geometry],
@@ -351,15 +350,13 @@ export default function Plot({
   }, [geometry]);
   function hitAt(clientX: number, clientY: number) {
     const matrix = svgRef.current?.getScreenCTM();
-    if (!matrix || !findPoint || !styles.some(style => style.symbols)) return null;
+    if (!matrix || !findPoint) return null;
     const p = new DOMPoint(clientX, clientY).matrixTransform(matrix.inverse());
-    const hit = findPoint(
+    return findPoint(
       p.x,
       p.y,
       Math.min(30, Math.max(6, 12 / Math.hypot(matrix.a, matrix.b))),
     );
-    // Points of a data set with hidden symbols cannot be hovered or selected.
-    return hit && styles[hit.seriesIndex]?.symbols ? hit : null;
   }
   function showTooltip(
     hit: PointHit,
@@ -459,7 +456,7 @@ export default function Plot({
     ph = H - top - bottom;
   const plotRight = W - right, plotBottom = H - bottom;
   const editAxis = (axis: "x" | "y", event: React.MouseEvent) => { event.stopPropagation(); onFormatAxes?.(axis); };
-  const dense = styles.some(style => style.symbols) && count > DENSE_POINT_THRESHOLD;
+  const dense = geometry.symbolCount > DENSE_POINT_THRESHOLD;
   const slot = series.length ? pw / (series.length + 0.2) : pw;
   // An explicit Column spacing sets the bar width as a share of its slot.
   const bw = !xy && graph.type === "bar" && graph.column_space_percent != null
@@ -622,7 +619,7 @@ export default function Plot({
             <desc>
               {count.toLocaleString()} observations.{" "}
               {dense
-                ? "Every point is drawn on a canvas layer; no observations are sampled or aggregated. Overlapping points may cover one another."
+                ? "Every visible symbol is drawn on a canvas layer; no observations are sampled or aggregated. Overlapping points may cover one another."
                 : ""}
             </desc>
             <rect width={W} height={H} fill="white" />
@@ -682,7 +679,7 @@ export default function Plot({
               const errorShown = !xy && graph.error !== "none" && graph.type !== "box" && v.length > 0 && style.error_bars;
               const up = style.error_direction !== "below", down = style.error_direction !== "above";
               const capHalf = style.error_cap === "T" ? 7 : 0;
-              return <g key={i} data-dataset={s.name} onDoubleClick={event => { event.stopPropagation(); if (onSelectDataset) onSelectDataset(i); else onFormatGraph?.(); }}>
+              return <g key={i} data-dataset={s.name} data-dataset-id={project.columns[i + (xy ? 1 : 0)]?.id} onDoubleClick={event => { event.stopPropagation(); if (onSelectDataset) onSelectDataset(i); else onFormatGraph?.(); }}>
                 {!xy && graph.type === "bar" && v.length > 0 && geometry.validY(s.mean) && Math.max(s.mean, baseline) >= geometry.minY && Math.min(s.mean, baseline) <= geometry.maxY && fill({ x: cx - bw / 2, y: Math.min(yy(s.mean), yy(baseline)), width: bw, height: Math.abs(yy(baseline) - yy(s.mean)) })}
                 {!xy && graph.type === "box" && v.length > 0 && s.quartiles && <g {...stroke}>
                   {stem(s.min, s.quartiles[0])}{stem(s.quartiles[2], s.max)}{cap(s.min, bw / 4, "min")}{cap(s.max, bw / 4, "max")}
@@ -712,6 +709,7 @@ export default function Plot({
                 selectedPoint === undefined ? localSelection : selectedPoint;
               if (!selection) return null;
               const dataset = series[selection.seriesIndex];
+              if (!dataset?.style.symbols) return null;
               const index =
                 dataset?.points.findIndex(
                   (point) => point.row === selection.row,
@@ -724,7 +722,7 @@ export default function Plot({
                   data-selected-point="true"
                   cx={x(point.x) + (!xy ? jitter(index) : 0)}
                   cy={y(point.y)}
-                  r="7"
+                  r={symbolSelectionRadius(dataset.style)}
                   fill="none"
                   stroke="#0866db"
                   strokeWidth="2.5"
@@ -878,7 +876,7 @@ export default function Plot({
           {geometry.logY && graph.type === "bar" && <p role="note" className="plot-note">Logarithmic bars start at the lower displayed Y limit, not zero. Nonpositive means and interval caps cannot be displayed.</p>}
           {dense && (
             <p className="plot-note">
-              {count.toLocaleString()} valid-coordinate points · Canvas display. Only points within the axis limits are drawn; no sampling is used. Overlapping points may cover one another.
+              {geometry.symbolCount.toLocaleString()} individual symbols · Canvas display. Only points within the axis limits are drawn; no sampling is used. Overlapping points may cover one another.
             </p>
           )}
           {children}

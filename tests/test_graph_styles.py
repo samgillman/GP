@@ -1,8 +1,10 @@
 """Format Graph > Appearance styles reach exported files (web/src/graph-style.ts)."""
 import pytest
 from fastapi.testclient import TestClient
+from matplotlib.figure import Figure
 from pydantic import ValidationError
 
+from gp import plotting
 from gp.models import ExportRequest
 from gp.plotting import export_plot
 from gp.server import app
@@ -85,6 +87,81 @@ def test_style_count_and_values_are_validated():
         ExportRequest(data=COLUMN, graph={"styles": [style("#1e8a80", extra=True)] * 3})
     with pytest.raises(ValidationError):
         ExportRequest(data=COLUMN, graph={"x_tick_rotation": 30})
+
+
+@pytest.mark.parametrize("field", ["border_width", "error_width", "line_width"])
+@pytest.mark.parametrize("value", [True, False, "1"])
+def test_style_weights_require_numeric_choices(field, value):
+    with pytest.raises(ValidationError) as error:
+        ExportRequest(data=XY, graph={"styles": [style("#1e8a80", **{field: value})]})
+    assert error.value.errors()[0]["loc"] == ("graph", "styles", 0, field)
+
+
+@pytest.mark.parametrize("weight", [.25, .5, 1, 1.0, 1.5, 2, 3, 4])
+def test_style_weights_keep_supported_integer_and_decimal_numbers(weight):
+    requested = style("#1e8a80", border_width=weight, error_width=weight, line_width=weight)
+    resolved = ExportRequest(data=XY, graph={"styles": [requested]}).graph.styles[0]
+    assert (resolved.border_width, resolved.error_width, resolved.line_width) == (weight,) * 3
+
+
+@pytest.mark.parametrize("field", ["border_width", "error_width", "line_width"])
+def test_api_rejects_boolean_style_weights(field):
+    response = client.post("/api/export", json={
+        "data": XY, "graph": {"styles": [style("#1e8a80", **{field: True})]},
+    })
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["loc"] == ["body", "graph", "styles", 0, field]
+
+
+@pytest.mark.parametrize("table_type", ["column", "xy"])
+@pytest.mark.parametrize("configured", [False, True])
+def test_hiding_symbols_keeps_all_data_bounds_and_scientific_inputs(monkeypatch, table_type, configured):
+    if table_type == "xy":
+        data = {"table_type": "xy", "columns": [
+            {"name": "X", "values": [1, 2, 3, 4]},
+            {"name": "High", "values": [100, 200, 300, 400]},
+            {"name": "Low", "values": [1, 2, 3, 4]},
+        ]}
+        expected_y = (-100, 500) if configured else (-18.95, 419.95)
+        expected_x = (0, 5) if configured else (.85, 4.15)
+    else:
+        data = {"table_type": "column", "columns": [
+            {"name": "Outlier", "values": [0, 0, 0, 1000]},
+            {"name": "Low", "values": [1, 2, 3, 4]},
+        ]}
+        expected_y = (-250, 1250) if configured else (-50, 1050)
+        expected_x = (-.6, 1.6) if configured else (-.36428571428571427, 1.3642857142857142)
+    renders, scientific_requests = [], []
+    save, analyze = Figure.savefig, plotting.analyze
+
+    def capture(figure, *args, **kwargs):
+        result = save(figure, *args, **kwargs)
+        axis = figure.axes[0]
+        renders.append((axis.get_xlim(), axis.get_ylim(), len(axis.collections)))
+        return result
+
+    def analyze_all(request):
+        scientific_requests.append(request.model_dump())
+        return analyze(request)
+
+    monkeypatch.setattr(Figure, "savefig", capture)
+    monkeypatch.setattr(plotting, "analyze", analyze_all)
+    for visibility in ((True, True), (False, True), (False, False)):
+        graph = {"type": "scatter", "error": "none", "show_legend": False,
+                 "styles": [style(color, symbols=shown, error_bars=False)
+                            for color, shown in zip(("#1e8a80", "#cf7a24"), visibility)]}
+        if configured:
+            graph["axes"] = {}
+        request = ExportRequest(data=data, graph=graph)
+        original = request.model_dump()
+        assert export_plot(request).startswith(b"<?xml")
+        assert request.model_dump() == original
+        assert scientific_requests[-1] == original["data"]
+        xlim, ylim, collections = renders[-1]
+        assert xlim == pytest.approx(expected_x)
+        assert ylim == pytest.approx(expected_y)
+        assert collections == sum(visibility), "hidden symbols must not add artists"
+    assert renders[0][:2] == renders[1][:2] == renders[2][:2]
 
 
 def test_api_exports_styled_pdf_and_png():

@@ -138,6 +138,15 @@ class DatasetStyle(BaseModel):
     error_width: LineWeight
     line_width: LineWeight
 
+    @field_validator("border_width", "error_width", "line_width", mode="before")
+    @classmethod
+    def reject_boolean_weights(cls, value):
+        # Literal numeric choices otherwise accept True as the equal value 1,
+        # even with strict model validation.
+        if isinstance(value, bool):
+            raise ValueError("Line weights must be numeric, not boolean.")
+        return value
+
 
 class GraphAxes(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -209,7 +218,7 @@ class ExportRequest(BaseModel):
     # the 160 dpi default. width_inches enlarges or shrinks the whole graph
     # (text included) to that width; None exports the actual 7.5 x 5 in size.
     dpi: Literal[72, 150, 300, 600, 1200] | None = None
-    width_inches: float | None = Field(default=None, ge=1, le=20)
+    width_inches: float | None = Field(default=None, strict=True, ge=1, le=20)
     transparent: StrictBool = False
 
     @model_validator(mode="after")

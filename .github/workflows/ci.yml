@@ -93,6 +93,8 @@ jobs:
           python scripts/check_column_spacing.py http://127.0.0.1:8002
           GP_FORMAT_GRAPH_EVIDENCE=test-results/format-graph-static python scripts/check_format_graph.py http://127.0.0.1:8001
           GP_FORMAT_GRAPH_EVIDENCE=test-results/format-graph-server python scripts/check_format_graph.py http://127.0.0.1:8002
+          GP_STYLE_IDENTITY_EVIDENCE=test-results/style-identity-static python scripts/check_style_identity.py http://127.0.0.1:8001
+          GP_STYLE_IDENTITY_EVIDENCE=test-results/style-identity-server python scripts/check_style_identity.py http://127.0.0.1:8002
           python scripts/check_prism_behaviors.py http://127.0.0.1:8001
           python scripts/check_prism_behaviors.py http://127.0.0.1:8002
           python scripts/check_prism_dialogs.py http://127.0.0.1:8001

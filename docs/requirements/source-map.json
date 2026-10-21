@@ -22908,6 +22908,7 @@
       "AUD-P1572",
       "AUD-P1573",
       "AUD-P1574"
-    ]
+    ],
+    "assessment_updates_path": "docs/requirements/parity-audit-progress.json"
   }
 }

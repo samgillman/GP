@@ -2,6 +2,9 @@ import { numeric, palette } from "./data.ts";
 import type { Project, Response } from "./data.ts";
 import { axesSettingsProblem, defaultGraphAxes } from "./axes.ts";
 import type { AxisSettings } from "./axes.ts";
+import { plottedDatasetStyles, symbolRadius } from "./graph-style.ts";
+import type { ResolvedDatasetStyle } from "./graph-style.ts";
+import { symbolExtent, symbolSelectionRadius, symbolVertices } from "./plot-symbol.ts";
 
 export const DENSE_POINT_THRESHOLD = 5_000;
 export const plotFrame = {
@@ -25,6 +28,7 @@ export type PlotSeries = {
   min: number;
   max: number;
   color: string;
+  style: ResolvedDatasetStyle;
   quartiles: [number, number, number] | null;
 };
 function safe(value: string): number | null {
@@ -141,6 +145,7 @@ export function configuredTicks(min: number, max: number, log: boolean, axis: Ax
 export function buildPlotGeometry(project: Project, result: Response | null, annotations: PlotAnnotation[] = []) {
   const { graph, columns } = project;
   const xy = project.table_type === "xy", axes = graph.axes ?? defaultGraphAxes();
+  const styles = plottedDatasetStyles(graph, columns, xy, palette);
   const problem = axesSettingsProblem(axes, xy, result?.analysis === "dose_response");
   if (problem) throw new Error(problem);
   const logX = xy && (axes.x.scale === "log10" || (axes.x.scale === "auto" && result?.analysis === "dose_response"));
@@ -185,7 +190,7 @@ export function buildPlotGeometry(project: Project, result: Response | null, ann
       const ordered = values.slice().sort((a, b) => a - b);
       quartiles = [sortedQuantile(ordered, .25), sortedQuantile(ordered, .5), sortedQuantile(ordered, .75)];
     }
-    return { name: column.name, points, linePoints, values, mean, lo, hi, min, max, quartiles, color: graph.colors[index % graph.colors.length] || palette[index % palette.length] };
+    return { name: column.name, points, linePoints, values, mean, lo, hi, min, max, quartiles, color: styles[index].color, style: styles[index] };
   });
   // Keep invalid log coordinates as explicit gaps in line paths, while point layers omit them.
   const fits = (result?.fit ?? []).map(fit => ({ ...fit, linePoints: fit.points, points: fit.points.filter(p => validX(p.x) && validY(p.y)) }));
@@ -234,7 +239,8 @@ export function buildPlotGeometry(project: Project, result: Response | null, ann
   const logOmittedSummary = logY && !xy && series.some(s => s.values.length > 0 && (
     graph.type === "box" ? [s.min, s.max, ...(s.quartiles ?? [])].some(v => v <= 0) :
     (graph.type === "bar" && s.mean <= 0) || (graph.error !== "none" && [s.mean, s.lo, s.hi].some(v => v <= 0))));
-  return { series, fits, count, totalCount, logOmittedCount, logOmittedSummary, xy, logX, logY, axes, minX, maxX, minY, maxY, xTicks, yTicks, brackets, frame: plotFrame, ...plotProjection({ minX, maxX, minY, maxY, logX, logY, axes }, plotFrame) };
+  const symbolCount = series.reduce((total, item) => total + (item.style.symbols ? item.points.length : 0), 0);
+  return { series, fits, count, symbolCount, totalCount, logOmittedCount, logOmittedSummary, xy, logX, logY, axes, minX, maxX, minY, maxY, xTicks, yTicks, brackets, frame: plotFrame, ...plotProjection({ minX, maxX, minY, maxY, logX, logY, axes }, plotFrame) };
 }
 export type PlotGeometry = NonNullable<ReturnType<typeof buildPlotGeometry>>;
 /** Reproject the already-computed series; label layout must not rescan large tables. */
@@ -293,31 +299,32 @@ function plotProjection(domain: {
   return { x, y, validY, visible, boundedY, linePath };
 }
 
-/** Every observation is drawn, in the same series/row order as the SVG mode. */
+/** Every visible symbol is drawn, in the same series/row order as the SVG mode. */
 export function drawDensePoints(
   context: CanvasRenderingContext2D,
   geometry: PlotGeometry,
 ) {
   clipCanvas(context, geometry.frame);
   for (const series of geometry.series) {
-    context.fillStyle = series.color;
-    context.strokeStyle = "white";
-    context.lineWidth = 1.1;
+    if (!series.style.symbols) continue;
+    const radius = symbolRadius(series.style.symbol_size);
+    const vertices = symbolVertices(series.style.symbol_shape, radius);
+    context.fillStyle = series.style.symbol_color;
     for (let j = 0; j < series.points.length; j++) {
       const point = series.points[j];
       if (!geometry.visible(point)) continue;
       const cx =
         geometry.x(point.x) + (!geometry.xy ? (((j * 17) % 11) - 5) * 2.1 : 0);
+      const cy = geometry.y(point.y);
       context.beginPath();
-      context.arc(
-        cx,
-        geometry.y(point.y),
-        geometry.xy ? 4 : 3.6,
-        0,
-        2 * Math.PI,
-      );
+      if (!vertices.length) context.arc(cx, cy, radius, 0, 2 * Math.PI);
+      else {
+        context.moveTo(cx + vertices[0][0], cy + vertices[0][1]);
+        for (let k = 1; k < vertices.length; k++)
+          context.lineTo(cx + vertices[k][0], cy + vertices[k][1]);
+        context.closePath();
+      }
       context.fill();
-      context.stroke();
     }
   }
   context.restore();
@@ -335,7 +342,10 @@ export type PointHit = PointReference & {
 export function pointHitIndex(geometry: PlotGeometry) {
   const size = 16;
   const bins = new Map<string, PointHit[]>();
+  const markerExtents = geometry.series.map(series => series.style.symbols ? symbolExtent(series.style) : 0);
+  const largestMarker = markerExtents.reduce((largest, extent) => Math.max(largest, extent), 0);
   geometry.series.forEach((series, seriesIndex) => {
+    if (!series.style.symbols) return;
     series.points.forEach((point, pointIndex) => {
       if (!geometry.visible(point)) return;
       const px =
@@ -358,22 +368,26 @@ export function pointHitIndex(geometry: PlotGeometry) {
   });
   return (px: number, py: number, radius = 12): PointHit | null => {
     if (px < geometry.frame.left || px > geometry.frame.width - geometry.frame.right || py < geometry.frame.top || py > geometry.frame.height - geometry.frame.bottom) return null;
+    if (!Number.isFinite(radius) || radius < 0) return null;
+    const searchRadius = Math.max(radius, largestMarker);
     let best: PointHit | null = null,
-      distance = radius * radius;
+      distance = Infinity;
     for (
-      let bx = Math.floor((px - radius) / size);
-      bx <= Math.floor((px + radius) / size);
+      let bx = Math.floor((px - searchRadius) / size);
+      bx <= Math.floor((px + searchRadius) / size);
       bx++
     ) {
       for (
-        let by = Math.floor((py - radius) / size);
-        by <= Math.floor((py + radius) / size);
+        let by = Math.floor((py - searchRadius) / size);
+        by <= Math.floor((py + searchRadius) / size);
         by++
       ) {
         const bin = bins.get(`${bx},${by}`);
         if (!bin) continue;
         for (const point of bin) {
           const d = (point.px - px) ** 2 + (point.py - py) ** 2;
+          const hitRadius = Math.max(radius, markerExtents[point.seriesIndex]);
+          if (d > hitRadius * hitRadius) continue;
           // Equal-distance overlapping marks select the last drawn observation.
           if (
             d < distance ||
@@ -416,7 +430,8 @@ export function drawSelectedPoints(
   let count = 0;
   for (const [index, spans] of bySeries) {
     const series = geometry.series[index];
-    if (!series) continue;
+    if (!series?.style.symbols) continue;
+    const radius = symbolSelectionRadius(series.style);
     for (let j = 0; j < series.points.length; j++) {
       const point = series.points[j];
       if (!geometry.visible(point)) continue;
@@ -431,7 +446,7 @@ export function drawSelectedPoints(
       const px =
         geometry.x(point.x) + (!geometry.xy ? (((j * 17) % 11) - 5) * 2.1 : 0);
       context.beginPath();
-      context.arc(px, geometry.y(point.y), 7, 0, 2 * Math.PI);
+      context.arc(px, geometry.y(point.y), radius, 0, 2 * Math.PI);
       context.stroke();
       count++;
     }

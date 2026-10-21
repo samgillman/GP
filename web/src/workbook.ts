@@ -9,6 +9,7 @@ import {
 import type { ComparisonOptions } from "./column-analysis.ts";
 import { isHistoricalColumnOutput } from "./analysis-version.ts";
 import { normalizeGraphDatasetColors, remapGraphDatasetColors } from "./workbook-graph-colors.ts";
+import { remapDatasetStyleIds, retainDatasetStyles } from "./workbook-style-identity.ts";
 export const WORKBOOK_STORAGE = "gp.workbook.v2";
 /** Excluded observations by dataset ID, each listing row IDs in table order.
  * The entered text stays in the project; analyses and graphs treat it as missing.
@@ -287,6 +288,14 @@ export function fromProject(
     })),
     graph: structuredClone(project.graph),
   };
+  const identities = new Map<string, string>();
+  project.columns.forEach((column, index) => {
+    if (column.id === undefined) return;
+    if (identities.has(column.id) && Object.hasOwn(project.graph.dataset_styles ?? {}, column.id))
+      throw new Error("Styled source datasets must have unique IDs.");
+    identities.set(column.id, identified.columns[index].id);
+  });
+  identified.graph = remapDatasetStyleIds(identified.graph, identities);
   const rowIds = newRowIds(representedRowCount(identified));
   const requested: Exclusions = {};
   for (const { column, row } of excludedCells) {
@@ -321,7 +330,7 @@ export function fromProject(
         id: graphId,
         name: `${project.name} graph`,
         dataId,
-        graph: structuredClone(project.graph),
+        graph: structuredClone(identified.graph),
         ...datasetSelection(identified, dataIndices(identified)),
         resultId: null,
       },
@@ -397,6 +406,7 @@ export function updateData(
     ...(source.project.table_type !== next.table_type && next.graph.axes
       ? { graph: { ...next.graph, axes: axesForTableType(next.graph.axes, next.table_type === "xy") } } : {}),
   };
+  next = { ...next, graph: retainDatasetStyles(next.graph, columns) };
   const count = representedRowCount(next);
   if (count < source.rowIds.length && options.rowIds === undefined)
     throw new Error("Row deletions require an explicit row ID mapping.");
@@ -499,7 +509,7 @@ export function updateData(
           xChanged ||
           source.project.table_type !== next.table_type,
         graph: {
-          ...colorState.graph,
+          ...retainDatasetStyles(colorState.graph, next.columns),
           ...(s.graph.axes && source.project.table_type !== next.table_type
             ? { axes: axesForTableType(s.graph.axes, next.table_type === "xy") } : {}),
           type:
@@ -895,6 +905,7 @@ function validateFrozenSource(source: DataSheet, dataId: string) {
   ];
   if (!ids.every(validIdentity) || new Set(ids).size !== ids.length)
     throw new Error("Invalid or duplicate frozen source identities.");
+  source.project.graph = retainDatasetStyles(source.project.graph, source.project.columns);
   validateExclusions(source);
 }
 
@@ -1048,6 +1059,9 @@ export function parseWorkbook(text: string): Workbook {
         throw new Error("Missing, invalid, or duplicate dataset/row IDs.");
       stableIds.add(uid);
     }
+    // Older v4 files can retain well-formed styles for deleted datasets. These
+    // never render; remove only dangling keys after validating field values.
+    sheet.project.graph = retainDatasetStyles(sheet.project.graph, sheet.project.columns);
     validateExclusions(sheet);
   }
   for (const s of book.sheets) {
@@ -1060,6 +1074,7 @@ export function parseWorkbook(text: string): Workbook {
     validateSavedSelection(source, s);
     if (s.kind === "graph") {
       validateDraftProject({ ...source.project, graph: s.graph });
+      s.graph = retainDatasetStyles(s.graph, source.project.columns);
       if (s.datasetColors !== undefined)
         s.datasetColors = normalizeGraphDatasetColors(source.project, s).datasetColors;
       if (s.frozen && (s.selectionInvalid || !s.datasetIds.length))
