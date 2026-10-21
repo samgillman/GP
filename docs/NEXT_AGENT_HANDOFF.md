@@ -45,9 +45,14 @@ small current-assessment record before evidence gates and verifies its baseline
 hash and immutable fields. If the baseline is edited later, reconcile these
 updates and their recorded hash together; do not silently discard them.
 
-Publication and hosted CI must be checked on the current PR/commit. A successful
-GitHub merge is not proof of a Cloudflare deployment. The older checkout paths,
-branch names, counts and publication states below describe historical sessions.
+Published on 2026-10-21 in [PR #16](https://github.com/samgillman/GP/pull/16),
+with implementation/evidence commit
+`ece5479095011b495023f559ce62bbac01592ef8`. Its GitHub tree was verified identical
+to the locally tested tree. Consult that PR for the current hosted CI and merge
+state; this handoff records publication separately from those checks. A
+successful GitHub merge is not proof of a Cloudflare deployment. The older
+checkout paths, branch names, counts and publication states below describe
+historical sessions.
 
 ## 2026-10-20 continuation: native-informed XY line gaps
 

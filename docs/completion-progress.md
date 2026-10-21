@@ -51,8 +51,11 @@ assessments live in `requirements/parity-audit-progress.json`, linked from the
 source map and applied by the requirement checker before evidence gates. This
 small update record avoids the repeatedly timing-out full-file upload while
 validating its baseline hash, IDs and immutable source fields.
-GitHub publication, hosted CI and site deployment are separate verification
-steps; consult this increment's PR for their current state.
+Published on 2026-10-21 as [PR #16](https://github.com/samgillman/GP/pull/16),
+implementation/evidence commit `ece5479095011b495023f559ce62bbac01592ef8`.
+The assembled GitHub tree exactly matched the tested local tree. Hosted CI,
+merge and site deployment remain separate verification steps; consult the PR
+for their current state.
 
 ## 2026-10-20 continuation: XY missing-Y connecting-line gaps (PR #9)
 
