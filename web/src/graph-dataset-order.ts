@@ -96,3 +96,15 @@ export function colorsForDatasetIds(
   });
   return { colors, datasetColors: Object.fromEntries(next) };
 }
+
+/** Change › Reverse Data Set Order: the data sets keep their colors. */
+export function reverseGraphDatasets<T extends {
+  columnIndices: number[];
+  graph: Project["graph"];
+  datasetColors?: Record<string, string>;
+}>(project: Project, sheet: T): T {
+  const remembered = seedDatasetColors(project, sheet.columnIndices, sheet.graph.colors, sheet.datasetColors);
+  const columnIndices = [...sheet.columnIndices].reverse();
+  const result = colorsForDatasetIds(project, columnIndices, remembered);
+  return { ...sheet, columnIndices, graph: { ...sheet.graph, colors: result.colors }, datasetColors: result.datasetColors };
+}

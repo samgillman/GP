@@ -145,6 +145,28 @@ class GraphAxes(BaseModel):
     y: AxisSettings = Field(default_factory=AxisSettings)
 
 
+TextObject = Literal["title", "x_label", "y_label", "x_ticks", "y_ticks", "legend"]
+TEXT_SIZES = (6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 24, 28, 32, 36, 48, 72)
+
+
+class TextStyle(BaseModel):
+    """Text toolbar formatting of one graph text object (web/src/graph-text.ts).
+    Sizes are points on GP's graph page; unset fields keep the export's look."""
+    model_config = ConfigDict(extra="forbid")
+    font: Literal["Arial", "Helvetica", "Verdana", "Times New Roman", "Georgia", "Courier New"] | None = None
+    size: StrictInt | None = None
+    bold: StrictBool | None = None
+    italic: StrictBool | None = None
+    color: str | None = Field(default=None, pattern=r"^#[0-9a-fA-F]{6}$")
+
+    @field_validator("size")
+    @classmethod
+    def listed_size(cls, value):
+        if value is not None and value not in TEXT_SIZES:
+            raise ValueError(f"Text size must be one of {', '.join(map(str, TEXT_SIZES))} points.")
+        return value
+
+
 class GraphOptions(BaseModel):
     model_config = ConfigDict(extra="forbid")
     type: Literal["scatter", "bar", "box", "line"] = "scatter"
@@ -166,6 +188,8 @@ class GraphOptions(BaseModel):
     show_legend: StrictBool | None = None
     # Category labels slant 45 degrees when they are wider than their slot.
     x_tick_rotation: Literal[0, 45] = 0
+    # Text toolbar formatting; absent objects keep the earlier look.
+    text_styles: dict[TextObject, TextStyle] | None = None
 
 
 # Graph export: the page is 7.5 x 5 in at actual size.

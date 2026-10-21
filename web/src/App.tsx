@@ -33,7 +33,10 @@ import { applyColorScheme, COLOR_SCHEMES, plottedDatasetStyles } from "./graph-s
 import type { ColorSchemeName } from "./graph-style";
 import { makeGraphConsistent } from "./graph-magic";
 import type { MagicParts } from "./graph-magic";
-import { seedDatasetColors } from "./graph-dataset-order";
+import { reverseGraphDatasets, seedDatasetColors } from "./graph-dataset-order";
+import { reorderRows, reversedOrder, xValueOrder } from "./data-sort";
+import { formatText, resolveTextStyle, stepTextSize, TEXT_COLORS, TEXT_FONTS, TEXT_OBJECT_LABELS, TEXT_SIZES } from "./graph-text";
+import type { TextObject, TextStyle } from "./graph-text";
 import { selectionTSV } from "./data-grid";
 import {
   clampGraphZoom,
@@ -318,6 +321,8 @@ export default function App() {
   } | null>(null);
   /** File > Export for the current graph. */
   const [exportDialog, setExportDialog] = useState(false);
+  /** Graph text selected for the Text toolbar (title, axis titles, labels, legend). */
+  const [graphText, setGraphText] = useState<TextObject | null>(null);
   /** The navigator row being renamed in place. */
   const [renamingSheet, setRenamingSheet] = useState<string | null>(null);
   const [sheetMenu, setSheetMenu] = useState<{
@@ -887,6 +892,66 @@ export default function App() {
       { label: field === "title" ? "Edit graph title" : "Edit axis title" },
     );
   }
+  /** Text toolbar: format the selected graph text. */
+  function formatGraphText(change: TextStyle) {
+    if (!graphSheet || graphSheet.frozen || !graphText) return;
+    const id = graphSheet.id, object = graphText;
+    setWorkbook(
+      (w) => ({
+        ...w,
+        sheets: w.sheets.map((s) =>
+          s.id === id && s.kind === "graph" && !s.frozen
+            ? { ...s, graph: formatText(s.graph, object, change) }
+            : s,
+        ),
+      }),
+      { label: "Format text" },
+    );
+  }
+  /** Edit › Sort by X Value and Reverse Row Order. */
+  function reorderTableRows(kind: "x" | "reverse") {
+    if (active !== "data") return;
+    if (source.frozen) {
+      setError("Unfreeze this data table before reordering its rows.");
+      return;
+    }
+    try {
+      const count = source.rowIds.length;
+      const order = kind === "x" ? xValueOrder(source.project, count) : reversedOrder(count);
+      if (order.every((row, i) => row === i)) {
+        setNotice(kind === "x" ? "Rows are already in X order." : "There is only one row.");
+        return;
+      }
+      const next = reorderRows(source.project, source.rowIds, order);
+      controller.current?.abort();
+      revision.current++;
+      setBusy(false);
+      setError("");
+      setWorkbook(
+        (w) => updateData(w, source.id, next.project, { rowIds: next.rowIds }),
+        { label: kind === "x" ? "Sort by X Value" : "Reverse Row Order" },
+      );
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
+  /** Change › Reverse Data Set Order; data sets keep their colors. */
+  function reverseDatasetOrder() {
+    if (!graphSheet || graphSheet.frozen) return;
+    const id = graphSheet.id;
+    setWorkbook(
+      (w) => ({
+        ...w,
+        sheets: w.sheets.map((s) => {
+          if (s.id !== id || s.kind !== "graph" || s.frozen) return s;
+          const data = sourceSheet(w, s);
+          const next = reverseGraphDatasets(data.project, s);
+          return { ...next, ...datasetSelection(data, next.columnIndices) };
+        }),
+      }),
+      { label: "Reverse Data Set Order" },
+    );
+  }
   const fileRef = useRef<HTMLInputElement>(null),
     projectRef = useRef<HTMLInputElement>(null),
     controller = useRef<AbortController | null>(null),
@@ -910,6 +975,7 @@ export default function App() {
     revision.current++;
     setBusy(false);
     setResultTab("");
+    setGraphText(null);
   }, [workbook.activeSheetId]);
   // Declared after the sheet-change effect above, which cancels running
   // analyses, so an analysis chosen for another table starts after it.
@@ -1985,6 +2051,20 @@ export default function App() {
             <button role="menuitem" onClick={() => startRename(selectedSheet.id)}>
               Rename sheet
             </button>
+            <button
+              role="menuitem"
+              disabled={active !== "data" || !xy || !!source.frozen}
+              onClick={() => reorderTableRows("x")}
+            >
+              Sort by X Value
+            </button>
+            <button
+              role="menuitem"
+              disabled={active !== "data" || !!source.frozen}
+              onClick={() => reorderTableRows("reverse")}
+            >
+              Reverse Row Order
+            </button>
             <button role="menuitem" onClick={() => void copyData()}>
               Copy table as CSV
             </button>
@@ -2160,6 +2240,10 @@ export default function App() {
             <button role="menuitem" disabled={active !== "graph" || graphSheet?.frozen}
               onClick={() => openAxes()}>
               Format Axes…
+            </button>
+            <button role="menuitem" disabled={active !== "graph" || graphSheet?.frozen || (graphSheet?.columnIndices.length ?? 0) < 2}
+              onClick={reverseDatasetOrder}>
+              Reverse Data Set Order
             </button>
           </DesktopMenu>
           <DesktopMenu label="Arrange">
@@ -2404,7 +2488,18 @@ export default function App() {
                   disabled={!!graphSheet?.frozen}
                   onClick={() => openGraphFormatting()}
                 />
-                <Tool label="Sort" icon={ribbonIcons.sort} menu unavailable />
+                <DesktopMenu
+                  label="Data set order"
+                  className="rb-menu"
+                  summary={<span className="rb-tool" aria-label="Data set order" title="Data set order">{ribbonIcons.sort}{dropArrow}</span>}
+                >
+                  <button role="menuitem" disabled={!graphSheet || !!graphSheet.frozen || graphSheet.columnIndices.length < 2} onClick={reverseDatasetOrder}>
+                    Reverse Data Set Order
+                  </button>
+                  <button role="menuitem" disabled={!graphSheet || !!graphSheet.frozen} onClick={() => openGraphFormatting("Data Sets on Graph")}>
+                    Data Set Order &amp; Arrangement…
+                  </button>
+                </DesktopMenu>
               </div>
               <div className="rb-row">
                 <Tool
@@ -2500,7 +2595,23 @@ export default function App() {
               <RibbonGroup label="Data">
                 <div className="rb-row">
                   <Tool label="Transform" icon={ribbonIcons.transform} unavailable />
-                  <Tool label="Sort" icon={ribbonIcons.sort} menu unavailable />
+                  <DesktopMenu
+                    label="Sort"
+                    className="rb-menu"
+                    summary={<span className="rb-tool" aria-label="Sort" title="Sort rows">{ribbonIcons.sort}{dropArrow}</span>}
+                  >
+                    <button
+                      role="menuitem"
+                      disabled={!xy || !!source.frozen}
+                      title={xy ? undefined : "Sort by X Value needs an XY data table"}
+                      onClick={() => reorderTableRows("x")}
+                    >
+                      Sort by X Value
+                    </button>
+                    <button role="menuitem" disabled={!!source.frozen} onClick={() => reorderTableRows("reverse")}>
+                      Reverse Row Order
+                    </button>
+                  </DesktopMenu>
                 </div>
                 <div className="rb-row">
                   <Tool label="Decimal format" icon={ribbonIcons.decimals} unavailable />
@@ -2529,24 +2640,76 @@ export default function App() {
             </div>
           </RibbonGroup>
           <RibbonGroup label="Text">
-            <div className="rb-row">
-              <select className="rb-select rb-size" aria-label="Font size" title="Font size is not available in GP yet" disabled>
-                <option>12</option>
-              </select>
-              <select className="rb-select rb-font" aria-label="Font" title="Font is not available in GP yet" disabled>
-                <option>Helvetica</option>
-              </select>
-              <Tool label="Text color" text="A" textStyle={{ textDecoration: "underline", fontFamily: "Helvetica, Arial" }} unavailable />
-            </div>
-            <div className="rb-row">
-              <Tool label="Larger text" text="A" textStyle={{ fontSize: 17 }} unavailable />
-              <Tool label="Smaller text" text="A" textStyle={{ fontSize: 11 }} unavailable />
-              <Tool label="Bold" text="B" textStyle={{ fontWeight: 700 }} unavailable />
-              <Tool label="Italic" text="I" textStyle={{ fontStyle: "italic" }} unavailable />
-              <Tool label="Underline" text="U" textStyle={{ textDecoration: "underline" }} unavailable />
-              <Tool label="Superscript" text="x²" unavailable />
-              <Tool label="Subscript" text="x₂" unavailable />
-            </div>
+            {(() => {
+              const target = active === "graph" && graphSheet && !graphSheet.frozen ? graphText : null;
+              const current = target && graphSheet ? resolveTextStyle(graphSheet.graph, target) : null;
+              const hint = target ? `${TEXT_OBJECT_LABELS[target]}` : "Select text on a graph to format it";
+              return (
+                <>
+                  <div className="rb-row">
+                    <select
+                      className="rb-select rb-size"
+                      aria-label="Font size"
+                      title={target ? `Font size: ${hint}` : hint}
+                      disabled={!target}
+                      value={current?.size ?? 12}
+                      onChange={(e) => formatGraphText({ size: Number(e.target.value) })}
+                    >
+                      {!current && <option value={12}>12</option>}
+                      {current && TEXT_SIZES.map((size) => <option key={size} value={size}>{size}</option>)}
+                    </select>
+                    <select
+                      className="rb-select rb-font"
+                      aria-label="Font"
+                      title={target ? `Font: ${hint}` : hint}
+                      disabled={!target}
+                      value={current?.font ?? "Helvetica"}
+                      onChange={(e) => formatGraphText({ font: e.target.value as TextStyle["font"] })}
+                    >
+                      {TEXT_FONTS.map((font) => <option key={font} value={font}>{font}</option>)}
+                    </select>
+                    <DesktopMenu
+                      label="Text color"
+                      className="rb-menu"
+                      summary={
+                        <span className={`rb-tool tx${target ? "" : " is-off"}`} aria-label="Text color" title={target ? `Text color: ${hint}` : hint}>
+                          <span style={{ fontFamily: "Helvetica, Arial", textDecoration: "underline", textDecorationColor: current?.color ?? "currentColor", textDecorationThickness: 2 }}>A</span>
+                          {dropArrow}
+                        </span>
+                      }
+                    >
+                      {TEXT_COLORS.map(([name, color]) => (
+                        <button
+                          role="menuitemradio"
+                          key={color}
+                          aria-checked={current?.color === color}
+                          disabled={!target}
+                          onClick={() => formatGraphText({ color })}
+                        >
+                          <span className="hl-choice">
+                            <span className="hl-swatch" style={{ background: color }} aria-hidden="true" />
+                            {name}
+                          </span>
+                        </button>
+                      ))}
+                    </DesktopMenu>
+                  </div>
+                  <div className="rb-row">
+                    <Tool label="Larger text" text="A" textStyle={{ fontSize: 17 }} title={hint} disabled={!current}
+                      onClick={() => current && formatGraphText({ size: stepTextSize(current.size, 1) })} />
+                    <Tool label="Smaller text" text="A" textStyle={{ fontSize: 11 }} title={hint} disabled={!current}
+                      onClick={() => current && formatGraphText({ size: stepTextSize(current.size, -1) })} />
+                    <Tool label="Bold" text="B" textStyle={{ fontWeight: 700 }} title={hint} disabled={!current} pressed={current ? current.bold : undefined}
+                      onClick={() => current && formatGraphText({ bold: !current.bold })} />
+                    <Tool label="Italic" text="I" textStyle={{ fontStyle: "italic" }} title={hint} disabled={!current} pressed={current ? current.italic : undefined}
+                      onClick={() => current && formatGraphText({ italic: !current.italic })} />
+                    <Tool label="Underline" text="U" textStyle={{ textDecoration: "underline" }} unavailable />
+                    <Tool label="Superscript" text="x²" unavailable />
+                    <Tool label="Subscript" text="x₂" unavailable />
+                  </div>
+                </>
+              );
+            })()}
           </RibbonGroup>
           <RibbonGroup label="Export">
             <Tool
@@ -3182,6 +3345,8 @@ export default function App() {
                       onSelectDataset={openGraphDatasetFormatting}
                       onEditText={field => openAxes(field === "x_label" ? "x" : "y")}
                       onChangeText={graphSheet && !graphSheet.frozen ? editGraphText : undefined}
+                      selectedText={graphText}
+                      onSelectText={graphSheet && !graphSheet.frozen ? setGraphText : undefined}
                       annotations={pairwiseAnnotations}
                     >
                     {project.graph.error === "ci" && !result && !xy && (
